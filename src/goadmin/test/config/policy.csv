@@ -1,0 +1,3 @@
+p, test, /api/v1/store, GET
+p, admin, /api/v1/store, POST
+p, test, /api/v1/store, POST
