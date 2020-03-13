@@ -1,6 +1,9 @@
 #  go-admin  
 
-
+  <a href="https://github.com/wenjianzhang/go-admin/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
+  </a>
+  
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统
 
 
@@ -40,25 +43,20 @@
 ## 📦 本地开发
 
 
-step 1:
 ```bash
+# step 1:
 git clone https://e.coding.net/wenjianzhang/go-admin.git
-```
-step 2:
-```bash
-cd ./goadmin/src/goadmin
-```
-step 3:
-```bash
-go build
-```
 
-step 4:
-```bash
+# step 2:
+cd ./goadmin/src/goadmin
+
+# step 3:
+go build
+
+# step 4:
 vi ./config/setting.yml (更改isinit和数据库连接)
-```
-step 5:
-```bash
+
+# step 5:
 ./goadmin
 ```
 
@@ -75,14 +73,14 @@ go get -u github.com/swaggo/swag/cmd/swag
 交叉编译
 ```bash
 env GOOS=windows GOARCH=amd64 go build main.go
-```
-or
-```bash
+
+# or
+
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
 ## 🔗 在线体验
-> admin/123456
+> admin  /  123456
 
 演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
@@ -108,3 +106,10 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 ## 🤝 特别感谢
 [chengxiao](https://github.com/chengxiao)
+
+
+## License
+
+[MIT](https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md)
+
+Copyright (c) 2020 wenjianzhang
