@@ -84,7 +84,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ## 🔗 在线体验
 > admin/123456
 
-演示地址：http://www.zhangwj.com
+演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
 
 ## 🤝 使用的开源项目
