@@ -4,6 +4,8 @@
     <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
   </a>
   
+  
+  
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统
 
 
@@ -113,3 +115,5 @@ env GOOS=linux GOARCH=amd64 go build main.go
 [MIT](https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md)
 
 Copyright (c) 2020 wenjianzhang
+
+qq技术交流群: 74520518
