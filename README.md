@@ -47,7 +47,7 @@
 
 ```bash
 # step 1:
-git clone https://e.coding.net/wenjianzhang/go-admin.git
+git clone https://github.com/wenjianzhang/go-admin.git
 
 # step 2:
 cd ./goadmin/src/goadmin
