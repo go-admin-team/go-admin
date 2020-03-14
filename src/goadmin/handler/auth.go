@@ -54,6 +54,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 func Authenticator(c *gin.Context) (interface{}, error) {
 	var loginVals Login
 	var loginlog LoginLog
+
 	ua := user_agent.New(c.Request.UserAgent())
 	loginlog.Ipaddr = c.ClientIP()
 	location := utils.GetLocation(c.ClientIP())
@@ -68,13 +69,15 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 	loginlog.Os = ua.OS()
 	loginlog.Msg = "登录成功"
 	loginlog.Platform = ua.Platform()
+
 	if err := c.ShouldBind(&loginVals); err != nil {
 		loginlog.Status = "1"
-		loginlog.UserName = loginVals.Username
 		loginlog.Msg = "数据解析失败"
+		loginlog.UserName = loginVals.Username
 		loginlog.Create()
 		return nil, jwt.ErrMissingLoginValues
 	}
+	loginlog.UserName = loginVals.Username
 	if !store.Verify(loginVals.UUID, loginVals.Code, true) {
 		loginlog.Status = "1"
 		loginlog.Msg = "验证码错误"
@@ -83,7 +86,6 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	user, role, e := loginVals.GetUser()
-	loginlog.UserName = loginVals.Username
 	if e == nil {
 		loginlog.Create()
 		return map[string]interface{}{"user": user, "role": role}, nil
