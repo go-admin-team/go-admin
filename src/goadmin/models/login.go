@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-//var IdentityKey = "id"
-
 type Login struct {
 	Username string `form:"UserName" json:"username" binding:"required"`
 	Password string `form:"Password" json:"password" binding:"required"`
@@ -26,8 +24,6 @@ func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 		log.Print(e)
 		return
 	}
-	ss, _ := pkg.Encrypt("ceshi")
-	print(string(ss))
 	_, e = pkg.CompareHashAndPassword(user.Password, u.Password)
 	if e != nil {
 		if strings.Contains(e.Error(), "hashedPassword is not the hash of the given password") {
