@@ -8,6 +8,7 @@ import (
 	"goadmin/models"
 	"goadmin/utils"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -58,14 +59,14 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		logger.Infof(" %3d  %13v  %15s  %s  %s\r\n",
+		logger.Infof(" %3d  %13v  %15s  %s  %s \r\n",
 			statusCode,
 			latencyTime,
 			clientIP,
 			reqMethod,
 			reqUri,
 		)
-		logger.Infoln()
+		logger.Infoln("-")
 		fmt.Println(
 			startTime.Format("\n2006-01-02 15:04:05.9999"),
 			"[INFO]",
@@ -77,21 +78,51 @@ func LoggerToFile() gin.HandlerFunc {
 			clientIP,
 		)
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" {
-			SysOperLog := models.SysOperLog{}
-			SysOperLog.OperIp = clientIP
-			SysOperLog.OperLocation = utils.GetLocation(clientIP)
-			SysOperLog.Status = utils.IntToString(statusCode)
-			SysOperLog.OperName = utils.GetUserName(c)
-			SysOperLog.RequestMethod = c.Request.Method
-			SysOperLog.OperUrl = reqUri
-			SysOperLog.Method = reqMethod
+			menu := models.Menu{}
+			menu.Path = reqUri
+			menu.Action = reqMethod
+			menuList, _ := menu.Get()
+			sysOperLog := models.SysOperLog{}
+			sysOperLog.OperIp = clientIP
+			sysOperLog.OperLocation = utils.GetLocation(clientIP)
+			sysOperLog.Status = utils.IntToString(statusCode)
+			sysOperLog.OperName = utils.GetUserName(c)
+			sysOperLog.RequestMethod = c.Request.Method
+			sysOperLog.OperUrl = reqUri
+			if reqUri == "/login" {
+				sysOperLog.BusinessType = "10"
+				sysOperLog.Title = "用户登录"
+				sysOperLog.OperName = "-"
+			} else if strings.Contains(reqUri, "/api/v1/logout") {
+				sysOperLog.BusinessType = "11"
+			} else if strings.Contains(reqUri, "/api/v1/getCaptcha") {
+				sysOperLog.BusinessType = "12"
+				sysOperLog.Title = "验证码"
+			} else {
+				if reqMethod == "POST" {
+					sysOperLog.BusinessType = "1"
+				} else if reqMethod == "PUT" {
+					sysOperLog.BusinessType = "2"
+				} else if reqMethod == "DELETE" {
+					sysOperLog.BusinessType = "3"
+				}
+			}
+			sysOperLog.Method = reqMethod
+			if len(menuList) > 0 {
+				sysOperLog.Title = menuList[0].Title
+			}
 			b, _ := c.Get("body")
-			SysOperLog.OperParam, _ = utils.StructToJsonStr(b)
-			SysOperLog.CreateBy = utils.GetCurrntTime()
-			SysOperLog.OperTime = utils.GetCurrntTime()
-			SysOperLog.LatencyTime = (latencyTime).String()
-			SysOperLog.UserAgent = c.Request.UserAgent()
-			_, _ = SysOperLog.Create()
+			sysOperLog.OperParam, _ = utils.StructToJsonStr(b)
+			sysOperLog.CreateBy = utils.GetCurrntTime()
+			sysOperLog.OperTime = utils.GetCurrntTime()
+			sysOperLog.LatencyTime = (latencyTime).String()
+			sysOperLog.UserAgent = c.Request.UserAgent()
+			if c.Err() == nil {
+				sysOperLog.Status = "0"
+			} else {
+				sysOperLog.Status = "1"
+			}
+			_, _ = sysOperLog.Create()
 		}
 	}
 }

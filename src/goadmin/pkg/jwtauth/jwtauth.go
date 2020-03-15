@@ -3,7 +3,6 @@ package jwtauth
 import (
 	"crypto/rsa"
 	"errors"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -287,7 +286,7 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 		mw.Timeout = time.Hour
 	}
 
-	//mw.Timeout = time.Second*10
+	//mw.Timeout = time.Second*5
 
 	if mw.TimeFunc == nil {
 		mw.TimeFunc = time.Now
@@ -391,8 +390,6 @@ func (mw *GinJWTMiddleware) middlewareImpl(c *gin.Context) {
 		mw.unauthorized(c, http.StatusBadRequest, mw.HTTPStatusMessageFunc(ErrWrongFormatOfExp, c))
 		return
 	}
-	fmt.Println(int64(claims["exp"].(float64)))
-	fmt.Println(mw.TimeFunc().Unix())
 	if int64(claims["exp"].(float64)) < mw.TimeFunc().Unix() {
 		mw.unauthorized(c, http.StatusUnauthorized, mw.HTTPStatusMessageFunc(ErrExpiredToken, c))
 		return

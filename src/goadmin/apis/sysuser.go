@@ -3,9 +3,11 @@ package apis
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/google/uuid"
 	"goadmin/models"
 	"goadmin/pkg"
 	"goadmin/utils"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -226,4 +228,49 @@ func DeleteSysUser(c *gin.Context) {
 	var res models.Response
 	res.Msg = "删除成功"
 	c.JSON(http.StatusOK, res.ReturnOK())
+}
+
+// @Summary 修改头像
+// @Description 获取JSON
+// @Tags 用户
+// @Accept multipart/form-data
+// @Param file formData file true "file"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/user/profileAvatar [post]
+func InsetSysUserAvatar(c *gin.Context) {
+	form, _ := c.MultipartForm()
+	files := form.File["upload[]"]
+	guid := uuid.New().String()
+	filPath := "static/uploadfile/" + guid + ".jpg"
+	for _, file := range files {
+		log.Println(file.Filename)
+		// 上传文件至指定目录
+		_ = c.SaveUploadedFile(file, filPath)
+	}
+	sysuser := models.SysUser{}
+	sysuser.Id = utils.GetUserId(c)
+	sysuser.Avatar = "/" + filPath
+	sysuser.UpdateBy = utils.GetUserIdStr(c)
+	sysuser.Update(sysuser.Id)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"code": 200,
+		"data": filPath,
+	})
+
+}
+
+func SysUserUpdatePwd(c *gin.Context) {
+	var pwd models.SysUserPwd
+	err := c.Bind(&pwd)
+	pkg.AssertErr(err, "数据解析失败", 500)
+	sysuser := models.SysUser{}
+	sysuser.Id = utils.GetUserId(c)
+	sysuser.SetPwd(pwd)
+	c.JSON(http.StatusCreated, gin.H{
+		"code": 200,
+		"data": "密码修改成功",
+	})
+
 }

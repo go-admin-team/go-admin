@@ -47,7 +47,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	r.POST("/login", authMiddleware.LoginHandler)
-	r.POST("/logout", handler.LogOut)
+
 	// Refresh time can be longer than token timeout
 	r.GET("/refresh_token", authMiddleware.RefreshHandler)
 	//r.GET("/dashboard", Dashboard)
@@ -111,6 +111,8 @@ func InitRouter() *gin.Engine {
 
 		auth.GET("/getinfo", GetInfo)
 		auth.GET("/user/profile", GetSysUserProfile)
+		auth.POST("/user/avatar", InsetSysUserAvatar)
+		auth.PUT("/user/pwd", SysUserUpdatePwd)
 
 		auth.GET("/postlist", GetPostList)
 		auth.GET("/post/:postId", GetPost)
@@ -139,6 +141,7 @@ func InitRouter() *gin.Engine {
 
 		auth.GET("/configKey/:configKey", GetConfigByConfigKey)
 
+		auth.POST("/logout", handler.LogOut)
 	}
 
 	//r.NoRoute(authMiddleware.MiddlewareFunc(), NoFound)

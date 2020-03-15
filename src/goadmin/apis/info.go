@@ -3,6 +3,7 @@ package apis
 import (
 	"github.com/gin-gonic/gin"
 	"goadmin/models"
+	"goadmin/pkg"
 	"goadmin/utils"
 	"net/http"
 )
@@ -25,9 +26,19 @@ func GetInfo(c *gin.Context) {
 		list, _ := RoleMenu.GetPermis()
 		mp["permissions"] = list
 	}
+
+	sysuser := models.SysUser{}
+	sysuser.Id = utils.GetUserId(c)
+	user, err := sysuser.Get()
+	pkg.AssertErr(err, "", 500)
+
 	mp["introduction"] = " am a super administrator"
+
 	mp["avatar"] = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
-	mp["name"] = utils.GetUserName(c)
+	if user.Avatar != "" {
+		mp["avatar"] = user.Avatar
+	}
+	mp["name"] = user.NickName
 
 	var res models.Response
 	res.Data = mp

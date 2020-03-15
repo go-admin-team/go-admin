@@ -1,2 +1,6 @@
 .idea
 src/goadmin/config/settings.yml
+src/goadmin/static/uploadfile
+src/goadmin/main.exe
+src/goadmin/temp/logs/log.txt
+src/goadmin/goadmin

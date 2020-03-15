@@ -3,8 +3,11 @@ package models
 import (
 	"errors"
 	orm "goadmin/database"
+	"goadmin/pkg"
 	"goadmin/utils"
 	"golang.org/x/crypto/bcrypt"
+	"log"
+	"strings"
 )
 
 // User
@@ -79,6 +82,11 @@ type SysUser struct {
 	SysUserId
 	SysUserB
 	LoginM
+}
+
+type SysUserPwd struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
 }
 
 type SysUserPage struct {
@@ -227,5 +235,21 @@ func (e *SysUser) BatchDelete(id []int64) (Result bool, err error) {
 		return
 	}
 	Result = true
+	return
+}
+
+func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
+	user, _ := e.Get()
+	_, err = pkg.CompareHashAndPassword(user.Password, pwd.OldPassword)
+	if err != nil {
+		if strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
+			pkg.AssertErr(err, "密码错误(代码202)", 500)
+		}
+		log.Print(err)
+		return
+	}
+	e.Password = pwd.NewPassword
+	_, err = e.Update(e.Id)
+	pkg.AssertErr(err, "更新密码失败(代码202)", 500)
 	return
 }
