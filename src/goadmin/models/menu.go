@@ -230,6 +230,12 @@ func (e *Menu) Get() (Menus []Menu, err error) {
 	if e.MenuName != "" {
 		table = table.Where("menuName = ?", e.MenuName)
 	}
+	if e.Path != "" {
+		table = table.Where("path = ?", e.Path)
+	}
+	if e.Action != "" {
+		table = table.Where("action = ?", e.Action)
+	}
 	if e.MenuType != "" {
 		table = table.Where("menuType = ?", e.MenuType)
 	}
