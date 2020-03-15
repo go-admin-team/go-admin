@@ -168,6 +168,14 @@ env GOOS=linux GOARCH=amd64 go build main.go
 [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 
 
+## 版本
+
+#### 2020-03-15 新功能及优化
+
+1. 添加用户头像上传
+2. 添加用户密码修改
+3. 操作日志页面调整
+
 
 ## 🤝 特别感谢
 [chengxiao](https://github.com/chengxiao)
