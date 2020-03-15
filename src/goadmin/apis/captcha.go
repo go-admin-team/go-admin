@@ -27,8 +27,7 @@ func GenerateCaptchaHandler(c *gin.Context) {
 	var param configJsonBody
 	param.Id = uuid.New().String()
 	param.CaptchaType = "string"
-	param.DriverString = base64Captcha.NewDriverString(46, 140, 0, 0, 4, "1234567890abcdefghijklmnpqrstuvwxyz", &color.RGBA{45, 45, 45, 45}, []string{"wqy-microhei.ttc"})
-
+	param.DriverString = base64Captcha.NewDriverString(46, 140, 2, 2, 4, "234567890abcdefghjkmnpqrstuvwxyz", &color.RGBA{240, 240, 246, 246}, []string{"wqy-microhei.ttc"})
 	driver := param.DriverString.ConvertFonts()
 
 	cap := base64Captcha.NewCaptcha(driver, store)
