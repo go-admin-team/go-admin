@@ -41,26 +41,88 @@
 9.  登录日志：系统登录日志记录查询包含登录异常。
 10. 系统接口：根据业务代码自动生成相关的api接口文档。
 
+## 配置详情
+
+1. 配置文件说明
+```yml
+settings:
+  application:  
+    # 项目启动环境            
+    env: dev  
+    # 当 env:demo 时，GET以外的请求操作提示
+    envmsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
+    # 主机ip 或者域名，默认0.0.0.0
+    host: 0.0.0.0 
+    # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
+    isinit: false  
+    # JWT加密字符串
+    jwtsecret: 123abc  
+    # log存放路径
+    logpath: temp/logs/log.log   
+    # 服务名称
+    name: go-admin   
+    # 服务端口
+    port: 8000   
+    readtimeout: 1   
+    writertimeout: 2 
+  database:
+    # 数据库名称
+    database: dbname 
+    # 数据库类型
+    dbtype: mysql    
+    # 数据库地址
+    host: 127.0.0.1  
+    # 数据库密码
+    password: password  
+    # 数据库端口
+    port: 3306       
+    # 数据库用户名
+    username: root   
+  redis:
+    # redis链接地址
+    addr: 0.0.0.0:6379 
+    # db 
+    db: 0   
+    # 密码            
+    password: password  
+    # 读超时时长
+    readtimeout: 50     
+```
+
+2. 文件路径  go-admin/src/goadmin/config/settings.yml
+
 
 ## 📦 本地开发
 
+首次启动说明
 
 ```bash
-# step 1:
+# 获取代码
 git clone https://github.com/wenjianzhang/go-admin.git
 
-# step 2:
+# 进入工作路径
 cd ./goadmin/src/goadmin
 
-# step 3:
+# 编译项目
 go build
 
-# step 4:
+# 修改配置
 vi ./config/setting.yml (更改isinit和数据库连接)
 
-# step 5:
+# 1. 配置文件中修改数据库信息 
+# 注意: settings.database 下对应的配置数据)
+# 2. 确认数据库初始化参数 
+# 注意: settings.application.isinit 如果是首次启动，请把当前值设置成true，系统会自动初始化数据库结构以及基本的数据信息；
+# 3. 确认log路径
+
+
+# 启动项目，也可以用IDE进行调试
 ./goadmin
+
+# 也可以在WIKI中查看说明
 ```
+
+
 
 文档生成
 ```bash
@@ -80,6 +142,7 @@ env GOOS=windows GOARCH=amd64 go build main.go
 
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
+
 
 ## 🔗 在线体验
 > admin  /  123456
