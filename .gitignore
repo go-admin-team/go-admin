@@ -5,3 +5,4 @@ src/goadmin/main.exe
 src/goadmin/temp/logs/log.txt
 src/goadmin/goadmin
 src/goadmin/config/settings.dev.yml
+src/goadmin/vendor
