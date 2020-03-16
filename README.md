@@ -190,4 +190,4 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 Copyright (c) 2020 wenjianzhang
 
-qq技术交流群: 74520518
+添加微信号: zwj891129 进入技术交流微信群 请备注，谢谢！
