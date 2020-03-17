@@ -1,10 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Swagger.",
-        "title": "goadmin API",
+        "description": "基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档\n添加微信号: zwj891129 进入技术交流微信群 请备注，谢谢！",
+        "title": "go-admin API",
         "contact": {},
-        "license": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md"
+        },
         "version": "0.0.1"
     },
     "paths": {
@@ -415,9 +418,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "配置"
+                    "字典数据"
                 ],
-                "summary": "添加配置",
+                "summary": "添加字典数据",
                 "parameters": [
                     {
                         "description": "data",
@@ -426,7 +429,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Config"
+                            "$ref": "#/definitions/models.DictType"
                         }
                     }
                 ],
@@ -1997,6 +2000,35 @@
                 }
             }
         },
+        "/api/v1/user/profileAvatar": {
+            "post": {
+                "description": "获取JSON",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "修改头像",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "获取token",
@@ -2607,6 +2639,11 @@
         "models.Response": {
             "type": "object",
             "properties": {
+                "code": {
+                    "description": "代码",
+                    "type": "integer",
+                    "example": 200
+                },
                 "data": {
                     "description": "数据集",
                     "type": "object"

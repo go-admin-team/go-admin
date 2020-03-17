@@ -4,137 +4,138 @@
     <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
   </a>
   
+ English | [简体中文](./README.zh-CN.md)
   
-  
-##### 基于Gin + Vue + Element UI的前后端分离权限管理系统
+##### Gin + Vue + Element UI based front-end and back-end separated permission management system
 
 
-## ✨ 特性
+## ✨ Feature
 
-- 遵循 RESTful API 设计规范
+- Follow RESTful API design specifications
 
-- 基于 GIN WEB API 框架，提供了丰富的中间件支持（用户认证、跨域、访问日志、追踪ID等）
+- Provides rich middleware support based on GIN WEB API framework (user authentication, cross domain, access log, tracking ID, etc.)
 
-- 基于Casbin的 RBAC 访问控制模型
+- Casbin-based RBAC access control model
 
-- JWT 认证
+- JWT certification
 
-- 支持 Swagger 文档(基于swaggo)
+- Support Swagger documentation (based on swaggo)
 
-- 基于 GORM 的数据库存储，可扩展多种类型数据库 
+- GORM-based database storage that can expand many types of databases
 
-- 配置文件简单的模型映射，快速能够得到想要的配置
+- Simple model mapping of configuration files to quickly get the desired configuration
 
-- TODO: 单元测试
+- TODO: unit test
 
 
-## 🎁 内置
+## 🎁 Built-in functions
 
-1.  用户管理：用户是系统操作者，该功能主要完成系统用户配置。
-2.  部门管理：配置系统组织机构（公司、部门、小组），树结构展现支持数据权限。
-3.  岗位管理：配置系统用户所属担任职务。
-4.  菜单管理：配置系统菜单，操作权限，按钮权限标识等。
-5.  角色管理：角色菜单权限分配、设置角色按机构进行数据范围权限划分。
-6.  字典管理：对系统中经常使用的一些较为固定的数据进行维护。
-7.  参数管理：对系统动态配置常用参数。
-8.  操作日志：系统正常操作日志记录和查询；系统异常信息日志记录和查询。
-9.  登录日志：系统登录日志记录查询包含登录异常。
-10. 系统接口：根据业务代码自动生成相关的api接口文档。
+1.  User management: The user is the system operator. This function mainly completes the system user configuration.
+2.  Department management: configure the system organization (company, department, group), and display the tree structure to support data permissions.
+3.  Post management: Configure system users to hold positions.
+4.  Menu management: configure system menus, operation permissions, button permission labels, etc.
+5.  Role management: role menu permissions assignment, setting roles to divide data range permissions by organization.
+6.  Dictionary management: to maintain some fixed data often used in the system.
+7.  Parameter management: Dynamically configure common parameters for the system.
+8.  Operation log: system normal operation log record and query; system exception information log record and query.
+9.  Login log: The system login log record query contains login exceptions.
+10. System interface: Automatically generate related api interface documents according to business code.
 
-## 配置详情
+## Configuration details
 
-1. 配置文件说明
+1. Configuration file description
 ```yml
 settings:
   application:  
-    # 项目启动环境            
+    # Project launch environment         
     env: dev  
-    # 当 env:demo 时，GET以外的请求操作提示
+    # When env: demo, prompts for request operations other than GET
     envmsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
-    # 主机ip 或者域名，默认0.0.0.0
+    # Host IP or domain name, default 0.0.0.0
     host: 0.0.0.0 
-    # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
+    # Whether to initialize the database structure and basic data; true: required; false: not required
     isinit: false  
-    # JWT加密字符串
+    # JWT encrypted string
     jwtsecret: 123abc  
-    # log存放路径
+    # log storage path
     logpath: temp/logs/log.log   
-    # 服务名称
+    # application name
     name: go-admin   
-    # 服务端口
+    # application port
     port: 8000   
     readtimeout: 1   
     writertimeout: 2 
   database:
-    # 数据库名称
+    # database name
     database: dbname 
-    # 数据库类型
+    # database type
     dbtype: mysql    
-    # 数据库地址
+    # database host
     host: 127.0.0.1  
-    # 数据库密码
+    # database  password
     password: password  
-    # 数据库端口
+    # database port
     port: 3306       
-    # 数据库用户名
+    # database username
     username: root   
   redis:
-    # redis链接地址
+    # redis addresss
     addr: 0.0.0.0:6379 
     # db 
     db: 0   
-    # 密码            
+    # password            
     password: password  
-    # 读超时时长
+    # read timeout
     readtimeout: 50     
 ```
 
-2. 文件路径  go-admin/src/goadmin/config/settings.yml
+2. file path  go-admin/src/goadmin/config/settings.yml
 
 
-## 📦 本地开发
+## 📦 evelopment
 
-首次启动说明
+
+First start instructions
 
 ```bash
-# 获取代码
+# Get the code
 git clone https://github.com/wenjianzhang/go-admin.git
 
-# 进入工作路径
+# Enter working path
 cd ./goadmin/src/goadmin
 
-# 编译项目
+# Build the project
 go build
 
-# 修改配置
-vi ./config/setting.yml (更改isinit和数据库连接)
+# Change setting
+vi ./config/setting.yml (Note: Change isinit and database connection)
 
-# 1. 配置文件中修改数据库信息 
-# 注意: settings.database 下对应的配置数据)
-# 2. 确认数据库初始化参数 
-# 注意: settings.application.isinit 如果是首次启动，请把当前值设置成true，系统会自动初始化数据库结构以及基本的数据信息；
-# 3. 确认log路径
+# 1. Database information in the configuration file
+# Note: the corresponding configuration data under settings.database
+# 2. Confirm database initialization parameters
+# Note: If this is the first time settings.application.isinit is set, please set the current value to true, the system will automatically initialize the database structure and basic data information;
+# 3. Confirm the log path
 
 
-# 启动项目，也可以用IDE进行调试
+# Start the project or debug with the IDE
 ./goadmin
 
-# 也可以在WIKI中查看说明
+# See also instructions in WIKI
 ```
 
 
-
-文档生成
+Document generation
 ```bash
 swag init  
 ```
 
-如果没有swag命令 go get安装一下即可
+If there is no `swag` command go get installed
 ```bash
 go get -u github.com/swaggo/swag/cmd/swag
 ```
 
-交叉编译
+
+Cross compilation
 ```bash
 env GOOS=windows GOARCH=amd64 go build main.go
 
@@ -144,13 +145,13 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
 
-## 🔗 在线体验
+## 🔗 Online Demo
 > admin  /  123456
 
-演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
+Demo address：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
 
-## 🤝 使用的开源项目
+## 🤝 Open source projects used
 [gin](https://github.com/gin-gonic/gin)
 
 [casbin](https://github.com/casbin/casbin)
@@ -168,19 +169,20 @@ env GOOS=linux GOARCH=amd64 go build main.go
 [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 
 
-## 版本
 
-#### 2020-03-15 新功能及优化
+## Version
 
-1. 添加用户头像上传
-2. 添加用户密码修改
-3. 操作日志页面调整
-4. 优化验证码背景色
+#### 2020-03-15 New Features and Optimization
 
-看到好多体验的朋友验证码错误，所以调整了对比度，方便大家体验！
+1. Add user avatar upload
+2. Add user password modification
+3. Operation log page adjustment
+4. Optimize captcha background color
+
+I saw a lot of friends who experience the wrong verification code, so I adjusted the contrast for everyone to experience!
 
 
-## 🤝 特别感谢
+## 🤝 Thanks
 [chengxiao](https://github.com/chengxiao)
 
 
@@ -190,4 +192,4 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 Copyright (c) 2020 wenjianzhang
 
-添加微信号: zwj891129 进入技术交流微信群 请备注，谢谢！
+[中文]qq technical exchange group: 74520518
