@@ -1,4 +1,4 @@
-name: Go Continuous Integration
+name: build
 on: [push, pull_request]
 jobs:
 
@@ -23,6 +23,7 @@ jobs:
       with:
         path: go/src/firebase.google.com/go
     
-    - name: Get dependencies
+    - name: log path
       run: ls
+      
 
