@@ -1,8 +1,6 @@
 #  go-admin  
 
-  <a href="https://github.com/wenjianzhang/go-admin/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
-  </a>
+![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg?branch=master)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
   
   [English](./README.md) | 简体中文
   
