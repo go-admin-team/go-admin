@@ -1,9 +1,8 @@
 #  go-admin  
 
-  <a href="https://github.com/wenjianzhang/go-admin/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
-  </a>
-  
+![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg?branch=master)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
+
+
  English | [简体中文](./README.zh-CN.md)
   
 ##### Gin + Vue + Element UI based front-end and back-end separated permission management system
