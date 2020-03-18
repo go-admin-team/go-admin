@@ -1,8 +1,6 @@
 .idea
-src/goadmin/config/settings.yml
-src/goadmin/static/uploadfile
-src/goadmin/main.exe
-src/goadmin/temp/logs/log.txt
-src/goadmin/goadmin
-src/goadmin/config/settings.dev.yml
-src/goadmin/vendor
+static/uploadfile
+main.exe
+temp/logs/log.txt
+vendor
+config/settings.dev.yml

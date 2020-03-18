@@ -89,7 +89,7 @@ settings:
     readtimeout: 50     
 ```
 
-2. 文件路径  go-admin/src/goadmin/config/settings.yml
+2. 文件路径  go-admin/src/go-admin/config/settings.yml
 
 
 ## 📦 本地开发
@@ -101,7 +101,7 @@ settings:
 git clone https://github.com/wenjianzhang/go-admin.git
 
 # 进入工作路径
-cd ./goadmin/src/goadmin
+cd ./go-admin/src/go-admin
 
 # 编译项目
 go build
@@ -117,7 +117,7 @@ vi ./config/setting.yml (更改isinit和数据库连接)
 
 
 # 启动项目，也可以用IDE进行调试
-./goadmin
+./go-admin
 
 # 也可以在WIKI中查看说明
 ```

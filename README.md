@@ -89,7 +89,7 @@ settings:
     readtimeout: 50     
 ```
 
-2. file path  go-admin/src/goadmin/config/settings.yml
+2. file path  go-admin/src/go-admin/config/settings.yml
 
 
 ## 📦 evelopment
@@ -102,7 +102,7 @@ First start instructions
 git clone https://github.com/wenjianzhang/go-admin.git
 
 # Enter working path
-cd ./goadmin/src/goadmin
+cd ./go-admin/src/go-admin
 
 # Build the project
 go build
@@ -118,7 +118,7 @@ vi ./config/setting.yml (Note: Change isinit and database connection)
 
 
 # Start the project or debug with the IDE
-./goadmin
+./go-admin
 
 # See also instructions in WIKI
 ```
