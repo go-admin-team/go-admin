@@ -24,6 +24,5 @@ jobs:
         path: go/src/firebase.google.com/go
     
     - name: Get dependencies
-      run: cd ${{ github.workspace }}/src/go-admin
-           go build
+      run: /src/go-admin go build
 
