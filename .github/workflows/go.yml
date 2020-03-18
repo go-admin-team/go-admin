@@ -24,6 +24,6 @@ jobs:
         path: go/src/firebase.google.com/go
     
     - name: log path
-      run: ls
+      run: go build
       
 
