@@ -1,34 +1,49 @@
-name: Go
-
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
+name: Go Continuous Integration
+on: [push, pull_request]
 jobs:
 
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+        GOPATH: ${{ github.workspace }}/go
+    strategy:
+      matrix:
+        go: [1.11, 1.12, 1.13]
     steps:
 
-    - name: Set up Go 1.13
+    - name: Set up Go ${{ matrix.go }}
       uses: actions/setup-go@v1
       with:
-        go-version: 1.13
+        go-version: ${{ matrix.go }}
       id: go
 
-    - name: Check out code into the Go module directory
+    - name: Check out code into GOPATH
       uses: actions/checkout@v2
-
+      with:
+        path: go/src/firebase.google.com/go
+    
     - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
+      run: go get -t -v $(go list ./... | grep -v integration)
 
-    - name: Build
-      run: go build -v .
+    - name: Run Linter
+      run: |
+        go get golang.org/x/lint/golint
+        $GOPATH/bin/golint -set_exit_status firebase.google.com/go/...
+
+    - name: Run Unit Tests
+      if: success() || failure()
+      run: go test -v -race -test.short firebase.google.com/go/...
+
+    - name: Run Formatter
+      working-directory: ./go/src/firebase.google.com/go
+      if: matrix.go != '1.11'
+      run: |
+        if [[ ! -z "$(gofmt -l -s .)" ]]; then
+          echo "Go code is not formatted:"
+          gofmt -d -s .
+          exit 1
+        fi 
+
+    - name: Run Static Analyzer
+      run: go vet -v firebase.google.com/go/...
