@@ -8,30 +8,29 @@ import (
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	. "go-admin/apis"
 	. "go-admin/apis/tools"
-		_ "go-admin/docs"
-		"go-admin/handler"
-		"go-admin/handler/sd"
-		_ "go-admin/pkg/jwtauth"
-		"go-admin/router/middleware"
-		"log"
-		)
+	_ "go-admin/docs"
+	"go-admin/handler"
+	"go-admin/handler/sd"
+	_ "go-admin/pkg/jwtauth"
+	"go-admin/router/middleware"
+	"log"
+)
 
-		func InitRouter() *gin.Engine {
-		r := gin.New()
-		r.Use(middleware.LoggerToFile())
-		r.Use(middleware.CustomError)
-		r.Use(middleware.NoCache)
-		r.Use(middleware.Options)
-		r.Use(middleware.Secure)
-		r.Use(middleware.RequestId())
-		r.Use(middleware.DemoEvn())
+func InitRouter() *gin.Engine {
+	r := gin.New()
+	r.Use(middleware.LoggerToFile())
+	r.Use(middleware.CustomError)
+	r.Use(middleware.NoCache)
+	r.Use(middleware.Options)
+	r.Use(middleware.Secure)
+	r.Use(middleware.RequestId())
+	r.Use(middleware.DemoEvn())
 
-		r.Static("/static", "./static")
-		r.GET("/info", Ping)
-		r.GET("/heath", Heath)
+	r.Static("/static", "./static")
+	r.GET("/info", Ping)
 
-		// 监控信息
-		svcd := r.Group("/sd")
+	// 监控信息
+	svcd := r.Group("/sd")
 	{
 		svcd.GET("/health", sd.HealthCheck)
 		svcd.GET("/disk", sd.DiskCheck)
@@ -40,32 +39,37 @@ import (
 		svcd.GET("/os", sd.OSCheck)
 	}
 
-		// the jwt middleware
-		authMiddleware, err := middleware.AuthInit()
+	// the jwt middleware
+	authMiddleware, err := middleware.AuthInit()
 
-		if err != nil {
+	if err != nil {
 		_ = fmt.Errorf("JWT Error", err.Error())
 	}
 
-		r.POST("/login", authMiddleware.LoginHandler)
+	r.POST("/login", authMiddleware.LoginHandler)
 
-		// Refresh time can be longer than token timeout
-		r.GET("/refresh_token", authMiddleware.RefreshHandler)
-		//r.GET("/dashboard", Dashboard)
-		r.GET("/routes", Dashboard)
+	// Refresh time can be longer than token timeout
+	r.GET("/refresh_token", authMiddleware.RefreshHandler)
+	//r.GET("/dashboard", Dashboard)
+	r.GET("/routes", Dashboard)
 
-		apiv1 := r.Group("/api/v1")
+	apiv1 := r.Group("/api/v1")
 	{
 		apiv1.GET("/getCaptcha", GenerateCaptchaHandler)
 		apiv1.GET("/db/tables/page", GetDBTableList)
 		apiv1.GET("/db/columns/page", GetDBColumnList)
 		apiv1.GET("/sys/tables/page", GetSysTableList)
+		apiv1.POST("/sys/tables/info", InsertSysTable)
+		apiv1.DELETE("/sys/tables/info/:tableId", DeleteSysTables)
+		apiv1.GET("/sys/tables/info/:tableId", GetSysTables)
 
 		apiv1.GET("/menuTreeselect", GetMenuTreeelect)
 		apiv1.GET("/rolemenu", GetRoleMenu)
 		apiv1.POST("/rolemenu", InsertRoleMenu)
 		apiv1.DELETE("/rolemenu/:id", DeleteRoleMenu)
 		apiv1.GET("/dict/databytype/:dictType", GetDictDataByDictType)
+
+
 	}
 
 	auth := r.Group("/api/v1")
@@ -89,6 +93,8 @@ import (
 		auth.POST("/dict/type", InsertDictType)
 		auth.PUT("/dict/type", UpdateDictType)
 		auth.DELETE("/dict/type/:dictId", DeleteDictType)
+
+		auth.GET("/dict/typeoptionselect", GetDictTypeOptionSelect)
 
 		auth.GET("/sysUserList", GetSysUserList)
 		auth.GET("/sysUser/:userId", GetSysUser)
@@ -162,11 +168,6 @@ func Ping(c *gin.Context) {
 	})
 }
 
-func Heath(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "UP",
-	})
-}
 
 func Dashboard(c *gin.Context) {
 

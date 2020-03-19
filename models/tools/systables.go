@@ -7,7 +7,7 @@ import (
 
 type SysTables struct {
 	//表编码
-	TableId string `gorm:"column:table_id" json:"tableName"`
+	TableId int64 `gorm:"column:table_id;primary_key" json:"tableId"`
 	//表名称
 	TableName string `gorm:"column:table_name" json:"tableName"`
 	//表备注
@@ -34,12 +34,13 @@ type SysTables struct {
 	Crud           bool   `gorm:"column:crud" json:"crud"`
 	Remark         string `gorm:"column:remark" json:"remark"`
 
-	CreateBy   string `gorm:"column:create_by" json:"createBy"`
-	CreateTime string `gorm:"column:create_time" json:"createTime"`
-	UpdateBy   string `gorm:"column:update_By" json:"updateBy"`
-	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
-	DataScope  string `gorm:"-" json:"dataScope"`
-	Params     string `gorm:"-" json:"params"`
+	CreateBy   string       `gorm:"column:create_by" json:"createBy"`
+	CreateTime string       `gorm:"column:create_time" json:"createTime"`
+	UpdateBy   string       `gorm:"column:update_By" json:"updateBy"`
+	UpdateTime string       `gorm:"column:update_time" json:"updateTime"`
+	DataScope  string       `gorm:"-" json:"dataScope"`
+	Params     string       `gorm:"-" json:"params"`
+	Columns    []SysColumns `gorm:"-" json:"columns"`
 }
 
 func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, error) {
@@ -50,7 +51,7 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, er
 	if e.TableName != "" {
 		table = table.Where("table_name = ?", e.TableName)
 	}
-	if e.TableComment !=""{
+	if e.TableComment != "" {
 		table = table.Where("table_comment = ?", e.TableComment)
 	}
 
@@ -65,20 +66,28 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, er
 
 func (e *SysTables) Get() (SysTables, error) {
 	var doc SysTables
-
+	var err error
 	table := orm.Eloquent.Select("*").Table("sys_tables")
 
 	if e.TableName != "" {
 		table = table.Where("table_name = ?", e.TableName)
 	}
-	if e.TableComment !=""{
+	if e.TableId != 0 {
+		table = table.Where("table_id = ?", e.TableId)
+	}
+	if e.TableComment != "" {
 		table = table.Where("table_comment = ?", e.TableComment)
 	}
-
 
 	if err := table.First(&doc).Error; err != nil {
 		return doc, err
 	}
+	var col SysColumns
+	col.TableId = e.TableId
+	if doc.Columns, err = col.GetList(); err != nil {
+		return doc, err
+	}
+
 	return doc, nil
 }
 
@@ -91,6 +100,12 @@ func (e *SysTables) Create() (SysTables, error) {
 		return doc, err
 	}
 	doc = *e
+	for i := 0; i < len(e.Columns); i++ {
+		e.Columns[i].TableId = doc.TableId
+
+		e.Columns[i].Create()
+	}
+
 	return doc, nil
 }
 
@@ -109,7 +124,11 @@ func (e *SysTables) Update() (update SysTables, err error) {
 }
 
 func (e *SysTables) Delete() (success bool, err error) {
-	if err = orm.Eloquent.Table("sys_tables").Delete("table_id = ?", e.TableId).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_tables").Delete(SysTables{}, "table_id = ?", e.TableId).Error; err != nil {
+		success = false
+		return
+	}
+	if err = orm.Eloquent.Table("sys_columns").Delete(SysColumns{}, "table_id = ?", e.TableId).Error; err != nil {
 		success = false
 		return
 	}

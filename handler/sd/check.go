@@ -7,6 +7,7 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
+	"go-admin/utils"
 	"net/http"
 	"runtime"
 	"time"
@@ -81,7 +82,7 @@ func OSCheck(c *gin.Context) {
 	fmt.Println(runtime.Version())
 
 	status := http.StatusOK
-	c.String(status, runtime.GOOS+"/"+runtime.GOARCH+"/"+string(runtime.NumCPU()))
+	c.String(status, runtime.GOOS+"/"+runtime.GOARCH+"/"+utils.IntToString(runtime.NumCPU()))
 }
 
 // @Summary CPU 使用量

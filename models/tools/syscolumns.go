@@ -1,11 +1,14 @@
 package tools
 
-import orm "go-admin/database"
+import (
+	orm "go-admin/database"
+	"go-admin/utils"
+)
 
 type SysColumns struct {
-	ColumnId      int64  `gorm:"column:configId;primary_key" json:"configId"`
-	TableId       int64  `gorm:"column:configId" json:"configId"`
-	ColumnName    string `gorm:"column:configId" json:"configId"`
+	ColumnId      int64  `gorm:"column:column_id;primary_key" json:"columnId"`
+	TableId       int64  `gorm:"column:table_id" json:"tableId"`
+	ColumnName    string `gorm:"column:column_name" json:"columnName"`
 	ColumnComment string `gorm:"column:column_comment" json:"columnComment"`
 	ColumnType    string `gorm:"column:column_type" json:"columnType"`
 	GoType        string `gorm:"column:go_type" json:"goType"`
@@ -48,5 +51,17 @@ func (e *SysColumns) GetList() ([]SysColumns, error) {
 	if err := table.Find(&doc).Error; err != nil {
 		return nil, err
 	}
+	return doc, nil
+}
+
+func (e *SysColumns) Create() (SysColumns, error) {
+	var doc SysColumns
+	e.CreateTime = utils.GetCurrntTime()
+	result := orm.Eloquent.Table("sys_columns").Create(&e)
+	if result.Error != nil {
+		err := result.Error
+		return doc, err
+	}
+	doc = *e
 	return doc, nil
 }
