@@ -1,6 +1,9 @@
 package tools
 
-import orm "go-admin/database"
+import (
+	orm "go-admin/database"
+	"go-admin/utils"
+)
 
 type SysTables struct {
 	//表编码
@@ -58,4 +61,58 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, er
 	}
 	table.Count(&count)
 	return doc, count, nil
+}
+
+func (e *SysTables) Get() (SysTables, error) {
+	var doc SysTables
+
+	table := orm.Eloquent.Select("*").Table("sys_tables")
+
+	if e.TableName != "" {
+		table = table.Where("table_name = ?", e.TableName)
+	}
+	if e.TableComment !=""{
+		table = table.Where("table_comment = ?", e.TableComment)
+	}
+
+
+	if err := table.First(&doc).Error; err != nil {
+		return doc, err
+	}
+	return doc, nil
+}
+
+func (e *SysTables) Create() (SysTables, error) {
+	var doc SysTables
+	e.CreateTime = utils.GetCurrntTime()
+	result := orm.Eloquent.Table("sys_tables").Create(&e)
+	if result.Error != nil {
+		err := result.Error
+		return doc, err
+	}
+	doc = *e
+	return doc, nil
+}
+
+func (e *SysTables) Update() (update SysTables, err error) {
+	e.UpdateTime = utils.GetCurrntTime()
+	if err = orm.Eloquent.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
+		return
+	}
+
+	//参数1:是要修改的数据
+	//参数2:是修改的数据
+	if err = orm.Eloquent.Table("sys_tables").Model(&update).Updates(&e).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (e *SysTables) Delete() (success bool, err error) {
+	if err = orm.Eloquent.Table("sys_tables").Delete("table_id = ?", e.TableId).Error; err != nil {
+		success = false
+		return
+	}
+	success = true
+	return
 }
