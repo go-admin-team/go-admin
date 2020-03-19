@@ -6,7 +6,7 @@
   
   [English](./README.md) | 简体中文
   
-##### 基于Gin + Vue + Element UI的前后端分离权限管理系统
+##### 基于Gin + Vue + Element UI的前后端分离权限管理系统脚手架
 
 
 ## ✨ 特性
@@ -89,7 +89,7 @@ settings:
     readtimeout: 50     
 ```
 
-2. 文件路径  go-admin/src/go-admin/config/settings.yml
+2. 文件路径  go-admin/config/settings.yml
 
 
 ## 📦 本地开发

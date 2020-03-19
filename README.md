@@ -6,7 +6,7 @@
   
  English | [简体中文](./README.zh-CN.md)
   
-##### Gin + Vue + Element UI based front-end and back-end separated permission management system
+##### Gin + Vue + Element UI based scaffolding for front and back separation management system
 
 
 ## ✨ Feature
@@ -89,7 +89,7 @@ settings:
     readtimeout: 50     
 ```
 
-2. file path  go-admin/src/go-admin/config/settings.yml
+2. file path  go-admin/config/settings.yml
 
 
 ## 📦 evelopment
