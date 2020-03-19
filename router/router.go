@@ -8,30 +8,30 @@ import (
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	. "go-admin/apis"
 	. "go-admin/apis/tools"
-	_ "go-admin/docs"
-	"go-admin/handler"
-	"go-admin/handler/sd"
-	_ "go-admin/pkg/jwtauth"
-	"go-admin/router/middleware"
-	"log"
-)
+		_ "go-admin/docs"
+		"go-admin/handler"
+		"go-admin/handler/sd"
+		_ "go-admin/pkg/jwtauth"
+		"go-admin/router/middleware"
+		"log"
+		)
 
-func InitRouter() *gin.Engine {
-	r := gin.New()
-	r.Use(middleware.LoggerToFile())
-	r.Use(middleware.CustomError)
-	r.Use(middleware.NoCache)
-	r.Use(middleware.Options)
-	r.Use(middleware.Secure)
-	r.Use(middleware.RequestId())
-	r.Use(middleware.DemoEvn())
+		func InitRouter() *gin.Engine {
+		r := gin.New()
+		r.Use(middleware.LoggerToFile())
+		r.Use(middleware.CustomError)
+		r.Use(middleware.NoCache)
+		r.Use(middleware.Options)
+		r.Use(middleware.Secure)
+		r.Use(middleware.RequestId())
+		r.Use(middleware.DemoEvn())
 
-	r.Static("/static", "./static")
-	r.GET("/info", Ping)
-	r.GET("/heath", Heath)
+		r.Static("/static", "./static")
+		r.GET("/info", Ping)
+		r.GET("/heath", Heath)
 
-	// 监控信息
-	svcd := r.Group("/sd")
+		// 监控信息
+		svcd := r.Group("/sd")
 	{
 		svcd.GET("/health", sd.HealthCheck)
 		svcd.GET("/disk", sd.DiskCheck)
@@ -40,24 +40,26 @@ func InitRouter() *gin.Engine {
 		svcd.GET("/os", sd.OSCheck)
 	}
 
-	// the jwt middleware
-	authMiddleware, err := middleware.AuthInit()
+		// the jwt middleware
+		authMiddleware, err := middleware.AuthInit()
 
-	if err != nil {
+		if err != nil {
 		_ = fmt.Errorf("JWT Error", err.Error())
 	}
 
-	r.POST("/login", authMiddleware.LoginHandler)
+		r.POST("/login", authMiddleware.LoginHandler)
 
-	// Refresh time can be longer than token timeout
-	r.GET("/refresh_token", authMiddleware.RefreshHandler)
-	//r.GET("/dashboard", Dashboard)
-	r.GET("/routes", Dashboard)
+		// Refresh time can be longer than token timeout
+		r.GET("/refresh_token", authMiddleware.RefreshHandler)
+		//r.GET("/dashboard", Dashboard)
+		r.GET("/routes", Dashboard)
 
-	apiv1 := r.Group("/api/v1")
+		apiv1 := r.Group("/api/v1")
 	{
 		apiv1.GET("/getCaptcha", GenerateCaptchaHandler)
-		apiv1.GET("/tables/page", GetTableList)
+		apiv1.GET("/db/tables/page", GetDBTableList)
+		apiv1.GET("/db/columns/page", GetDBColumnList)
+		apiv1.GET("/sys/tables/page", GetSysTableList)
 
 		apiv1.GET("/menuTreeselect", GetMenuTreeelect)
 		apiv1.GET("/rolemenu", GetRoleMenu)
