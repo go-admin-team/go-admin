@@ -72,6 +72,18 @@ func GetDictType(c *gin.Context) {
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
+
+func GetDictTypeOptionSelect(c *gin.Context) {
+	var DictType models.DictType
+	DictType.DictName = c.Request.FormValue("dictName")
+	DictType.DictId, _ = strconv.ParseInt(c.Param("dictId"), 10, 64)
+	result, err := DictType.GetList()
+	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+	var res models.Response
+	res.Data = result
+	c.JSON(http.StatusOK, res.ReturnOK())
+}
+
 // @Summary 添加字典类型
 // @Description 获取JSON
 // @Tags 字典类型
