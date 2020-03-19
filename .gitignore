@@ -4,3 +4,4 @@ main.exe
 temp/logs/log.txt
 vendor
 config/settings.dev.yml
+temp/logs/log.txt

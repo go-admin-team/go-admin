@@ -1,0 +1,61 @@
+package tools
+
+import orm "go-admin/database"
+
+type SysTables struct {
+	//表编码
+	TableId string `gorm:"column:table_id" json:"tableName"`
+	//表名称
+	TableName string `gorm:"column:table_name" json:"tableName"`
+	//表备注
+	TableComment string `gorm:"column:table_comment" json:"tableComment"`
+	//类名
+	ClassName string `gorm:"column:class_name" json:"className"`
+
+	TplCategory string `gorm:"column:tpl_category" json:"tplCategory"`
+	//包名
+	PackageName string `gorm:"column:package_name" json:"packageName"`
+	//模块名
+	ModuleName   string `gorm:"column:module_name" json:"moduleName"`
+	BusinessName string `gorm:"column:business_name" json:"businessName"`
+	//功能名称
+	FunctionName string `gorm:"column:function_name" json:"functionName"`
+	//功能作者
+	FunctionAuthor string `gorm:"column:function_author" json:"functionAuthor"`
+	PkColumn       string `gorm:"column:pk_column" json:"pkColumn"`
+	Options        string `gorm:"column:options" json:"options"`
+	TreeCode       string `gorm:"column:tree_code" json:"treeCode"`
+	TreeParentCode string `gorm:"column:tree_parent_code" json:"treeParentCode"`
+	TreeName       string `gorm:"column:tree_name" json:"treeName"`
+	Tree           bool   `gorm:"column:tree" json:"tree"`
+	Crud           bool   `gorm:"column:crud" json:"crud"`
+	Remark         string `gorm:"column:remark" json:"remark"`
+
+	CreateBy   string `gorm:"column:create_by" json:"createBy"`
+	CreateTime string `gorm:"column:create_time" json:"createTime"`
+	UpdateBy   string `gorm:"column:update_By" json:"updateBy"`
+	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
+	DataScope  string `gorm:"-" json:"dataScope"`
+	Params     string `gorm:"-" json:"params"`
+}
+
+func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, error) {
+	var doc []SysTables
+
+	table := orm.Eloquent.Select("*").Table("sys_tables")
+
+	if e.TableName != "" {
+		table = table.Where("table_name = ?", e.TableName)
+	}
+	if e.TableComment !=""{
+		table = table.Where("table_comment = ?", e.TableComment)
+	}
+
+	var count int32
+
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+		return nil, 0, err
+	}
+	table.Count(&count)
+	return doc, count, nil
+}
