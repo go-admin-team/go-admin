@@ -76,7 +76,8 @@ settings:
     port: 3306       
     # 数据库用户名
     username: root   
-  redis:
+  # redis 可忽略
+  redis: 
     # redis链接地址
     addr: 0.0.0.0:6379 
     # db 
@@ -87,7 +88,7 @@ settings:
     readtimeout: 50     
 ```
 
-2. 文件路径  go-admin/src/go-admin/config/settings.yml
+2. 文件路径  go-admin/config/settings.yml
 
 
 ## 📦 本地开发
@@ -99,7 +100,7 @@ settings:
 git clone https://github.com/wenjianzhang/go-admin.git
 
 # 进入工作路径
-cd ./go-admin/src/go-admin
+cd ./go-admin
 
 # 编译项目
 go build
