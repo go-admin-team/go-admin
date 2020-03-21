@@ -91,6 +91,15 @@ func InsertSysTable(c *gin.Context) {
 	dbtable, err := dbTable.Get()
 
 	dbColumn.TableName = data.TableName
+	tablenamelist := strings.Split(dbColumn.TableName, "_")
+	for i := 0; i < len(tablenamelist); i++ {
+		strStart := string([]byte(tablenamelist[i])[:1])
+		strend := string([]byte(tablenamelist[i])[1:])
+		data.ClassName += strings.ToUpper(strStart) + strend
+		data.PackageName += strings.ToLower(strStart) + strings.ToLower(strend)
+	}
+	data.TplCategory = "crud"
+
 	dbcolumn, err := dbColumn.GetList()
 	data.CreateTime = utils.GetCurrntTime()
 	data.CreateBy = utils.GetUserIdStr(c)
@@ -110,17 +119,27 @@ func InsertSysTable(c *gin.Context) {
 			column.IsPk = "1"
 			column.Pk = true
 		}
+
+		namelist := strings.Split(dbcolumn[i].ColumnName, "_")
+		for i := 0; i < len(namelist); i++ {
+			strStart := string([]byte(namelist[i])[:1])
+			strend := string([]byte(namelist[i])[1:])
+			column.GoField += strings.ToUpper(strStart) + strend
+			if i == 0 {
+				column.JsonField = strings.ToLower(strStart) + strend
+			} else {
+				column.JsonField += strings.ToUpper(strStart) + strend
+			}
+		}
 		column.IsRequired = "0"
 		if strings.Contains(dbcolumn[i].IsNullable, "NO") {
 			column.IsRequired = "1"
 			column.Required = true
 		}
+
 		if strings.Contains(dbcolumn[i].ColumnType, "int") {
 			column.GoType = "int64"
 			column.HtmlType = "input"
-		//} else if strings.Contains(dbcolumn[i].ColumnType, "char") {
-		//	column.GoType = "bool"
-		//	column.HtmlType = "input"
 		} else {
 			column.GoType = "string"
 			column.HtmlType = "input"
@@ -137,6 +156,30 @@ func InsertSysTable(c *gin.Context) {
 	res.Msg = "添加成功！"
 	c.JSON(http.StatusOK, res.ReturnOK())
 
+}
+
+// @Summary 修改表结构
+// @Description 修改表结构
+// @Tags 工具 - 生成表
+// @Accept  application/json
+// @Product application/json
+// @Param data body models.Dept true "body"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/sys/tables/info [put]
+// @Security Bearer
+func UpdateSysTable(c *gin.Context) {
+	var data tools.SysTables
+	err := c.Bind(&data)
+	pkg.AssertErr(err, "数据解析失败", -1)
+	data.UpdateBy = utils.GetUserIdStr(c)
+	result, err := data.Update()
+	pkg.AssertErr(err, "", -1)
+
+	var res models.Response
+	res.Data = result
+	res.Msg = "修改成功"
+	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
 // @Summary 删除表结构

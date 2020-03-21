@@ -13,6 +13,7 @@ type SysColumns struct {
 	ColumnType    string `gorm:"column:column_type" json:"columnType"`
 	GoType        string `gorm:"column:go_type" json:"goType"`
 	GoField       string `gorm:"column:go_field" json:"goField"`
+	JsonField       string `gorm:"column:json_field" json:"jsonField"`
 	IsPk          string `gorm:"column:is_pk" json:"isPk"`
 	IsIncrement   string `gorm:"column:is_increment" json:"isIncrement"`
 	IsRequired    string `gorm:"column:is_required" json:"isRequired"`
@@ -65,3 +66,19 @@ func (e *SysColumns) Create() (SysColumns, error) {
 	doc = *e
 	return doc, nil
 }
+
+func (e *SysColumns) Update() (update SysColumns, err error) {
+	e.UpdateTime = utils.GetCurrntTime()
+	if err = orm.Eloquent.Table("sys_columns").First(&update, e.ColumnId).Error; err != nil {
+		return
+	}
+
+	//参数1:是要修改的数据
+	//参数2:是修改的数据
+	if err = orm.Eloquent.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
+		return
+	}
+
+	return
+}
+

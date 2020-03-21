@@ -39,8 +39,14 @@ type SysTables struct {
 	UpdateBy   string       `gorm:"column:update_By" json:"updateBy"`
 	UpdateTime string       `gorm:"column:update_time" json:"updateTime"`
 	DataScope  string       `gorm:"-" json:"dataScope"`
-	Params     string       `gorm:"-" json:"params"`
+	Params     Params       `gorm:"-" json:"params"`
 	Columns    []SysColumns `gorm:"-" json:"columns"`
+}
+
+type Params struct {
+	TreeCode       string `gorm:"-" json:"treeCode"`
+	TreeParentCode string `gorm:"-" json:"treeParentCode"`
+	TreeName       string `gorm:"-" json:"treeName"`
 }
 
 func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, error) {
@@ -119,6 +125,10 @@ func (e *SysTables) Update() (update SysTables, err error) {
 	//参数2:是修改的数据
 	if err = orm.Eloquent.Table("sys_tables").Model(&update).Updates(&e).Error; err != nil {
 		return
+	}
+
+	for i:=0;i< len(e.Columns);i++  {
+		_, _ = e.Columns[i].Update()
 	}
 	return
 }

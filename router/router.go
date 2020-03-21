@@ -60,9 +60,9 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/db/columns/page", GetDBColumnList)
 		apiv1.GET("/sys/tables/page", GetSysTableList)
 		apiv1.POST("/sys/tables/info", InsertSysTable)
+		apiv1.PUT("/sys/tables/info", UpdateSysTable)
 		apiv1.DELETE("/sys/tables/info/:tableId", DeleteSysTables)
 		apiv1.GET("/sys/tables/info/:tableId", GetSysTables)
-
 		apiv1.GET("/menuTreeselect", GetMenuTreeelect)
 		apiv1.GET("/rolemenu", GetRoleMenu)
 		apiv1.POST("/rolemenu", InsertRoleMenu)
