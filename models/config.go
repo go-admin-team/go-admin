@@ -34,7 +34,7 @@ type Config struct {
 func (e *Config) Create() (Config, error) {
 	var doc Config
 	doc.IsDel = "0"
-	e.CreateTime = time.Now().String()
+	e.CreateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_config").Create(&e)
 	if result.Error != nil {
 		err := result.Error
