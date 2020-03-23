@@ -303,7 +303,7 @@ func InitPaths(menu *Menu) (err error) {
 }
 
 func (e *Menu) Update(id int64) (update Menu, err error) {
-	e.UpdateTime = time.Now().String()
+	e.UpdateTime = utils.GetCurrntTime()
 	if err = orm.Eloquent.Table("sys_menu").First(&update, id).Error; err != nil {
 		return
 	}
