@@ -24,23 +24,24 @@ type SysTables struct {
 	//功能名称
 	FunctionName string `gorm:"column:function_name" json:"functionName"`
 	//功能作者
-	FunctionAuthor string `gorm:"column:function_author" json:"functionAuthor"`
-	PkColumn       string `gorm:"column:pk_column" json:"pkColumn"`
-	Options        string `gorm:"column:options" json:"options"`
-	TreeCode       string `gorm:"column:tree_code" json:"treeCode"`
-	TreeParentCode string `gorm:"column:tree_parent_code" json:"treeParentCode"`
-	TreeName       string `gorm:"column:tree_name" json:"treeName"`
-	Tree           bool   `gorm:"column:tree" json:"tree"`
-	Crud           bool   `gorm:"column:crud" json:"crud"`
-	Remark         string `gorm:"column:remark" json:"remark"`
-
-	CreateBy   string       `gorm:"column:create_by" json:"createBy"`
-	CreateTime string       `gorm:"column:create_time" json:"createTime"`
-	UpdateBy   string       `gorm:"column:update_By" json:"updateBy"`
-	UpdateTime string       `gorm:"column:update_time" json:"updateTime"`
-	DataScope  string       `gorm:"-" json:"dataScope"`
-	Params     Params       `gorm:"-" json:"params"`
-	Columns    []SysColumns `gorm:"-" json:"columns"`
+	FunctionAuthor      string       `gorm:"column:function_author" json:"functionAuthor"`
+	PkColumn            string       `gorm:"column:pk_column" json:"pkColumn"`
+	Options             string       `gorm:"column:options" json:"options"`
+	TreeCode            string       `gorm:"column:tree_code" json:"treeCode"`
+	TreeParentCode      string       `gorm:"column:tree_parent_code" json:"treeParentCode"`
+	TreeName            string       `gorm:"column:tree_name" json:"treeName"`
+	Tree                bool         `gorm:"column:tree" json:"tree"`
+	Crud                bool         `gorm:"column:crud" json:"crud"`
+	Remark              string       `gorm:"column:remark" json:"remark"`
+	IsLogicalDelete     bool         `gorm:"column:is_logical_delete" json:"isLogicalDelete"`
+	LogicalDeleteColumn string       `gorm:"column:logical_delete_column" json:"logicalDeleteColumn"`
+	CreateBy            string       `gorm:"column:create_by" json:"createBy"`
+	CreateTime          string       `gorm:"column:create_time" json:"createTime"`
+	UpdateBy            string       `gorm:"column:update_By" json:"updateBy"`
+	UpdateTime          string       `gorm:"column:update_time" json:"updateTime"`
+	DataScope           string       `gorm:"-" json:"dataScope"`
+	Params              Params       `gorm:"-" json:"params"`
+	Columns             []SysColumns `gorm:"-" json:"columns"`
 }
 
 type Params struct {
@@ -89,7 +90,7 @@ func (e *SysTables) Get() (SysTables, error) {
 		return doc, err
 	}
 	var col SysColumns
-	col.TableId = e.TableId
+	col.TableId = doc.TableId
 	if doc.Columns, err = col.GetList(); err != nil {
 		return doc, err
 	}
@@ -127,7 +128,7 @@ func (e *SysTables) Update() (update SysTables, err error) {
 		return
 	}
 
-	for i:=0;i< len(e.Columns);i++  {
+	for i := 0; i < len(e.Columns); i++ {
 		_, _ = e.Columns[i].Update()
 	}
 	return
