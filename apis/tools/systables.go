@@ -118,6 +118,7 @@ func InsertSysTable(c *gin.Context) {
 		if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
 			column.IsPk = "1"
 			column.Pk = true
+			data.PkColumn = dbcolumn[i].ColumnName
 		}
 
 		namelist := strings.Split(dbcolumn[i].ColumnName, "_")
