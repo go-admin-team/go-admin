@@ -87,6 +87,7 @@ func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int32, erro
 func (e *LoginLog) Create() (LoginLog, error) {
 	var doc LoginLog
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
 	result := orm.Eloquent.Table("sys_loginlog").Create(&e)
