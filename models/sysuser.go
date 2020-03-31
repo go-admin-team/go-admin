@@ -74,7 +74,7 @@ type SysUserB struct {
 	Remark    string `gorm:"column:remark" json:"remark"`
 	Params    string `gorm:"column:params" json:"params"`
 	Status    string `gorm:"column:status" json:"status"`
-	DataScope string `gorm:"_" json:"dataScope"`
+	DataScope string `gorm:"-" json:"dataScope"`
 	IsDel     string `gorm:"column:is_del" json:"isDel"`
 }
 
@@ -184,6 +184,7 @@ func (e *SysUser) Encrypt() (err error) {
 //添加
 func (e SysUser) Insert() (id int64, err error) {
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	if err = e.Encrypt(); err != nil {
 		return
 	}
