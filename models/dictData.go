@@ -43,6 +43,7 @@ type DictData struct {
 func (e *DictData) Create() (DictData, error) {
 	var doc DictData
 	e.CreateTime = time.Now().String()
+	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_dict_data").Create(&e)
 	if result.Error != nil {
 		err := result.Error
