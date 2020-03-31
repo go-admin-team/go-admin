@@ -271,6 +271,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 
 func (e *Menu) Create() (id int64, err error) {
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	e.IsDel = "0"
 	result := orm.Eloquent.Table("sys_menu").Create(&e)
 	if result.Error != nil {
