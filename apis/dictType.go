@@ -47,7 +47,7 @@ func GetDictTypeList(c *gin.Context) {
 	mp["list"] = result
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
-	mp["pageIndex"] = pageSize
+	mp["pageSize"] = pageSize
 
 	var res models.Response
 	res.Data = mp
@@ -66,6 +66,18 @@ func GetDictType(c *gin.Context) {
 	DictType.DictName = c.Request.FormValue("dictName")
 	DictType.DictId, _ = strconv.ParseInt(c.Param("dictId"), 10, 64)
 	result, err := DictType.Get()
+	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+	var res models.Response
+	res.Data = result
+	c.JSON(http.StatusOK, res.ReturnOK())
+}
+
+
+func GetDictTypeOptionSelect(c *gin.Context) {
+	var DictType models.DictType
+	DictType.DictName = c.Request.FormValue("dictName")
+	DictType.DictId, _ = strconv.ParseInt(c.Param("dictId"), 10, 64)
+	result, err := DictType.GetList()
 	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
 	var res models.Response
 	res.Data = result

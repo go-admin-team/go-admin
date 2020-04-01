@@ -34,16 +34,6 @@ type RoleMenuPost struct {
 	RoleMenu []models.RoleMenu
 }
 
-// @Summary 创建角色菜单
-// @Description 获取JSON
-// @Tags 角色菜单
-// @Accept  application/x-www-form-urlencoded
-// @Product application/x-www-form-urlencoded
-// @Param role_id formData string true "role_id"
-// @Param menu_id formData string true "menu_id"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/rolemenu [post]
 func InsertRoleMenu(c *gin.Context) {
 	//roleId := c.Request.FormValue("role_id")
 	//menuId := c.Request.FormValue("menu_id")
@@ -82,7 +72,6 @@ func InsertRoleMenu(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/rolemenu/{id} [delete]
 func DeleteRoleMenu(c *gin.Context) {
-	fmt.Println("!!!!!!!!!!!!!!")
 	var t models.RoleMenu
 	id := c.Param("id")
 	menuId := c.Request.FormValue("menu_id")

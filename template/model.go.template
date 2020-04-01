@@ -1,0 +1,107 @@
+package models
+
+import (
+    orm "go-admin/database"
+    "go-admin/utils"
+    "time"
+)
+
+type {{.ClassName}} struct {
+{{ range .Columns -}}
+    {{$x := .Pk}}
+    // {{.ColumnComment}}
+    {{if ($x)}}{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"column:{{.ColumnName}};primary_key"`{{else}}{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"column:{{.ColumnName}};"`{{end}}
+{{ end -}}
+}
+
+// 创建{{.ClassName}}
+func (e *{{.ClassName}}) Create() ({{.ClassName}}, error) {
+    var doc {{.ClassName}}
+    doc.IsDel = "0"
+    e.CreateTime = time.Now().String()
+    result := orm.Eloquent.Table("{{.TableName}}").Create(&e)
+    if result.Error != nil {
+        err := result.Error
+        return doc, err
+    }
+    doc = *e
+    return doc, nil
+}
+
+// 获取{{.ClassName}}
+func (e *{{.ClassName}}) Get() ({{.ClassName}}, error) {
+    var doc {{.ClassName}}
+
+    table := orm.Eloquent.Table("{{.TableName}}")
+    {{ range .Columns -}}
+    {{$z := .IsQuery}}
+    {{- if ($z) -}}
+    if e.{{.GoField}} !=  "" {
+        table = table.Where("{{.ColumnName}} = ?", e.{{.GoField}})
+    }
+    {{ end -}}
+    {{ end }}
+
+    if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
+        return doc, err
+    }
+    return doc, nil
+}
+
+// 获取{{.ClassName}}带分页
+func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}}, int32, error) {
+    var doc []{{.ClassName}}
+
+    table := orm.Eloquent.Select("*").Table("{{.TableName}}")
+    {{ range .Columns -}}
+    {{$z := .IsQuery}}
+    {{- if ($z) -}}
+    if e.{{.GoField}} != "" {
+        table = table.Where("{{.ColumnName}} = ?", e.{{.GoField}})
+    }
+    {{ end -}}
+    {{ end }}
+
+    // 数据权限控制
+    dataPermission := new(DataPermission)
+    dataPermission.UserId, _ = utils.StringToInt64(e.DataScope)
+    table = dataPermission.GetDataScope("{{.TableName}}", table)
+
+    var count int32
+    table = table.Where("is_del = 0").Offset((pageIndex - 1) * pageSize).Limit(pageSize)
+    if err := table.Find(&doc).Error; err != nil {
+        return nil, 0, err
+    }
+    table.Where("is_del = 0").Count(&count)
+    return doc, count, nil
+}
+
+// 更新{{.ClassName}}
+func (e *{{.ClassName}}) Update(id int64) (update {{.ClassName}}, err error) {
+    e.UpdateTime = utils.GetCurrntTime()
+    if err = orm.Eloquent.Table("{{.TableName}}").Where("{{.PkColumn}} = ?", id).First(&update).Error; err != nil {
+        return
+    }
+
+    //参数1:是要修改的数据
+    //参数2:是修改的数据
+    if err = orm.Eloquent.Table("{{.TableName}}").Model(&update).Updates(&e).Error; err != nil {
+        return
+    }
+    return
+}
+
+// 删除{{.ClassName}}
+func (e *{{.ClassName}}) Delete(id int64) (success bool, err error) {
+    var mp = map[string]string{}
+    mp["is_del"] = "1"
+    mp["update_time"] = utils.GetCurrntTime()
+    mp["update_by"] = e.UpdateBy
+    if err = orm.Eloquent.Table("{{.TableName}}").Where("{{.PkColumn}} = ?", id).Update(mp).Error; err != nil {
+        success = false
+        return
+    }
+    success = true
+    return
+}
+

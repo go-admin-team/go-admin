@@ -63,6 +63,26 @@ func (e *DictType) Get() (DictType, error) {
 	return doc, nil
 }
 
+func (e *DictType) GetList() ([]DictType, error) {
+	var doc []DictType
+
+	table := orm.Eloquent.Table("sys_dict_type")
+	if e.DictId != 0 {
+		table = table.Where("dictId = ?", e.DictId)
+	}
+	if e.DictName != "" {
+		table = table.Where("dictName = ?", e.DictName)
+	}
+	if e.DictType != "" {
+		table = table.Where("dictType = ?", e.DictType)
+	}
+
+	if err := table.Where("is_del = 0").Find(&doc).Error; err != nil {
+		return doc, err
+	}
+	return doc, nil
+}
+
 func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int32, error) {
 	var doc []DictType
 

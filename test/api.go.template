@@ -1,12 +1,12 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/utils"
-	"net/http"
+"github.com/gin-gonic/gin"
+"github.com/gin-gonic/gin/binding"
+"go-admin/models"
+"go-admin/pkg"
+"go-admin/utils"
+"net/http"
 )
 
 // @Summary 配置列表数据
@@ -20,23 +20,27 @@ import (
 // @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configList [get]
 // @Security
-func GetConfigList(c *gin.Context) {
-	var data models.Config
+func Get{{.ClassName}}List(c *gin.Context) {
+	var data models.{{.ClassName}}
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = pkg.StrToInt(err, size)
+	pageSize = pkg.StrToInt(err, size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
 		pageIndex = pkg.StrToInt(err, index)
 	}
 
-	data.ConfigKey = c.Request.FormValue("configKey")
-	data.ConfigName = c.Request.FormValue("configName")
-	data.ConfigType = c.Request.FormValue("configType")
+	{{ range .Columns -}}
+	{{$z := .IsQuery}}
+	{{- if ($z) -}}
+	data.{{.GoField}} = c.Request.FormValue("{{.JsonField}}")
+	{{ end }}
+	{{- end -}}
+
 	data.DataScope = utils.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	pkg.AssertErr(err, "", -1)
@@ -45,7 +49,7 @@ func GetConfigList(c *gin.Context) {
 	mp["list"] = result
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
+	mp["pageIndex"] = pageSize
 
 	var res models.Response
 	res.Data = mp
@@ -60,34 +64,15 @@ func GetConfigList(c *gin.Context) {
 // @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/config/{configId} [get]
 // @Security
-func GetConfig(c *gin.Context) {
-	var Config models.Config
-	Config.ConfigId, _ = utils.StringToInt64(c.Param("configId"))
-	result, err := Config.Get()
+func Get{{.ClassName}}(c *gin.Context) {
+	var data models.{{.ClassName}}
+	data.{{.PkGoField}}, _ = utils.StringToInt64(c.Param("{{.PkJsonField}}"))
+	result, err := data.Get()
 	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
 
 	var res models.Response
 	res.Data = result
 
-	c.JSON(http.StatusOK, res.ReturnOK())
-}
-
-// @Summary 获取配置
-// @Description 获取JSON
-// @Tags 配置
-// @Param configKey path int true "configKey"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/configKey/{configKey} [get]
-// @Security
-func GetConfigByConfigKey(c *gin.Context) {
-	var Config models.Config
-	Config.ConfigKey = c.Param("configKey")
-	result, err := Config.Get()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-
-	var res models.Response
-	res.Data = result
-	res.Msg = result.ConfigValue
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
@@ -101,8 +86,8 @@ func GetConfigByConfigKey(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data [post]
 // @Security Bearer
-func InsertConfig(c *gin.Context) {
-	var data models.Config
+func Insert{{.ClassName}}(c *gin.Context) {
+	var data models.{{.ClassName}}
 	err := c.BindWith(&data, binding.JSON)
 	data.CreateBy = utils.GetUserIdStr(c)
 	pkg.AssertErr(err, "", 500)
@@ -115,22 +100,12 @@ func InsertConfig(c *gin.Context) {
 
 }
 
-// @Summary 修改配置
-// @Description 获取JSON
-// @Tags 配置
-// @Accept  application/json
-// @Product application/json
-// @Param data body models.Config true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/config [put]
-// @Security Bearer
-func UpdateConfig(c *gin.Context) {
-	var data models.Config
+func Update{{.ClassName}}(c *gin.Context) {
+	var data models.{{.ClassName}}
 	err := c.BindWith(&data, binding.JSON)
 	pkg.AssertErr(err, "数据解析失败", -1)
 	data.UpdateBy = utils.GetUserIdStr(c)
-	result, err := data.Update(data.ConfigId)
+	result, err := data.Update(data.{{.PkGoField}})
 	pkg.AssertErr(err, "", -1)
 
 	var res models.Response
@@ -138,16 +113,9 @@ func UpdateConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
-// @Summary 删除配置
-// @Description 删除数据
-// @Tags 配置
-// @Param configId path int true "configId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/config/{configId} [delete]
-func DeleteConfig(c *gin.Context) {
-	var data models.Config
-	id, err := utils.StringToInt64(c.Param("configId"))
+func Delete{{.ClassName}}(c *gin.Context) {
+	var data models.{{.ClassName}}
+	id, err := utils.StringToInt64(c.Param("{{.PkJsonField}}"))
 	data.UpdateBy = utils.GetUserIdStr(c)
 	_, err = data.Delete(id)
 	pkg.AssertErr(err, "修改失败", 500)

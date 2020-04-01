@@ -1,0 +1,94 @@
+package apis
+
+import (
+  "github.com/gin-gonic/gin"
+  "github.com/gin-gonic/gin/binding"
+  "go-admin/models"
+  "go-admin/pkg"
+  "go-admin/utils"
+  "net/http"
+)
+
+func Get{{.ClassName}}List(c *gin.Context) {
+    var data models.{{.ClassName}}
+    var err error
+    var pageSize = 10
+    var pageIndex = 1
+
+    if size := c.Request.FormValue("pageSize"); size != "" {
+        pageSize = pkg.StrToInt(err, size)
+    }
+    if index := c.Request.FormValue("pageIndex"); index != "" {
+        pageIndex = pkg.StrToInt(err, index)
+    }
+
+	{{ range .Columns -}}
+	{{$z := .IsQuery}}
+	{{- if ($z) -}}data.{{.GoField}} = c.Request.FormValue("{{.JsonField}}")
+	{{ end -}}
+	{{end}}
+
+    data.DataScope = utils.GetUserIdStr(c)
+    result, count, err := data.GetPage(pageSize, pageIndex)
+    pkg.AssertErr(err, "", -1)
+
+    var mp = make(map[string]interface{}, 3)
+    mp["list"] = result
+    mp["count"] = count
+    mp["pageIndex"] = pageIndex
+    mp["pageIndex"] = pageSize
+
+    var res models.Response
+    res.Data = mp
+
+    c.JSON(http.StatusOK, res.ReturnOK())
+}
+
+func Get{{.ClassName}}(c *gin.Context) {
+    var data models.{{.ClassName}}
+    data.{{.PkGoField}}, _ = utils.StringToInt64(c.Param("{{.PkJsonField}}"))
+    result, err := data.Get()
+    pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+
+    var res models.Response
+    res.Data = result
+
+    c.JSON(http.StatusOK, res.ReturnOK())
+}
+
+func Insert{{.ClassName}}(c *gin.Context) {
+    var data models.{{.ClassName}}
+    err := c.BindWith(&data, binding.JSON)
+    data.CreateBy = utils.GetUserIdStr(c)
+    pkg.AssertErr(err, "", 500)
+    result, err := data.Create()
+    pkg.AssertErr(err, "", -1)
+    var res models.Response
+    res.Data = result
+    c.JSON(http.StatusOK, res.ReturnOK())
+}
+
+func Update{{.ClassName}}(c *gin.Context) {
+    var data models.{{.ClassName}}
+    err := c.BindWith(&data, binding.JSON)
+    pkg.AssertErr(err, "数据解析失败", -1)
+    data.UpdateBy = utils.GetUserIdStr(c)
+    result, err := data.Update(data.{{.PkGoField}})
+    pkg.AssertErr(err, "", -1)
+
+    var res models.Response
+    res.Data = result
+    c.JSON(http.StatusOK, res.ReturnOK())
+}
+
+func Delete{{.ClassName}}(c *gin.Context) {
+    var data models.{{.ClassName}}
+    id, err := utils.StringToInt64(c.Param("{{.PkJsonField}}"))
+    data.UpdateBy = utils.GetUserIdStr(c)
+    _, err = data.Delete(id)
+    pkg.AssertErr(err, "修改失败", 500)
+
+    var res models.Response
+    res.Msg = "删除成功"
+    c.JSON(http.StatusOK, res.ReturnOK())
+}

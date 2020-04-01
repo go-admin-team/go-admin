@@ -10,12 +10,12 @@ import (
 	"strconv"
 )
 
-// @Summary 配置列表数据
-// @Description 获取JSON
-// @Tags 配置
-// @Param configKey query string false "configKey"
-// @Param configName query string false "configName"
-// @Param configType query string false "configType"
+// @Summary 角色列表数据
+// @Description Get JSON
+// @Tags 角色/Role
+// @Param roleName query string false "roleName"
+// @Param status query string false "status"
+// @Param roleKey query string false "roleKey"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
@@ -46,7 +46,7 @@ func GetRoleList(c *gin.Context) {
 	mp["list"] = result
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
-	mp["pageIndex"] = pageSize
+	mp["pageSize"] = pageSize
 
 	var res models.Response
 	res.Data = mp
@@ -56,7 +56,7 @@ func GetRoleList(c *gin.Context) {
 
 // @Summary 获取Role数据
 // @Description 获取JSON
-// @Tags 角色
+// @Tags 角色/Role
 // @Param roleId path string false "roleId"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
@@ -87,7 +87,7 @@ func GetRole(c *gin.Context) {
 
 // @Summary 创建角色
 // @Description 获取JSON
-// @Tags 角色
+// @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
 // @Param data body models.Config true "data"
@@ -113,7 +113,7 @@ func InsertRole(c *gin.Context) {
 
 // @Summary 修改用户角色
 // @Description 获取JSON
-// @Tags 角色
+// @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
 // @Param data body models.SysRole true "body"
@@ -162,7 +162,7 @@ func UpdateRoleDataScope(c *gin.Context) {
 
 // @Summary 删除用户角色
 // @Description 删除数据
-// @Tags 角色
+// @Tags 角色/Role
 // @Param roleId path int true "roleId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
