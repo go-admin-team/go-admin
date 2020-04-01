@@ -34,45 +34,6 @@ type RoleMenuPost struct {
 	RoleMenu []models.RoleMenu
 }
 
-// @Summary 创建角色菜单
-// @Description 获取JSON
-// @Tags 角色菜单
-// @Accept  application/x-www-form-urlencoded
-// @Product application/x-www-form-urlencoded
-// @Param role_id formData string true "role_id"
-// @Param menu_id formData string true "menu_id"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/rolemenu [post]
-func InsertRoleMenu(c *gin.Context) {
-	//roleId := c.Request.FormValue("role_id")
-	//menuId := c.Request.FormValue("menu_id")
-	//menus := strings.Split(menuId, ",")
-	//fmt.Println(menus)
-	//var t models.RoleMenu
-	//_,err := t.DeleteRoleMenu(roleId)
-	//if err != nil {
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"code":    -1,
-	//		"message": "添加失败1",
-	//	})
-	//	return
-	//}
-	//_, err2 := t.Insert(roleId, menus)
-	//if err2 != nil {
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"code":    -1,
-	//		"message": "添加失败2",
-	//	})
-	//	return
-	//}
-	var res models.Response
-	res.Msg = "添加成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
-	return
-
-}
-
 // @Summary 删除用户菜单数据
 // @Description 删除数据
 // @Tags 角色菜单

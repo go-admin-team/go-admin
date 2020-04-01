@@ -38,7 +38,7 @@ func GetDBTableList(c *gin.Context) {
 	mp["list"] = result
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
-	mp["pageIndex"] = pageSize
+	mp["pageSize"] = pageSize
 
 	var res models.Response
 	res.Data = mp

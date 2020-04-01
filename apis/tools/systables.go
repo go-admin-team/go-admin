@@ -40,7 +40,7 @@ func GetSysTableList(c *gin.Context) {
 	mp["list"] = result
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
-	mp["pageIndex"] = pageSize
+	mp["pageSize"] = pageSize
 
 	var res models.Response
 	res.Data = mp
@@ -97,13 +97,25 @@ func InsertSysTable(c *gin.Context) {
 		strend := string([]byte(tablenamelist[i])[1:])
 		data.ClassName += strings.ToUpper(strStart) + strend
 		data.PackageName += strings.ToLower(strStart) + strings.ToLower(strend)
+		data.ModuleName += strings.ToLower(strStart) + strings.ToLower(strend)
 	}
 	data.TplCategory = "crud"
+	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList()
 	data.CreateTime = utils.GetCurrntTime()
 	data.CreateBy = utils.GetUserIdStr(c)
 	data.TableComment = dbtable.TableComment
+	if dbtable.TableComment == "" {
+		data.TableComment = data.ClassName
+	}
+
+	data.FunctionName = data.TableComment
+	data.BusinessName = data.ModuleName
+	data.IsLogicalDelete = "1"
+	data.LogicalDelete = true
+	data.LogicalDeleteColumn = "is_del"
+
 	data.FunctionAuthor = "wenjianzhang"
 	for i := 0; i < len(dbcolumn); i++ {
 		var column tools.SysColumns
@@ -115,11 +127,6 @@ func InsertSysTable(c *gin.Context) {
 		column.IsInsert = "1"
 		column.QueryType = "EQ"
 		column.IsPk = "0"
-		if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
-			column.IsPk = "1"
-			column.Pk = true
-			data.PkColumn = dbcolumn[i].ColumnName
-		}
 
 		namelist := strings.Split(dbcolumn[i].ColumnName, "_")
 		for i := 0; i < len(namelist); i++ {
@@ -131,6 +138,13 @@ func InsertSysTable(c *gin.Context) {
 			} else {
 				column.JsonField += strings.ToUpper(strStart) + strend
 			}
+		}
+		if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
+			column.IsPk = "1"
+			column.Pk = true
+			data.PkColumn = dbcolumn[i].ColumnName
+			data.PkGoField = column.GoField
+			data.PkJsonField = column.JsonField
 		}
 		column.IsRequired = "0"
 		if strings.Contains(dbcolumn[i].IsNullable, "NO") {
