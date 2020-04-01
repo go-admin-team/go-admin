@@ -179,7 +179,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 ## 版本
 
-### 2020-04 新功能预告
+### 2020-04-1 新功能及bug修复
 
 1. 代码生成器
 2. 代码优化
