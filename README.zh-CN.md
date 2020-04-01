@@ -1,12 +1,14 @@
 #  go-admin  
 
-  <a href="https://github.com/wenjianzhang/go-admin/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
-  </a>
+![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
   
   [English](./README.md) | 简体中文
   
-##### 基于Gin + Vue + Element UI的前后端分离权限管理系统脚手架
+
+##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
+
+系统初始化极度简单，只需要配置文件中，修改数据库连接，系统启动后会自动初始化数据库信息以及必须的基础数据
+
 
 
 ## ✨ 特性
@@ -25,6 +27,10 @@
 
 - 配置文件简单的模型映射，快速能够得到想要的配置
 
+- 代码生成工具（即将push，demo已经发布可以体验了）
+
+- 表单构建工具（即将push，demo已经发布可以体验了）
+
 - TODO: 单元测试
 
 
@@ -40,6 +46,8 @@
 8.  操作日志：系统正常操作日志记录和查询；系统异常信息日志记录和查询。
 9.  登录日志：系统登录日志记录查询包含登录异常。
 10. 系统接口：根据业务代码自动生成相关的api接口文档。
+11. 代码生成：根据数据表结构生成对应的增删改查相对应业务，全部可视化编程。
+12. 表单构建：自定义页面样式，拖拉拽实现页面布局。
 
 ## 配置详情
 
@@ -78,7 +86,8 @@ settings:
     port: 3306       
     # 数据库用户名
     username: root   
-  redis:
+  # redis 可忽略
+  redis: 
     # redis链接地址
     addr: 0.0.0.0:6379 
     # db 
@@ -101,7 +110,7 @@ settings:
 git clone https://github.com/wenjianzhang/go-admin.git
 
 # 进入工作路径
-cd ./go-admin/src/go-admin
+cd ./go-admin
 
 # 编译项目
 go build
@@ -170,6 +179,12 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 ## 版本
 
+### 2020-04 新功能预告
+
+1. 代码生成器
+2. 代码优化
+3. 已知bug修复
+
 #### 2020-03-15 新功能及优化
 
 1. 添加用户头像上传
@@ -178,6 +193,21 @@ env GOOS=linux GOARCH=amd64 go build main.go
 4. 优化验证码背景色
 
 看到好多体验的朋友验证码错误，所以调整了对比度，方便大家体验！
+
+## 互动
+
+<table>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/go-admin/master/demo/wx.png" width="180px"></td>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/go-admin/master/demo/qq.png" width="200px"></td>
+  </tr>
+  <tr>
+    <td>微信</td>
+    <td>QQ</td>
+  </tr>
+</table>
+  
+<a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=1affb445445bd442312fcad9a927007db74a0cd4380bbc08a6c97d2691744869"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流" title="go-admin技术交流"></a>
 
 
 ## 🤝 特别感谢
@@ -189,5 +219,3 @@ env GOOS=linux GOARCH=amd64 go build main.go
 [MIT](https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md)
 
 Copyright (c) 2020 wenjianzhang
-
-qq技术交流群: 74520518

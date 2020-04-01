@@ -1,9 +1,8 @@
 #  go-admin  
 
-  <a href="https://github.com/wenjianzhang/go-admin/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
-  </a>
-  
+![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
+
+
  English | [简体中文](./README.zh-CN.md)
   
 ##### Gin + Vue + Element UI based scaffolding for front and back separation management system
@@ -102,7 +101,7 @@ First start instructions
 git clone https://github.com/wenjianzhang/go-admin.git
 
 # Enter working path
-cd ./go-admin/src/go-admin
+cd ./go-admin
 
 # Build the project
 go build
