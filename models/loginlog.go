@@ -114,7 +114,7 @@ func (e *LoginLog) Update(id int64) (update LoginLog, err error) {
 }
 
 func (e *LoginLog) BatchDelete(id []int64) (Result bool, err error) {
-	if err = orm.Eloquent.Table("sys_loginlog").Where("is_del=0 and infoId in (?)", id).Update(map[string]interface{}{"is_del": "1", "update_time": time.Now(), "update_by": e.UpdateBy}).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_loginlog").Where("is_del=0 and infoId in (?)", id).Update(map[string]interface{}{"is_del": "1", "update_time": utils.GetCurrntTime(), "update_by": e.UpdateBy}).Error; err != nil {
 		return
 	}
 	Result = true
