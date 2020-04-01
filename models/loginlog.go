@@ -3,7 +3,6 @@ package models
 import (
 	orm "go-admin/database"
 	"go-admin/utils"
-	"time"
 )
 
 type LoginLog struct {
@@ -100,7 +99,7 @@ func (e *LoginLog) Create() (LoginLog, error) {
 }
 
 func (e *LoginLog) Update(id int64) (update LoginLog, err error) {
-	e.UpdateTime = time.Now().String()
+	e.UpdateTime = utils.GetCurrntTime()
 
 	if err = orm.Eloquent.Table("sys_loginlog").First(&update, id).Error; err != nil {
 		return
