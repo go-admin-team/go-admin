@@ -2,46 +2,6 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- 开始初始化表结构 ;
-DROP TABLE IF EXISTS `sys_role_dept`;
-CREATE TABLE `sys_role_dept` (
-  `role_id` int(11) DEFAULT NULL COMMENT '角色ID',
-  `dept_id` int(11) DEFAULT NULL COMMENT '部门ID'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-DROP TABLE IF EXISTS `sys_role_menu`;
-CREATE TABLE `sys_role_menu` (
-  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
-  `menu_id` int(11) DEFAULT NULL COMMENT '权限id',
-  `rule_type` char(1) DEFAULT 'p',
-  `role_name` varchar(64) DEFAULT NULL,
-  `path` varchar(128) DEFAULT NULL,
-  `action` varchar(8) DEFAULT NULL COMMENT '请求方式 GET  POST '
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-DROP TABLE IF EXISTS `sys_user`;
-CREATE TABLE `sys_user` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `username` varchar(64) NOT NULL COMMENT '用户名',
-  `salt` varchar(255) DEFAULT NULL COMMENT '盐',
-  `password` varchar(128) NOT NULL COMMENT '密码',
-  `nick_name` varchar(64) DEFAULT NULL COMMENT '昵称',
-  `phone` varchar(11) DEFAULT NULL COMMENT '手机',
-  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
-  `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
-  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
-  `dept_id` int(11) DEFAULT NULL COMMENT '部门编码',
-  `post_id` int(11) DEFAULT NULL COMMENT '职位编码',
-  `status` varchar(255) DEFAULT NULL COMMENT '状态',
-  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
-  `create_by` varchar(255) DEFAULT NULL,
-  `sex` varchar(255) DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `update_by` varchar(255) DEFAULT NULL,
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `dataScope` varchar(255) DEFAULT NULL,
-  `params` varchar(255) DEFAULT NULL,
-  `is_del` int(1) DEFAULT '0' COMMENT '是否删除',
-  `dept_path` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 DROP TABLE IF EXISTS `casbin_rule`;
 CREATE TABLE `casbin_rule` (
   `p_type` varchar(100) DEFAULT NULL,
@@ -51,7 +11,44 @@ CREATE TABLE `casbin_rule` (
   `v3` varchar(100) DEFAULT NULL,
   `v4` varchar(100) DEFAULT NULL,
   `v5` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限配置表';
+DROP TABLE IF EXISTS `sys_columns`;
+CREATE TABLE `sys_columns` (
+  `column_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '列编码',
+  `table_id` int(11) DEFAULT NULL COMMENT '表编码',
+  `column_name` varchar(128) DEFAULT NULL,
+  `column_comment` varchar(128) DEFAULT NULL,
+  `column_type` varchar(128) DEFAULT NULL,
+  `go_type` varchar(128) DEFAULT NULL,
+  `go_field` varchar(128) DEFAULT NULL,
+  `json_field` varchar(128) DEFAULT NULL,
+  `is_pk` char(4) DEFAULT NULL,
+  `is_increment` char(4) DEFAULT NULL,
+  `is_required` char(4) DEFAULT NULL,
+  `is_insert` char(4) DEFAULT NULL,
+  `is_edit` char(4) DEFAULT NULL,
+  `is_list` char(4) DEFAULT NULL,
+  `is_query` char(4) DEFAULT NULL,
+  `query_type` varchar(128) DEFAULT NULL,
+  `html_type` varchar(128) DEFAULT NULL,
+  `dict_type` varchar(128) DEFAULT NULL,
+  `sort` int(128) DEFAULT NULL,
+  `list` char(1) DEFAULT NULL,
+  `pk` char(1) DEFAULT NULL,
+  `required` char(1) DEFAULT NULL,
+  `super_column` char(1) DEFAULT NULL,
+  `usable_column` char(1) DEFAULT NULL,
+  `increment` char(1) DEFAULT NULL,
+  `insert` char(1) DEFAULT NULL,
+  `edit` char(1) DEFAULT NULL,
+  `query` char(1) DEFAULT NULL,
+  `create_by` varchar(128) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `update_by` varchar(128) DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`column_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=368 DEFAULT CHARSET=utf8mb4 COMMENT='数据列表';
 DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE `sys_config` (
   `configId` int(11) NOT NULL AUTO_INCREMENT,
@@ -68,7 +65,7 @@ CREATE TABLE `sys_config` (
   `params` varchar(255) DEFAULT NULL,
   `is_del` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`configId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='参数表';
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept` (
   `deptId` int(11) NOT NULL AUTO_INCREMENT COMMENT '部门编码',
@@ -108,7 +105,7 @@ CREATE TABLE `sys_dict_data` (
   `dataScope` varchar(255) DEFAULT NULL,
   `is_del` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`dictCode`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4;
 DROP TABLE IF EXISTS `sys_dict_type`;
 CREATE TABLE `sys_dict_type` (
   `dictId` int(11) NOT NULL AUTO_INCREMENT COMMENT '字典编号',
@@ -146,7 +143,7 @@ CREATE TABLE `sys_loginlog` (
   `platform` varchar(255) DEFAULT NULL COMMENT '系统版本',
   `msg` varchar(255) DEFAULT NULL COMMENT '信息',
   PRIMARY KEY (`infoId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4;
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu` (
   `menuId` int(11) NOT NULL AUTO_INCREMENT,
@@ -171,7 +168,7 @@ CREATE TABLE `sys_menu` (
   `update_by` varchar(128) DEFAULT NULL COMMENT '更新人',
   `is_del` char(1) NOT NULL DEFAULT '0' COMMENT '是否删除 0 否；1 删；',
   PRIMARY KEY (`menuId`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=utf8mb4;
 DROP TABLE IF EXISTS `sys_operlog`;
 CREATE TABLE `sys_operlog` (
   `operId` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -201,7 +198,7 @@ CREATE TABLE `sys_operlog` (
   `remark` varchar(255) DEFAULT NULL COMMENT '书签',
   `user_agent` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`operId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=239 DEFAULT CHARSET=utf8mb4;
 DROP TABLE IF EXISTS `sys_post`;
 CREATE TABLE `sys_post` (
   `postId` int(11) NOT NULL AUTO_INCREMENT COMMENT '岗位编号',
@@ -238,8 +235,248 @@ CREATE TABLE `sys_role` (
   `admin` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+DROP TABLE IF EXISTS `sys_role_dept`;
+CREATE TABLE `sys_role_dept` (
+  `role_id` int(11) DEFAULT NULL COMMENT '角色ID',
+  `dept_id` int(11) DEFAULT NULL COMMENT '部门ID'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+DROP TABLE IF EXISTS `sys_role_menu`;
+CREATE TABLE `sys_role_menu` (
+  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
+  `menu_id` int(11) DEFAULT NULL COMMENT '权限id',
+  `rule_type` char(1) DEFAULT 'p',
+  `role_name` varchar(64) DEFAULT NULL,
+  `path` varchar(128) DEFAULT NULL,
+  `action` varchar(8) DEFAULT NULL COMMENT '请求方式 GET  POST '
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 -- 表结构完成 ;
 -- 开始初始化数据 ;
+BEGIN;
+INSERT INTO `sys_role_menu` VALUES (1, 2, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 3, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 43, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 44, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 45, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 46, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 50, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 51, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 52, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 56, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 57, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 58, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 59, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 60, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 61, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 62, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 63, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 64, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 66, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 67, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 68, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 69, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 70, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 71, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 72, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 73, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 74, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 75, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 76, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 77, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 78, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 79, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 80, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 81, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 82, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 83, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 84, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 85, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 86, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 87, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 89, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 90, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 91, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 92, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 93, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 94, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 95, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 96, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 97, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 98, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 99, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 100, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 101, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 102, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 103, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 104, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 105, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 106, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 107, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 108, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 109, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 110, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 111, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 112, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 113, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 114, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 115, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 116, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 117, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 118, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 119, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 120, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 121, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 122, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 123, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 124, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 125, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 126, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 127, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 128, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 129, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 130, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 131, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 132, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 133, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 134, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 135, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 136, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 138, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 142, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 201, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 202, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 203, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 204, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 205, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 206, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 207, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 208, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 209, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 210, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 211, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 212, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 213, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 214, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 215, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 216, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 217, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 218, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 219, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 220, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 221, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 222, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 223, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 224, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 225, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 226, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 227, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 228, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 229, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 230, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 231, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 232, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 233, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 234, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 235, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 236, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 237, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 238, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 239, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 240, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 241, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 242, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 243, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 244, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 245, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 246, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 247, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 248, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 249, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 250, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 251, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 252, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 253, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 254, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 255, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 256, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 257, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 258, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 259, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 260, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 261, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 262, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 263, 'p', 'admin', NULL, NULL);
+INSERT INTO `sys_role_menu` VALUES (1, 264, 'p', 'admin', NULL, NULL);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_tables
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_tables`;
+CREATE TABLE `sys_tables` (
+  `table_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '表编码',
+  `table_name` varchar(255) DEFAULT NULL COMMENT '表名称',
+  `table_comment` varchar(255) DEFAULT NULL COMMENT '表备注',
+  `class_name` varchar(255) DEFAULT NULL COMMENT '类名',
+  `tpl_category` varchar(255) DEFAULT NULL COMMENT '模板类型',
+  `package_name` varchar(255) DEFAULT NULL COMMENT '包名',
+  `module_name` varchar(255) DEFAULT NULL COMMENT '模块名',
+  `business_name` varchar(255) DEFAULT NULL COMMENT '业务名',
+  `function_name` varchar(255) DEFAULT NULL COMMENT '功能名称',
+  `function_author` varchar(255) DEFAULT NULL COMMENT '功能作者',
+  `pk_column` varchar(255) DEFAULT NULL COMMENT '主键列名',
+  `pk_go_field` varchar(255) DEFAULT NULL COMMENT '主键go类型名',
+  `pk_json_field` varchar(255) DEFAULT NULL COMMENT '主键json名',
+  `options` varchar(255) DEFAULT NULL,
+  `tree_code` varchar(255) DEFAULT NULL COMMENT '树编码',
+  `tree_parent_code` varchar(255) DEFAULT NULL COMMENT '树上级编码',
+  `tree_name` varchar(255) DEFAULT NULL COMMENT '树显示名',
+  `tree` char(1) DEFAULT NULL COMMENT '是否是树',
+  `crud` char(1) DEFAULT NULL COMMENT '是否crud',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(128) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `update_by` varchar(128) DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `is_logical_delete` char(4) DEFAULT NULL COMMENT '是否逻辑删除',
+  `logical_delete_column` varchar(128) DEFAULT NULL COMMENT '逻辑删除字段',
+  `logical_delete` char(1) DEFAULT NULL,
+  PRIMARY KEY (`table_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COMMENT='数据表';
+
+
+
+DROP TABLE IF EXISTS `sys_user`;
+CREATE TABLE `sys_user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `username` varchar(64) NOT NULL COMMENT '用户名',
+  `salt` varchar(255) DEFAULT NULL COMMENT '盐',
+  `password` varchar(128) NOT NULL COMMENT '密码',
+  `nick_name` varchar(64) DEFAULT NULL COMMENT '昵称',
+  `phone` varchar(11) DEFAULT NULL COMMENT '手机',
+  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
+  `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
+  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
+  `dept_id` int(11) DEFAULT NULL COMMENT '部门编码',
+  `post_id` int(11) DEFAULT NULL COMMENT '职位编码',
+  `status` varchar(255) DEFAULT NULL COMMENT '状态',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(255) DEFAULT NULL,
+  `sex` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(255) DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `dataScope` varchar(255) DEFAULT NULL,
+  `params` varchar(255) DEFAULT NULL,
+  `is_del` int(1) DEFAULT '0' COMMENT '是否删除',
+  `dept_path` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+BEGIN;
+INSERT INTO `sys_user` VALUES (1, 'admin', NULL, '$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2', 'zhangwj', '13818888888', '', '1@qq.com', 1, 1, 2, '0', NULL, '1', '0', '2019-11-10 14:05:55', '1', '2020-03-15 19:16:02', NULL, NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (2, 'zhangwj', NULL, '$2a$10$CqMwHahA3cNrNv16CoSxmeD4XMPU.BiKHPEAeaG5oXMavOKrjInXi', 'zhangwj', '13211111111', NULL, 'q@q.com', 3, 8, 2, '0', NULL, '1', '0', '2019-11-12 18:28:27', '1', '2020-03-14 20:08:43', NULL, NULL, 0, NULL);
+COMMIT;
+
 BEGIN;
 INSERT INTO `casbin_rule` VALUES ('p', 'common', '/api/v1/menulist', 'GET', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'common', '/api/v1/menu', 'POST', NULL, NULL, NULL);
@@ -333,7 +570,7 @@ INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/role/:id', 'DELETE', NU
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/configList', 'GET', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/config/:id', 'GET', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/config', 'POST', NULL, NULL, NULL);
-INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/config', 'PUT', NULL, NULL, NULL);
+INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/config/', 'PUT', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/config/:id', 'DELETE', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/menurole', 'GET', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/roleMenuTreeselect/:id', 'GET', NULL, NULL, NULL);
@@ -389,19 +626,58 @@ INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/getinfo', 'GET', NULL, 
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/roledatascope', 'PUT', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/roleDeptTreeselect/:id', 'GET', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/deptTree', 'GET', NULL, NULL, NULL);
-INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/configKey/*', 'GET', NULL, NULL, NULL);
+INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/configKey/:id', 'GET', NULL, NULL, NULL);
+INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/logout', 'POST', NULL, NULL, NULL);
+INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/user/avatar', 'POST', NULL, NULL, NULL);
+INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/user/pwd', 'PUT', NULL, NULL, NULL);
+INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/dict/typeoptionselect', 'GET', NULL, NULL, NULL);
 COMMIT;
+
+
+BEGIN;
+INSERT INTO `sys_columns` VALUES (341, 20, 'table_id', '表编码', 'int(11)', 'int64', 'TableId', 'tableId', '1', '', '1', '1', '', '', '', 'EQ', 'input', '', 1, '', '1', '1', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (342, 20, 'table_name', '表名称', 'varchar(255)', 'string', 'TableName', 'tableName', '0', '', '0', '1', '', '1', '1', 'EQ', 'input', '', 2, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (343, 20, 'table_comment', '表备注', 'varchar(255)', 'string', 'TableComment', 'tableComment', '0', '', '0', '1', '', '1', '1', 'EQ', 'input', '', 3, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (344, 20, 'class_name', '类名', 'varchar(255)', 'string', 'ClassName', 'className', '0', '', '0', '1', '', '1', '1', 'EQ', 'input', '', 4, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (345, 20, 'tpl_category', '模板类型', 'varchar(255)', 'string', 'TplCategory', 'tplCategory', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 5, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (346, 20, 'package_name', '包名', 'varchar(255)', 'string', 'PackageName', 'packageName', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 6, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (347, 20, 'module_name', '模块名', 'varchar(255)', 'string', 'ModuleName', 'moduleName', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 7, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (348, 20, 'business_name', '业务名', 'varchar(255)', 'string', 'BusinessName', 'businessName', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 8, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (349, 20, 'function_name', '功能名称', 'varchar(255)', 'string', 'FunctionName', 'functionName', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 9, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (350, 20, 'function_author', '功能作者', 'varchar(255)', 'string', 'FunctionAuthor', 'functionAuthor', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 10, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (351, 20, 'pk_column', '主键列名', 'varchar(255)', 'string', 'PkColumn', 'pkColumn', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 11, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (352, 20, 'pk_go_field', '主键go类型名', 'varchar(255)', 'string', 'PkGoField', 'pkGoField', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 12, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (353, 20, 'pk_json_field', '主键json名', 'varchar(255)', 'string', 'PkJsonField', 'pkJsonField', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 13, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
+INSERT INTO `sys_columns` VALUES (354, 20, 'options', '', 'varchar(255)', 'string', 'Options', 'options', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 14, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (355, 20, 'tree_code', '树编码', 'varchar(255)', 'string', 'TreeCode', 'treeCode', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 15, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (356, 20, 'tree_parent_code', '树上级编码', 'varchar(255)', 'string', 'TreeParentCode', 'treeParentCode', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 16, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (357, 20, 'tree_name', '树显示名', 'varchar(255)', 'string', 'TreeName', 'treeName', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 17, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (358, 20, 'tree', '是否是树', 'char(1)', 'string', 'Tree', 'tree', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 18, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (359, 20, 'crud', '是否crud', 'char(1)', 'string', 'Crud', 'crud', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 19, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (360, 20, 'remark', '备注', 'varchar(255)', 'string', 'Remark', 'remark', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 20, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (361, 20, 'create_by', '', 'varchar(128)', 'string', 'CreateBy', 'createBy', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 21, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (362, 20, 'create_time', '', 'datetime', 'string', 'CreateTime', 'createTime', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 22, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (363, 20, 'update_by', '', 'varchar(128)', 'string', 'UpdateBy', 'updateBy', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 23, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (364, 20, 'update_time', '', 'datetime', 'string', 'UpdateTime', 'updateTime', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 24, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (365, 20, 'is_logical_delete', '是否逻辑删除', 'char(4)', 'string', 'IsLogicalDelete', 'isLogicalDelete', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 25, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (366, 20, 'logical_delete_column', '逻辑删除字段', 'varchar(128)', 'string', 'LogicalDeleteColumn', 'logicalDeleteColumn', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 26, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
+INSERT INTO `sys_columns` VALUES (367, 20, 'logical_delete', '', 'char(1)', 'string', 'LogicalDelete', 'logicalDelete', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 27, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
+COMMIT;
+
 BEGIN;
 INSERT INTO `sys_config` VALUES (1, '主框架页-默认皮肤样式名称', 'sys_index_skinName', 'skin-blue', 'Y', '1', '2020-02-29 10:37:48', '1', '2020-03-11 00:04:51', '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow', '', '', '');
 INSERT INTO `sys_config` VALUES (2, '用户管理-账号初始密码', 'sys.user.initPassword', '123456', 'Y', '1', '2020-02-29 10:38:23', '1', '2020-03-11 00:35:28', '初始化密码 123456', '', '', '');
 INSERT INTO `sys_config` VALUES (3, '主框架页-侧边栏主题', 'sys_index_sideTheme', 'theme-dark', 'Y', '1', '2020-02-29 10:39:01', '1', '2020-03-11 00:08:52', '深色主题theme-dark，浅色主题theme-light', '', '', '');
 COMMIT;
+
 BEGIN;
 INSERT INTO `sys_dept` VALUES (1, 0, '/0/1', '爱拓科技', 0, 'aituo', '13782218188', 'atuo@aituo.com', 0, '0', '2020-02-27 15:30:19', '2020-03-10 21:09:21', '1', '1');
 INSERT INTO `sys_dept` VALUES (7, 1, '/0/1/7', '研发部', 0, '', '', '', 0, '0', '2020-03-08 23:10:59', '2020-03-10 21:06:30', '1', NULL);
 INSERT INTO `sys_dept` VALUES (8, 1, '/0/1/8', '运维部', 0, '', '', '', 0, '0', '2020-03-08 23:11:08', '2020-03-10 16:50:27', '1', NULL);
 INSERT INTO `sys_dept` VALUES (9, 1, '/0/1/9', '客服部', 0, '', '', '', 0, '0', '2020-03-08 23:11:15', '2020-03-08 23:11:15', '1', NULL);
 COMMIT;
+
+
 BEGIN;
 INSERT INTO `sys_dict_data` VALUES (1, 0, '正常', '0', 'sys_normal_disable', '', '', '', '0', '', '1', '2020-02-28 20:55:34', '', '2020-03-08 23:11:15', '系统正常', '', '', '0');
 INSERT INTO `sys_dict_data` VALUES (2, 0, '停用', '1', 'sys_normal_disable', '', '', '', '0', '', '1', '2020-02-28 21:10:41', '', '2020-03-08 23:11:15', '系统停用', '', '', '0');
@@ -431,7 +707,12 @@ INSERT INTO `sys_dict_data` VALUES (25, 0, '生成代码', '8', 'sys_oper_type',
 INSERT INTO `sys_dict_data` VALUES (26, 0, '清空数据', '9', 'sys_oper_type', '', '', '', '0', '', '1', '2020-02-28 21:47:15', '', '2020-03-08 23:11:15', '清空操作', '', '', '0');
 INSERT INTO `sys_dict_data` VALUES (27, 0, '成功', '0', 'sys_notice_status', '', '', '', '0', '', '1', '2020-02-28 22:03:24', '', '2020-03-08 23:11:15', '成功状态', '', '', '0');
 INSERT INTO `sys_dict_data` VALUES (28, 0, '失败', '1', 'sys_notice_status', '', '', '', '0', '', '1', '2020-02-28 22:03:39', '', '2020-03-08 23:11:15', '失败状态', '', '', '0');
+INSERT INTO `sys_dict_data` VALUES (29, 0, '登录', '10', 'sys_oper_type', '', '', '', '0', '', '1', '2020-03-15 18:35:23', '1', '2020-03-15 18:39:30', '登录操作', '', '', '');
+INSERT INTO `sys_dict_data` VALUES (30, 0, '退出', '11', 'sys_oper_type', '', '', '', '0', '', '1', '2020-03-15 18:35:39', '', '0000-00-00 00:00:00', '', '', '', '');
+INSERT INTO `sys_dict_data` VALUES (31, 0, '获取验证码', '12', 'sys_oper_type', '', '', '', '0', '', '1', '2020-03-15 18:38:42', '', '0000-00-00 00:00:00', '获取验证码', '', '', '');
 COMMIT;
+
+
 BEGIN;
 INSERT INTO `sys_dict_type` VALUES (1, '系统开关', 'sys_normal_disable', '0', '', '', '1', '2020-02-28 19:44:30', '', '2020-03-08 23:11:15', '系统开关列表', '');
 INSERT INTO `sys_dict_type` VALUES (2, '用户性别', 'sys_user_sex', '0', '', '', '1', '2020-02-28 21:12:04', '', '2020-03-08 23:11:15', '用户性别列表', '');
@@ -444,8 +725,10 @@ INSERT INTO `sys_dict_type` VALUES (8, '系统状态', 'sys_common_status', '0',
 INSERT INTO `sys_dict_type` VALUES (9, '操作类型', 'sys_oper_type', '0', '', '', '1', '2020-02-28 21:16:00', '', '2020-03-08 23:11:15', '操作类型列表', '');
 INSERT INTO `sys_dict_type` VALUES (10, '通知状态', 'sys_notice_status', '0', '', '', '1', '2020-02-28 21:16:31', '', '2020-03-08 23:11:15', '通知状态列表', '');
 COMMIT;
+
+
 BEGIN;
-INSERT INTO `sys_menu` VALUES (2, '系统管理', '/upms', '/0/2', NULL, '无', '', 'M', 0, '1', '', 'Upms', 'example', 'Layout', '2019-11-26 21:22:09', '1', 2, '0', '2020-03-10 20:42:19', '1', '0');
+INSERT INTO `sys_menu` VALUES (2, '系统管理', '/upms', '/0/2', NULL, '无', '', 'M', 0, '1', '', 'Upms', 'example', 'Layout', '2019-11-26 21:22:09', '1', 2, '0', '2020-03-14 20:11:53', '1', '0');
 INSERT INTO `sys_menu` VALUES (3, '用户管理', 'sysuser', '/0/2/3', NULL, '无', 'system:sysuser:list', 'C', 2, NULL, NULL, 'Sysuser', 'user', '/sysuser/index', '2019-09-10 13:55:17', '1', 0, '0', '2020-03-09 20:31:45', '1', '0');
 INSERT INTO `sys_menu` VALUES (43, '新增用户', '/api/v1/sysuser', '/0/2/3/43', NULL, 'POST', 'system:sysuser:add', 'F', 3, NULL, NULL, NULL, NULL, NULL, '2019-11-25 10:36:34', '1', 0, '0', '2020-03-09 20:31:54', '1', '0');
 INSERT INTO `sys_menu` VALUES (44, '查询用户', '/api/v1/sysuser', '/0/2/3/44', NULL, 'GET', 'system:sysuser:query', 'F', 3, NULL, NULL, NULL, NULL, NULL, '2019-11-25 10:37:02', '1', 0, '0', '2020-03-09 20:31:56', '1', '0');
@@ -601,7 +884,16 @@ INSERT INTO `sys_menu` VALUES (254, '部门树接口【数据权限】', '/api/v
 INSERT INTO `sys_menu` VALUES (255, '部门树【用户列表】', '/api/v1/deptTree', '/0/63/256/255', NULL, 'GET', '', 'A', 256, '0', '', '', '', '', '2020-03-10 20:30:18', '1', 0, '1', '2020-03-10 20:52:37', '1', '');
 INSERT INTO `sys_menu` VALUES (256, '必开接口', '', '/0/63/256', NULL, 'GET', '', 'M', 63, '0', '', '', '', '', '2020-03-10 20:31:00', '1', 0, '1', '2020-03-08 23:11:15', '', '');
 INSERT INTO `sys_menu` VALUES (257, '通过key获取参数', '/api/v1/configKey/:id', '/0/63/256/257', NULL, 'GET', '', 'A', 256, '0', '', '', 'bug', '', '2020-03-10 23:15:59', '1', 1, '1', '2020-03-10 23:37:32', '1', '0');
+INSERT INTO `sys_menu` VALUES (258, '退出登录', '/api/v1/logout', '/0/63/256/258', NULL, 'POST', '', 'A', 256, '0', '', '', '', '', '2020-03-14 19:41:22', '1', 0, '1', '2020-03-15 08:45:08', '1', '0');
+INSERT INTO `sys_menu` VALUES (259, '头像上传', '/api/v1/user/avatar', '/0/63/256/259', NULL, 'POST', '', 'A', 256, '0', '', '', '', '', '2020-03-15 00:08:57', '1', 0, '1', '0000-00-00 00:00:00', '', '0');
+INSERT INTO `sys_menu` VALUES (260, '修改密码', '/api/v1/user/pwd', '/0/63/256/260', NULL, 'PUT', '', 'A', 256, '0', '', '', '', '', '2020-03-15 19:02:11', '1', 0, '1', '0000-00-00 00:00:00', '', '0');
+INSERT INTO `sys_menu` VALUES (261, '代码生成', 'gen', '/0/60/261', NULL, '', '', 'C', 60, '0', '', 'Gen', 'code', '/tools/gen/index', '2020-03-19 14:08:46', '1', 0, '0', '0000-00-00 00:00:00', '', '0');
+INSERT INTO `sys_menu` VALUES (262, '数据表修改', 'editTable', '/0/60/262', NULL, '', '', 'C', 60, '0', '', 'EditTable', 'build', '/tools/gen/editTable', '2020-03-19 18:50:34', '1', 0, '1', '2020-03-19 18:59:36', '1', '0');
+INSERT INTO `sys_menu` VALUES (263, '字典类型下拉框【生成功能】', '/api/v1/dict/typeoptionselect', '/0/63/256/263', NULL, 'GET', '', 'A', 256, '0', '', '', '', '', '2020-03-19 21:52:00', '1', 0, '1', '0000-00-00 00:00:00', '', '0');
+INSERT INTO `sys_menu` VALUES (264, '表单构建', 'build', '/0/60/264', NULL, '', '', 'C', 60, '0', '', 'Build', 'build', '/tools/build/index', '2020-03-27 23:00:33', '1', 0, '0', '2020-03-27 23:01:51', '1', '0');
 COMMIT;
+
+
 BEGIN;
 INSERT INTO `sys_post` VALUES (1, '首席执行官', 'CEO', 0, '0', '首席执行官', '2020-02-27 21:45:58', '2020-03-08 23:11:15', 0, '1', '2020-03-08 23:11:15', '', '');
 INSERT INTO `sys_post` VALUES (2, '开发工程师', 'Development ', 1, '0', '开发工程师', '2020-02-29 18:49:22', '2020-03-08 23:11:15', 0, '1', '2020-03-08 23:11:15', '', '');
@@ -609,162 +901,15 @@ INSERT INTO `sys_post` VALUES (3, '测试工程师', 'Test', 2, '0', '测试工�
 INSERT INTO `sys_post` VALUES (4, '产品经理', 'Product', 1, '0', '产品经理', '2020-02-29 18:50:31', '2020-03-08 23:11:15', 0, '1', '2020-03-08 23:11:15', '', '');
 INSERT INTO `sys_post` VALUES (5, '运维工程师', 'Opetion&Maintenance', 1, '0', '', '2020-02-29 18:53:00', '2020-03-06 23:45:48', 0, '1', '2020-03-08 23:11:15', '', '');
 COMMIT;
+
 BEGIN;
-INSERT INTO `sys_role` VALUES (1, '系统管理员', '0', 'admin', 1, '0', NULL, '1', '2020-03-09 21:21:54', NULL, '2020-03-10 23:38:09', NULL, '3', NULL, 0);
+INSERT INTO `sys_tables` VALUES (20, 'sys_tables', '数据表', 'SysTables', 'crud', 'systables', 'systables', 'systables', '数据表', 'wenjianzhang', 'table_id', 'TableId', 'tableId', '', '', '', '', '0', '1', '', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '1', 'is_del', '1');
+COMMIT;
+
+BEGIN;
+INSERT INTO `sys_role` VALUES (1, '系统管理员', '0', 'admin', 1, '0', NULL, '1', '2020-03-09 21:21:54', NULL, '2020-03-27 23:01:07', NULL, '3', NULL, 0);
 INSERT INTO `sys_role` VALUES (2, '普通角色', '0', 'common', 0, '0', NULL, '1', '2020-03-09 21:21:54', NULL, '2020-03-10 20:12:00', NULL, '2', NULL, 0);
 COMMIT;
-BEGIN;
-INSERT INTO `sys_role_menu` VALUES (1, 2, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 3, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 43, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 44, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 45, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 46, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 50, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 51, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 52, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 56, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 57, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 58, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 59, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 60, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 61, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 62, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 63, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 64, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 66, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 67, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 68, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 69, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 70, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 71, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 72, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 73, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 74, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 75, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 76, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 77, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 78, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 79, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 80, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 81, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 82, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 83, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 84, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 85, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 86, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 87, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 89, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 90, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 91, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 92, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 93, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 94, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 95, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 96, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 97, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 98, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 99, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 100, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 101, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 102, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 103, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 104, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 105, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 106, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 107, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 108, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 109, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 110, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 111, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 112, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 113, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 114, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 115, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 116, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 117, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 118, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 119, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 120, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 121, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 122, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 123, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 124, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 125, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 126, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 127, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 128, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 129, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 130, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 131, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 132, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 133, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 134, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 135, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 136, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 138, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 142, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 201, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 202, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 203, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 204, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 205, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 206, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 207, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 208, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 209, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 210, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 211, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 212, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 213, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 214, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 215, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 216, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 217, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 218, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 219, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 220, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 221, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 222, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 223, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 224, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 225, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 226, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 227, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 228, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 229, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 230, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 231, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 232, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 233, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 234, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 235, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 236, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 237, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 238, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 239, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 240, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 241, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 242, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 243, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 244, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 245, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 246, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 247, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 248, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 249, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 250, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 251, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 252, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 253, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 254, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 255, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 256, 'p', 'admin', NULL, NULL);
-INSERT INTO `sys_role_menu` VALUES (1, 257, 'p', 'admin', NULL, NULL);
-COMMIT;
-BEGIN;
-INSERT INTO `sys_user` VALUES (1, 'admin', NULL, '$2a$10$fWkAKmNCntimDhPhHoa9luB6qGCQKVi4S73OVJVd1UujiQVK2Q9qy', 'zhangwj', '13818888888', NULL, '1@1.com', 1, 1, 2, '0', NULL, '1', '0', '2019-11-10 14:05:55', '1', '2020-03-11 20:26:15', NULL, NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (2, 'zhangwj', NULL, '$2a$10$CqMwHahA3cNrNv16CoSxmeD4XMPU.BiKHPEAeaG5oXMavOKrjInXi', 'zhangwj', '13211111111', NULL, 'q@q.com', 3, 8, 2, '0', NULL, '1', '0', '2019-11-12 18:28:27', '1', '2020-03-11 20:27:39', NULL, NULL, 0, NULL);
-COMMIT;
+
 SET FOREIGN_KEY_CHECKS = 1;
 -- 数据完成 ;
