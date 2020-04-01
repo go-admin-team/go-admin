@@ -107,6 +107,7 @@ func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int32, 
 func (e *SysOperLog) Create() (SysOperLog, error) {
 	var doc SysOperLog
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
 	result := orm.Eloquent.Table("sys_operlog").Create(&e)

@@ -34,6 +34,35 @@ type RoleMenuPost struct {
 	RoleMenu []models.RoleMenu
 }
 
+func InsertRoleMenu(c *gin.Context) {
+	//roleId := c.Request.FormValue("role_id")
+	//menuId := c.Request.FormValue("menu_id")
+	//menus := strings.Split(menuId, ",")
+	//fmt.Println(menus)
+	//var t models.RoleMenu
+	//_,err := t.DeleteRoleMenu(roleId)
+	//if err != nil {
+	//	c.JSON(http.StatusOK, gin.H{
+	//		"code":    -1,
+	//		"message": "添加失败1",
+	//	})
+	//	return
+	//}
+	//_, err2 := t.Insert(roleId, menus)
+	//if err2 != nil {
+	//	c.JSON(http.StatusOK, gin.H{
+	//		"code":    -1,
+	//		"message": "添加失败2",
+	//	})
+	//	return
+	//}
+	var res models.Response
+	res.Msg = "添加成功"
+	c.JSON(http.StatusOK, res.ReturnOK())
+	return
+
+}
+
 // @Summary 删除用户菜单数据
 // @Description 删除数据
 // @Tags 角色菜单
@@ -43,7 +72,6 @@ type RoleMenuPost struct {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/rolemenu/{id} [delete]
 func DeleteRoleMenu(c *gin.Context) {
-	fmt.Println("!!!!!!!!!!!!!!")
 	var t models.RoleMenu
 	id := c.Param("id")
 	menuId := c.Request.FormValue("menu_id")

@@ -2,13 +2,11 @@ package tools
 
 import (
 	"errors"
+	"go-admin/config"
 	orm "go-admin/database"
 )
 
 type DBColumns struct {
-	//select COLUMN_NAME,COLUMN_DEFAULT,IS_NULLABLE,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,CHARACTER_SET_NAME,COLUMN_TYPE,COLUMN_KEY,EXTRA,COLUMN_COMMENT
-	//from information_schema.`COLUMNS` where table_schema='test1db' and TABLE_NAME='sys_config'
-
 	TableSchema            string `gorm:"column:TABLE_SCHEMA" json:"tableSchema"`
 	TableName              string `gorm:"column:TABLE_NAME" json:"tableName"`
 	ColumnName             string `gorm:"column:COLUMN_NAME" json:"columnName"`
@@ -27,7 +25,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int32, er
 	var doc []DBColumns
 
 	table := orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
-	table = table.Where("table_schema='test1db'")
+	table = table.Where("table_schema= ? ", config.DatabaseConfig.Database)
 
 	if e.TableName != "" {
 		return nil, 0, errors.New("table name cannot be empty！")
@@ -48,7 +46,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 	var doc []DBColumns
 
 	table := orm.Eloquent.Select("*").Table("information_schema.columns")
-	table = table.Where("table_schema='test1db'")
+	table = table.Where("table_schema= ? ", config.DatabaseConfig.Database)
 
 	if e.TableName == "" {
 		return nil, errors.New("table name cannot be empty！")

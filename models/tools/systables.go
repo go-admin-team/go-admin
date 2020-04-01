@@ -26,6 +26,8 @@ type SysTables struct {
 	//功能作者
 	FunctionAuthor      string       `gorm:"column:function_author" json:"functionAuthor"`
 	PkColumn            string       `gorm:"column:pk_column" json:"pkColumn"`
+	PkGoField           string       `gorm:"column:pk_go_field" json:"pkGoField"`
+	PkJsonField         string       `gorm:"column:pk_json_field" json:"pkJsonField"`
 	Options             string       `gorm:"column:options" json:"options"`
 	TreeCode            string       `gorm:"column:tree_code" json:"treeCode"`
 	TreeParentCode      string       `gorm:"column:tree_parent_code" json:"treeParentCode"`
@@ -33,7 +35,8 @@ type SysTables struct {
 	Tree                bool         `gorm:"column:tree" json:"tree"`
 	Crud                bool         `gorm:"column:crud" json:"crud"`
 	Remark              string       `gorm:"column:remark" json:"remark"`
-	IsLogicalDelete     bool         `gorm:"column:is_logical_delete" json:"isLogicalDelete"`
+	IsLogicalDelete     string       `gorm:"column:is_logical_delete" json:"isLogicalDelete"`
+	LogicalDelete       bool         `gorm:"column:logical_delete" json:"logicalDelete"`
 	LogicalDeleteColumn string       `gorm:"column:logical_delete_column" json:"logicalDeleteColumn"`
 	CreateBy            string       `gorm:"column:create_by" json:"createBy"`
 	CreateTime          string       `gorm:"column:create_time" json:"createTime"`
@@ -101,6 +104,7 @@ func (e *SysTables) Get() (SysTables, error) {
 func (e *SysTables) Create() (SysTables, error) {
 	var doc SysTables
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_tables").Create(&e)
 	if result.Error != nil {
 		err := result.Error

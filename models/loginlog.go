@@ -3,7 +3,6 @@ package models
 import (
 	orm "go-admin/database"
 	"go-admin/utils"
-	"time"
 )
 
 type LoginLog struct {
@@ -87,6 +86,7 @@ func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int32, erro
 func (e *LoginLog) Create() (LoginLog, error) {
 	var doc LoginLog
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
 	result := orm.Eloquent.Table("sys_loginlog").Create(&e)
@@ -99,7 +99,7 @@ func (e *LoginLog) Create() (LoginLog, error) {
 }
 
 func (e *LoginLog) Update(id int64) (update LoginLog, err error) {
-	e.UpdateTime = time.Now().String()
+	e.UpdateTime = utils.GetCurrntTime()
 
 	if err = orm.Eloquent.Table("sys_loginlog").First(&update, id).Error; err != nil {
 		return
@@ -114,7 +114,7 @@ func (e *LoginLog) Update(id int64) (update LoginLog, err error) {
 }
 
 func (e *LoginLog) BatchDelete(id []int64) (Result bool, err error) {
-	if err = orm.Eloquent.Table("sys_loginlog").Where("is_del=0 and infoId in (?)", id).Update(map[string]interface{}{"is_del": "1", "update_time": time.Now(), "update_by": e.UpdateBy}).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_loginlog").Where("is_del=0 and infoId in (?)", id).Update(map[string]interface{}{"is_del": "1", "update_time": utils.GetCurrntTime(), "update_by": e.UpdateBy}).Error; err != nil {
 		return
 	}
 	Result = true

@@ -3,7 +3,6 @@ package models
 import (
 	orm "go-admin/database"
 	"go-admin/utils"
-	"time"
 )
 
 type Config struct {
@@ -25,7 +24,7 @@ type Config struct {
 	CreateTime string `json:"createTime" gorm:"column:create_time"`
 	UpdateBy   string `json:"updateBy" gorm:"column:update_by"`
 	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
-	DataScope  string `json:"dataScope" gorm:"_"`
+	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"column:params"`
 	IsDel      string `json:"isDel" gorm:"column:is_del"`
 }
@@ -34,7 +33,8 @@ type Config struct {
 func (e *Config) Create() (Config, error) {
 	var doc Config
 	doc.IsDel = "0"
-	e.CreateTime = time.Now().String()
+	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_config").Create(&e)
 	if result.Error != nil {
 		err := result.Error

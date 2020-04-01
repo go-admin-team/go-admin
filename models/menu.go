@@ -4,7 +4,6 @@ import (
 	"errors"
 	orm "go-admin/database"
 	"go-admin/utils"
-	"time"
 )
 
 type Menu struct {
@@ -272,6 +271,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 
 func (e *Menu) Create() (id int64, err error) {
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	e.IsDel = "0"
 	result := orm.Eloquent.Table("sys_menu").Create(&e)
 	if result.Error != nil {
@@ -303,7 +303,7 @@ func InitPaths(menu *Menu) (err error) {
 }
 
 func (e *Menu) Update(id int64) (update Menu, err error) {
-	e.UpdateTime = time.Now().String()
+	e.UpdateTime = utils.GetCurrntTime()
 	if err = orm.Eloquent.Table("sys_menu").First(&update, id).Error; err != nil {
 		return
 	}

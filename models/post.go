@@ -45,6 +45,7 @@ type Post struct {
 func (e *Post) Create() (Post, error) {
 	var doc Post
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_post").Create(&e)
 	if result.Error != nil {
 		err := result.Error

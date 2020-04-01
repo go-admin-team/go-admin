@@ -36,7 +36,7 @@ type Dept struct {
 	CreateTime string `json:"createTime" gorm:"column:create_time"`
 	UpdateBy   string `json:"updateBy" gorm:"column:update_by"`
 	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
-	DataScope  string `json:"dataScope" gorm:"_"`
+	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"column:params"`
 	IsDel      string `json:"isDel" gorm:"column:is_del"`
 
@@ -52,6 +52,7 @@ type DeptLable struct {
 func (e *Dept) Create() (Dept, error) {
 	var doc Dept
 	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	e.IsDel = "0"
 	result := orm.Eloquent.Table("sys_dept").Create(&e)
 	if result.Error != nil {

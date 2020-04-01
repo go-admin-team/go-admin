@@ -3,7 +3,6 @@ package models
 import (
 	orm "go-admin/database"
 	"go-admin/utils"
-	"time"
 )
 
 type SysRole struct {
@@ -29,7 +28,7 @@ type SysRole struct {
 	//备注
 	Remark    string `gorm:"column:remark" json:"remark"`
 	Params    string `gorm:"column:params" json:"params"`
-	DataScope string `gorm:"_" json:"dataScope"`
+	DataScope string `gorm:"-" json:"dataScope"`
 	IsDel     string `gorm:"column:is_del" json:"isDel"`
 
 	Admin bool `gorm:"column:admin" json:"admin"`
@@ -117,9 +116,9 @@ func (role *SysRole) GetRoleMeunId() ([]int64, error) {
 }
 
 func (role *SysRole) Insert() (id int64, err error) {
-	role.CreateTime = time.Now().Format("2006/01/02 15:04:05")
+	role.CreateTime = utils.GetCurrntTime()
 	role.UpdateBy = ""
-	role.UpdateTime = time.Now().Format("2006/01/02 15:04:05")
+	role.UpdateTime = utils.GetCurrntTime()
 	role.IsDel = "0"
 	result := orm.Eloquent.Table("sys_role").Create(&role)
 	if result.Error != nil {
@@ -150,7 +149,7 @@ func (role *SysRole) GetRoleDeptId() ([]int64, error) {
 
 //修改
 func (role *SysRole) Update(id int64) (update SysRole, err error) {
-	role.UpdateTime = time.Now().Format("2006/01/02 15:04:05.9999")
+	role.UpdateTime = utils.GetCurrntTime()
 	if err = orm.Eloquent.Table("sys_role").First(&update, id).Error; err != nil {
 		return
 	}

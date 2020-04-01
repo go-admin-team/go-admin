@@ -3,7 +3,6 @@ package models
 import (
 	orm "go-admin/database"
 	"go-admin/utils"
-	"time"
 )
 
 type DictData struct {
@@ -42,7 +41,8 @@ type DictData struct {
 
 func (e *DictData) Create() (DictData, error) {
 	var doc DictData
-	e.CreateTime = time.Now().String()
+	e.CreateTime = utils.GetCurrntTime()
+	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_dict_data").Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -124,7 +124,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int32, erro
 }
 
 func (e *DictData) Update(id int64) (update DictData, err error) {
-	e.UpdateTime = time.Now().String()
+	e.UpdateTime = utils.GetCurrntTime()
 	if err = orm.Eloquent.Table("sys_dict_data").Where("dictCode = ?", id).First(&update).Error; err != nil {
 		return
 	}
