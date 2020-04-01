@@ -1,6 +1,6 @@
 #  go-admin  
 
-![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg?branch=master)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
+![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
 
 
  English | [简体中文](./README.zh-CN.md)
