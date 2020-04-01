@@ -2,7 +2,7 @@
 
 ![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
   
-  [English](./README.md) | 简体中文
+  [English](./README.en.md) | 简体中文
   
 
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
