@@ -249,6 +249,63 @@ CREATE TABLE `sys_role_menu` (
   `path` varchar(128) DEFAULT NULL,
   `action` varchar(8) DEFAULT NULL COMMENT '请求方式 GET  POST '
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+DROP TABLE IF EXISTS `sys_tables`;
+CREATE TABLE `sys_tables` (
+  `table_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '表编码',
+  `table_name` varchar(255) DEFAULT NULL COMMENT '表名称',
+  `table_comment` varchar(255) DEFAULT NULL COMMENT '表备注',
+  `class_name` varchar(255) DEFAULT NULL COMMENT '类名',
+  `tpl_category` varchar(255) DEFAULT NULL COMMENT '模板类型',
+  `package_name` varchar(255) DEFAULT NULL COMMENT '包名',
+  `module_name` varchar(255) DEFAULT NULL COMMENT '模块名',
+  `business_name` varchar(255) DEFAULT NULL COMMENT '业务名',
+  `function_name` varchar(255) DEFAULT NULL COMMENT '功能名称',
+  `function_author` varchar(255) DEFAULT NULL COMMENT '功能作者',
+  `pk_column` varchar(255) DEFAULT NULL COMMENT '主键列名',
+  `pk_go_field` varchar(255) DEFAULT NULL COMMENT '主键go类型名',
+  `pk_json_field` varchar(255) DEFAULT NULL COMMENT '主键json名',
+  `options` varchar(255) DEFAULT NULL,
+  `tree_code` varchar(255) DEFAULT NULL COMMENT '树编码',
+  `tree_parent_code` varchar(255) DEFAULT NULL COMMENT '树上级编码',
+  `tree_name` varchar(255) DEFAULT NULL COMMENT '树显示名',
+  `tree` char(1) DEFAULT NULL COMMENT '是否是树',
+  `crud` char(1) DEFAULT NULL COMMENT '是否crud',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(128) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `update_by` varchar(128) DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `is_logical_delete` char(4) DEFAULT NULL COMMENT '是否逻辑删除',
+  `logical_delete_column` varchar(128) DEFAULT NULL COMMENT '逻辑删除字段',
+  `logical_delete` char(1) DEFAULT NULL,
+  PRIMARY KEY (`table_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COMMENT='数据表';
+DROP TABLE IF EXISTS `sys_user`;
+CREATE TABLE `sys_user` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `username` varchar(64) NOT NULL COMMENT '用户名',
+  `salt` varchar(255) DEFAULT NULL COMMENT '盐',
+  `password` varchar(128) NOT NULL COMMENT '密码',
+  `nick_name` varchar(64) DEFAULT NULL COMMENT '昵称',
+  `phone` varchar(11) DEFAULT NULL COMMENT '手机',
+  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
+  `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
+  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
+  `dept_id` int(11) DEFAULT NULL COMMENT '部门编码',
+  `post_id` int(11) DEFAULT NULL COMMENT '职位编码',
+  `status` varchar(255) DEFAULT NULL COMMENT '状态',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(255) DEFAULT NULL,
+  `sex` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(255) DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `dataScope` varchar(255) DEFAULT NULL,
+  `params` varchar(255) DEFAULT NULL,
+  `is_del` int(1) DEFAULT '0' COMMENT '是否删除',
+  `dept_path` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 -- 表结构完成 ;
 -- 开始初始化数据 ;
 BEGIN;
@@ -407,76 +464,10 @@ INSERT INTO `sys_role_menu` VALUES (1, 262, 'p', 'admin', NULL, NULL);
 INSERT INTO `sys_role_menu` VALUES (1, 263, 'p', 'admin', NULL, NULL);
 INSERT INTO `sys_role_menu` VALUES (1, 264, 'p', 'admin', NULL, NULL);
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_tables
--- ----------------------------
-DROP TABLE IF EXISTS `sys_tables`;
-CREATE TABLE `sys_tables` (
-  `table_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '表编码',
-  `table_name` varchar(255) DEFAULT NULL COMMENT '表名称',
-  `table_comment` varchar(255) DEFAULT NULL COMMENT '表备注',
-  `class_name` varchar(255) DEFAULT NULL COMMENT '类名',
-  `tpl_category` varchar(255) DEFAULT NULL COMMENT '模板类型',
-  `package_name` varchar(255) DEFAULT NULL COMMENT '包名',
-  `module_name` varchar(255) DEFAULT NULL COMMENT '模块名',
-  `business_name` varchar(255) DEFAULT NULL COMMENT '业务名',
-  `function_name` varchar(255) DEFAULT NULL COMMENT '功能名称',
-  `function_author` varchar(255) DEFAULT NULL COMMENT '功能作者',
-  `pk_column` varchar(255) DEFAULT NULL COMMENT '主键列名',
-  `pk_go_field` varchar(255) DEFAULT NULL COMMENT '主键go类型名',
-  `pk_json_field` varchar(255) DEFAULT NULL COMMENT '主键json名',
-  `options` varchar(255) DEFAULT NULL,
-  `tree_code` varchar(255) DEFAULT NULL COMMENT '树编码',
-  `tree_parent_code` varchar(255) DEFAULT NULL COMMENT '树上级编码',
-  `tree_name` varchar(255) DEFAULT NULL COMMENT '树显示名',
-  `tree` char(1) DEFAULT NULL COMMENT '是否是树',
-  `crud` char(1) DEFAULT NULL COMMENT '是否crud',
-  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
-  `create_by` varchar(128) DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL,
-  `update_by` varchar(128) DEFAULT NULL,
-  `update_time` datetime DEFAULT NULL,
-  `is_logical_delete` char(4) DEFAULT NULL COMMENT '是否逻辑删除',
-  `logical_delete_column` varchar(128) DEFAULT NULL COMMENT '逻辑删除字段',
-  `logical_delete` char(1) DEFAULT NULL,
-  PRIMARY KEY (`table_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COMMENT='数据表';
-
-
-
-DROP TABLE IF EXISTS `sys_user`;
-CREATE TABLE `sys_user` (
-  `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `username` varchar(64) NOT NULL COMMENT '用户名',
-  `salt` varchar(255) DEFAULT NULL COMMENT '盐',
-  `password` varchar(128) NOT NULL COMMENT '密码',
-  `nick_name` varchar(64) DEFAULT NULL COMMENT '昵称',
-  `phone` varchar(11) DEFAULT NULL COMMENT '手机',
-  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
-  `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
-  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
-  `dept_id` int(11) DEFAULT NULL COMMENT '部门编码',
-  `post_id` int(11) DEFAULT NULL COMMENT '职位编码',
-  `status` varchar(255) DEFAULT NULL COMMENT '状态',
-  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
-  `create_by` varchar(255) DEFAULT NULL,
-  `sex` varchar(255) DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `update_by` varchar(255) DEFAULT NULL,
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `dataScope` varchar(255) DEFAULT NULL,
-  `params` varchar(255) DEFAULT NULL,
-  `is_del` int(1) DEFAULT '0' COMMENT '是否删除',
-  `dept_path` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
-
 BEGIN;
 INSERT INTO `sys_user` VALUES (1, 'admin', NULL, '$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2', 'zhangwj', '13818888888', '', '1@qq.com', 1, 1, 2, '0', NULL, '1', '0', '2019-11-10 14:05:55', '1', '2020-03-15 19:16:02', NULL, NULL, 0, NULL);
 INSERT INTO `sys_user` VALUES (2, 'zhangwj', NULL, '$2a$10$CqMwHahA3cNrNv16CoSxmeD4XMPU.BiKHPEAeaG5oXMavOKrjInXi', 'zhangwj', '13211111111', NULL, 'q@q.com', 3, 8, 2, '0', NULL, '1', '0', '2019-11-12 18:28:27', '1', '2020-03-14 20:08:43', NULL, NULL, 0, NULL);
 COMMIT;
-
 BEGIN;
 INSERT INTO `casbin_rule` VALUES ('p', 'common', '/api/v1/menulist', 'GET', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'common', '/api/v1/menu', 'POST', NULL, NULL, NULL);
@@ -632,8 +623,6 @@ INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/user/avatar', 'POST', N
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/user/pwd', 'PUT', NULL, NULL, NULL);
 INSERT INTO `casbin_rule` VALUES ('p', 'admin', '/api/v1/dict/typeoptionselect', 'GET', NULL, NULL, NULL);
 COMMIT;
-
-
 BEGIN;
 INSERT INTO `sys_columns` VALUES (341, 20, 'table_id', '表编码', 'int(11)', 'int64', 'TableId', 'tableId', '1', '', '1', '1', '', '', '', 'EQ', 'input', '', 1, '', '1', '1', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
 INSERT INTO `sys_columns` VALUES (342, 20, 'table_name', '表名称', 'varchar(255)', 'string', 'TableName', 'tableName', '0', '', '0', '1', '', '1', '1', 'EQ', 'input', '', 2, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:25', '', '2020-03-29 21:48:26', '');
@@ -663,21 +652,17 @@ INSERT INTO `sys_columns` VALUES (365, 20, 'is_logical_delete', '是否逻辑删
 INSERT INTO `sys_columns` VALUES (366, 20, 'logical_delete_column', '逻辑删除字段', 'varchar(128)', 'string', 'LogicalDeleteColumn', 'logicalDeleteColumn', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 26, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
 INSERT INTO `sys_columns` VALUES (367, 20, 'logical_delete', '', 'char(1)', 'string', 'LogicalDelete', 'logicalDelete', '0', '', '0', '1', '', '', '', 'EQ', 'input', '', 27, '', '0', '0', '0', '0', '0', '1', '0', '0', '', '2020-03-29 20:26:26', '', '2020-03-29 21:48:27', '');
 COMMIT;
-
 BEGIN;
 INSERT INTO `sys_config` VALUES (1, '主框架页-默认皮肤样式名称', 'sys_index_skinName', 'skin-blue', 'Y', '1', '2020-02-29 10:37:48', '1', '2020-03-11 00:04:51', '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow', '', '', '');
 INSERT INTO `sys_config` VALUES (2, '用户管理-账号初始密码', 'sys.user.initPassword', '123456', 'Y', '1', '2020-02-29 10:38:23', '1', '2020-03-11 00:35:28', '初始化密码 123456', '', '', '');
 INSERT INTO `sys_config` VALUES (3, '主框架页-侧边栏主题', 'sys_index_sideTheme', 'theme-dark', 'Y', '1', '2020-02-29 10:39:01', '1', '2020-03-11 00:08:52', '深色主题theme-dark，浅色主题theme-light', '', '', '');
 COMMIT;
-
 BEGIN;
 INSERT INTO `sys_dept` VALUES (1, 0, '/0/1', '爱拓科技', 0, 'aituo', '13782218188', 'atuo@aituo.com', 0, '0', '2020-02-27 15:30:19', '2020-03-10 21:09:21', '1', '1');
 INSERT INTO `sys_dept` VALUES (7, 1, '/0/1/7', '研发部', 0, '', '', '', 0, '0', '2020-03-08 23:10:59', '2020-03-10 21:06:30', '1', NULL);
 INSERT INTO `sys_dept` VALUES (8, 1, '/0/1/8', '运维部', 0, '', '', '', 0, '0', '2020-03-08 23:11:08', '2020-03-10 16:50:27', '1', NULL);
 INSERT INTO `sys_dept` VALUES (9, 1, '/0/1/9', '客服部', 0, '', '', '', 0, '0', '2020-03-08 23:11:15', '2020-03-08 23:11:15', '1', NULL);
 COMMIT;
-
-
 BEGIN;
 INSERT INTO `sys_dict_data` VALUES (1, 0, '正常', '0', 'sys_normal_disable', '', '', '', '0', '', '1', '2020-02-28 20:55:34', '', '2020-03-08 23:11:15', '系统正常', '', '', '0');
 INSERT INTO `sys_dict_data` VALUES (2, 0, '停用', '1', 'sys_normal_disable', '', '', '', '0', '', '1', '2020-02-28 21:10:41', '', '2020-03-08 23:11:15', '系统停用', '', '', '0');
@@ -712,7 +697,6 @@ INSERT INTO `sys_dict_data` VALUES (30, 0, '退出', '11', 'sys_oper_type', '', 
 INSERT INTO `sys_dict_data` VALUES (31, 0, '获取验证码', '12', 'sys_oper_type', '', '', '', '0', '', '1', '2020-03-15 18:38:42', '', '0000-00-00 00:00:00', '获取验证码', '', '', '');
 COMMIT;
 
-
 BEGIN;
 INSERT INTO `sys_dict_type` VALUES (1, '系统开关', 'sys_normal_disable', '0', '', '', '1', '2020-02-28 19:44:30', '', '2020-03-08 23:11:15', '系统开关列表', '');
 INSERT INTO `sys_dict_type` VALUES (2, '用户性别', 'sys_user_sex', '0', '', '', '1', '2020-02-28 21:12:04', '', '2020-03-08 23:11:15', '用户性别列表', '');
@@ -725,7 +709,6 @@ INSERT INTO `sys_dict_type` VALUES (8, '系统状态', 'sys_common_status', '0',
 INSERT INTO `sys_dict_type` VALUES (9, '操作类型', 'sys_oper_type', '0', '', '', '1', '2020-02-28 21:16:00', '', '2020-03-08 23:11:15', '操作类型列表', '');
 INSERT INTO `sys_dict_type` VALUES (10, '通知状态', 'sys_notice_status', '0', '', '', '1', '2020-02-28 21:16:31', '', '2020-03-08 23:11:15', '通知状态列表', '');
 COMMIT;
-
 
 BEGIN;
 INSERT INTO `sys_menu` VALUES (2, '系统管理', '/upms', '/0/2', NULL, '无', '', 'M', 0, '1', '', 'Upms', 'example', 'Layout', '2019-11-26 21:22:09', '1', 2, '0', '2020-03-14 20:11:53', '1', '0');
@@ -892,7 +875,6 @@ INSERT INTO `sys_menu` VALUES (262, '数据表修改', 'editTable', '/0/60/262',
 INSERT INTO `sys_menu` VALUES (263, '字典类型下拉框【生成功能】', '/api/v1/dict/typeoptionselect', '/0/63/256/263', NULL, 'GET', '', 'A', 256, '0', '', '', '', '', '2020-03-19 21:52:00', '1', 0, '1', '2020-04-01 00:00:06', '', '0');
 INSERT INTO `sys_menu` VALUES (264, '表单构建', 'build', '/0/60/264', NULL, '', '', 'C', 60, '0', '', 'Build', 'build', '/tools/build/index', '2020-03-27 23:00:33', '1', 0, '0', '2020-03-27 23:01:51', '1', '0');
 COMMIT;
-
 
 BEGIN;
 INSERT INTO `sys_post` VALUES (1, '首席执行官', 'CEO', 0, '0', '首席执行官', '2020-02-27 21:45:58', '2020-03-08 23:11:15', 0, '1', '2020-03-08 23:11:15', '', '');
