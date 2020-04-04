@@ -75,7 +75,7 @@ type SysUserB struct {
 	Params    string `gorm:"column:params" json:"params"`
 	Status    string `gorm:"column:status" json:"status"`
 	DataScope string `gorm:"-" json:"dataScope"`
-	IsDel     string `gorm:"column:is_del" json:"isDel"`
+	IsDel     uint `gorm:"column:is_del" json:"isDel"`
 }
 
 type SysUser struct {
