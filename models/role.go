@@ -28,7 +28,7 @@ type SysRole struct {
 	//备注
 	Remark    string `gorm:"column:remark" json:"remark"`
 	Params    string `gorm:"column:params" json:"params"`
-	DataScope string `gorm:"-" json:"dataScope"`
+	DataScope string `gorm:"column:data_scope" json:"dataScope"`
 	IsDel     string `gorm:"column:is_del" json:"isDel"`
 
 	Admin bool `gorm:"column:admin" json:"admin"`
