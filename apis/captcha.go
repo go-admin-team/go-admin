@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/mojocn/base64Captcha"
-	"image/color"
 	"net/http"
 )
 
@@ -26,9 +25,11 @@ func GenerateCaptchaHandler(c *gin.Context) {
 
 	var param configJsonBody
 	param.Id = uuid.New().String()
-	param.CaptchaType = "string"
-	param.DriverString = base64Captcha.NewDriverString(46, 140, 2, 2, 4, "234567890abcdefghjkmnpqrstuvwxyz", &color.RGBA{240, 240, 246, 246}, []string{"wqy-microhei.ttc"})
-	driver := param.DriverString.ConvertFonts()
+	//param.CaptchaType = "string"
+	param.DriverDigit = base64Captcha.DefaultDriverDigit
+	driver := param.DriverDigit
+	//param.DriverString = base64Captcha.NewDriverString(46, 140, 2, 2, 4, "234567890abcdefghjkmnpqrstuvwxyz", &color.RGBA{240, 240, 246, 246}, []string{"wqy-microhei.ttc"})
+	//driver := param.DriverString.ConvertFonts()
 
 	cap := base64Captcha.NewCaptcha(driver, store)
 	id, b64s, err := cap.Generate()
