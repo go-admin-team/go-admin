@@ -2,6 +2,7 @@ package tools
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-admin/config"
 	"go-admin/models"
 	"go-admin/models/tools"
 	"go-admin/pkg"
@@ -17,10 +18,16 @@ import (
 // @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
 func GetDBTableList(c *gin.Context) {
+	var res models.Response
 	var data tools.DBTables
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
+	if config.DatabaseConfig.Dbtype=="sqlite3"{
+		res.Msg="对不起，sqlite3 暂不支持代码生成！"
+		c.JSON(http.StatusOK, res.ReturnError(500))
+		return
+	}
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
 		pageSize = pkg.StrToInt(err, size)
@@ -40,7 +47,7 @@ func GetDBTableList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	var res models.Response
+
 	res.Data = mp
 
 	c.JSON(http.StatusOK, res.ReturnOK())

@@ -28,7 +28,11 @@ func init() {
 
 func Casbin() (*casbin.Enforcer, error) {
 	conn := config.DatabaseConfig.Username + ":" + config.DatabaseConfig.Password + "@tcp(" + config.DatabaseConfig.Host + ":" + utils.IntToString(config.DatabaseConfig.Port) + ")/" + config.DatabaseConfig.Database
+	if config.DatabaseConfig.Dbtype == "sqlite3" {
+		conn = config.DatabaseConfig.Host
+	}
 	Apter, _ := gormadapter.NewAdapter(config.DatabaseConfig.Dbtype, conn, true)
+
 	e, _ := casbin.NewEnforcer("config/rbac_model.conf", Apter)
 
 	if err := e.LoadPolicy(); err == nil {

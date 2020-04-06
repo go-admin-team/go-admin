@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql" //加载mysql
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	config2 "go-admin/config"
 	"log"
 	"strconv"
@@ -21,7 +22,7 @@ func init() {
 	username := config2.DatabaseConfig.Username
 	password := config2.DatabaseConfig.Password
 
-	if dbType != "mysql" {
+	if dbType != "mysql" && dbType != "sqlite3" {
 		fmt.Println("db type unknow")
 	}
 	var err error
@@ -44,17 +45,21 @@ func init() {
 	var db Database
 	if dbType == "mysql" {
 		db = new(Mysql)
+		Eloquent, err = db.Open(dbType, conn.String())
+
+	} else if dbType == "sqlite3" {
+		db = new(SqlLite)
+		Eloquent, err = db.Open(dbType, host)
+
 	} else {
 		panic("db type unknow")
 	}
 
-	Eloquent, err = db.Open(dbType, conn.String())
 	Eloquent.LogMode(true)
-
 	if err != nil {
-		log.Fatalln("mysql connect error %v", err)
+		log.Fatalln("%s connect error %v",dbType, err)
 	} else {
-		log.Println("mysql connect success!")
+		log.Println("%s connect success!",dbType)
 	}
 
 	if Eloquent.Error != nil {

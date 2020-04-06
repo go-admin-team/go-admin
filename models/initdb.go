@@ -2,13 +2,19 @@ package models
 
 import (
 	"fmt"
+	"go-admin/config"
 	orm "go-admin/database"
 	"io/ioutil"
 	"strings"
 )
 
 func InitDb() error {
-	sql, err := Ioutil("config/db.sql")
+	filePath := "config/db.sql"
+	if config.DatabaseConfig.Dbtype == "sqlite3" {
+		fmt.Println("sqlite3数据库无需初始化！")
+		return nil
+	}
+	sql, err := Ioutil(filePath)
 	if err != nil {
 		fmt.Println("数据库初始化脚本读取失败！原因:", err.Error())
 		return err
