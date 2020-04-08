@@ -5,5 +5,4 @@ go-admin
 temp/
 !temp
 vendor
-config/settings.yml
 config/settings.dev.yml

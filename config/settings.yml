@@ -1,0 +1,19 @@
+settings:
+  application:
+    env: dev
+    envmsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！\U0001F600\U0001F600\U0001F600"
+    host: 0.0.0.0
+    isinit: false
+    jwtsecret: 123abc
+    logpath: temp/logs/log.txt
+    name: testApp
+    port: 8000
+    readtimeout: 1
+    writertimeout: 2
+  database:
+    database: goadmin
+    dbtype: mysql
+    host: 127.0.0.1
+    password: 123456
+    port: 3306
+    username: root
