@@ -16,7 +16,7 @@ type Login struct {
 
 func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 
-	e = orm.Eloquent.Table("sys_user").Where("UserName = ? ", u.Username).Find(&user).Error
+	e = orm.Eloquent.Table("sys_user").Where("username = ? ", u.Username).Find(&user).Error
 	if e != nil {
 		if strings.Contains(e.Error(), "record not found") {
 			pkg.AssertErr(e, "账号或密码错误(代码204)", 500)
@@ -32,7 +32,7 @@ func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 		log.Print(e)
 		return
 	}
-	e = orm.Eloquent.Table("sys_role").Where("id = ? ", user.RoleId).First(&role).Error
+	e = orm.Eloquent.Table("sys_role").Where("role_id = ? ", user.RoleId).First(&role).Error
 	if e != nil {
 		log.Print(e.Error())
 		return
