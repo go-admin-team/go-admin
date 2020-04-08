@@ -232,7 +232,7 @@ CREATE TABLE `sys_role` (
   `data_scope` varchar(255) DEFAULT NULL,
   `params` varchar(255) DEFAULT NULL,
   `admin` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 DROP TABLE IF EXISTS `sys_role_dept`;
 CREATE TABLE `sys_role_dept` (
