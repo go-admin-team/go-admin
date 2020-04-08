@@ -149,7 +149,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int32, er
 	}
 
 	if e.DeptId != 0 {
-		table = table.Where("dept_id in (select deptId from sys_dept where dept_path like ? )", "%"+utils.Int64ToString(e.DeptId)+"%")
+		table = table.Where("dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+utils.Int64ToString(e.DeptId)+"%")
 	}
 
 	// 数据权限控制
