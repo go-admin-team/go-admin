@@ -106,8 +106,8 @@ type SysUserView struct {
 // 获取用户数据
 func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 
-	table := orm.Eloquent.Table("sys_user").Select([]string{"sys_user.*", "sys_role.name"})
-	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.id")
+	table := orm.Eloquent.Table("sys_user").Select([]string{"sys_user.*", "sys_role.role_name"})
+	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
 	if e.Id != 0 {
 		table = table.Where("user_id = ?", e.Id)
 	}
@@ -149,7 +149,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int32, er
 	}
 
 	if e.DeptId != 0 {
-		table = table.Where("dept_id in (select deptId from sys_dept where dept_path like ? )", "%"+utils.Int64ToString(e.DeptId)+"%")
+		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+utils.Int64ToString(e.DeptId)+"%")
 	}
 
 	// 数据权限控制

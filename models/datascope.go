@@ -27,7 +27,7 @@ func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) *gorm.DB {
 		table = table.Where(tbname+".create_by in (SELECT user_id from sys_user where dept_id = ? )", user.DeptId)
 	}
 	if role.DataScope == "4" {
-		table = table.Where(tbname+".create_by in (SELECT user_id from sys_user where dept_id in(select deptId from sys_dept where dept_path like ? ))", "%"+utils.Int64ToString(user.DeptId)+"%")
+		table = table.Where(tbname+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+utils.Int64ToString(user.DeptId)+"%")
 	}
 	if role.DataScope == "5" || role.DataScope == "" {
 		table = table.Where(tbname+".create_by = ?", e.UserId)

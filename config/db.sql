@@ -217,8 +217,8 @@ CREATE TABLE `sys_post` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '角色编码',
-  `name` varchar(64) DEFAULT NULL COMMENT '角色名称',
+  `role_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '角色编码',
+  `role_name` varchar(64) DEFAULT NULL COMMENT '角色名称',
   `status` varchar(255) DEFAULT NULL COMMENT '状态',
   `role_key` varchar(255) DEFAULT NULL COMMENT '角色代码',
   `role_sort` int(255) DEFAULT NULL COMMENT '角色排序',
