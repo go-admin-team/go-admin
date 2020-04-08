@@ -13,7 +13,7 @@ type SysColumns struct {
 	ColumnType    string `gorm:"column:column_type" json:"columnType"`
 	GoType        string `gorm:"column:go_type" json:"goType"`
 	GoField       string `gorm:"column:go_field" json:"goField"`
-	JsonField       string `gorm:"column:json_field" json:"jsonField"`
+	JsonField     string `gorm:"column:json_field" json:"jsonField"`
 	IsPk          string `gorm:"column:is_pk" json:"isPk"`
 	IsIncrement   string `gorm:"column:is_increment" json:"isIncrement"`
 	IsRequired    string `gorm:"column:is_required" json:"isRequired"`
@@ -24,7 +24,7 @@ type SysColumns struct {
 	QueryType     string `gorm:"column:query_type" json:"queryType"`
 	HtmlType      string `gorm:"column:html_type" json:"htmlType"`
 	DictType      string `gorm:"column:dict_type" json:"dictType"`
-	Sort          string `gorm:"column:sort" json:"sort"`
+	Sort          int `gorm:"column:sort" json:"sort"`
 	List          string `gorm:"column:list" json:"list"`
 	Pk            bool   `gorm:"column:pk" json:"pk"`
 	Required      bool   `gorm:"column:required" json:"required"`
@@ -47,7 +47,6 @@ func (e *SysColumns) GetList() ([]SysColumns, error) {
 	table := orm.Eloquent.Select("*").Table("sys_columns")
 
 	table = table.Where("table_id = ?", e.TableId)
-
 
 	if err := table.Find(&doc).Error; err != nil {
 		return nil, err
@@ -81,4 +80,3 @@ func (e *SysColumns) Update() (update SysColumns, err error) {
 
 	return
 }
-

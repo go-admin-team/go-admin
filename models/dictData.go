@@ -7,22 +7,22 @@ import (
 
 type DictData struct {
 	//字典编码
-	DictCode int64 `gorm:"column:dictCode;primary_key" json:"dictCode" example:"1"`
+	DictCode int64 `gorm:"column:dict_code;primary_key" json:"dictCode" example:"1"`
 
 	//显示顺序
-	DictSort int64 `gorm:"column:dictSort" json:"dictSort" example:"1"`
+	DictSort int `gorm:"column:dict_sort" json:"dictSort" example:"1"`
 
 	//数据标签
-	DictLabel string `gorm:"column:dictLabel" json:"dictLabel"`
+	DictLabel string `gorm:"column:dict_label" json:"dictLabel"`
 
 	//数据键值
-	DictValue string `gorm:"column:dictValue" json:"dictValue"`
+	DictValue string `gorm:"column:dict_value" json:"dictValue"`
 
 	//字典类型
-	DictType  string `gorm:"column:dictType" json:"dictType"`
-	CssClass  string `gorm:"column:cssClass" json:"cssClass"`
-	ListClass string `gorm:"column:listClass" json:"listClass"`
-	IsDefault string `gorm:"column:isDefault" json:"isDefault"`
+	DictType  string `gorm:"column:dict_type" json:"dictType"`
+	CssClass  string `gorm:"column:css_class" json:"cssClass"`
+	ListClass string `gorm:"column:list_class" json:"listClass"`
+	IsDefault string `gorm:"column:is_default" json:"isDefault"`
 
 	//状态
 	Status     string `gorm:"column:status" json:"status"`
@@ -35,8 +35,8 @@ type DictData struct {
 	//备注
 	Remark    string `gorm:"column:remark" json:"remark"`
 	Params    string `gorm:"column:params" json:"params"`
-	DataScope string `gorm:"column:dataScope" json:"dataScope"`
-	IsDel     string `gorm:"column:is_del" json:"isDel"`
+	DataScope string `gorm:"column:data_scope" json:"dataScope"`
+	IsDel     int `gorm:"column:is_del" json:"isDel"`
 }
 
 func (e *DictData) Create() (DictData, error) {
@@ -57,13 +57,13 @@ func (e *DictData) GetByCode() (DictData, error) {
 
 	table := orm.Eloquent.Table("sys_dict_data")
 	if e.DictCode != 0 {
-		table = table.Where("dictCode = ?", e.DictCode)
+		table = table.Where("dict_code = ?", e.DictCode)
 	}
 	if e.DictLabel != "" {
-		table = table.Where("dictLabel = ?", e.DictLabel)
+		table = table.Where("dict_label = ?", e.DictLabel)
 	}
 	if e.DictType != "" {
-		table = table.Where("dictType = ?", e.DictType)
+		table = table.Where("dict_type = ?", e.DictType)
 	}
 
 	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
@@ -77,16 +77,16 @@ func (e *DictData) Get() ([]DictData, error) {
 
 	table := orm.Eloquent.Table("sys_dict_data")
 	if e.DictCode != 0 {
-		table = table.Where("dictCode = ?", e.DictCode)
+		table = table.Where("dict_code = ?", e.DictCode)
 	}
 	if e.DictLabel != "" {
-		table = table.Where("dictLabel = ?", e.DictLabel)
+		table = table.Where("dict_label = ?", e.DictLabel)
 	}
 	if e.DictType != "" {
-		table = table.Where("dictType = ?", e.DictType)
+		table = table.Where("dict_type = ?", e.DictType)
 	}
 
-	if err := table.Where("is_del = 0").Find(&doc).Error; err != nil {
+	if err := table.Where("is_del = 0").Order("dict_sort").Find(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
@@ -97,13 +97,13 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int32, erro
 
 	table := orm.Eloquent.Select("*").Table("sys_dict_data")
 	if e.DictCode != 0 {
-		table = table.Where("dictCode = ?", e.DictCode)
+		table = table.Where("dict_code = ?", e.DictCode)
 	}
 	if e.DictType != "" {
-		table = table.Where("dictType = ?", e.DictType)
+		table = table.Where("dict_type = ?", e.DictType)
 	}
 	if e.DictLabel != "" {
-		table = table.Where("dictLabel = ?", e.DictLabel)
+		table = table.Where("dict_label = ?", e.DictLabel)
 	}
 	if e.Status != "" {
 		table = table.Where("status = ?", e.Status)
@@ -116,7 +116,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int32, erro
 
 	var count int32
 
-	if err := table.Where("is_del = 0").Order("dictSort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Where("is_del = 0").Order("dict_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("is_del = 0").Count(&count)
@@ -125,7 +125,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int32, erro
 
 func (e *DictData) Update(id int64) (update DictData, err error) {
 	e.UpdateTime = utils.GetCurrntTime()
-	if err = orm.Eloquent.Table("sys_dict_data").Where("dictCode = ?", id).First(&update).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_dict_data").Where("dict_code = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
@@ -142,7 +142,7 @@ func (e *DictData) Delete(id int64) (success bool, err error) {
 	mp["is_del"] = "1"
 	mp["update_time"] = utils.GetCurrntTime()
 	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_dict_data").Where("dictCode = ?", id).Update(mp).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_dict_data").Where("dict_code = ?", id).Update(mp).Error; err != nil {
 		success = false
 		return
 	}

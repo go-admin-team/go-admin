@@ -7,13 +7,13 @@ import (
 
 type Post struct {
 	//岗位编号
-	PostId int64 `gorm:"column:postId;primary_key" json:"postId" example:"1" extensions:"x-description=标示"`
+	PostId int64 `gorm:"column:post_id;primary_key" json:"postId" example:"1" extensions:"x-description=标示"`
 
 	//岗位名称
-	PostName string `gorm:"column:postName" json:"postName"`
+	PostName string `gorm:"column:post_name" json:"postName"`
 
 	//岗位代码
-	PostCode string `gorm:"column:postCode" json:"postCode"`
+	PostCode string `gorm:"column:post_code" json:"postCode"`
 
 	//岗位排序
 	Sort int `gorm:"column:sort" json:"sort"`
@@ -31,7 +31,7 @@ type Post struct {
 	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
 
 	//是否删除
-	IsDel int64 `gorm:"column:is_del" json:"isDel"`
+	IsDel int `gorm:"column:is_del" json:"isDel"`
 
 	CreateBy string `gorm:"column:create_by" json:"createBy"`
 
@@ -39,7 +39,7 @@ type Post struct {
 
 	DataScope string `gorm:"-" json:"dataScope"`
 
-	Params string `gorm:"column:params" json:"params"`
+	Params string `gorm:"-" json:"params"`
 }
 
 func (e *Post) Create() (Post, error) {
@@ -60,13 +60,16 @@ func (e *Post) Get() (Post, error) {
 
 	table := orm.Eloquent.Table("sys_post")
 	if e.PostId != 0 {
-		table = table.Where("postId = ?", e.PostId)
+		table = table.Where("post_id = ?", e.PostId)
 	}
 	if e.PostName != "" {
-		table = table.Where("postName = ?", e.PostName)
+		table = table.Where("post_name = ?", e.PostName)
 	}
 	if e.PostCode != "" {
-		table = table.Where("postCode = ?", e.PostCode)
+		table = table.Where("post_code = ?", e.PostCode)
+	}
+	if e.Status != "" {
+		table = table.Where("status = ?", e.Status)
 	}
 
 	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
@@ -80,13 +83,16 @@ func (e *Post) GetList() ([]Post, error) {
 
 	table := orm.Eloquent.Table("sys_post")
 	if e.PostId != 0 {
-		table = table.Where("postId = ?", e.PostId)
+		table = table.Where("post_id = ?", e.PostId)
 	}
 	if e.PostName != "" {
-		table = table.Where("postName = ?", e.PostName)
+		table = table.Where("post_name = ?", e.PostName)
 	}
 	if e.PostCode != "" {
-		table = table.Where("postCode = ?", e.PostCode)
+		table = table.Where("post_code = ?", e.PostCode)
+	}
+	if e.Status != "" {
+		table = table.Where("status = ?", e.Status)
 	}
 
 	if err := table.Where("is_del = 0").Find(&doc).Error; err != nil {
@@ -100,10 +106,13 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int32, error) {
 
 	table := orm.Eloquent.Select("*").Table("sys_post")
 	if e.PostId != 0 {
-		table = table.Where("postId = ?", e.PostId)
+		table = table.Where("post_id = ?", e.PostId)
 	}
 	if e.PostName != "" {
-		table = table.Where("postName = ?", e.PostName)
+		table = table.Where("post_name = ?", e.PostName)
+	}
+	if e.Status != "" {
+		table = table.Where("status = ?", e.Status)
 	}
 
 	// 数据权限控制
@@ -113,7 +122,7 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int32, error) {
 
 	var count int32
 
-	if err := table.Where("is_del = 0").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Where("is_del = 0").Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("is_del = 0").Count(&count)
@@ -139,7 +148,7 @@ func (e *Post) Delete(id int64) (success bool, err error) {
 	mp["is_del"] = "1"
 	mp["update_time"] = utils.GetCurrntTime()
 	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_post").Where("postId = ?", id).Update(mp).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_post").Where("post_id = ?", id).Update(mp).Error; err != nil {
 		success = false
 		return
 	}

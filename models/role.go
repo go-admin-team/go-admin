@@ -29,7 +29,7 @@ type SysRole struct {
 	Remark    string `gorm:"column:remark" json:"remark"`
 	Params    string `gorm:"column:params" json:"params"`
 	DataScope string `gorm:"-" json:"dataScope"`
-	IsDel     string `gorm:"column:is_del" json:"isDel"`
+	IsDel     int `gorm:"column:is_del" json:"isDel"`
 
 	Admin bool `gorm:"column:admin" json:"admin"`
 
@@ -119,7 +119,7 @@ func (role *SysRole) Insert() (id int64, err error) {
 	role.CreateTime = utils.GetCurrntTime()
 	role.UpdateBy = ""
 	role.UpdateTime = utils.GetCurrntTime()
-	role.IsDel = "0"
+	role.IsDel = 0
 	result := orm.Eloquent.Table("sys_role").Create(&role)
 	if result.Error != nil {
 		err = result.Error
