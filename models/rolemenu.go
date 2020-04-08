@@ -33,7 +33,7 @@ func (rm *RoleMenu) Get() ([]RoleMenu, error) {
 
 func (rm *RoleMenu) GetPermis() ([]string, error) {
 	var r []Menu
-	table := orm.Eloquent.Select("sys_menu.permission").Table("sys_role_menu").Joins("left join sys_menu on sys_menu.menuId = sys_role_menu.menu_id")
+	table := orm.Eloquent.Select("sys_menu.permission").Table("sys_role_menu").Joins("left join sys_menu on sys_menu.menu_id = sys_role_menu.menu_id")
 
 	table = table.Where("role_id = ?", rm.RoleId)
 
@@ -51,9 +51,9 @@ func (rm *RoleMenu) GetPermis() ([]string, error) {
 func (rm *RoleMenu) GetIDS() ([]MenuPath, error) {
 	var r []MenuPath
 	table := orm.Eloquent.Select("sys_menu.path").Table("sys_role_menu")
-	table = table.Joins("left join sys_role on sys_role.id=sys_role_menu.role_id")
+	table = table.Joins("left join sys_role on sys_role.role_id=sys_role_menu.role_id")
 	table = table.Joins("left join sys_menu on sys_menu.id=sys_role_menu.menu_id")
-	table = table.Where("sys_role.name = ? and sys_menu.type=1", rm.RoleName)
+	table = table.Where("sys_role.role_name = ? and sys_menu.type=1", rm.RoleName)
 	if err := table.Find(&r).Error; err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int64) (bool, error) {
 		return false, err
 	}
 	var role SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("id = ?", roleId).First(&role).Error; err != nil {
+	if err := orm.Eloquent.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		return false, err
 	}
 	sql3 := "delete from casbin_rule where v0= '" + role.RoleKey + "';"
@@ -83,7 +83,7 @@ func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int64) (bool, error) {
 		return false, err
 	}
 	var role []SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("id in (?)", roleIds).Find(&role).Error; err != nil {
+	if err := orm.Eloquent.Table("sys_role").Where("role_id in (?)", roleIds).Find(&role).Error; err != nil {
 		return false, err
 	}
 	sql := ""
@@ -97,11 +97,11 @@ func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int64) (bool, error) {
 
 func (rm *RoleMenu) Insert(roleId int64, menuId []int64) (bool, error) {
 	var role SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("id = ?", roleId).First(&role).Error; err != nil {
+	if err := orm.Eloquent.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		return false, err
 	}
 	var menu []Menu
-	if err := orm.Eloquent.Table("sys_menu").Where("menuId in (?)", menuId).Find(&menu).Error; err != nil {
+	if err := orm.Eloquent.Table("sys_menu").Where("menu_id in (?)", menuId).Find(&menu).Error; err != nil {
 		return false, err
 	}
 	//ORM不支持批量插入所以需要拼接 sql 串

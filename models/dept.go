@@ -191,14 +191,14 @@ func Digui(deptlist *[]Dept, menu Dept) Dept {
 
 func (e *Dept) Update(id int64) (update Dept, err error) {
 	e.UpdateTime = utils.GetCurrntTime()
-	if err = orm.Eloquent.Table("sys_dept").Where("deptId = ?", id).First(&update).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_dept").Where("dept_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	deptPath := "/" + utils.Int64ToString(e.Deptid)
 	if int(e.ParentId) != 0 {
 		var deptP Dept
-		orm.Eloquent.Table("sys_dept").Where("deptId = ?", e.ParentId).First(&deptP)
+		orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0" + deptPath
@@ -218,7 +218,7 @@ func (e *Dept) Delete(id int64) (success bool, err error) {
 	mp["is_del"] = "1"
 	mp["update_time"] = utils.GetCurrntTime()
 	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_dept").Where("deptId = ?", id).Update(mp).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_dept").Where("dept_id = ?", id).Update(mp).Error; err != nil {
 		success = false
 		return
 	}
