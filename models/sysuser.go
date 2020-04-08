@@ -185,6 +185,7 @@ func (e *SysUser) Encrypt() (err error) {
 func (e SysUser) Insert() (id int64, err error) {
 	e.CreateTime = utils.GetCurrntTime()
 	e.UpdateTime = utils.GetCurrntTime()
+	e.IsDel = "0"
 	if err = e.Encrypt(); err != nil {
 		return
 	}
