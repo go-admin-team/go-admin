@@ -29,11 +29,6 @@ func init() {
 	}
 	ApplicationConfig = InitApplication(cfgApplication)
 
-	cfgRedisConn = viper.Sub("settings.redis")
-	if cfgRedisConn == nil {
-		panic("config not found settings.redis")
-	}
-	RedisConnConfig = InitRedisConn(cfgRedisConn)
 
 }
 

@@ -6,17 +6,17 @@ import (
 )
 
 type DictType struct {
-	DictId int64 `gorm:"column:dictId;primary_key" json:"dictId" example:"1"`
+	DictId int64 `gorm:"column:dict_id;primary_key" json:"dictId" example:"1"`
 	//字典名称
-	DictName string `gorm:"column:dictName" json:"dictName"`
+	DictName string `gorm:"column:dict_name" json:"dictName"`
 	//字典类型
-	DictType string `gorm:"column:dictType" json:"dictType"`
+	DictType string `gorm:"column:dict_type" json:"dictType"`
 	//状态
 	Status string `gorm:"column:status" json:"status"`
 
 	DataScope string `gorm:"-" json:"dataScope"`
 
-	Params string `gorm:"column:params" json:"params"`
+	Params string `gorm:"-" json:"params"`
 	//创建者
 	CreateBy string `gorm:"column:create_by" json:"createBy"`
 	//创建时间
@@ -27,7 +27,7 @@ type DictType struct {
 	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
 	//备注
 	Remark string `gorm:"column:remark" json:"remark"`
-	IsDel  string `gorm:"column:is_del" json:"isDel"`
+	IsDel  int `gorm:"column:is_del" json:"isDel"`
 }
 
 func (e *DictType) Create() (DictType, error) {
@@ -48,13 +48,13 @@ func (e *DictType) Get() (DictType, error) {
 
 	table := orm.Eloquent.Table("sys_dict_type")
 	if e.DictId != 0 {
-		table = table.Where("dictId = ?", e.DictId)
+		table = table.Where("dict_id = ?", e.DictId)
 	}
 	if e.DictName != "" {
-		table = table.Where("dictName = ?", e.DictName)
+		table = table.Where("dict_name = ?", e.DictName)
 	}
 	if e.DictType != "" {
-		table = table.Where("dictType = ?", e.DictType)
+		table = table.Where("dict_type = ?", e.DictType)
 	}
 
 	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
@@ -68,13 +68,13 @@ func (e *DictType) GetList() ([]DictType, error) {
 
 	table := orm.Eloquent.Table("sys_dict_type")
 	if e.DictId != 0 {
-		table = table.Where("dictId = ?", e.DictId)
+		table = table.Where("dict_id = ?", e.DictId)
 	}
 	if e.DictName != "" {
-		table = table.Where("dictName = ?", e.DictName)
+		table = table.Where("dict_name = ?", e.DictName)
 	}
 	if e.DictType != "" {
-		table = table.Where("dictType = ?", e.DictType)
+		table = table.Where("dict_type = ?", e.DictType)
 	}
 
 	if err := table.Where("is_del = 0").Find(&doc).Error; err != nil {
@@ -88,10 +88,10 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int32, erro
 
 	table := orm.Eloquent.Select("*").Table("sys_dict_type")
 	if e.DictId != 0 {
-		table = table.Where("dictId = ?", e.DictId)
+		table = table.Where("dict_id = ?", e.DictId)
 	}
 	if e.DictName != "" {
-		table = table.Where("dictName = ?", e.DictName)
+		table = table.Where("dict_name = ?", e.DictName)
 	}
 
 	// 数据权限控制
@@ -127,7 +127,7 @@ func (e *DictType) Delete(id int64) (success bool, err error) {
 	mp["is_del"] = "1"
 	mp["update_time"] = utils.GetCurrntTime()
 	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_dict_type").Where("dictId = ?", id).Update(mp).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_dict_type").Where("dict_id = ?", id).Update(mp).Error; err != nil {
 		success = false
 		return
 	}

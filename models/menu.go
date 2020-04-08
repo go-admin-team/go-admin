@@ -7,23 +7,23 @@ import (
 )
 
 type Menu struct {
-	MenuId     int64  `json:"menuId" gorm:"column:menuId;primary_key"`
-	MenuName   string `json:"menuName" gorm:"column:menuName"`
+	MenuId     int64  `json:"menuId" gorm:"column:menu_id;primary_key"`
+	MenuName   string `json:"menuName" gorm:"column:menu_name"`
 	Title      string `json:"title" gorm:"column:title"`
 	Icon       string `json:"icon" gorm:"column:icon"`
 	Path       string `json:"path" gorm:"column:path"`
 	Paths      string `json:"paths" gorm:"column:paths"`
-	MenuType   string `json:"menuType" gorm:"column:menuType"`
+	MenuType   string `json:"menuType" gorm:"column:menu_type"`
 	Action     string `json:"action" gorm:"column:action"`
 	Permission string `json:"permission" gorm:"column:permission"`
-	ParentId   int64  `json:"parentId" gorm:"column:parentId"`
-	NoCache    bool   `json:"noCache" gorm:"column:noCache"`
+	ParentId   int64  `json:"parentId" gorm:"column:parent_id"`
+	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
 	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
 	Component  string `json:"component" gorm:"column:component"`
 	Sort       int    `json:"sort" gorm:"column:sort"`
 
 	Visible  string `json:"visible" gorm:"column:visible"`
-	Children []Menu `json:"children"`
+	Children []Menu `json:"children" gorm:"-"`
 	IsSelect bool   `json:"is_select" gorm:"-"`
 	RoleId   int64  `gorm:"-"`
 
@@ -33,7 +33,7 @@ type Menu struct {
 	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
 	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"-"`
-	IsDel      string `json:"isDel" gorm:"column:is_del"`
+	IsDel      int `json:"isDel" gorm:"column:is_del"`
 }
 type MenuLable struct {
 	Id       int64       `json:"id" gorm:"-"`
@@ -42,22 +42,22 @@ type MenuLable struct {
 }
 
 type Menus struct {
-	MenuId     int64  `json:"menuId" gorm:"column:menuId;primary_key"`
-	MenuName   string `json:"menuName" gorm:"column:menuName"`
+	MenuId     int64  `json:"menuId" gorm:"column:menu_id;primary_key"`
+	MenuName   string `json:"menuName" gorm:"column:menu_name"`
 	Title      string `json:"title" gorm:"column:title"`
 	Icon       string `json:"icon" gorm:"column:icon"`
 	Path       string `json:"path" gorm:"column:path"`
-	MenuType   string `json:"menuType" gorm:"column:menuType"`
+	MenuType   string `json:"menuType" gorm:"column:menu_type"`
 	Action     string `json:"action" gorm:"column:action"`
 	Permission string `json:"permission" gorm:"column:permission"`
-	ParentId   int64  `json:"parentId" gorm:"column:parentId"`
-	NoCache    bool   `json:"noCache" gorm:"column:noCache"`
+	ParentId   int64  `json:"parentId" gorm:"column:parent_id"`
+	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
 	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
 	Component  string `json:"component" gorm:"column:component"`
 	Sort       int    `json:"sort" gorm:"column:sort"`
 
 	Visible  string `json:"visible" gorm:"column:visible"`
-	Children []Menu `json:"children"`
+	Children []Menu `json:"children" gorm:"-"`
 
 	CreateBy   string `json:"createBy" gorm:"column:create_by"`
 	CreateTime string `json:"createTime" gorm:"column:create_time"`
@@ -65,7 +65,7 @@ type Menus struct {
 	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
 	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"-"`
-	IsDel      string `json:"isDel" gorm:"column:is_del"`
+	IsDel      int `json:"isDel" gorm:"column:is_del"`
 }
 
 type MenuRole struct {
@@ -79,7 +79,7 @@ func (e *Menu) GetByMenuId() (Menu Menu, err error) {
 
 	table := orm.Eloquent.Table("sys_menu")
 	table = table.Where("is_del = ?", 0)
-	table = table.Where("menuId = ?", e.MenuId)
+	table = table.Where("menu_id = ?", e.MenuId)
 	if err = table.Find(&Menu).Error; err != nil {
 		return
 	}
@@ -206,18 +206,18 @@ func (menu *MenuRole) Get() (Menus []MenuRole, err error) {
 	table := orm.Eloquent.Table("sys_menu")
 	table = table.Where("is_del = ?", 0)
 	if menu.MenuName != "" {
-		table = table.Where("menuName = ?", menu.MenuName)
+		table = table.Where("menu_name = ?", menu.MenuName)
 	}
-	if err = table.Find(&Menus).Error; err != nil {
+	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
-	table := orm.Eloquent.Table("sys_menu").Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menuId")
-	table = table.Where("is_del = ? and sys_role_menu.role_name=? and menuType in ('M','C')", 0, rolename)
-	if err = table.Find(&Menus).Error; err != nil {
+	table := orm.Eloquent.Table("sys_menu").Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
+	table = table.Where("is_del = ? and sys_role_menu.role_name=? and menu_type in ('M','C')", 0, rolename)
+	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}
 	return
@@ -227,7 +227,7 @@ func (e *Menu) Get() (Menus []Menu, err error) {
 	table := orm.Eloquent.Table("sys_menu")
 	table = table.Where("is_del = ?", 0)
 	if e.MenuName != "" {
-		table = table.Where("menuName = ?", e.MenuName)
+		table = table.Where("menu_name = ?", e.MenuName)
 	}
 	if e.Path != "" {
 		table = table.Where("path = ?", e.Path)
@@ -236,10 +236,10 @@ func (e *Menu) Get() (Menus []Menu, err error) {
 		table = table.Where("action = ?", e.Action)
 	}
 	if e.MenuType != "" {
-		table = table.Where("menuType = ?", e.MenuType)
+		table = table.Where("menu_type = ?", e.MenuType)
 	}
 
-	if err = table.Find(&Menus).Error; err != nil {
+	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}
 	return
@@ -249,10 +249,10 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 	table := orm.Eloquent.Table("sys_menu")
 	table = table.Where("is_del = ?", 0)
 	if e.MenuName != "" {
-		table = table.Where("menuName = ?", e.MenuName)
+		table = table.Where("menu_name = ?", e.MenuName)
 	}
 	if e.MenuType != "" {
-		table = table.Where("menuType = ?", e.MenuType)
+		table = table.Where("menu_type = ?", e.MenuType)
 	}
 	if e.Visible != "" {
 		table = table.Where("visible = ?", e.Visible)
@@ -263,7 +263,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 	dataPermission.UserId, _ = utils.StringToInt64(e.DataScope)
 	table = dataPermission.GetDataScope("sys_menu", table)
 
-	if err = table.Find(&Menus).Error; err != nil {
+	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}
 	return
@@ -272,7 +272,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 func (e *Menu) Create() (id int64, err error) {
 	e.CreateTime = utils.GetCurrntTime()
 	e.UpdateTime = utils.GetCurrntTime()
-	e.IsDel = "0"
+	e.IsDel = 0
 	result := orm.Eloquent.Table("sys_menu").Create(&e)
 	if result.Error != nil {
 		err = result.Error
@@ -289,7 +289,7 @@ func (e *Menu) Create() (id int64, err error) {
 func InitPaths(menu *Menu) (err error) {
 	parentMenu := new(Menu)
 	if int(menu.ParentId) != 0 {
-		orm.Eloquent.Table("sys_menu").Where("menuId = ?", menu.ParentId).First(parentMenu)
+		orm.Eloquent.Table("sys_menu").Where("menu_id = ?", menu.ParentId).First(parentMenu)
 		if parentMenu.Paths == "" {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return
@@ -298,7 +298,7 @@ func InitPaths(menu *Menu) (err error) {
 	} else {
 		menu.Paths = "/0/" + utils.Int64ToString(menu.MenuId)
 	}
-	orm.Eloquent.Table("sys_menu").Where("menuId = ?", menu.MenuId).Update("paths", menu.Paths)
+	orm.Eloquent.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return
 }
 
@@ -325,7 +325,7 @@ func (e *Menu) Delete(id int64) (success bool, err error) {
 	mp["is_del"] = "1"
 	mp["update_time"] = utils.GetCurrntTime()
 	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_menu").Where("menuId = ?", id).Update(mp).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_menu").Where("menu_id = ?", id).Update(mp).Error; err != nil {
 		success = false
 		return
 	}

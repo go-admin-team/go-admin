@@ -1,7 +1,9 @@
 .idea
 static/uploadfile
 main.exe
-temp/logs/log.txt
+go-admin
+temp/
+!temp
 vendor
+config/settings.yml
 config/settings.dev.yml
-temp/logs/log.log

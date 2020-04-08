@@ -8,15 +8,15 @@ import (
 type Config struct {
 
 	//编码
-	ConfigId int64 `json:"configId" gorm:"column:configId;primary_key"`
+	ConfigId int64 `json:"configId" gorm:"column:config_id;primary_key"`
 	//参数名称
-	ConfigName string `json:"configName" gorm:"column:configName"`
+	ConfigName string `json:"configName" gorm:"column:config_name"`
 	//参数键名
-	ConfigKey string `json:"configKey" gorm:"column:configKey"`
+	ConfigKey string `json:"configKey" gorm:"column:config_key"`
 	//参数键值
-	ConfigValue string `json:"configValue" gorm:"column:configValue"`
+	ConfigValue string `json:"configValue" gorm:"column:config_value"`
 	//是否系统内置
-	ConfigType string `json:"configType" gorm:"column:configType"`
+	ConfigType string `json:"configType" gorm:"column:config_type"`
 	//备注
 	Remark string `json:"remark" gorm:"column:remark"`
 
@@ -26,13 +26,13 @@ type Config struct {
 	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
 	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"column:params"`
-	IsDel      string `json:"isDel" gorm:"column:is_del"`
+	IsDel      int    `json:"isDel" gorm:"column:is_del"`
 }
 
 // Config 创建
 func (e *Config) Create() (Config, error) {
 	var doc Config
-	doc.IsDel = "0"
+	doc.IsDel = 0
 	e.CreateTime = utils.GetCurrntTime()
 	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_config").Create(&e)
@@ -50,11 +50,11 @@ func (e *Config) Get() (Config, error) {
 
 	table := orm.Eloquent.Table("sys_config")
 	if e.ConfigId != 0 {
-		table = table.Where("configId = ?", e.ConfigId)
+		table = table.Where("config_id = ?", e.ConfigId)
 	}
 
 	if e.ConfigKey != "" {
-		table = table.Where("configKey = ?", e.ConfigKey)
+		table = table.Where("config_key = ?", e.ConfigKey)
 	}
 
 	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
@@ -69,13 +69,13 @@ func (e *Config) GetPage(pageSize int, pageIndex int) ([]Config, int32, error) {
 	table := orm.Eloquent.Select("*").Table("sys_config")
 
 	if e.ConfigName != "" {
-		table = table.Where("configName = ?", e.ConfigName)
+		table = table.Where("config_name = ?", e.ConfigName)
 	}
 	if e.ConfigKey != "" {
-		table = table.Where("configKey = ?", e.ConfigKey)
+		table = table.Where("config_key = ?", e.ConfigKey)
 	}
 	if e.ConfigType != "" {
-		table = table.Where("configType = ?", e.ConfigType)
+		table = table.Where("config_type = ?", e.ConfigType)
 	}
 
 	// 数据权限控制
@@ -94,7 +94,7 @@ func (e *Config) GetPage(pageSize int, pageIndex int) ([]Config, int32, error) {
 
 func (e *Config) Update(id int64) (update Config, err error) {
 	e.UpdateTime = utils.GetCurrntTime()
-	if err = orm.Eloquent.Table("sys_config").Where("configId = ?", id).First(&update).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_config").Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
@@ -111,7 +111,7 @@ func (e *Config) Delete(id int64) (success bool, err error) {
 	mp["is_del"] = "1"
 	mp["update_time"] = utils.GetCurrntTime()
 	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_config").Where("configId = ?", id).Update(mp).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_config").Where("config_id = ?", id).Update(mp).Error; err != nil {
 		success = false
 		return
 	}

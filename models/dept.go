@@ -7,7 +7,7 @@ import (
 
 type Dept struct {
 	//部门编码
-	Deptid int64 `gorm:"column:deptId;primary_key" json:"deptId" example:"1" extensions:"x-description=标示"`
+	Deptid int64 `gorm:"column:dept_id;primary_key" json:"deptId" example:"1" extensions:"x-description=标示"`
 
 	//上级部门
 	ParentId int64 `gorm:"column:parent_id" json:"parent_id"`
@@ -32,28 +32,27 @@ type Dept struct {
 	//状态
 	Status string `gorm:"column:status" json:"status"`
 
-	CreateBy   string `json:"createBy" gorm:"column:create_by"`
-	CreateTime string `json:"createTime" gorm:"column:create_time"`
-	UpdateBy   string `json:"updateBy" gorm:"column:update_by"`
-	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
-	DataScope  string `json:"dataScope" gorm:"-"`
-	Params     string `json:"params" gorm:"column:params"`
-	IsDel      string `json:"isDel" gorm:"column:is_del"`
-
-	Children []Dept `json:"children"`
+	CreateBy   string `gorm:"column:create_by" json:"createBy"`
+	CreateTime string `gorm:"column:create_time" json:"createTime"`
+	UpdateBy   string `gorm:"column:update_by" json:"updateBy"`
+	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
+	DataScope  string `gorm:"-" json:"dataScope"`
+	Params     string `gorm:"-" json:"params"`
+	IsDel      int    `gorm:"column:is_del" json:"isDel"`
+	Children   []Dept `gorm:"-"json:"children"`
 }
 
 type DeptLable struct {
-	Id       int64       `json:"id" gorm:"-"`
-	Label    string      `json:"label" gorm:"-"`
-	Children []DeptLable `json:"children" gorm:"-"`
+	Id       int64       `gorm:"-" json:"id"`
+	Label    string      `gorm:"-" json:"label"`
+	Children []DeptLable `gorm:"-" json:"children"`
 }
 
 func (e *Dept) Create() (Dept, error) {
 	var doc Dept
 	e.CreateTime = utils.GetCurrntTime()
 	e.UpdateTime = utils.GetCurrntTime()
-	e.IsDel = "0"
+	e.IsDel = 0
 	result := orm.Eloquent.Table("sys_dept").Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -109,7 +108,7 @@ func (e *Dept) GetList() ([]Dept, error) {
 		table = table.Where("status = ?", e.Status)
 	}
 
-	if err := table.Where("is_del = 0").Find(&doc).Error; err != nil {
+	if err := table.Where("is_del = 0").Order("sort").Find(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
@@ -138,7 +137,7 @@ func (e *Dept) GetPage(bl bool) ([]Dept, error) {
 		table = dataPermission.GetDataScope("sys_dept", table)
 	}
 
-	if err := table.Where("is_del = 0").Find(&doc).Error; err != nil {
+	if err := table.Where("is_del = 0").Order("sort").Find(&doc).Error; err != nil {
 		return nil, err
 	}
 	return doc, nil

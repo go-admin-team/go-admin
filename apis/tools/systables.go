@@ -122,7 +122,7 @@ func InsertSysTable(c *gin.Context) {
 		column.ColumnComment = dbcolumn[i].ColumnComment
 		column.ColumnName = dbcolumn[i].ColumnName
 		column.ColumnType = dbcolumn[i].ColumnType
-		column.Sort = utils.IntToString(i + 1)
+		column.Sort = i + 1
 		column.Insert = true
 		column.IsInsert = "1"
 		column.QueryType = "EQ"

@@ -27,9 +27,9 @@
 
 - 配置文件简单的模型映射，快速能够得到想要的配置
 
-- 代码生成工具（即将push，demo已经发布可以体验了）
+- 代码生成工具
 
-- 表单构建工具（即将push，demo已经发布可以体验了）
+- 表单构建工具
 
 - TODO: 单元测试
 
@@ -49,7 +49,7 @@
 11. 代码生成：根据数据表结构生成对应的增删改查相对应业务，全部可视化编程。
 12. 表单构建：自定义页面样式，拖拉拽实现页面布局。
 
-## 配置详情
+## ⚙ 配置详情
 
 1. 配置文件说明
 ```yml
@@ -86,16 +86,6 @@ settings:
     port: 3306       
     # 数据库用户名
     username: root   
-  # redis 可忽略
-  redis: 
-    # redis链接地址
-    addr: 0.0.0.0:6379 
-    # db 
-    db: 0   
-    # 密码            
-    password: password  
-    # 读超时时长
-    readtimeout: 50     
 ```
 
 2. 文件路径  go-admin/config/settings.yml
@@ -128,9 +118,8 @@ vi ./config/setting.yml (更改isinit和数据库连接)
 # 启动项目，也可以用IDE进行调试
 ./go-admin
 
-# 也可以在WIKI中查看说明
 ```
-
+[在线文档](https://wenjianzhang.github.io/go-admin-site)
 
 
 文档生成
@@ -158,28 +147,19 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
+## 📈 版本
 
-## 🤝 使用的开源项目
-[gin](https://github.com/gin-gonic/gin)
+### 2020-04-08 新功能及优化
 
-[casbin](https://github.com/casbin/casbin)
+1. 添加sqlite3的支持
+1. 数据库字段格式统一
+2. 用户新增bug修复
+3. 修改数据初始化脚本
+4. 验证码改为数字验证 
+5. 删除redis暂时无用组件
+6. 其他已知bug的修复
 
-[spf13/viper](https://github.com/spf13/viper)
-
-[gorm](https://github.com/jinzhu/gorm)
-
-[gin-swagger](https://github.com/swaggo/gin-swagger)
-
-[jwt-go](https://github.com/dgrijalva/jwt-go)
-
-[vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
-
-[ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
-
-
-## 版本
-
-### 2020-04-1 新功能及bug修复
+### 2020-04-01 新功能及优化
 
 1. 代码生成器
 2. 代码优化
@@ -194,7 +174,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 看到好多体验的朋友验证码错误，所以调整了对比度，方便大家体验！
 
-## 互动
+## 📨 互动
 
 <table>
   <tr>
@@ -212,6 +192,14 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 ## 🤝 特别感谢
 [chengxiao](https://github.com/chengxiao)
+[gin](https://github.com/gin-gonic/gin)
+[casbin](https://github.com/casbin/casbin)
+[spf13/viper](https://github.com/spf13/viper)
+[gorm](https://github.com/jinzhu/gorm)
+[gin-swagger](https://github.com/swaggo/gin-swagger)
+[jwt-go](https://github.com/dgrijalva/jwt-go)
+[vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+[ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 
 
 ## License

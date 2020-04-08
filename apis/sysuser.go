@@ -170,6 +170,7 @@ func InsertSysUser(c *gin.Context) {
 	sysuser.CreateTime = utils.GetCurrntTime()
 	sysuser.UpdateTime = utils.GetCurrntTime()
 	sysuser.CreateBy = utils.GetUserIdStr(c)
+	sysuser.IsDel = 0
 	id, err := sysuser.Insert()
 	var res models.Response
 	if err != nil {
