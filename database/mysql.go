@@ -54,8 +54,6 @@ func init() {
 	} else {
 		panic("db type unknow")
 	}
-
-	Eloquent.LogMode(true)
 	if err != nil {
 		log.Fatalln("%s connect error %v",dbType, err)
 	} else {
@@ -65,7 +63,7 @@ func init() {
 	if Eloquent.Error != nil {
 		log.Fatalln("database error %v", Eloquent.Error)
 	}
-
+	Eloquent.LogMode(true)
 }
 
 type Database interface {
