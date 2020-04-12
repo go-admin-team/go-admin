@@ -1,12 +1,20 @@
 package main
 
 import (
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/gin-gonic/gin"
+
 	"go-admin/config"
 	orm "go-admin/database"
 	"go-admin/models"
 	"go-admin/router"
-	"log"
 )
 
 // @title go-admin API
@@ -35,8 +43,35 @@ func main() {
 	r := router.InitRouter()
 
 	defer orm.Eloquent.Close()
-	if err := r.Run(config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port); err != nil {
-		log.Fatal(err)
+
+	server := &http.Server{
+		Addr:              config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
+		Handler:           r,
 	}
+
+	go func() {
+		err := server.ListenAndServe(); if err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen error: %s\n", err)
+		}
+	}()
+
+	// graceful shutdown
+	c := make(chan os.Signal)
+
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	<-c
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
+	// catching ctx.Done(). timeout of 5 seconds.
+	select {
+	case <-ctx.Done():
+		log.Println("timeout of 5 seconds.")
+	}
+	log.Println("Server exiting")
 
 }
