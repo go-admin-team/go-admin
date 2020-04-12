@@ -4,7 +4,7 @@ import (
 	"errors"
 	orm "go-admin/database"
 	"go-admin/pkg"
-	"go-admin/utils"
+	"go-admin/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"strings"
@@ -23,12 +23,12 @@ type User struct {
 }
 
 type UserName struct {
-	Username string `gorm:"column:username" json:"username"`
+	Username string `gorm:"type:varchar(64)" json:"username"`
 }
 
 type PassWord struct {
 	// 密码
-	Password string `gorm:"column:password" json:"password"`
+	Password string `gorm:"type:varchar(128)" json:"password"`
 }
 
 type LoginM struct {
@@ -37,51 +37,37 @@ type LoginM struct {
 }
 
 type SysUserId struct {
-	// 编码
-	Id int64 `gorm:"column:user_id;primary_key"  json:"userId"`
+	UserId int `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 编码
 }
 
 type SysUserB struct {
-	// 昵称
-	NickName string `gorm:"column:nick_name" json:"nickName"`
-	// 手机号
-	Phone string `gorm:"column:phone" json:"phone"`
-	// 角色编码
-	RoleId int64 `gorm:"column:role_id" json:"roleId"`
-	//盐
-	Salt string `gorm:"column:salt" json:"salt"`
-	//头像
-	Avatar string `gorm:"column:avatar" json:"avatar"`
-	//性别
-	Sex string `gorm:"column:sex" json:"sex"`
-	//邮箱
-	Email string `gorm:"column:email" json:"email"`
-	// 创建时间
-	CreateTime string `gorm:"column:create_time" json:"createTime"`
-	// 修改时间
-	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
-
-	//部门编码
-	DeptId int64 `gorm:"column:dept_id" json:"deptId"`
-
-	//职位编码
-	PostId int64 `gorm:"column:post_id" json:"postId"`
-
-	CreateBy string `gorm:"column:create_by" json:"createBy"`
-	UpdateBy string `gorm:"column:update_by" json:"updateBy"`
-
-	//备注
-	Remark    string `gorm:"column:remark" json:"remark"`
-	Params    string `gorm:"column:params" json:"params"`
-	Status    string `gorm:"column:status" json:"status"`
+	NickName  string `gorm:"type:varchar(128)" json:"nickName"` // 昵称
+	Phone     string `gorm:"type:varchar(11)" json:"phone"`     // 手机号
+	RoleId    int  `gorm:"type:int(11)" json:"roleId"`        // 角色编码
+	Salt      string `gorm:"type:varchar(255)" json:"salt"`     //盐
+	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`   //头像
+	Sex       string `gorm:"type:varchar(255)" json:"sex"`      //性别
+	Email     string `gorm:"type:varchar(128)" json:"email"`    //邮箱
+	DeptId    int  `gorm:"type:int(11)" json:"deptId"`        //部门编码
+	PostId    int  `gorm:"type:int(11)" json:"postId"`        //职位编码
+	CreateBy  string `gorm:"type:varchar(128)" json:"createBy"` //
+	UpdateBy  string `gorm:"type:varchar(128)" json:"updateBy"` //
+	Remark    string `gorm:"type:varchar(255)" json:"remark"`   //备注
+	Status    string    `gorm:"type:int(1);" json:"status"`
 	DataScope string `gorm:"-" json:"dataScope"`
-	IsDel     int `gorm:"column:is_del" json:"isDel"`
+	Params    string `gorm:"-" json:"params"`
+
+	BaseModel
 }
 
 type SysUser struct {
 	SysUserId
 	SysUserB
 	LoginM
+}
+
+func (SysUser) TableName() string {
+	return "sys_user"
 }
 
 type SysUserPwd struct {
@@ -108,8 +94,8 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 
 	table := orm.Eloquent.Table("sys_user").Select([]string{"sys_user.*", "sys_role.role_name"})
 	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
-	if e.Id != 0 {
-		table = table.Where("user_id = ?", e.Id)
+	if e.UserId != 0 {
+		table = table.Where("user_id = ?", e.UserId)
 	}
 
 	if e.Username != "" {
@@ -138,7 +124,7 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 	return
 }
 
-func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int32, error) {
+func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, error) {
 	var doc []SysUserPage
 
 	table := orm.Eloquent.Select("sys_user.*,sys_dept.dept_name").Table("sys_user")
@@ -149,20 +135,20 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int32, er
 	}
 
 	if e.DeptId != 0 {
-		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+utils.Int64ToString(e.DeptId)+"%")
+		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+utils.IntToString(e.DeptId)+"%")
 	}
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt64(e.DataScope)
+	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
 	table = dataPermission.GetDataScope("sys_user", table)
 
-	var count int32
+	var count int
 
-	if err := table.Where("sys_user.is_del = 0").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("sys_user.is_del = 0").Count(&count)
+	table.Count(&count)
 	return doc, count, nil
 }
 
@@ -182,9 +168,7 @@ func (e *SysUser) Encrypt() (err error) {
 }
 
 //添加
-func (e SysUser) Insert() (id int64, err error) {
-	e.CreateTime = utils.GetCurrntTime()
-	e.UpdateTime = utils.GetCurrntTime()
+func (e SysUser) Insert() (id int, err error) {
 	if err = e.Encrypt(); err != nil {
 		return
 	}
@@ -201,13 +185,12 @@ func (e SysUser) Insert() (id int64, err error) {
 	if err = orm.Eloquent.Table("sys_user").Create(&e).Error; err != nil {
 		return
 	}
-	id = e.Id
+	id = e.UserId
 	return
 }
 
 //修改
-func (e *SysUser) Update(id int64) (update SysUser, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
+func (e *SysUser) Update(id int) (update SysUser, err error) {
 	if err = e.Encrypt(); err != nil {
 		return
 	}
@@ -227,12 +210,8 @@ func (e *SysUser) Update(id int64) (update SysUser, err error) {
 	return
 }
 
-func (e *SysUser) BatchDelete(id []int64) (Result bool, err error) {
-	var mp = map[string]string{}
-	mp["is_del"] = "1"
-	mp["update_time"] = utils.GetCurrntTime()
-	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_user").Where("is_del=0 and user_id in (?)", id).Update(mp).Error; err != nil {
+func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table("sys_user").Where("user_id in (?)", id).Delete(&SysUser{}).Error; err != nil {
 		return
 	}
 	Result = true
@@ -244,13 +223,13 @@ func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
 	_, err = pkg.CompareHashAndPassword(user.Password, pwd.OldPassword)
 	if err != nil {
 		if strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
-			pkg.AssertErr(err, "密码错误(代码202)", 500)
+			pkg.HasError(err, "密码错误(代码202)", 500)
 		}
 		log.Print(err)
 		return
 	}
 	e.Password = pwd.NewPassword
-	_, err = e.Update(e.Id)
-	pkg.AssertErr(err, "更新密码失败(代码202)", 500)
+	_, err = e.Update(e.UserId)
+	pkg.HasError(err, "更新密码失败(代码202)", 500)
 	return
 }

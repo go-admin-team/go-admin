@@ -15,10 +15,10 @@ func ExtractClaims(c *gin.Context) jwt.MapClaims {
 	return claims.(jwt.MapClaims)
 }
 
-func GetUserId(c *gin.Context) int64 {
+func GetUserId(c *gin.Context) int {
 	data := ExtractClaims(c)
 	if data["identity"] != nil {
-		return int64((data["identity"]).(float64))
+		return int((data["identity"]).(float64))
 	}
 	fmt.Println("****************************** 路径：" + c.Request.URL.Path + "  请求方法：" + c.Request.Method + "  说明：缺少identity")
 	return 0
@@ -51,10 +51,10 @@ func GetRoleName(c *gin.Context) string {
 	return ""
 }
 
-func GetRoleId(c *gin.Context) int64 {
+func GetRoleId(c *gin.Context) int {
 	data := ExtractClaims(c)
 	if data["roleid"] != nil {
-		i := int64((data["roleid"]).(float64))
+		i := int((data["roleid"]).(float64))
 		return i
 	}
 	fmt.Println("****************************** 路径：" + c.Request.URL.Path + "  请求方法：" + c.Request.Method + "  缺少roleid")

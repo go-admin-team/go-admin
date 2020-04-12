@@ -1,4 +1,4 @@
-package apis
+package system
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,10 +6,9 @@ import (
 	"github.com/google/uuid"
 	"go-admin/models"
 	"go-admin/pkg"
-	"go-admin/utils"
+	"go-admin/pkg/app"
+	"go-admin/pkg/utils"
 	"log"
-	"net/http"
-	"strconv"
 )
 
 // @Summary 列表数据
@@ -39,25 +38,16 @@ func GetSysUserList(c *gin.Context) {
 	data.Username = c.Request.FormValue("userName")
 
 	postId := c.Request.FormValue("postId")
-	data.PostId, _ = strconv.ParseInt(postId, 10, 64)
+	data.PostId, _ = utils.StringToInt(postId)
 
 	deptId := c.Request.FormValue("deptId")
-	data.DeptId, _ = strconv.ParseInt(deptId, 10, 64)
+	data.DeptId, _ = utils.StringToInt(deptId)
 
 	data.DataScope = utils.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.AssertErr(err, "", -1)
+	pkg.HasError(err, "", -1)
 
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
-
-	var res models.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	app.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
 // @Summary 获取用户
@@ -69,21 +59,20 @@ func GetSysUserList(c *gin.Context) {
 // @Security
 func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
-	SysUser.Id, _ = strconv.ParseInt(c.Param("userId"), 10, 64)
+	SysUser.UserId, _ = utils.StringToInt(c.Param("userId"))
 	result, err := SysUser.Get()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
 	var Post models.Post
 	roles, err := SysRole.GetList()
 	posts, err := Post.GetList()
 
-	postIds := make([]int64, 0)
+	postIds := make([]int, 0)
 	postIds = append(postIds, result.PostId)
 
-	roleIds := make([]int64, 0)
+	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
-
-	c.JSON(http.StatusOK, gin.H{
+	app.Custum(c, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -102,9 +91,9 @@ func GetSysUser(c *gin.Context) {
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
 	userId := utils.GetUserIdStr(c)
-	SysUser.Id, _ = strconv.ParseInt(userId, 10, 64)
+	SysUser.UserId, _ = utils.StringToInt(userId)
 	result, err := SysUser.Get()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
 	var Post models.Post
 	var Dept models.Dept
@@ -113,16 +102,16 @@ func GetSysUserProfile(c *gin.Context) {
 	//获取职位列表
 	posts, err := Post.GetList()
 	//获取部门列表
-	Dept.Deptid = result.DeptId
+	Dept.DeptId = result.DeptId
 	dept, err := Dept.Get()
 
-	postIds := make([]int64, 0)
+	postIds := make([]int, 0)
 	postIds = append(postIds, result.PostId)
 
-	roleIds := make([]int64, 0)
+	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
 
-	c.JSON(http.StatusOK, gin.H{
+	app.Custum(c, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -144,13 +133,11 @@ func GetSysUserInit(c *gin.Context) {
 	var Post models.Post
 	roles, err := SysRole.GetList()
 	posts, err := Post.GetList()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 	mp := make(map[string]interface{}, 2)
 	mp["roles"] = roles
 	mp["posts"] = posts
-	var res models.Response
-	res.Data = mp
-	c.JSON(http.StatusOK, res.ReturnOK())
+	app.OK(c, mp, "")
 }
 
 // @Summary 创建用户
@@ -165,22 +152,12 @@ func GetSysUserInit(c *gin.Context) {
 func InsertSysUser(c *gin.Context) {
 	var sysuser models.SysUser
 	err := c.BindWith(&sysuser, binding.JSON)
-	pkg.AssertErr(err, "非法数据格式", 500)
+	pkg.HasError(err, "非法数据格式", 500)
 
-	sysuser.CreateTime = utils.GetCurrntTime()
-	sysuser.UpdateTime = utils.GetCurrntTime()
 	sysuser.CreateBy = utils.GetUserIdStr(c)
-	sysuser.IsDel = 0
 	id, err := sysuser.Insert()
-	var res models.Response
-	if err != nil {
-		res.Msg = "添加失败"
-		c.JSON(http.StatusOK, res.ReturnError(200))
-		return
-	}
-	res.Data = id
-	res.Msg = "添加成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "添加失败", 500)
+	app.OK(c, id, "添加成功")
 }
 
 // @Summary 修改用户数据
@@ -195,17 +172,11 @@ func InsertSysUser(c *gin.Context) {
 func UpdateSysUser(c *gin.Context) {
 	var data models.SysUser
 	err := c.BindWith(&data, binding.JSON)
-	pkg.AssertErr(err, "数据解析失败", -1)
+	pkg.HasError(err, "数据解析失败", -1)
 	data.UpdateBy = utils.GetUserIdStr(c)
-	result, err := data.Update(data.Id)
-	var res models.Response
-	if err != nil || result.Id == 0 {
-		res.Msg = "修改失败"
-		c.JSON(http.StatusOK, res.ReturnError(200))
-		return
-	}
-	res.Msg = "修改成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	result, err := data.Update(data.UserId)
+	pkg.HasError(err, "修改失败", 500)
+	app.OK(c, result, "修改成功")
 }
 
 // @Summary 删除用户数据
@@ -218,17 +189,10 @@ func UpdateSysUser(c *gin.Context) {
 func DeleteSysUser(c *gin.Context) {
 	var data models.SysUser
 	data.UpdateBy = utils.GetUserIdStr(c)
-	IDS := utils.IdsStrToIdsInt64Group("userId", c)
+	IDS := utils.IdsStrToIdsIntGroup("userId", c)
 	result, err := data.BatchDelete(IDS)
-	if err != nil || !result {
-		var res models.Response
-		res.Msg = "删除失败"
-		c.JSON(http.StatusOK, res.ReturnError(501))
-		return
-	}
-	var res models.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "删除失败", 500)
+	app.OK(c, result, "删除成功")
 }
 
 // @Summary 修改头像
@@ -250,28 +214,19 @@ func InsetSysUserAvatar(c *gin.Context) {
 		_ = c.SaveUploadedFile(file, filPath)
 	}
 	sysuser := models.SysUser{}
-	sysuser.Id = utils.GetUserId(c)
+	sysuser.UserId = utils.GetUserId(c)
 	sysuser.Avatar = "/" + filPath
 	sysuser.UpdateBy = utils.GetUserIdStr(c)
-	sysuser.Update(sysuser.Id)
-
-	c.JSON(http.StatusCreated, gin.H{
-		"code": 200,
-		"data": filPath,
-	})
-
+	sysuser.Update(sysuser.UserId)
+	app.OK(c, filPath, "修改成功")
 }
 
 func SysUserUpdatePwd(c *gin.Context) {
 	var pwd models.SysUserPwd
 	err := c.Bind(&pwd)
-	pkg.AssertErr(err, "数据解析失败", 500)
+	pkg.HasError(err, "数据解析失败", 500)
 	sysuser := models.SysUser{}
-	sysuser.Id = utils.GetUserId(c)
+	sysuser.UserId = utils.GetUserId(c)
 	sysuser.SetPwd(pwd)
-	c.JSON(http.StatusCreated, gin.H{
-		"code": 200,
-		"data": "密码修改成功",
-	})
-
+	app.OK(c, "", "密码修改成功")
 }

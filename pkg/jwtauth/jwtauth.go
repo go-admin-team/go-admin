@@ -5,14 +5,13 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"go-admin/config"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 )
 
-// MapClaims type that uses the map[string]interface{} for JSON decoding
-// This is the default claims type if you don't supply one
 type MapClaims map[string]interface{}
 
 // GinJWTMiddleware provides a Json-Web-Token authentication implementation. On failure, a 401 HTTP response
@@ -81,10 +80,12 @@ type GinJWTMiddleware struct {
 	// rolekey
 	RKey string
 
+	// roleId
 	RoleIdKey string
 
 	RoleKey string
 
+	// roleName
 	RoleNameKey string
 
 	// TokenLookup is a string in the form of "<source>:<name>" that is used
@@ -281,12 +282,11 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 		mw.SigningAlgorithm = "HS256"
 	}
 
-	if mw.Timeout == 0 {
+	mw.Timeout = time.Hour
+	if config.JwtConfig.Timeout != 0 {
 		// TODO: token过期时长
-		mw.Timeout = time.Hour
+		mw.Timeout = time.Duration(config.JwtConfig.Timeout) * time.Second
 	}
-
-	//mw.Timeout = time.Second*5
 
 	if mw.TimeFunc == nil {
 		mw.TimeFunc = time.Now

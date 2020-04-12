@@ -2,9 +2,9 @@ package tools
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/models"
 	"go-admin/models/tools"
 	"go-admin/pkg"
+	"go-admin/pkg/app"
 	"net/http"
 )
 
@@ -33,7 +33,7 @@ func GetDBColumnList(c *gin.Context) {
 	data.TableName = c.Request.FormValue("tableName")
 	pkg.Assert(data.TableName=="","table name cannot be empty！",500)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.AssertErr(err, "", -1)
+	pkg.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
@@ -41,7 +41,7 @@ func GetDBColumnList(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
 
-	var res models.Response
+	var res app.Response
 	res.Data = mp
 
 	c.JSON(http.StatusOK, res.ReturnOK())

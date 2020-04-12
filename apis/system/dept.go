@@ -1,13 +1,13 @@
-package apis
+package system
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
 	"go-admin/pkg"
-	"go-admin/utils"
-	"net/http"
-	"strconv"
+	"go-admin/pkg/app"
+	"go-admin/pkg/app/msg"
+	"go-admin/pkg/utils"
 )
 
 // @Summary 分页部门列表数据
@@ -21,29 +21,23 @@ import (
 // @Security
 func GetDeptList(c *gin.Context) {
 	var Dept models.Dept
-	Dept.Deptname = c.Request.FormValue("deptName")
+	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
-	Dept.Deptid, _ = utils.StringToInt64(c.Request.FormValue("deptId"))
+	Dept.DeptId, _ = utils.StringToInt(c.Request.FormValue("deptId"))
 	Dept.DataScope = utils.GetUserIdStr(c)
 	result, err := Dept.SetDept(true)
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	app.OK(c,result,"")
 }
 
 func GetDeptTree(c *gin.Context) {
 	var Dept models.Dept
-	Dept.Deptname = c.Request.FormValue("deptName")
-	Dept.Status = c.Request.FormValue("status")
-	Dept.Deptid, _ = utils.StringToInt64(c.Request.FormValue("deptId"))
+	Dept.DeptName = c.Request.FormValue("deptName")
+	Dept.Status= c.Request.FormValue("status")
+	Dept.DeptId, _ = utils.StringToInt(c.Request.FormValue("deptId"))
 	result, err := Dept.SetDept(false)
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	app.OK(c,result,"")
 }
 
 // @Summary 部门列表数据
@@ -56,14 +50,11 @@ func GetDeptTree(c *gin.Context) {
 // @Security
 func GetDept(c *gin.Context) {
 	var Dept models.Dept
-	Dept.Deptid, _ = strconv.ParseInt(c.Param("deptId"), 10, 64)
+	Dept.DeptId, _ = utils.StringToInt(c.Param("deptId"))
 	Dept.DataScope = utils.GetUserIdStr(c)
 	result, err := Dept.Get()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, msg.NotFound, 404)
+	app.OK(c,result,msg.GetSuccess)
 }
 
 // @Summary 添加部门
@@ -79,13 +70,11 @@ func GetDept(c *gin.Context) {
 func InsertDept(c *gin.Context) {
 	var data models.Dept
 	err := c.BindWith(&data, binding.JSON)
-	pkg.AssertErr(err, "", 500)
+	pkg.HasError(err, "", 500)
 	data.CreateBy = utils.GetUserIdStr(c)
 	result, err := data.Create()
-	pkg.AssertErr(err, "", -1)
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "", -1)
+	app.OK(c,result,msg.CreatedSuccess)
 }
 
 // @Summary 修改部门
@@ -102,13 +91,11 @@ func InsertDept(c *gin.Context) {
 func UpdateDept(c *gin.Context) {
 	var data models.Dept
 	err := c.BindWith(&data, binding.JSON)
-	pkg.AssertErr(err, "", -1)
+	pkg.HasError(err, "", -1)
 	data.UpdateBy = utils.GetUserIdStr(c)
-	result, err := data.Update(data.Deptid)
-	pkg.AssertErr(err, "", -1)
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	result, err := data.Update(data.DeptId)
+	pkg.HasError(err, "", -1)
+	app.OK(c,result,msg.UpdatedSuccess)
 }
 
 // @Summary 删除部门
@@ -120,28 +107,25 @@ func UpdateDept(c *gin.Context) {
 // @Router /api/v1/dept/{id} [delete]
 func DeleteDept(c *gin.Context) {
 	var data models.Dept
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	id, err := utils.StringToInt(c.Param("id"))
 	_, err = data.Delete(id)
-	pkg.AssertErr(err, "删除失败", 500)
-
-	var res models.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "删除失败", 500)
+	app.OK(c,"",msg.DeletedSuccess)
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
 	var Dept models.Dept
 	var SysRole models.SysRole
-	id, err := strconv.ParseInt(c.Param("roleId"), 10, 64)
-	SysRole.Id = id
+	id, err := utils.StringToInt(c.Param("roleId"))
+	SysRole.RoleId = id
 	result, err := Dept.SetDeptLable()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-	menuIds := make([]int64, 0)
+	pkg.HasError(err, msg.NotFound, -1)
+	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = SysRole.GetRoleDeptId()
-		pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+		pkg.HasError(err, "抱歉未找到相关信息", -1)
 	}
-	c.JSON(http.StatusOK, gin.H{
+	app.Custum(c,gin.H{
 		"code":        200,
 		"depts":       result,
 		"checkedKeys": menuIds,

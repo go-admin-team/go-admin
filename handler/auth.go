@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
-	. "go-admin/models"
+	"go-admin/models"
 	jwt "go-admin/pkg/jwtauth"
-	"go-admin/utils"
+	"go-admin/pkg/utils"
 	"log"
 	"net/http"
 )
@@ -15,15 +15,15 @@ var store = base64Captcha.DefaultMemStore
 
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(SysUser)
-		r, _ := v["role"].(SysRole)
+		u, _ := v["user"].(models.SysUser)
+		r, _ := v["role"].(models.SysRole)
 		return jwt.MapClaims{
-			jwt.IdentityKey:  u.Id,
-			jwt.RoleIdKey:    r.Id,
+			jwt.IdentityKey:  u.UserId,
+			jwt.RoleIdKey:    r.RoleId,
 			jwt.RoleKey:      r.RoleKey,
 			jwt.NiceKey:      u.Username,
 			jwt.DataScopeKey: r.DataScope,
-			jwt.RoleNameKey:  r.Name,
+			jwt.RoleNameKey:  r.RoleName,
 		}
 	}
 	return jwt.MapClaims{}
@@ -52,17 +52,15 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
-	var loginVals Login
-	var loginlog LoginLog
+	var loginVals models.Login
+	var loginlog models.LoginLog
 
 	ua := user_agent.New(c.Request.UserAgent())
 	loginlog.Ipaddr = c.ClientIP()
 	location := utils.GetLocation(c.ClientIP())
 	loginlog.LoginLocation = location
 	loginlog.LoginTime = utils.GetCurrntTime()
-	loginlog.CreateTime = utils.GetCurrntTime()
 	loginlog.Status = "0"
-	loginlog.IsDel = "0"
 	loginlog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
 	loginlog.Browser = browserName + " " + browserVersion
@@ -73,11 +71,11 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 	if err := c.ShouldBind(&loginVals); err != nil {
 		loginlog.Status = "1"
 		loginlog.Msg = "数据解析失败"
-		loginlog.UserName = loginVals.Username
+		loginlog.Username = loginVals.Username
 		loginlog.Create()
 		return nil, jwt.ErrMissingLoginValues
 	}
-	loginlog.UserName = loginVals.Username
+	loginlog.Username = loginVals.Username
 	if !store.Verify(loginVals.UUID, loginVals.Code, true) {
 		loginlog.Status = "1"
 		loginlog.Msg = "验证码错误"
@@ -109,21 +107,19 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 // @Router /logout [post]
 // @Security
 func LogOut(c *gin.Context) {
-	var loginlog LoginLog
+	var loginlog models.LoginLog
 	ua := user_agent.New(c.Request.UserAgent())
 	loginlog.Ipaddr = c.ClientIP()
 	location := utils.GetLocation(c.ClientIP())
 	loginlog.LoginLocation = location
 	loginlog.LoginTime = utils.GetCurrntTime()
-	loginlog.CreateTime = utils.GetCurrntTime()
 	loginlog.Status = "0"
-	loginlog.IsDel = "0"
 	loginlog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
 	loginlog.Browser = browserName + " " + browserVersion
 	loginlog.Os = ua.OS()
 	loginlog.Platform = ua.Platform()
-	loginlog.UserName = utils.GetUserName(c)
+	loginlog.Username = utils.GetUserName(c)
 	loginlog.Msg = "退出成功"
 	loginlog.Create()
 	c.JSON(http.StatusOK, gin.H{
@@ -136,11 +132,11 @@ func LogOut(c *gin.Context) {
 func Authorizator(data interface{}, c *gin.Context) bool {
 
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(SysUser)
-		r, _ := v["role"].(SysRole)
-		c.Set("role", r.Name)
-		c.Set("roleIds", r.Id)
-		c.Set("userId", u.Id)
+		u, _ := v["user"].(models.SysUser)
+		r, _ := v["role"].(models.SysRole)
+		c.Set("role", r.RoleName)
+		c.Set("roleIds", r.RoleId)
+		c.Set("userId", u.UserId)
 		c.Set("userName", u.UserName)
 		c.Set("dataScope", r.DataScope)
 

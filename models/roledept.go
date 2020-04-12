@@ -7,11 +7,15 @@ import (
 
 //sys_role_dept
 type SysRoleDept struct {
-	RoleId int64
-	DeptId int64
+	RoleId int `gorm:"type:int(11)"`
+	DeptId int `gorm:"type:int(11)"`
 }
 
-func (rm *SysRoleDept) Insert(roleId int64, deptIds []int64) (bool, error) {
+func (SysRoleDept) TableName() string {
+	return "sys_role_dept"
+}
+
+func (rm *SysRoleDept) Insert(roleId int, deptIds []int) (bool, error) {
 	//ORM不支持批量插入所以需要拼接 sql 串
 	sql := "INSERT INTO `sys_role_dept` (`role_id`,`dept_id`) VALUES "
 
@@ -28,7 +32,7 @@ func (rm *SysRoleDept) Insert(roleId int64, deptIds []int64) (bool, error) {
 	return true, nil
 }
 
-func (rm *SysRoleDept) DeleteRoleDept(roleId int64) (bool, error) {
+func (rm *SysRoleDept) DeleteRoleDept(roleId int) (bool, error) {
 	if err := orm.Eloquent.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
 		return false, err
 	}

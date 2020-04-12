@@ -2,50 +2,29 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/utils"
+	"go-admin/pkg/utils"
 )
 
 type Post struct {
-	//岗位编号
-	PostId int64 `gorm:"column:post_id;primary_key" json:"postId" example:"1" extensions:"x-description=标示"`
-
-	//岗位名称
-	PostName string `gorm:"column:post_name" json:"postName"`
-
-	//岗位代码
-	PostCode string `gorm:"column:post_code" json:"postCode"`
-
-	//岗位排序
-	Sort int `gorm:"column:sort" json:"sort"`
-
-	//状态
-	Status string `gorm:"column:status" json:"status"`
-
-	//描述
-	Remark string `gorm:"column:remark" json:"remark"`
-
-	//创建时间
-	CreateTime string `gorm:"column:create_time" json:"createTime"`
-
-	//最后修改时间
-	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
-
-	//是否删除
-	IsDel int `gorm:"column:is_del" json:"isDel"`
-
-	CreateBy string `gorm:"column:create_by" json:"createBy"`
-
-	UpdateBy string `gorm:"column:update_by" json:"updateBy"`
-
+	PostId    int  `gorm:"primary_key;AUTO_INCREMENT" json:"postId"` //岗位编号
+	PostName  string `gorm:"type:varchar(128);" json:"postName"`          //岗位名称
+	PostCode  string `gorm:"type:varchar(128);" json:"postCode"`          //岗位代码
+	Sort      int    `gorm:"type:int(4);" json:"sort"`               //岗位排序
+	Status    string    `gorm:"type:int(1);" json:"status"`             //状态
+	Remark    string `gorm:"type:varchar(255);" json:"remark"`           //描述
+	CreateBy  string `gorm:"type:varchar(128);" json:"createBy"`
+	UpdateBy  string `gorm:"type:varchar(128);" json:"updateBy"`
 	DataScope string `gorm:"-" json:"dataScope"`
+	Params    string `gorm:"-" json:"params"`
+	BaseModel
+}
 
-	Params string `gorm:"-" json:"params"`
+func (Post) TableName() string {
+	return "sys_post"
 }
 
 func (e *Post) Create() (Post, error) {
 	var doc Post
-	e.CreateTime = utils.GetCurrntTime()
-	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_post").Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -72,7 +51,7 @@ func (e *Post) Get() (Post, error) {
 		table = table.Where("status = ?", e.Status)
 	}
 
-	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
+	if err := table.First(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
@@ -95,13 +74,13 @@ func (e *Post) GetList() ([]Post, error) {
 		table = table.Where("status = ?", e.Status)
 	}
 
-	if err := table.Where("is_del = 0").Find(&doc).Error; err != nil {
+	if err := table.Find(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
 }
 
-func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int32, error) {
+func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 	var doc []Post
 
 	table := orm.Eloquent.Select("*").Table("sys_post")
@@ -117,20 +96,19 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int32, error) {
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt64(e.DataScope)
+	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
 	table = dataPermission.GetDataScope("sys_post", table)
 
-	var count int32
+	var count int
 
-	if err := table.Where("is_del = 0").Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("is_del = 0").Count(&count)
+	table.Count(&count)
 	return doc, count, nil
 }
 
-func (e *Post) Update(id int64) (update Post, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
+func (e *Post) Update(id int) (update Post, err error) {
 	if err = orm.Eloquent.Table("sys_post").First(&update, id).Error; err != nil {
 		return
 	}
@@ -143,12 +121,8 @@ func (e *Post) Update(id int64) (update Post, err error) {
 	return
 }
 
-func (e *Post) Delete(id int64) (success bool, err error) {
-	var mp = map[string]string{}
-	mp["is_del"] = "1"
-	mp["update_time"] = utils.GetCurrntTime()
-	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_post").Where("post_id = ?", id).Update(mp).Error; err != nil {
+func (e *Post) Delete(id int) (success bool, err error) {
+	if err = orm.Eloquent.Table("sys_post").Where("post_id = ?", id).Delete(&Post{}).Error; err != nil {
 		success = false
 		return
 	}

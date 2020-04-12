@@ -19,7 +19,7 @@ func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 	e = orm.Eloquent.Table("sys_user").Where("username = ? ", u.Username).Find(&user).Error
 	if e != nil {
 		if strings.Contains(e.Error(), "record not found") {
-			pkg.AssertErr(e, "账号或密码错误(代码204)", 500)
+			pkg.HasError(e, "账号或密码错误(代码204)", 500)
 		}
 		log.Print(e)
 		return
@@ -27,7 +27,7 @@ func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 	_, e = pkg.CompareHashAndPassword(user.Password, u.Password)
 	if e != nil {
 		if strings.Contains(e.Error(), "hashedPassword is not the hash of the given password") {
-			pkg.AssertErr(e, "账号或密码错误(代码201)", 500)
+			pkg.HasError(e, "账号或密码错误(代码201)", 500)
 		}
 		log.Print(e)
 		return

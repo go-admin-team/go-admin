@@ -2,45 +2,30 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/utils"
+	"time"
 )
 
 type LoginLog struct {
-	//主键
-	InfoId int64 `json:"infoId" gorm:"column:infoId;primary_key"`
-	//用户名
-	UserName string `json:"userName" gorm:"column:userName;"`
-	//状态
-	Status string `json:"status" gorm:"column:status;"`
-	//ip地址
-	Ipaddr string `json:"ipaddr" gorm:"column:ipaddr;"`
-	//归属地
-	LoginLocation string `json:"loginLocation" gorm:"column:loginLocation;"`
-	//浏览器
-	Browser string `json:"browser" gorm:"column:browser;"`
-	//系统
-	Os string `json:"os" gorm:"column:os;"`
-	// 固件
-	Platform string `json:"platform" gorm:"column:platform;"`
-	//登录时间
-	LoginTime string `json:"loginTime" gorm:"column:loginTime;"`
-	//创建人
-	CreateBy string `json:"createBy" gorm:"column:create_by;"`
-	//创建时间
-	CreateTime string `json:"createTime" gorm:"column:create_time;"`
-	//更新者
-	UpdateBy string `json:"updateBy" gorm:"column:update_by;"`
-	//更新时间
-	UpdateTime string `json:"updateTime" gorm:"column:update_time;"`
-	//数据
-	DataScope string `json:"dataScope" gorm:"column:dataScope;"`
-	//参数
-	Params string `json:"params" gorm:"column:params;"`
-	//备注
-	Remark string `json:"remark" gorm:"column:remark;"`
-	//是否删除
-	IsDel string `json:"isDel" gorm:"column:is_del;"`
-	Msg   string `json:"msg" gorm:"column:msg;"`
+	InfoId        int     `json:"infoId" gorm:"primary_key;AUTO_INCREMENT"`  //主键
+	Username      string    `json:"username" gorm:"type:varchar(128);"`      //用户名
+	Status        string       `json:"status" gorm:"type:int(1);"`              //状态
+	Ipaddr        string    `json:"ipaddr" gorm:"type:varchar(255);"`        //ip地址
+	LoginLocation string    `json:"loginLocation" gorm:"type:varchar(255);"` //归属地
+	Browser       string    `json:"browser" gorm:"type:varchar(255);"`       //浏览器
+	Os            string    `json:"os" gorm:"type:varchar(255);"`            //系统
+	Platform      string    `json:"platform" gorm:"type:varchar(255);"`      // 固件
+	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;"`        //登录时间
+	CreateBy      string    `json:"createBy" gorm:"type:varchar(128);"`      //创建人
+	UpdateBy      string    `json:"updateBy" gorm:"type:varchar(128);"`      //更新者
+	DataScope     string    `json:"dataScope" gorm:"-"`                      //数据
+	Params        string    `json:"params" gorm:"-"`                         //
+	Remark        string    `json:"remark" gorm:"type:varchar(255);"`        //备注
+	Msg           string    `json:"msg" gorm:"type:varchar(255);"`
+	BaseModel
+}
+
+func (LoginLog) TableName() string {
+	return "sys_loginlog"
 }
 
 func (e *LoginLog) Get() (LoginLog, error) {
@@ -51,16 +36,16 @@ func (e *LoginLog) Get() (LoginLog, error) {
 		table = table.Where("ipaddr = ?", e.Ipaddr)
 	}
 	if e.InfoId != 0 {
-		table = table.Where("infoId = ?", e.InfoId)
+		table = table.Where("info_id = ?", e.InfoId)
 	}
 
-	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
+	if err := table.First(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
 }
 
-func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int32, error) {
+func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int, error) {
 	var doc []LoginLog
 
 	table := orm.Eloquent.Select("*").Table("sys_loginlog")
@@ -70,23 +55,21 @@ func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int32, erro
 	if e.Status != "" {
 		table = table.Where("status = ?", e.Status)
 	}
-	if e.UserName != "" {
-		table = table.Where("userName = ?", e.UserName)
+	if e.Username != "" {
+		table = table.Where("userName = ?", e.Username)
 	}
 
-	var count int32
+	var count int
 
-	if err := table.Where("is_del = 0").Order("infoId desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("info_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("is_del = 0").Count(&count)
+	table.Count(&count)
 	return doc, count, nil
 }
 
 func (e *LoginLog) Create() (LoginLog, error) {
 	var doc LoginLog
-	e.CreateTime = utils.GetCurrntTime()
-	e.UpdateTime = utils.GetCurrntTime()
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
 	result := orm.Eloquent.Table("sys_loginlog").Create(&e)
@@ -98,8 +81,7 @@ func (e *LoginLog) Create() (LoginLog, error) {
 	return doc, nil
 }
 
-func (e *LoginLog) Update(id int64) (update LoginLog, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
+func (e *LoginLog) Update(id int) (update LoginLog, err error) {
 
 	if err = orm.Eloquent.Table("sys_loginlog").First(&update, id).Error; err != nil {
 		return
@@ -113,8 +95,8 @@ func (e *LoginLog) Update(id int64) (update LoginLog, err error) {
 	return
 }
 
-func (e *LoginLog) BatchDelete(id []int64) (Result bool, err error) {
-	if err = orm.Eloquent.Table("sys_loginlog").Where("is_del=0 and infoId in (?)", id).Update(map[string]interface{}{"is_del": "1", "update_time": utils.GetCurrntTime(), "update_by": e.UpdateBy}).Error; err != nil {
+func (e *LoginLog) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table("sys_loginlog").Where("info_id in (?)", id).Delete(&LoginLog{}).Error; err != nil {
 		return
 	}
 	Result = true

@@ -1,13 +1,12 @@
-package apis
+package system
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
 	"go-admin/pkg"
-	"go-admin/utils"
-	"net/http"
-	"strconv"
+	"go-admin/pkg/app"
+	"go-admin/pkg/utils"
 )
 
 // @Summary Menu列表数据
@@ -21,14 +20,11 @@ import (
 func GetMenuList(c *gin.Context) {
 	var Menu models.Menu
 	Menu.MenuName = c.Request.FormValue("menuName")
-	Menu.Visible = c.Request.FormValue("visible")
 	Menu.DataScope = utils.GetUserIdStr(c)
 	result, err := Menu.SetMenu()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	app.OK(c,result,"")
 }
 
 // @Summary Menu列表数据
@@ -41,28 +37,26 @@ func GetMenuList(c *gin.Context) {
 // @Security Bearer
 func GetMenu(c *gin.Context) {
 	var data models.Menu
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	id, err := utils.StringToInt(c.Param("id"))
 	data.MenuId = id
 	result, err := data.GetByMenuId()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	app.OK(c,result,"")
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
 	var Menu models.Menu
 	var SysRole models.SysRole
-	id, err := strconv.ParseInt(c.Param("roleId"), 10, 64)
-	SysRole.Id = id
+	id, err := utils.StringToInt(c.Param("roleId"))
+	SysRole.RoleId = id
 	result, err := Menu.SetMenuLable()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-	menuIds := make([]int64, 0)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = SysRole.GetRoleMeunId()
-		pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+		pkg.HasError(err, "抱歉未找到相关信息", -1)
 	}
-	c.JSON(http.StatusOK, gin.H{
+	app.Custum(c,gin.H{
 		"code":        200,
 		"menus":       result,
 		"checkedKeys": menuIds,
@@ -81,10 +75,8 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 func GetMenuTreeelect(c *gin.Context) {
 	var data models.Menu
 	result, err := data.SetMenuLable()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	app.OK(c,result,"")
 }
 
 // @Summary 创建菜单
@@ -105,14 +97,11 @@ func GetMenuTreeelect(c *gin.Context) {
 func InsertMenu(c *gin.Context) {
 	var data models.Menu
 	err := c.BindWith(&data, binding.JSON)
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 	data.CreateBy = utils.GetUserIdStr(c)
 	result, err := data.Create()
-	pkg.AssertErr(err, "抱歉未找到相关信息", -1)
-
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	app.OK(c,result,"")
 }
 
 // @Summary 修改菜单
@@ -130,13 +119,11 @@ func UpdateMenu(c *gin.Context) {
 	var data models.Menu
 	err2 := c.BindWith(&data, binding.JSON)
 	data.UpdateBy = utils.GetUserIdStr(c)
-	pkg.AssertErr(err2, "修改失败", -1)
+	pkg.HasError(err2, "修改失败", -1)
 	_, err := data.Update(data.MenuId)
-	pkg.AssertErr(err, "", 501)
+	pkg.HasError(err, "", 501)
+	app.OK(c,"","修改成功")
 
-	var res models.Response
-	res.Msg = "修改成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
 // @Summary 删除菜单
@@ -148,14 +135,11 @@ func UpdateMenu(c *gin.Context) {
 // @Router /api/v1/menu/{id} [delete]
 func DeleteMenu(c *gin.Context) {
 	var data models.Menu
-	id, err := utils.StringToInt64(c.Param("id"))
+	id, err := utils.StringToInt(c.Param("id"))
 	data.UpdateBy = utils.GetUserIdStr(c)
 	_, err = data.Delete(id)
-	pkg.AssertErr(err, "删除失败", 500)
-
-	var res models.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "删除失败", 500)
+	app.OK(c,"","删除成功")
 }
 
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）
@@ -169,10 +153,8 @@ func DeleteMenu(c *gin.Context) {
 func GetMenuRole(c *gin.Context) {
 	var Menu models.Menu
 	result, err := Menu.SetMenuRole(utils.GetRoleName(c))
-	pkg.AssertErr(err, "获取失败", 500)
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "获取失败", 500)
+	app.OK(c,result,"")
 }
 
 // @Summary 获取角色对应的菜单id数组
@@ -188,8 +170,6 @@ func GetMenuIDS(c *gin.Context) {
 	data.RoleName = c.GetString("role")
 	data.UpdateBy = utils.GetUserIdStr(c)
 	result, err := data.GetIDS()
-	pkg.AssertErr(err, "获取失败", 500)
-	var res models.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	pkg.HasError(err, "获取失败", 500)
+	app.OK(c,result,"")
 }

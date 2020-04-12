@@ -42,7 +42,7 @@ func (e *{{.ClassName}}) Get() ({{.ClassName}}, error) {
     {{ end }}
     {{- end -}}
 
-	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
+	if err := table.First(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
@@ -63,21 +63,20 @@ func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}},
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt64(e.DataScope)
+	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
 	table = dataPermission.GetDataScope("{{.TableName}}", table)
 
 	var count int32
-    table = table.Where("is_del = 0").Offset((pageIndex - 1) * pageSize).Limit(pageSize)
+    table = table.Offset((pageIndex - 1) * pageSize).Limit(pageSize)
 	if err := table.Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("is_del = 0").Count(&count)
+	table.Count(&count)
 	return doc, count, nil
 }
 
 // 更新{{.ClassName}}
-func (e *{{.ClassName}}) Update(id int64) (update {{.ClassName}}, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
+func (e *{{.ClassName}}) Update(id int) (update {{.ClassName}}, err error) {
 	if err = orm.Eloquent.Table("{{.TableName}}").Where("{{.PkColumn}} = ?", id).First(&update).Error; err != nil {
 		return
 	}
@@ -91,12 +90,9 @@ func (e *{{.ClassName}}) Update(id int64) (update {{.ClassName}}, err error) {
 }
 
 // 删除{{.ClassName}}
-func (e *{{.ClassName}}) Delete(id int64) (success bool, err error) {
-	var mp = map[string]string{}
-	mp["is_del"] = "1"
-	mp["update_time"] = utils.GetCurrntTime()
-	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("{{.TableName}}").Where("{{.PkColumn}} = ?", id).Update(mp).Error; err != nil {
+func (e *{{.ClassName}}) Delete(id int) (success bool, err error) {
+
+	if err = orm.Eloquent.Table("{{.TableName}}").Where("{{.PkColumn}} = ?", id).Delete(&{{.ClassName}}{}).Error; err != nil {
 		success = false
 		return
 	}

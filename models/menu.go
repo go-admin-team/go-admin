@@ -3,46 +3,48 @@ package models
 import (
 	"errors"
 	orm "go-admin/database"
-	"go-admin/utils"
+	"go-admin/pkg/utils"
 )
 
 type Menu struct {
-	MenuId     int64  `json:"menuId" gorm:"column:menu_id;primary_key"`
-	MenuName   string `json:"menuName" gorm:"column:menu_name"`
-	Title      string `json:"title" gorm:"column:title"`
-	Icon       string `json:"icon" gorm:"column:icon"`
-	Path       string `json:"path" gorm:"column:path"`
-	Paths      string `json:"paths" gorm:"column:paths"`
-	MenuType   string `json:"menuType" gorm:"column:menu_type"`
-	Action     string `json:"action" gorm:"column:action"`
-	Permission string `json:"permission" gorm:"column:permission"`
-	ParentId   int64  `json:"parentId" gorm:"column:parent_id"`
-	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
-	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
-	Component  string `json:"component" gorm:"column:component"`
-	Sort       int    `json:"sort" gorm:"column:sort"`
-
-	Visible  string `json:"visible" gorm:"column:visible"`
-	Children []Menu `json:"children" gorm:"-"`
-	IsSelect bool   `json:"is_select" gorm:"-"`
-	RoleId   int64  `gorm:"-"`
-
-	CreateBy   string `json:"createBy" gorm:"column:create_by"`
-	CreateTime string `json:"createTime" gorm:"column:create_time"`
-	UpdateBy   string `json:"updateBy" gorm:"column:update_by"`
-	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
+	MenuId     int  `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"`
+	MenuName   string `json:"menuName" gorm:"type:varchar(11);"`
+	Title      string `json:"title" gorm:"type:varchar(64);"`
+	Icon       string `json:"icon" gorm:"type:varchar(128);"`
+	Path       string `json:"path" gorm:"type:varchar(128);"`
+	Paths      string `json:"paths" gorm:"type:varchar(128);"`
+	MenuType   string `json:"menuType" gorm:"type:varchar(1);"`
+	Action     string `json:"action" gorm:"type:varchar(16);"`
+	Permission string `json:"permission" gorm:"type:varchar(32);"`
+	ParentId   int  `json:"parentId" gorm:"type:int(11);"`
+	NoCache    bool   `json:"noCache" gorm:"type:char(1);"`
+	Breadcrumb string `json:"breadcrumb" gorm:"type:varchar(255);"`
+	Component  string `json:"component" gorm:"type:varchar(255);"`
+	Sort       int    `json:"sort" gorm:"type:int(4);"`
+	Visible    string `json:"visible" gorm:"type:char(1);"`
+	CreateBy   string `json:"createBy" gorm:"type:varchar(128);"`
+	UpdateBy   string `json:"updateBy" gorm:"type:varchar(128);"`
+	IsFrame    string `json:"isFrame" gorm:"type:int(1);DEFAULT:0;"`
 	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"-"`
-	IsDel      int `json:"isDel" gorm:"column:is_del"`
+	RoleId     int  `gorm:"-"`
+	Children   []Menu `json:"children" gorm:"-"`
+	IsSelect   bool   `json:"is_select" gorm:"-"`
+	BaseModel
 }
+
+func (Menu) TableName() string {
+	return "sys_menu"
+}
+
 type MenuLable struct {
-	Id       int64       `json:"id" gorm:"-"`
+	Id       int       `json:"id" gorm:"-"`
 	Label    string      `json:"label" gorm:"-"`
 	Children []MenuLable `json:"children" gorm:"-"`
 }
 
 type Menus struct {
-	MenuId     int64  `json:"menuId" gorm:"column:menu_id;primary_key"`
+	MenuId     int  `json:"menuId" gorm:"column:menu_id;primary_key"`
 	MenuName   string `json:"menuName" gorm:"column:menu_name"`
 	Title      string `json:"title" gorm:"column:title"`
 	Icon       string `json:"icon" gorm:"column:icon"`
@@ -50,7 +52,7 @@ type Menus struct {
 	MenuType   string `json:"menuType" gorm:"column:menu_type"`
 	Action     string `json:"action" gorm:"column:action"`
 	Permission string `json:"permission" gorm:"column:permission"`
-	ParentId   int64  `json:"parentId" gorm:"column:parent_id"`
+	ParentId   int  `json:"parentId" gorm:"column:parent_id"`
 	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
 	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
 	Component  string `json:"component" gorm:"column:component"`
@@ -59,13 +61,11 @@ type Menus struct {
 	Visible  string `json:"visible" gorm:"column:visible"`
 	Children []Menu `json:"children" gorm:"-"`
 
-	CreateBy   string `json:"createBy" gorm:"column:create_by"`
-	CreateTime string `json:"createTime" gorm:"column:create_time"`
-	UpdateBy   string `json:"updateBy" gorm:"column:update_by"`
-	UpdateTime string `json:"updateTime" gorm:"column:update_time"`
-	DataScope  string `json:"dataScope" gorm:"-"`
-	Params     string `json:"params" gorm:"-"`
-	IsDel      int `json:"isDel" gorm:"column:is_del"`
+	CreateBy  string `json:"createBy" gorm:"column:create_by"`
+	UpdateBy  string `json:"updateBy" gorm:"column:update_by"`
+	DataScope string `json:"dataScope" gorm:"-"`
+	Params    string `json:"params" gorm:"-"`
+	BaseModel
 }
 
 type MenuRole struct {
@@ -78,7 +78,6 @@ type MS []Menu
 func (e *Menu) GetByMenuId() (Menu Menu, err error) {
 
 	table := orm.Eloquent.Table("sys_menu")
-	table = table.Where("is_del = ?", 0)
 	table = table.Where("menu_id = ?", e.MenuId)
 	if err = table.Find(&Menu).Error; err != nil {
 		return
@@ -124,9 +123,6 @@ func DiguiMenu(menulist *[]Menu, menu Menu) Menu {
 		mi.Breadcrumb = list[j].Breadcrumb
 		mi.Component = list[j].Component
 		mi.Sort = list[j].Sort
-		mi.CreateTime = list[j].CreateTime
-		mi.UpdateTime = list[j].UpdateTime
-		mi.IsDel = list[j].IsDel
 		mi.Visible = list[j].Visible
 		mi.Children = []Menu{}
 
@@ -204,7 +200,6 @@ func (e *Menu) SetMenuRole(rolename string) (m []Menu, err error) {
 
 func (menu *MenuRole) Get() (Menus []MenuRole, err error) {
 	table := orm.Eloquent.Table("sys_menu")
-	table = table.Where("is_del = ?", 0)
 	if menu.MenuName != "" {
 		table = table.Where("menu_name = ?", menu.MenuName)
 	}
@@ -216,7 +211,7 @@ func (menu *MenuRole) Get() (Menus []MenuRole, err error) {
 
 func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
 	table := orm.Eloquent.Table("sys_menu").Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
-	table = table.Where("is_del = ? and sys_role_menu.role_name=? and menu_type in ('M','C')", 0, rolename)
+	table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", rolename)
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}
@@ -225,7 +220,6 @@ func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
 
 func (e *Menu) Get() (Menus []Menu, err error) {
 	table := orm.Eloquent.Table("sys_menu")
-	table = table.Where("is_del = ?", 0)
 	if e.MenuName != "" {
 		table = table.Where("menu_name = ?", e.MenuName)
 	}
@@ -247,20 +241,16 @@ func (e *Menu) Get() (Menus []Menu, err error) {
 
 func (e *Menu) GetPage() (Menus []Menu, err error) {
 	table := orm.Eloquent.Table("sys_menu")
-	table = table.Where("is_del = ?", 0)
 	if e.MenuName != "" {
 		table = table.Where("menu_name = ?", e.MenuName)
 	}
 	if e.MenuType != "" {
 		table = table.Where("menu_type = ?", e.MenuType)
 	}
-	if e.Visible != "" {
-		table = table.Where("visible = ?", e.Visible)
-	}
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt64(e.DataScope)
+	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
 	table = dataPermission.GetDataScope("sys_menu", table)
 
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
@@ -269,10 +259,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 	return
 }
 
-func (e *Menu) Create() (id int64, err error) {
-	e.CreateTime = utils.GetCurrntTime()
-	e.UpdateTime = utils.GetCurrntTime()
-	e.IsDel = 0
+func (e *Menu) Create() (id int, err error) {
 	result := orm.Eloquent.Table("sys_menu").Create(&e)
 	if result.Error != nil {
 		err = result.Error
@@ -294,16 +281,15 @@ func InitPaths(menu *Menu) (err error) {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return
 		}
-		menu.Paths = parentMenu.Paths + "/" + utils.Int64ToString(menu.MenuId)
+		menu.Paths = parentMenu.Paths + "/" + utils.IntToString(menu.MenuId)
 	} else {
-		menu.Paths = "/0/" + utils.Int64ToString(menu.MenuId)
+		menu.Paths = "/0/" + utils.IntToString(menu.MenuId)
 	}
 	orm.Eloquent.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return
 }
 
-func (e *Menu) Update(id int64) (update Menu, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
+func (e *Menu) Update(id int) (update Menu, err error) {
 	if err = orm.Eloquent.Table("sys_menu").First(&update, id).Error; err != nil {
 		return
 	}
@@ -320,12 +306,8 @@ func (e *Menu) Update(id int64) (update Menu, err error) {
 	return
 }
 
-func (e *Menu) Delete(id int64) (success bool, err error) {
-	var mp = map[string]string{}
-	mp["is_del"] = "1"
-	mp["update_time"] = utils.GetCurrntTime()
-	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_menu").Where("menu_id = ?", id).Update(mp).Error; err != nil {
+func (e *Menu) Delete(id int) (success bool, err error) {
+	if err = orm.Eloquent.Table("sys_menu").Where("menu_id = ?", id).Delete(&Menu{}).Error; err != nil {
 		success = false
 		return
 	}

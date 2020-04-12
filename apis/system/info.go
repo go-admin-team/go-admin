@@ -1,11 +1,11 @@
-package apis
+package system
 
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/models"
 	"go-admin/pkg"
-	"go-admin/utils"
-	"net/http"
+	"go-admin/pkg/app"
+	"go-admin/pkg/utils"
 )
 
 func GetInfo(c *gin.Context) {
@@ -28,9 +28,9 @@ func GetInfo(c *gin.Context) {
 	}
 
 	sysuser := models.SysUser{}
-	sysuser.Id = utils.GetUserId(c)
+	sysuser.UserId = utils.GetUserId(c)
 	user, err := sysuser.Get()
-	pkg.AssertErr(err, "", 500)
+	pkg.HasError(err, "", 500)
 
 	mp["introduction"] = " am a super administrator"
 
@@ -40,7 +40,5 @@ func GetInfo(c *gin.Context) {
 	}
 	mp["name"] = user.NickName
 
-	var res models.Response
-	res.Data = mp
-	c.JSON(http.StatusOK, res.ReturnOK())
+	app.OK(c,mp,"")
 }

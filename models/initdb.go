@@ -16,7 +16,7 @@ func InitDb() error {
 	}
 	sql, err := Ioutil(filePath)
 	if err != nil {
-		fmt.Println("数据库初始化脚本读取失败！原因:", err.Error())
+		fmt.Println("数据库基础数据初始化脚本读取失败！原因:", err.Error())
 		return err
 	}
 	sqlList := strings.Split(sql, ";")

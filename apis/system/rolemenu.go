@@ -1,9 +1,10 @@
-package apis
+package system
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-admin/models"
+	"go-admin/pkg/app"
 	"net/http"
 )
 
@@ -19,7 +20,7 @@ func GetRoleMenu(c *gin.Context) {
 	var Rm models.RoleMenu
 	err := c.ShouldBind(&Rm)
 	result, err := Rm.Get()
-	var res models.Response
+	var res app.Response
 	if err != nil {
 		res.Msg = "抱歉未找到相关信息"
 		c.JSON(http.StatusOK, res.ReturnError(200))
@@ -35,28 +36,8 @@ type RoleMenuPost struct {
 }
 
 func InsertRoleMenu(c *gin.Context) {
-	//roleId := c.Request.FormValue("role_id")
-	//menuId := c.Request.FormValue("menu_id")
-	//menus := strings.Split(menuId, ",")
-	//fmt.Println(menus)
-	//var t models.RoleMenu
-	//_,err := t.DeleteRoleMenu(roleId)
-	//if err != nil {
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"code":    -1,
-	//		"message": "添加失败1",
-	//	})
-	//	return
-	//}
-	//_, err2 := t.Insert(roleId, menus)
-	//if err2 != nil {
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"code":    -1,
-	//		"message": "添加失败2",
-	//	})
-	//	return
-	//}
-	var res models.Response
+
+	var res app.Response
 	res.Msg = "添加成功"
 	c.JSON(http.StatusOK, res.ReturnOK())
 	return
@@ -78,12 +59,12 @@ func DeleteRoleMenu(c *gin.Context) {
 	fmt.Println(menuId)
 	_, err := t.Delete(id, menuId)
 	if err != nil {
-		var res models.Response
+		var res app.Response
 		res.Msg = "删除失败"
 		c.JSON(http.StatusOK, res.ReturnError(200))
 		return
 	}
-	var res models.Response
+	var res app.Response
 	res.Msg = "删除成功"
 	c.JSON(http.StatusOK, res.ReturnOK())
 	return

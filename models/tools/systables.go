@@ -2,49 +2,40 @@ package tools
 
 import (
 	orm "go-admin/database"
-	"go-admin/utils"
+	"go-admin/models"
 )
 
 type SysTables struct {
-	//表编码
-	TableId int64 `gorm:"column:table_id;primary_key" json:"tableId"`
-	//表名称
-	TableName string `gorm:"column:table_name" json:"tableName"`
-	//表备注
-	TableComment string `gorm:"column:table_comment" json:"tableComment"`
-	//类名
-	ClassName string `gorm:"column:class_name" json:"className"`
-
-	TplCategory string `gorm:"column:tpl_category" json:"tplCategory"`
-	//包名
-	PackageName string `gorm:"column:package_name" json:"packageName"`
-	//模块名
-	ModuleName   string `gorm:"column:module_name" json:"moduleName"`
-	BusinessName string `gorm:"column:business_name" json:"businessName"`
-	//功能名称
-	FunctionName string `gorm:"column:function_name" json:"functionName"`
-	//功能作者
-	FunctionAuthor      string       `gorm:"column:function_author" json:"functionAuthor"`
-	PkColumn            string       `gorm:"column:pk_column" json:"pkColumn"`
-	PkGoField           string       `gorm:"column:pk_go_field" json:"pkGoField"`
-	PkJsonField         string       `gorm:"column:pk_json_field" json:"pkJsonField"`
-	Options             string       `gorm:"column:options" json:"options"`
-	TreeCode            string       `gorm:"column:tree_code" json:"treeCode"`
-	TreeParentCode      string       `gorm:"column:tree_parent_code" json:"treeParentCode"`
-	TreeName            string       `gorm:"column:tree_name" json:"treeName"`
-	Tree                bool         `gorm:"column:tree" json:"tree"`
-	Crud                bool         `gorm:"column:crud" json:"crud"`
-	Remark              string       `gorm:"column:remark" json:"remark"`
-	IsLogicalDelete     string       `gorm:"column:is_logical_delete" json:"isLogicalDelete"`
-	LogicalDelete       bool         `gorm:"column:logical_delete" json:"logicalDelete"`
-	LogicalDeleteColumn string       `gorm:"column:logical_delete_column" json:"logicalDeleteColumn"`
-	CreateBy            string       `gorm:"column:create_by" json:"createBy"`
-	CreateTime          string       `gorm:"column:create_time" json:"createTime"`
-	UpdateBy            string       `gorm:"column:update_By" json:"updateBy"`
-	UpdateTime          string       `gorm:"column:update_time" json:"updateTime"`
+	TableId             int        `gorm:"primary_key;AUTO_INCREMENT" json:"tableId"` //表编码
+	TableName           string       `gorm:"type:varchar(255);" json:"tableName"`         //表名称
+	TableComment        string       `gorm:"type:varchar(255);" json:"tableComment"`   //表备注
+	ClassName           string       `gorm:"type:varchar(255);" json:"className"`         //类名
+	TplCategory         string       `gorm:"type:varchar(255);" json:"tplCategory"`
+	PackageName         string       `gorm:"type:varchar(255);" json:"packageName"` //包名
+	ModuleName          string       `gorm:"type:varchar(255);" json:"moduleName"`   //模块名
+	BusinessName        string       `gorm:"type:varchar(255);" json:"businessName"`
+	FunctionName        string       `gorm:"type:varchar(255);" json:"functionName"`     //功能名称
+	FunctionAuthor      string       `gorm:"type:varchar(255);" json:"functionAuthor"` //功能作者
+	PkColumn            string       `gorm:"type:varchar(255);" json:"pkColumn"`
+	PkGoField           string       `gorm:"type:varchar(255);" json:"pkGoField"`
+	PkJsonField         string       `gorm:"type:varchar(255);" json:"pkJsonField"`
+	Options             string       `gorm:"type:varchar(255);" json:"options"`
+	TreeCode            string       `gorm:"type:varchar(255);" json:"treeCode"`
+	TreeParentCode      string       `gorm:"type:varchar(255);" json:"treeParentCode"`
+	TreeName            string       `gorm:"type:varchar(255);" json:"treeName"`
+	Tree                bool         `gorm:"type:char(1);" json:"tree"`
+	Crud                bool         `gorm:"type:char(1);" json:"crud"`
+	Remark              string       `gorm:"type:varchar(255);" json:"remark"`
+	IsLogicalDelete     string       `gorm:"type:char(1);" json:"isLogicalDelete"`
+	LogicalDelete       bool         `gorm:"type:char(1);" json:"logicalDelete"`
+	LogicalDeleteColumn string       `gorm:"type:varchar(128);" json:"logicalDeleteColumn"`
+	CreateBy            string       `gorm:"type:varchar(128);" json:"createBy"`
+	UpdateBy            string       `gorm:"type:varchar(128);" json:"updateBy"`
 	DataScope           string       `gorm:"-" json:"dataScope"`
 	Params              Params       `gorm:"-" json:"params"`
 	Columns             []SysColumns `gorm:"-" json:"columns"`
+
+	models.BaseModel
 }
 
 type Params struct {
@@ -53,7 +44,7 @@ type Params struct {
 	TreeName       string `gorm:"-" json:"treeName"`
 }
 
-func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, error) {
+func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, error) {
 	var doc []SysTables
 
 	table := orm.Eloquent.Select("*").Table("sys_tables")
@@ -65,7 +56,7 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int32, er
 		table = table.Where("table_comment = ?", e.TableComment)
 	}
 
-	var count int32
+	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
@@ -103,8 +94,6 @@ func (e *SysTables) Get() (SysTables, error) {
 
 func (e *SysTables) Create() (SysTables, error) {
 	var doc SysTables
-	e.CreateTime = utils.GetCurrntTime()
-	e.UpdateTime = utils.GetCurrntTime()
 	result := orm.Eloquent.Table("sys_tables").Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -121,7 +110,6 @@ func (e *SysTables) Create() (SysTables, error) {
 }
 
 func (e *SysTables) Update() (update SysTables, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
 	if err = orm.Eloquent.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
 		return
 	}
