@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"github.com/swaggo/gin-swagger"
@@ -43,7 +42,7 @@ func InitRouter() *gin.Engine {
 	authMiddleware, err := middleware.AuthInit()
 
 	if err != nil {
-		_ = fmt.Errorf("JWT Error", err.Error())
+		log.Fatalln("JWT Error", err.Error())
 	}
 
 	r.POST("/login", authMiddleware.LoginHandler)
