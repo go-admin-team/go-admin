@@ -2,63 +2,45 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/utils"
+	"go-admin/pkg/utils"
 )
 
 type Dept struct {
-	//部门编码
-	Deptid int64 `gorm:"column:dept_id;primary_key" json:"deptId" example:"1" extensions:"x-description=标示"`
+	DeptId    int  `json:"deptId" gorm:"primary_key;AUTO_INCREMENT"` //部门编码
+	ParentId  int  `json:"parentId" gorm:"type:int(11);"`         //上级部门
+	DeptPath  string `json:"deptPath" gorm:"type:varchar(255);"`     //
+	DeptName  string `json:"deptName"  gorm:"type:varchar(128);"`    //部门名称
+	Sort      int  `json:"sort" gorm:"type:int(4);"`         //排序
+	Leader    string `json:"leader" gorm:"type:varchar(128);"`       //负责人
+	Phone     string `json:"phone" gorm:"type:varchar(11);"`        //手机
+	Email     string `json:"email" gorm:"type:varchar(64);"`        //邮箱
+	Status    string `json:"status" gorm:"type:int(1);"`       //状态
+	CreateBy  string `json:"createBy" gorm:"type:varchar(64);"`
+	UpdateBy  string `json:"updateBy" gorm:"type:varchar(64);"`
+	DataScope string `json:"dataScope" gorm:"-"`
+	Params    string `json:"params" gorm:"-"`
+	Children  []Dept `json:"children" gorm:"-"`
+	BaseModel
+}
 
-	//上级部门
-	ParentId int64 `gorm:"column:parent_id" json:"parent_id"`
-
-	DeptPath string `gorm:"column:dept_path" json:"deptath"`
-
-	//部门名称
-	Deptname string `gorm:"column:dept_name" json:"deptname"`
-
-	//排序
-	Sort int64 `gorm:"column:sort" json:"sort"`
-
-	//负责人
-	Leader string `gorm:"column:leader" json:"leader"`
-
-	//手机
-	Phone string `gorm:"column:phone" json:"phone"`
-
-	//邮箱
-	Email string `gorm:"column:email" json:"email"`
-
-	//状态
-	Status string `gorm:"column:status" json:"status"`
-
-	CreateBy   string `gorm:"column:create_by" json:"createBy"`
-	CreateTime string `gorm:"column:create_time" json:"createTime"`
-	UpdateBy   string `gorm:"column:update_by" json:"updateBy"`
-	UpdateTime string `gorm:"column:update_time" json:"updateTime"`
-	DataScope  string `gorm:"-" json:"dataScope"`
-	Params     string `gorm:"-" json:"params"`
-	IsDel      int    `gorm:"column:is_del" json:"isDel"`
-	Children   []Dept `gorm:"-"json:"children"`
+func (Dept) TableName() string {
+	return "sys_dept"
 }
 
 type DeptLable struct {
-	Id       int64       `gorm:"-" json:"id"`
+	Id       int       `gorm:"-" json:"id"`
 	Label    string      `gorm:"-" json:"label"`
 	Children []DeptLable `gorm:"-" json:"children"`
 }
 
 func (e *Dept) Create() (Dept, error) {
 	var doc Dept
-	e.CreateTime = utils.GetCurrntTime()
-	e.UpdateTime = utils.GetCurrntTime()
-	e.IsDel = 0
 	result := orm.Eloquent.Table("sys_dept").Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
 	}
-	deptPath := "/" + utils.Int64ToString(e.Deptid)
+	deptPath := "/" + utils.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP Dept
 		orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.ParentId).First(&deptP)
@@ -68,7 +50,7 @@ func (e *Dept) Create() (Dept, error) {
 	}
 	var mp = map[string]string{}
 	mp["deptPath"] = deptPath
-	if err := orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.Deptid).Update(mp).Error; err != nil {
+	if err := orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.DeptId).Update(mp).Error; err != nil {
 		err := result.Error
 		return doc, err
 	}
@@ -81,14 +63,14 @@ func (e *Dept) Get() (Dept, error) {
 	var doc Dept
 
 	table := orm.Eloquent.Table("sys_dept")
-	if e.Deptid != 0 {
-		table = table.Where("dept_id = ?", e.Deptid)
+	if e.DeptId != 0 {
+		table = table.Where("dept_id = ?", e.DeptId)
 	}
-	if e.Deptname != "" {
-		table = table.Where("dept_name = ?", e.Deptname)
+	if e.DeptName != "" {
+		table = table.Where("dept_name = ?", e.DeptName)
 	}
 
-	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
+	if err := table.First(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
@@ -98,17 +80,17 @@ func (e *Dept) GetList() ([]Dept, error) {
 	var doc []Dept
 
 	table := orm.Eloquent.Table("sys_dept")
-	if e.Deptid != 0 {
-		table = table.Where("dept_id = ?", e.Deptid)
+	if e.DeptId != 0 {
+		table = table.Where("dept_id = ?", e.DeptId)
 	}
-	if e.Deptname != "" {
-		table = table.Where("dept_name = ?", e.Deptname)
+	if e.DeptName != "" {
+		table = table.Where("dept_name = ?", e.DeptName)
 	}
 	if e.Status != "" {
 		table = table.Where("status = ?", e.Status)
 	}
 
-	if err := table.Where("is_del = 0").Order("sort").Find(&doc).Error; err != nil {
+	if err := table.Order("sort").Find(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
@@ -118,11 +100,11 @@ func (e *Dept) GetPage(bl bool) ([]Dept, error) {
 	var doc []Dept
 
 	table := orm.Eloquent.Select("*").Table("sys_dept")
-	if e.Deptid != 0 {
-		table = table.Where("dept_id = ?", e.Deptid)
+	if e.DeptId != 0 {
+		table = table.Where("dept_id = ?", e.DeptId)
 	}
-	if e.Deptname != "" {
-		table = table.Where("dept_name = ?", e.Deptname)
+	if e.DeptName != "" {
+		table = table.Where("dept_name = ?", e.DeptName)
 	}
 	if e.Status != "" {
 		table = table.Where("status = ?", e.Status)
@@ -133,11 +115,11 @@ func (e *Dept) GetPage(bl bool) ([]Dept, error) {
 	if bl {
 		// 数据权限控制
 		dataPermission := new(DataPermission)
-		dataPermission.UserId, _ = utils.StringToInt64(e.DataScope)
+		dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
 		table = dataPermission.GetDataScope("sys_dept", table)
 	}
 
-	if err := table.Where("is_del = 0").Order("sort").Find(&doc).Error; err != nil {
+	if err := table.Order("sort").Find(&doc).Error; err != nil {
 		return nil, err
 	}
 	return doc, nil
@@ -164,22 +146,19 @@ func Digui(deptlist *[]Dept, menu Dept) Dept {
 	min := make([]Dept, 0)
 	for j := 0; j < len(list); j++ {
 
-		if menu.Deptid != list[j].ParentId {
+		if menu.DeptId != list[j].ParentId {
 			continue
 		}
 		mi := Dept{}
-		mi.Deptid = list[j].Deptid
+		mi.DeptId = list[j].DeptId
 		mi.ParentId = list[j].ParentId
 		mi.DeptPath = list[j].DeptPath
-		mi.Deptname = list[j].Deptname
+		mi.DeptName = list[j].DeptName
 		mi.Sort = list[j].Sort
 		mi.Leader = list[j].Leader
 		mi.Phone = list[j].Phone
 		mi.Email = list[j].Email
 		mi.Status = list[j].Status
-		mi.CreateTime = list[j].CreateTime
-		mi.UpdateTime = list[j].UpdateTime
-		mi.IsDel = list[j].IsDel
 		mi.Children = []Dept{}
 		ms := Digui(deptlist, mi)
 		min = append(min, ms)
@@ -189,13 +168,12 @@ func Digui(deptlist *[]Dept, menu Dept) Dept {
 	return menu
 }
 
-func (e *Dept) Update(id int64) (update Dept, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
+func (e *Dept) Update(id int) (update Dept, err error) {
 	if err = orm.Eloquent.Table("sys_dept").Where("dept_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
-	deptPath := "/" + utils.Int64ToString(e.Deptid)
+	deptPath := "/" + utils.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP Dept
 		orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.ParentId).First(&deptP)
@@ -213,12 +191,8 @@ func (e *Dept) Update(id int64) (update Dept, err error) {
 	return
 }
 
-func (e *Dept) Delete(id int64) (success bool, err error) {
-	var mp = map[string]string{}
-	mp["is_del"] = "1"
-	mp["update_time"] = utils.GetCurrntTime()
-	mp["update_by"] = e.UpdateBy
-	if err = orm.Eloquent.Table("sys_dept").Where("dept_id = ?", id).Update(mp).Error; err != nil {
+func (e *Dept) Delete(id int) (success bool, err error) {
+	if err = orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.DeptId).Delete(&Dept{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -235,8 +209,8 @@ func (dept *Dept) SetDeptLable() (m []DeptLable, err error) {
 			continue
 		}
 		e := DeptLable{}
-		e.Id = deptlist[i].Deptid
-		e.Label = deptlist[i].Deptname
+		e.Id = deptlist[i].DeptId
+		e.Label = deptlist[i].DeptName
 		deptsInfo := DiguiDeptLable(&deptlist, e)
 
 		m = append(m, deptsInfo)
@@ -253,7 +227,7 @@ func DiguiDeptLable(deptlist *[]Dept, dept DeptLable) DeptLable {
 		if dept.Id != list[j].ParentId {
 			continue
 		}
-		mi := DeptLable{list[j].Deptid, list[j].Deptname, []DeptLable{}}
+		mi := DeptLable{list[j].DeptId, list[j].DeptName, []DeptLable{}}
 		ms := DiguiDeptLable(deptlist, mi)
 		min = append(min, ms)
 

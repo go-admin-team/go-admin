@@ -21,7 +21,7 @@ type DBColumns struct {
 	ColumnComment          string `gorm:"column:COLUMN_COMMENT" json:"columnComment"`
 }
 
-func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int32, error) {
+func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, error) {
 	var doc []DBColumns
 
 	table := orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
@@ -33,7 +33,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int32, er
 
 	table = table.Where("TABLE_NAME = ?", e.TableName)
 
-	var count int32
+	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err

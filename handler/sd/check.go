@@ -7,7 +7,7 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
-	"go-admin/utils"
+	"go-admin/pkg/app"
 	"net/http"
 	"runtime"
 	"time"
@@ -29,8 +29,7 @@ const (
 // @Router /sd/health [get]
 // @BasePath
 func HealthCheck(c *gin.Context) {
-	message := "OK"
-	c.String(http.StatusOK, "\n"+message)
+	app.OK(c, "", "OK")
 }
 
 // @Summary 服务器硬盘使用量
@@ -70,28 +69,27 @@ func DiskCheck(c *gin.Context) {
 // @Description Os
 // @Accept  text/html
 // @Produce text/html
-// @Success 200 {string} string "OK - Free space: 455MB (0GB) / 8192MB (8GB) | Used: 5%"
-// @Failure 500 {string} string "CRITICAL"
-// @Failure 429 {string} string "WARNING"
+// @Success 200 {string} string ""
 // @Router /sd/os [get]
 // @BasePath
 func OSCheck(c *gin.Context) {
-	fmt.Println(runtime.GOOS)     //取得操作系统版本
-	fmt.Println(runtime.Compiler) //取得编译器名称-gc
-	fmt.Println(runtime.NumCPU()) //取得CPU多核的数目
-	fmt.Println(runtime.Version())
-
 	status := http.StatusOK
-	c.String(status, runtime.GOOS+"/"+runtime.GOARCH+"/"+utils.IntToString(runtime.NumCPU()))
+	app.Custum(c, gin.H{
+		"code":   200,
+		"status": status,
+		"goOs":  runtime.GOOS,
+		"compiler":  runtime.Compiler,
+		"numCpu":  runtime.NumCPU(),
+		"version": runtime.Version(),
+		"numGoroutine": runtime.NumGoroutine(),
+	})
 }
 
 // @Summary CPU 使用量
 // @Description CPU 使用量 DiskCheck checks the disk usage.
 // @Accept  text/html
 // @Produce text/html
-// @Success 200 {string} string "OK - Load average: 2.39, 2.13, 1.97 | Cores: 2"
-// @Failure 500 {string} string "CRITICAL"
-// @Failure 429 {string} string "WARNING"
+// @Success 200 {string} string ""
 // @Router /sd/cpu [get]
 // @BasePath
 func CPUCheck(c *gin.Context) {
@@ -103,8 +101,6 @@ func CPUCheck(c *gin.Context) {
 			fmt.Printf("cpu%d : %f%%\n", i, c)
 		}
 	}
-
-	fmt.Println(c)
 
 	a, _ := load.Avg()
 	l1 := a.Load1
@@ -121,27 +117,29 @@ func CPUCheck(c *gin.Context) {
 		status = http.StatusTooManyRequests
 		text = "WARNING"
 	}
-
-	message := fmt.Sprintf("%s - Load average: %.2f, %.2f, %.2f | Cores: %d", text, l1, l5, l15, cores)
-	c.String(status, "\n"+message)
+	app.Custum(c, gin.H{
+		"code":   200,
+		"msg":    text,
+		"status": status,
+		"cores":  cores,
+		"load1":  l1,
+		"load5":  l5,
+		"load15": l15,
+	})
 }
 
 // @Summary 内存使用量
 // @Description 内存使用量 RAMCheck checks the disk usage.
 // @Accept  text/html
 // @Produce text/html
-// @Success 200 {string} string "OK - Free space: 455MB (0GB) / 8192MB (8GB) | Used: 5%"
-// @Failure 500 {string} string "CRITICAL"
-// @Failure 429 {string} string "WARNING"
+// @Success 200 {string} string ""
 // @Router /sd/ram [get]
 // @BasePath
 func RAMCheck(c *gin.Context) {
 	u, _ := mem.VirtualMemory()
 
 	usedMB := int(u.Used) / MB
-	usedGB := int(u.Used) / GB
 	totalMB := int(u.Total) / MB
-	totalGB := int(u.Total) / GB
 	usedPercent := int(u.UsedPercent)
 
 	status := http.StatusOK
@@ -155,6 +153,13 @@ func RAMCheck(c *gin.Context) {
 		text = "WARNING"
 	}
 
-	message := fmt.Sprintf("%s - Free space: %dMB (%dGB) / %dMB (%dGB) | Used: %d%%", text, usedMB, usedGB, totalMB, totalGB, usedPercent)
-	c.String(status, "\n"+message)
+
+	app.Custum(c, gin.H{
+		"code":   200,
+		"msg":    text,
+		"status": status,
+		"used":  usedMB,
+		"total":  totalMB,
+		"usedPercent":  usedPercent,
+	})
 }

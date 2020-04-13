@@ -7,14 +7,14 @@ import (
 
 var cfgDatabase *viper.Viper
 var cfgApplication *viper.Viper
-var cfgRedisConn *viper.Viper
+var cfgJwt *viper.Viper
 
 func init() {
-	viper.SetConfigName("settings") // name of config file (without extension)
-	viper.AddConfigPath("./config") // optionally look for config in the working directory
-	err := viper.ReadInConfig()     // Find and read the config file
+	viper.SetConfigName("settings")
+	viper.AddConfigPath("./config")
+	err := viper.ReadInConfig()
 	if err != nil {
-		log.Println(err) // Handle errors reading the config file
+		log.Println(err)
 	}
 
 	cfgDatabase = viper.Sub("settings.database")
@@ -29,11 +29,19 @@ func init() {
 	}
 	ApplicationConfig = InitApplication(cfgApplication)
 
-
+	cfgJwt = viper.Sub("settings.jwt")
+	if cfgJwt == nil {
+		panic("config not found settings.jwt")
+	}
+	JwtConfig = InitJwt(cfgJwt)
 }
 
 func SetApplicationIsInit() {
-	viper.AddConfigPath("./config")
-	viper.Set("settings.application.isInit", false)
+	SetConfig("./config","settings.application.isInit", false)
+}
+
+func SetConfig(configPath string,key string,value interface{}){
+	viper.AddConfigPath(configPath)
+	viper.Set(key, value)
 	viper.WriteConfig()
 }

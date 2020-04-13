@@ -38,13 +38,14 @@ func init() {
 	conn.WriteString(")")
 	conn.WriteString("/")
 	conn.WriteString(database)
-	//conn.WriteString("?charset=utf8&parseTime=True&loc=Local&timeout=1000ms")
+	conn.WriteString("?charset=utf8&parseTime=True&loc=Local&timeout=1000ms")
 
 	log.Println(conn.String())
 
 	var db Database
 	if dbType == "mysql" {
 		db = new(Mysql)
+
 		Eloquent, err = db.Open(dbType, conn.String())
 
 	} else if dbType == "sqlite3" {

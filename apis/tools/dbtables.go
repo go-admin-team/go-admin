@@ -3,9 +3,9 @@ package tools
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/config"
-	"go-admin/models"
 	"go-admin/models/tools"
 	"go-admin/pkg"
+	"go-admin/pkg/app"
 	"net/http"
 )
 
@@ -18,7 +18,7 @@ import (
 // @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
 func GetDBTableList(c *gin.Context) {
-	var res models.Response
+	var res app.Response
 	var data tools.DBTables
 	var err error
 	var pageSize = 10
@@ -39,7 +39,7 @@ func GetDBTableList(c *gin.Context) {
 
 	data.TableName = c.Request.FormValue("tableName")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.AssertErr(err, "", -1)
+	pkg.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result

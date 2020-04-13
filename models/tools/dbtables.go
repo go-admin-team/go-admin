@@ -16,7 +16,7 @@ type DBTables struct {
 	TableComment   string `gorm:"column:TABLE_COMMENT" json:"tableComment"`
 }
 
-func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int32, error) {
+func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error) {
 	var doc []DBTables
 
 	table := orm.Eloquent.Select("*").Table("information_schema.tables")
@@ -26,7 +26,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int32, erro
 		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
 
-	var count int32
+	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err

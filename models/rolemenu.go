@@ -3,15 +3,19 @@ package models
 import (
 	"fmt"
 	orm "go-admin/database"
-	"strconv"
+	"go-admin/pkg/utils"
 )
 
 type RoleMenu struct {
-	RoleId   int64
-	MenuId   int64
-	RoleName string
-	CreateBy string
-	UpdateBy string
+	RoleId   int  `gorm:"type:int(11)"`
+	MenuId   int  `gorm:"type:int(11)"`
+	RoleName string `gorm:"type:varchar(128)"`
+	CreateBy string `gorm:"type:varchar(128)"`
+	UpdateBy string `gorm:"type:varchar(128)"`
+}
+
+func (RoleMenu) TableName() string {
+	return "sys_role_menu"
 }
 
 type MenuPath struct {
@@ -37,7 +41,7 @@ func (rm *RoleMenu) GetPermis() ([]string, error) {
 
 	table = table.Where("role_id = ?", rm.RoleId)
 
-	table = table.Where("sys_menu.menuType in('F','C')")
+	table = table.Where("sys_menu.menu_type in('F','C')")
 	if err := table.Find(&r).Error; err != nil {
 		return nil, err
 	}
@@ -60,7 +64,7 @@ func (rm *RoleMenu) GetIDS() ([]MenuPath, error) {
 	return r, nil
 }
 
-func (rm *RoleMenu) DeleteRoleMenu(roleId int64) (bool, error) {
+func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
 	if err := orm.Eloquent.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
 		return false, err
 	}
@@ -78,7 +82,7 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int64) (bool, error) {
 
 }
 
-func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int64) (bool, error) {
+func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
 	if err := orm.Eloquent.Table("sys_role_menu").Where("role_id in (?)", roleIds).Delete(&rm).Error; err != nil {
 		return false, err
 	}
@@ -88,14 +92,14 @@ func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int64) (bool, error) {
 	}
 	sql := ""
 	for i := 0; i < len(role); i++ {
-		sql += "delete from casbin_rule where v0= '" + role[i].Name + "';"
+		sql += "delete from casbin_rule where v0= '" + role[i].RoleName + "';"
 	}
 	orm.Eloquent.Exec(sql)
 	return true, nil
 
 }
 
-func (rm *RoleMenu) Insert(roleId int64, menuId []int64) (bool, error) {
+func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	var role SysRole
 	if err := orm.Eloquent.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		return false, err
@@ -111,12 +115,12 @@ func (rm *RoleMenu) Insert(roleId int64, menuId []int64) (bool, error) {
 	for i := 0; i < len(menu); i++ {
 		if len(menu)-1 == i {
 			//最后一条数据 以分号结尾
-			sql += fmt.Sprintf("(%d,%d,'%s');", role.Id, menu[i].MenuId, role.RoleKey)
+			sql += fmt.Sprintf("(%d,%d,'%s');", role.RoleId, menu[i].MenuId, role.RoleKey)
 			if menu[i].MenuType == "A" {
 				sql2 += fmt.Sprintf("('p','%s','%s','%s');", role.RoleKey, menu[i].Path, menu[i].Action)
 			}
 		} else {
-			sql += fmt.Sprintf("(%d,%d,'%s'),", role.Id, menu[i].MenuId, role.RoleKey)
+			sql += fmt.Sprintf("(%d,%d,'%s'),", role.RoleId, menu[i].MenuId, role.RoleKey)
 			if menu[i].MenuType == "A" {
 				sql2 += fmt.Sprintf("('p','%s','%s','%s'),", role.RoleKey, menu[i].Path, menu[i].Action)
 			}
@@ -130,7 +134,7 @@ func (rm *RoleMenu) Insert(roleId int64, menuId []int64) (bool, error) {
 }
 
 func (rm *RoleMenu) Delete(RoleId string, MenuID string) (bool, error) {
-	rm.RoleId, _ = strconv.ParseInt(RoleId, 10, 64)
+	rm.RoleId, _ = utils.StringToInt(RoleId)
 	table := orm.Eloquent.Table("sys_role_menu").Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		table = table.Where("menu_id = ?", MenuID)

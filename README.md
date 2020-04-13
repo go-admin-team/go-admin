@@ -1,7 +1,21 @@
-#  go-admin  
+<p align="center">
+  <img width="320" src="https://raw.githack.com/wenjianzhang/image/master/img/go-admin.svg">
+</p>
 
-![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
-  
+
+<p align="center">
+  <a href="https://github.com/wenjianzhang/go-admin">
+    <img src="https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg" alt="go-admin">
+  </a>
+  <a href="https://github.com/wenjianzhang/go-admin">
+    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
+  </a>
+    <a href="http://doc.zhangwj.com/go-admin-site/donate/">
+    <img src="https://img.shields.io/badge/%24-donate-ff69b4.svg" alt="donate">
+  </a>
+</p>
+
+
   [English](./README.en.md) | 简体中文
   
 
@@ -48,6 +62,7 @@
 10. 系统接口：根据业务代码自动生成相关的api接口文档。
 11. 代码生成：根据数据表结构生成对应的增删改查相对应业务，全部可视化编程。
 12. 表单构建：自定义页面样式，拖拉拽实现页面布局。
+13. 服务监控：查看一些服务器的基本信息。
 
 ## ⚙ 配置详情
 
@@ -63,8 +78,6 @@ settings:
     host: 0.0.0.0 
     # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
     isinit: false  
-    # JWT加密字符串
-    jwtsecret: 123abc  
     # log存放路径
     logpath: temp/logs/log.log   
     # 服务名称
@@ -73,6 +86,11 @@ settings:
     port: 8000   
     readtimeout: 1   
     writertimeout: 2 
+  jwt:
+    # JWT加密字符串
+    jwtsecret: go-admin
+    # 过期时间单位：秒
+    timeout: 3600
   database:
     # 数据库名称
     database: dbname 
@@ -142,7 +160,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
 
-## 🔗 在线体验
+## 🎬 在线体验
 > admin  /  123456
 
 演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
@@ -184,13 +202,13 @@ env GOOS=linux GOARCH=amd64 go build main.go
   </tr>
   <tr>
     <td>微信</td>
-    <td>QQ群号:74520518（已满）</td>
-    <td>QQ群号:521386980</td>
+    <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=1affb445445bd442312fcad9a927007db74a0cd4380bbc08a6c97d2691744869"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流甲号" title="go-admin技术交流甲号"></a>已满</td>
+    <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=0f2bf59f5f2edec6a4550c364242c0641f870aa328e468c4ee4b7dbfb392627b"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流乙号" title="go-admin技术交流乙号"></a></td>
   </tr>
 </table>
   
-<a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=1affb445445bd442312fcad9a927007db74a0cd4380bbc08a6c97d2691744869"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流甲号" title="go-admin技术交流甲号"></a>已满
-<a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=0f2bf59f5f2edec6a4550c364242c0641f870aa328e468c4ee4b7dbfb392627b"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流乙号" title="go-admin技术交流乙号"></a>
+
+
 
 ## 🤝 特别感谢
 [chengxiao](https://github.com/chengxiao)
@@ -203,12 +221,12 @@ env GOOS=linux GOARCH=amd64 go build main.go
 [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 
-## License
+## 🔑 License
 
 [MIT](https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md)
 
 Copyright (c) 2020 wenjianzhang
 
-## 赞助者
+## ❤️ 赞助者
 
 zhuqiyun

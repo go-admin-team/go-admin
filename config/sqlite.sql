@@ -46,22 +46,22 @@ CREATE TABLE `sys_columns` (
 ,  `remark` varchar(255) DEFAULT NULL
 );
 CREATE TABLE `sys_config` (
-  `configId` integer NOT NULL PRIMARY KEY AUTOINCREMENT
-,  `configName` varchar(128) DEFAULT NULL
-,  `configKey` varchar(128) DEFAULT NULL
-,  `configValue` varchar(255) DEFAULT NULL
-,  `configType` varchar(64) DEFAULT NULL
+  `config_id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
+,  `config_name` varchar(128) DEFAULT NULL
+,  `config_key` varchar(128) DEFAULT NULL
+,  `config_value` varchar(255) DEFAULT NULL
+,  `config_type` varchar(64) DEFAULT NULL
 ,  `create_by` varchar(64) DEFAULT NULL
 ,  `create_time` datetime DEFAULT NULL
 ,  `update_by` varchar(64) DEFAULT NULL
 ,  `update_time` datetime DEFAULT NULL
 ,  `remark` varchar(255) DEFAULT NULL
-,  `dataScope` varchar(255) DEFAULT NULL
+,  `data_scope` varchar(255) DEFAULT NULL
 ,  `params` varchar(255) DEFAULT NULL
 ,  `is_del` varchar(255) DEFAULT NULL
 );
 CREATE TABLE `sys_dept` (
-  `deptId` integer NOT NULL PRIMARY KEY AUTOINCREMENT
+  `dept_id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
 ,  `parent_id` integer DEFAULT NULL
 ,  `dept_path` varchar(255) DEFAULT NULL
 ,  `dept_name` varchar(255) DEFAULT NULL
@@ -77,14 +77,14 @@ CREATE TABLE `sys_dept` (
 ,  `update_by` varchar(64) DEFAULT NULL
 );
 CREATE TABLE `sys_dict_data` (
-  `dictCode` integer NOT NULL PRIMARY KEY AUTOINCREMENT
-,  `dictSort` integer DEFAULT NULL
-,  `dictLabel` varchar(128) DEFAULT NULL
-,  `dictValue` varchar(255) DEFAULT NULL
-,  `dictType` varchar(64) DEFAULT NULL
-,  `cssClass` varchar(255) DEFAULT NULL
-,  `listClass` varchar(255) DEFAULT NULL
-,  `isDefault` varchar(8) DEFAULT NULL
+  `dict_code` integer NOT NULL PRIMARY KEY AUTOINCREMENT
+,  `dict_sort` integer DEFAULT NULL
+,  `dict_label` varchar(128) DEFAULT NULL
+,  `dict_value` varchar(255) DEFAULT NULL
+,  `dict_type` varchar(64) DEFAULT NULL
+,  `css_class` varchar(255) DEFAULT NULL
+,  `list_class` varchar(255) DEFAULT NULL
+,  `is_default` varchar(8) DEFAULT NULL
 ,  `status` varchar(8) DEFAULT NULL
 ,  `default` varchar(8) DEFAULT NULL
 ,  `create_by` varchar(64) DEFAULT NULL
@@ -93,15 +93,15 @@ CREATE TABLE `sys_dict_data` (
 ,  `update_time` datetime DEFAULT NULL
 ,  `remark` varchar(255) DEFAULT NULL
 ,  `params` varchar(255) DEFAULT NULL
-,  `dataScope` varchar(255) DEFAULT NULL
+,  `data_scope` varchar(255) DEFAULT NULL
 ,  `is_del` varchar(255) DEFAULT NULL
 );
 CREATE TABLE `sys_dict_type` (
-  `dictId` integer NOT NULL PRIMARY KEY AUTOINCREMENT
-,  `dictName` varchar(128) DEFAULT NULL
-,  `dictType` varchar(128) DEFAULT NULL
+  `dict_id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
+,  `dict_name` varchar(128) DEFAULT NULL
+,  `dict_type` varchar(128) DEFAULT NULL
 ,  `status` varchar(8) DEFAULT NULL
-,  `dataScope` varchar(255) DEFAULT NULL
+,  `data_scope` varchar(255) DEFAULT NULL
 ,  `params` varchar(255) DEFAULT NULL
 ,  `create_by` varchar(64) DEFAULT NULL
 ,  `create_time` datetime DEFAULT NULL
@@ -131,18 +131,18 @@ CREATE TABLE `sys_loginlog` (
 ,  `msg` varchar(255) DEFAULT NULL
 );
 CREATE TABLE `sys_menu` (
-  `menuId` integer NOT NULL PRIMARY KEY AUTOINCREMENT
+  `menu_id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
 ,  `title` varchar(64) DEFAULT NULL
 ,  `path` varchar(128) DEFAULT NULL
 ,  `paths` varchar(128) DEFAULT NULL
 ,  `menu_type_path` varchar(255) DEFAULT NULL
 ,  `action` varchar(16) DEFAULT '无'
 ,  `permission` varchar(32) DEFAULT NULL
-,  `menuType` varchar(1) DEFAULT NULL
-,  `parentId` integer DEFAULT NULL
-,  `noCache` varchar(255) DEFAULT NULL
+,  `menu_type` varchar(1) DEFAULT NULL
+,  `parent_id` integer DEFAULT NULL
+,  `no_cache` varchar(255) DEFAULT NULL
 ,  `breadcrumb` varchar(255) DEFAULT NULL
-,  `menuName` varchar(255) DEFAULT NULL
+,  `menu_name` varchar(255) DEFAULT NULL
 ,  `icon` varchar(255) DEFAULT NULL
 ,  `component` varchar(255) DEFAULT NULL
 ,  `create_time` datetime DEFAULT NULL
@@ -182,9 +182,9 @@ CREATE TABLE `sys_operlog` (
 ,  `user_agent` varchar(255) DEFAULT NULL
 );
 CREATE TABLE `sys_post` (
-  `postId` integer NOT NULL PRIMARY KEY AUTOINCREMENT
-,  `postName` varchar(255) DEFAULT NULL
-,  `postCode` varchar(255) DEFAULT NULL
+  `post_id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
+,  `post_name` varchar(255) DEFAULT NULL
+,  `post_code` varchar(255) DEFAULT NULL
 ,  `sort` integer DEFAULT '0'
 ,  `status` varchar(255) DEFAULT NULL
 ,  `remark` varchar(255) DEFAULT NULL
@@ -197,8 +197,8 @@ CREATE TABLE `sys_post` (
 ,  `params` varchar(255) DEFAULT NULL
 );
 CREATE TABLE `sys_role` (
-  `id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
-,  `name` varchar(64) DEFAULT NULL
+  `role_id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
+,  `role_name` varchar(64) DEFAULT NULL
 ,  `status` varchar(255) DEFAULT NULL
 ,  `role_key` varchar(255) DEFAULT NULL
 ,  `role_sort` integer DEFAULT NULL

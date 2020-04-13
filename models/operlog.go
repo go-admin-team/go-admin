@@ -2,63 +2,39 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/utils"
+	"time"
 )
 
 //sys_operlog
 type SysOperLog struct {
+	OperId        int     `json:"operId" gorm:"primary_key;AUTO_INCREMENT"` //日志编码
+	Title         string    `json:"title" gorm:"size(255);"`                //操作模块
+	BusinessType  string    `json:"businessType" gorm:"type:varchar(128);"` //操作类型
+	BusinessTypes string    `json:"businessTypes" gorm:"type:varchar(128);"`
+	Method        string    `json:"method" gorm:"type:varchar(128);"`        //函数
+	RequestMethod string    `json:"requestMethod" gorm:"type:varchar(128);"` //请求方式
+	OperatorType  string    `json:"operatorType" gorm:"type:varchar(128);"`  //操作类型
+	OperName      string    `json:"operName" gorm:"type:varchar(128);"`      //操作者
+	DeptName      string    `json:"deptName" gorm:"type:varchar(128);"`      //部门名称
+	OperUrl       string    `json:"operUrl" gorm:"type:varchar(255);"`       //访问地址
+	OperIp        string    `json:"operIp" gorm:"type:varchar(128);"`        //客户端ip
+	OperLocation  string    `json:"operLocation" gorm:"type:varchar(128);"`  //访问位置
+	OperParam     string    `json:"operParam" gorm:"type:varchar(255);"`     //请求参数
+	Status        string       `json:"status" gorm:"type:int(1);"`              //操作状态
+	OperTime      time.Time `json:"operTime" gorm:"type:timestamp;"`         //操作时间
+	JsonResult    string    `json:"jsonResult" gorm:"type:varchar(255);"`    //返回数据
+	CreateBy      string    `json:"createBy" gorm:"type:varchar(128);"`      //创建人
+	UpdateBy      string    `json:"updateBy" gorm:"type:varchar(128);"`      //更新者
+	DataScope     string    `json:"dataScope" gorm:"-"`                      //数据
+	Params        string    `json:"params" gorm:"-"`                         //参数
+	Remark        string    `json:"remark" gorm:"type:varchar(255);"`        //备注
+	LatencyTime   string    `json:"latencyime" gorm:"type:varchar(128);"`    //耗时
+	UserAgent     string    `json:"userAgent" gorm:"type:varchar(255);"`     //ua
+	BaseModel
+}
 
-	//日志编码
-	OperId int64 `json:"operId" gorm:"column:operId;primary_key"`
-	//操作模块
-	Title string `json:"title" gorm:"column:title;"`
-	//操作类型
-	BusinessType  string `json:"businessType" gorm:"column:businessType;"`
-	BusinessTypes string `json:"businessTypes" gorm:"column:businessTypes;"`
-	//函数
-	Method string `json:"method" gorm:"column:method;"`
-	//请求方式
-	RequestMethod string `json:"requestMethod" gorm:"column:requestMethod;"`
-	//操作类型
-	OperatorType string `json:"operatorType" gorm:"column:operatorType;"`
-	//操作者
-	OperName string `json:"operName" gorm:"column:operName;"`
-	//部门名称
-	DeptName string `json:"deptName" gorm:"column:deptName;"`
-	//访问地址
-	OperUrl string `json:"operUrl" gorm:"column:operUrl;"`
-	//客户端ip
-	OperIp string `json:"operIp" gorm:"column:operIp;"`
-	//访问位置
-	OperLocation string `json:"operLocation" gorm:"column:operLocation;"`
-	//请求参数
-	OperParam string `json:"operParam" gorm:"column:operParam;"`
-	//操作状态
-	Status string `json:"status" gorm:"column:status;"`
-	//操作时间
-	OperTime string `json:"operTime" gorm:"column:operTime;"`
-	//返回数据
-	JsonResult string `json:"jsonResult" gorm:"column:jsonResult;"`
-	//创建人
-	CreateBy string `json:"createBy" gorm:"column:create_by;"`
-	//创建时间
-	CreateTime string `json:"createTime" gorm:"column:create_time;"`
-	//更新者
-	UpdateBy string `json:"updateBy" gorm:"column:update_by;"`
-	//更新时间
-	UpdateTime string `json:"updateTime" gorm:"column:update_time;"`
-	//数据
-	DataScope string `json:"dataScope" gorm:"column:data_scope;"`
-	//参数
-	Params string `json:"params" gorm:"column:params;"`
-	//备注
-	Remark string `json:"remark" gorm:"column:remark;"`
-	//是否删除
-	IsDel string `json:"isDel" gorm:"column:is_del;"`
-	//耗时
-	LatencyTime string `json:"latencyime" gorm:"column:latency_time;"`
-	//us
-	UserAgent string `json:"userAgent" gorm:"column:user_agent;"`
+func (SysOperLog) TableName() string {
+	return "sys_operlog"
 }
 
 func (e *SysOperLog) Get() (SysOperLog, error) {
@@ -66,48 +42,46 @@ func (e *SysOperLog) Get() (SysOperLog, error) {
 
 	table := orm.Eloquent.Table("sys_operlog")
 	if e.OperIp != "" {
-		table = table.Where("operIp = ?", e.OperIp)
+		table = table.Where("oper_ip = ?", e.OperIp)
 	}
 	if e.OperId != 0 {
-		table = table.Where("operId = ?", e.OperId)
+		table = table.Where("oper_id = ?", e.OperId)
 	}
 
-	if err := table.Where("is_del = 0").First(&doc).Error; err != nil {
+	if err := table.First(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil
 }
 
-func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int32, error) {
+func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int, error) {
 	var doc []SysOperLog
 
 	table := orm.Eloquent.Select("*").Table("sys_operlog")
 	if e.OperIp != "" {
-		table = table.Where("operIp = ?", e.OperIp)
+		table = table.Where("oper_ip = ?", e.OperIp)
 	}
 	if e.Status != "" {
 		table = table.Where("status = ?", e.Status)
 	}
 	if e.OperName != "" {
-		table = table.Where("operName = ?", e.OperName)
+		table = table.Where("oper_name = ?", e.OperName)
 	}
 	if e.BusinessType != "" {
-		table = table.Where("businessType = ?", e.BusinessType)
+		table = table.Where("business_type = ?", e.BusinessType)
 	}
 
-	var count int32
+	var count int
 
-	if err := table.Where("is_del = 0").Order("operId desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("oper_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("is_del = 0").Count(&count)
+	table.Count(&count)
 	return doc, count, nil
 }
 
 func (e *SysOperLog) Create() (SysOperLog, error) {
 	var doc SysOperLog
-	e.CreateTime = utils.GetCurrntTime()
-	e.UpdateTime = utils.GetCurrntTime()
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
 	result := orm.Eloquent.Table("sys_operlog").Create(&e)
@@ -119,9 +93,7 @@ func (e *SysOperLog) Create() (SysOperLog, error) {
 	return doc, nil
 }
 
-func (e *SysOperLog) Update(id int64) (update SysOperLog, err error) {
-	e.UpdateTime = utils.GetCurrntTime()
-
+func (e *SysOperLog) Update(id int) (update SysOperLog, err error) {
 	if err = orm.Eloquent.Table("sys_operlog").First(&update, id).Error; err != nil {
 		return
 	}
@@ -134,8 +106,8 @@ func (e *SysOperLog) Update(id int64) (update SysOperLog, err error) {
 	return
 }
 
-func (e *SysOperLog) BatchDelete(id []int64) (Result bool, err error) {
-	if err = orm.Eloquent.Table("sys_operlog").Where("is_del=0 and operId in (?)", id).Update(map[string]interface{}{"is_del": "1", "update_time": utils.GetCurrntTime(), "update_by": e.UpdateBy}).Error; err != nil {
+func (e *SysOperLog) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table("sys_operlog").Where(" oper_id in (?)", id).Delete(&SysOperLog{}).Error; err != nil {
 		return
 	}
 	Result = true
