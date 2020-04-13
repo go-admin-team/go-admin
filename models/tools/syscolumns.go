@@ -6,7 +6,7 @@ import (
 )
 
 type SysColumns struct {
-	ColumnId      int  `gorm:"primary_key;AUTO_INCREMENT" json:"columnId"`
+	ColumnId      int  `gorm:"primary_key;auto_increment" json:"columnId"`
 	TableId       int  `gorm:"type:int(11);" json:"tableId"`
 	ColumnName    string `gorm:"type:varchar(128);" json:"columnName"`
 	ColumnComment string `gorm:"column:column_comment;type:varchar(128);" json:"columnComment"`
