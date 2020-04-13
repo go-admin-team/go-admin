@@ -1,7 +1,21 @@
-#  go-admin  
+<p align="center">
+  <img width="320" src="https://raw.githack.com/wenjianzhang/image/master/img/go-admin.svg">
+</p>
 
-![build](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)   ![license](https://img.shields.io/github/license/mashape/apistatus.svg) 
-  
+
+<p align="center">
+  <a href="https://github.com/wenjianzhang/go-admin">
+    <img src="https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg" alt="go-admin">
+  </a>
+  <a href="https://github.com/wenjianzhang/go-admin">
+    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
+  </a>
+    <a href="http://doc.zhangwj.com/go-admin-site/donate/">
+    <img src="https://img.shields.io/badge/%24-donate-ff69b4.svg" alt="donate">
+  </a>
+</p>
+
+
   [English](./README.en.md) | 简体中文
   
 
@@ -48,6 +62,7 @@
 10. 系统接口：根据业务代码自动生成相关的api接口文档。
 11. 代码生成：根据数据表结构生成对应的增删改查相对应业务，全部可视化编程。
 12. 表单构建：自定义页面样式，拖拉拽实现页面布局。
+13. 服务监控：查看一些服务器的基本信息。
 
 ## ⚙ 配置详情
 
@@ -63,8 +78,6 @@ settings:
     host: 0.0.0.0 
     # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
     isinit: false  
-    # JWT加密字符串
-    jwtsecret: 123abc  
     # log存放路径
     logpath: temp/logs/log.log   
     # 服务名称
@@ -73,6 +86,11 @@ settings:
     port: 8000   
     readtimeout: 1   
     writertimeout: 2 
+  jwt:
+    # JWT加密字符串
+    jwtsecret: go-admin
+    # 过期时间单位：秒
+    timeout: 3600
   database:
     # 数据库名称
     database: dbname 

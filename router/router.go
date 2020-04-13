@@ -6,6 +6,7 @@ import (
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	log2 "go-admin/apis/log"
+	"go-admin/apis/monitor"
 	"go-admin/apis/system"
 	"go-admin/apis/system/dict"
 	. "go-admin/apis/tools"
@@ -55,6 +56,9 @@ func InitRouter() *gin.Engine {
 
 	apiv1 := r.Group("/api/v1")
 	{
+
+		apiv1.GET("/monitor/server", monitor.ServerInfo)
+
 		apiv1.GET("/getCaptcha", system.GenerateCaptchaHandler)
 		apiv1.GET("/db/tables/page", GetDBTableList)
 		apiv1.GET("/db/columns/page", GetDBColumnList)
