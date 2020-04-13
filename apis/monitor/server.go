@@ -7,7 +7,6 @@ import (
 	"github.com/shirou/gopsutil/mem"
 	"go-admin/pkg/app"
 	"runtime"
-	"time"
 )
 
 const (
@@ -28,15 +27,11 @@ func ServerInfo(c *gin.Context) {
 	osDic["numGoroutine"] = runtime.NumGoroutine()
 
 	dis, _ := disk.Usage("/")
-	diskUsedGB := int(dis.Used) / GB
 	diskTotalGB := int(dis.Total) / GB
 	diskFreeGB := int(dis.Free) / GB
-	diskUsedPercent := int(dis.UsedPercent)
 	diskDic := make(map[string]interface{}, 0)
 	diskDic["total"] = diskTotalGB
-	diskDic["used"] = diskUsedGB
 	diskDic["free"] = diskFreeGB
-	diskDic["usage"] = diskUsedPercent
 
 	mem, _ := mem.VirtualMemory()
 	memUsedMB := int(mem.Used) / GB
@@ -49,12 +44,9 @@ func ServerInfo(c *gin.Context) {
 	memDic["free"] = memFreeMB
 	memDic["usage"] = memUsedPercent
 
-	cpuPercent, _ := cpu.Percent(time.Duration(200)*time.Millisecond, true)
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
-	cpuDic["user"] = cpuPercent[cpu.CPUser]
-	cpuDic["nice"] = cpuPercent[cpu.CPNice]
-	cpuDic["sys"] = cpuPercent[cpu.CPSys]
+
 
 	app.Custum(c, gin.H{
 		"code": 200,
