@@ -196,9 +196,9 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/wenjianzhang/go-admin/master/demo/wx.png" width="180px"></td>
-    <td><img src="https://raw.githubusercontent.com/wenjianzhang/go-admin/master/demo/qq.png" width="200px"></td>
-    <td><img src="https://raw.githubusercontent.com/wenjianzhang/go-admin/master/demo/qq2.png" width="200px"></td>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/wx.png" width="180px"></td>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/qq.png" width="200px"></td>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/qq2.png" width="200px"></td>
   </tr>
   <tr>
     <td>微信</td>
