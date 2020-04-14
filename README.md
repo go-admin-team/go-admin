@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="320" src="https://raw.githack.com/wenjianzhang/image/master/img/go-admin.svg">
+  <img width="320" src="https://gitee.com/mydearzwj/image/raw/master/img/go-admin.svg">
 </p>
 
 
@@ -236,7 +236,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
 > 如果你觉得这个项目帮助到了你，你可以帮作者买一杯果汁表示鼓励 :tropical_drink:
 
 
-<img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="300px" >
+<img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="200px" >
 
 ## ❤️ 赞助者
 
