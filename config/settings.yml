@@ -14,7 +14,8 @@ settings:
     timeout: 3600
   database:
     database: goadmin
-    dbtype: mysql
+    dbtype: mysql # sqlite3
+    host: 127.0.0.1 # sqlite3.db
     password: 123456
     port: 3306
     username: root
