@@ -6,12 +6,12 @@ import (
 )
 
 type SysConfig struct {
-	ConfigId    int  `json:"configId" gorm:"primary_key;auto_increment;"` //编码
-	ConfigName  string `json:"configName" gorm:"type:varchar(128);"`     //参数名称
-	ConfigKey   string `json:"configKey" gorm:"type:varchar(128);"`      //参数键名
-	ConfigValue string `json:"configValue" gorm:"type:varchar(255);"`    //参数键值
-	ConfigType  string `json:"configType" gorm:"type:varchar(64);"`      //是否系统内置
-	Remark      string `json:"remark" gorm:"type:varchar(128);"`         //备注
+	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` //编码
+	ConfigName  string `json:"configName" gorm:"type:varchar(128);"`        //参数名称
+	ConfigKey   string `json:"configKey" gorm:"type:varchar(128);"`         //参数键名
+	ConfigValue string `json:"configValue" gorm:"type:varchar(255);"`       //参数键值
+	ConfigType  string `json:"configType" gorm:"type:varchar(64);"`         //是否系统内置
+	Remark      string `json:"remark" gorm:"type:varchar(128);"`            //备注
 	CreateBy    string `json:"createBy" gorm:"type:varchar(128);"`
 	UpdateBy    string `json:"updateBy" gorm:"type:varchar(128);"`
 	DataScope   string `json:"dataScope" gorm:"-"`
@@ -26,7 +26,7 @@ func (SysConfig) TableName() string {
 // Config 创建
 func (e *SysConfig) Create() (SysConfig, error) {
 	var doc SysConfig
-	result := orm.Eloquent.Table("sys_config").Create(&e)
+	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -39,7 +39,7 @@ func (e *SysConfig) Create() (SysConfig, error) {
 func (e *SysConfig) Get() (SysConfig, error) {
 	var doc SysConfig
 
-	table := orm.Eloquent.Table("sys_config")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.ConfigId != 0 {
 		table = table.Where("config_id = ?", e.ConfigId)
 	}
@@ -57,7 +57,7 @@ func (e *SysConfig) Get() (SysConfig, error) {
 func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, error) {
 	var doc []SysConfig
 
-	table := orm.Eloquent.Select("*").Table("sys_config")
+	table := orm.Eloquent.Select("*").Table(e.TableName())
 
 	if e.ConfigName != "" {
 		table = table.Where("config_name = ?", e.ConfigName)
@@ -84,20 +84,20 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 }
 
 func (e *SysConfig) Update(id int) (update SysConfig, err error) {
-	if err = orm.Eloquent.Table("sys_config").Where("config_id = ?", id).First(&update).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_config").Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *SysConfig) Delete() (success bool, err error) {
-	if err = orm.Eloquent.Table("sys_config").Where("config_id = ?", e.ConfigId).Delete(&SysConfig{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("config_id = ?", e.ConfigId).Delete(&SysConfig{}).Error; err != nil {
 		success = false
 		return
 	}

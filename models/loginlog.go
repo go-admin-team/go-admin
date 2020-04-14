@@ -6,20 +6,20 @@ import (
 )
 
 type LoginLog struct {
-	InfoId        int     `json:"infoId" gorm:"primary_key;AUTO_INCREMENT"`  //主键
-	Username      string    `json:"username" gorm:"type:varchar(128);"`      //用户名
-	Status        string       `json:"status" gorm:"type:int(1);"`              //状态
-	Ipaddr        string    `json:"ipaddr" gorm:"type:varchar(255);"`        //ip地址
-	LoginLocation string    `json:"loginLocation" gorm:"type:varchar(255);"` //归属地
-	Browser       string    `json:"browser" gorm:"type:varchar(255);"`       //浏览器
-	Os            string    `json:"os" gorm:"type:varchar(255);"`            //系统
-	Platform      string    `json:"platform" gorm:"type:varchar(255);"`      // 固件
-	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;"`        //登录时间
-	CreateBy      string    `json:"createBy" gorm:"type:varchar(128);"`      //创建人
-	UpdateBy      string    `json:"updateBy" gorm:"type:varchar(128);"`      //更新者
-	DataScope     string    `json:"dataScope" gorm:"-"`                      //数据
-	Params        string    `json:"params" gorm:"-"`                         //
-	Remark        string    `json:"remark" gorm:"type:varchar(255);"`        //备注
+	InfoId        int       `json:"infoId" gorm:"primary_key;AUTO_INCREMENT"` //主键
+	Username      string    `json:"username" gorm:"type:varchar(128);"`       //用户名
+	Status        string    `json:"status" gorm:"type:int(1);"`               //状态
+	Ipaddr        string    `json:"ipaddr" gorm:"type:varchar(255);"`         //ip地址
+	LoginLocation string    `json:"loginLocation" gorm:"type:varchar(255);"`  //归属地
+	Browser       string    `json:"browser" gorm:"type:varchar(255);"`        //浏览器
+	Os            string    `json:"os" gorm:"type:varchar(255);"`             //系统
+	Platform      string    `json:"platform" gorm:"type:varchar(255);"`       // 固件
+	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;"`         //登录时间
+	CreateBy      string    `json:"createBy" gorm:"type:varchar(128);"`       //创建人
+	UpdateBy      string    `json:"updateBy" gorm:"type:varchar(128);"`       //更新者
+	DataScope     string    `json:"dataScope" gorm:"-"`                       //数据
+	Params        string    `json:"params" gorm:"-"`                          //
+	Remark        string    `json:"remark" gorm:"type:varchar(255);"`         //备注
 	Msg           string    `json:"msg" gorm:"type:varchar(255);"`
 	BaseModel
 }
@@ -31,7 +31,7 @@ func (LoginLog) TableName() string {
 func (e *LoginLog) Get() (LoginLog, error) {
 	var doc LoginLog
 
-	table := orm.Eloquent.Table("sys_loginlog")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.Ipaddr != "" {
 		table = table.Where("ipaddr = ?", e.Ipaddr)
 	}
@@ -48,7 +48,7 @@ func (e *LoginLog) Get() (LoginLog, error) {
 func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int, error) {
 	var doc []LoginLog
 
-	table := orm.Eloquent.Select("*").Table("sys_loginlog")
+	table := orm.Eloquent.Select("*").Table(e.TableName())
 	if e.Ipaddr != "" {
 		table = table.Where("ipaddr = ?", e.Ipaddr)
 	}
@@ -72,7 +72,7 @@ func (e *LoginLog) Create() (LoginLog, error) {
 	var doc LoginLog
 	e.CreateBy = "0"
 	e.UpdateBy = "0"
-	result := orm.Eloquent.Table("sys_loginlog").Create(&e)
+	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -83,20 +83,20 @@ func (e *LoginLog) Create() (LoginLog, error) {
 
 func (e *LoginLog) Update(id int) (update LoginLog, err error) {
 
-	if err = orm.Eloquent.Table("sys_loginlog").First(&update, id).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_loginlog").Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *LoginLog) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table("sys_loginlog").Where("info_id in (?)", id).Delete(&LoginLog{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("info_id in (?)", id).Delete(&LoginLog{}).Error; err != nil {
 		return
 	}
 	Result = true

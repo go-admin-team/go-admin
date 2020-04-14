@@ -7,7 +7,7 @@ import (
 )
 
 type Menu struct {
-	MenuId     int  `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"`
+	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"`
 	MenuName   string `json:"menuName" gorm:"type:varchar(11);"`
 	Title      string `json:"title" gorm:"type:varchar(64);"`
 	Icon       string `json:"icon" gorm:"type:varchar(128);"`
@@ -16,7 +16,7 @@ type Menu struct {
 	MenuType   string `json:"menuType" gorm:"type:varchar(1);"`
 	Action     string `json:"action" gorm:"type:varchar(16);"`
 	Permission string `json:"permission" gorm:"type:varchar(32);"`
-	ParentId   int  `json:"parentId" gorm:"type:int(11);"`
+	ParentId   int    `json:"parentId" gorm:"type:int(11);"`
 	NoCache    bool   `json:"noCache" gorm:"type:char(1);"`
 	Breadcrumb string `json:"breadcrumb" gorm:"type:varchar(255);"`
 	Component  string `json:"component" gorm:"type:varchar(255);"`
@@ -27,7 +27,7 @@ type Menu struct {
 	IsFrame    string `json:"isFrame" gorm:"type:int(1);DEFAULT:0;"`
 	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"-"`
-	RoleId     int  `gorm:"-"`
+	RoleId     int    `gorm:"-"`
 	Children   []Menu `json:"children" gorm:"-"`
 	IsSelect   bool   `json:"is_select" gorm:"-"`
 	BaseModel
@@ -38,13 +38,13 @@ func (Menu) TableName() string {
 }
 
 type MenuLable struct {
-	Id       int       `json:"id" gorm:"-"`
+	Id       int         `json:"id" gorm:"-"`
 	Label    string      `json:"label" gorm:"-"`
 	Children []MenuLable `json:"children" gorm:"-"`
 }
 
 type Menus struct {
-	MenuId     int  `json:"menuId" gorm:"column:menu_id;primary_key"`
+	MenuId     int    `json:"menuId" gorm:"column:menu_id;primary_key"`
 	MenuName   string `json:"menuName" gorm:"column:menu_name"`
 	Title      string `json:"title" gorm:"column:title"`
 	Icon       string `json:"icon" gorm:"column:icon"`
@@ -52,7 +52,7 @@ type Menus struct {
 	MenuType   string `json:"menuType" gorm:"column:menu_type"`
 	Action     string `json:"action" gorm:"column:action"`
 	Permission string `json:"permission" gorm:"column:permission"`
-	ParentId   int  `json:"parentId" gorm:"column:parent_id"`
+	ParentId   int    `json:"parentId" gorm:"column:parent_id"`
 	NoCache    bool   `json:"noCache" gorm:"column:no_cache"`
 	Breadcrumb string `json:"breadcrumb" gorm:"column:breadcrumb"`
 	Component  string `json:"component" gorm:"column:component"`
@@ -68,6 +68,10 @@ type Menus struct {
 	BaseModel
 }
 
+func (Menus) TableName() string {
+	return "sys_menu"
+}
+
 type MenuRole struct {
 	Menus
 	IsSelect bool `json:"is_select" gorm:"-"`
@@ -77,7 +81,7 @@ type MS []Menu
 
 func (e *Menu) GetByMenuId() (Menu Menu, err error) {
 
-	table := orm.Eloquent.Table("sys_menu")
+	table := orm.Eloquent.Table(e.TableName())
 	table = table.Where("menu_id = ?", e.MenuId)
 	if err = table.Find(&Menu).Error; err != nil {
 		return
@@ -198,10 +202,10 @@ func (e *Menu) SetMenuRole(rolename string) (m []Menu, err error) {
 	return
 }
 
-func (menu *MenuRole) Get() (Menus []MenuRole, err error) {
-	table := orm.Eloquent.Table("sys_menu")
-	if menu.MenuName != "" {
-		table = table.Where("menu_name = ?", menu.MenuName)
+func (e *MenuRole) Get() (Menus []MenuRole, err error) {
+	table := orm.Eloquent.Table(e.TableName())
+	if e.MenuName != "" {
+		table = table.Where("menu_name = ?", e.MenuName)
 	}
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
@@ -210,7 +214,7 @@ func (menu *MenuRole) Get() (Menus []MenuRole, err error) {
 }
 
 func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
-	table := orm.Eloquent.Table("sys_menu").Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
+	table := orm.Eloquent.Table(e.TableName()).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
 	table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", rolename)
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
@@ -219,7 +223,7 @@ func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
 }
 
 func (e *Menu) Get() (Menus []Menu, err error) {
-	table := orm.Eloquent.Table("sys_menu")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.MenuName != "" {
 		table = table.Where("menu_name = ?", e.MenuName)
 	}
@@ -240,7 +244,7 @@ func (e *Menu) Get() (Menus []Menu, err error) {
 }
 
 func (e *Menu) GetPage() (Menus []Menu, err error) {
-	table := orm.Eloquent.Table("sys_menu")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.MenuName != "" {
 		table = table.Where("menu_name = ?", e.MenuName)
 	}
@@ -260,7 +264,7 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 }
 
 func (e *Menu) Create() (id int, err error) {
-	result := orm.Eloquent.Table("sys_menu").Create(&e)
+	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err = result.Error
 		return
@@ -290,13 +294,13 @@ func InitPaths(menu *Menu) (err error) {
 }
 
 func (e *Menu) Update(id int) (update Menu, err error) {
-	if err = orm.Eloquent.Table("sys_menu").First(&update, id).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_menu").Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	err = InitPaths(e)
@@ -307,7 +311,7 @@ func (e *Menu) Update(id int) (update Menu, err error) {
 }
 
 func (e *Menu) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table("sys_menu").Where("menu_id = ?", id).Delete(&Menu{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("menu_id = ?", id).Delete(&Menu{}).Error; err != nil {
 		success = false
 		return
 	}
