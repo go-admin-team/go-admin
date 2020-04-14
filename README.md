@@ -231,12 +231,20 @@ env GOOS=linux GOARCH=amd64 go build main.go
 [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 
+## 🤟 打赏
+
+> 如果你觉得这个项目帮助到了你，你可以帮作者买一杯果汁表示鼓励 :tropical_drink:
+
+
+<img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="300px" >
+
+## ❤️ 赞助者
+
+zhuqiyun
+
 ## 🔑 License
 
 [MIT](https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md)
 
 Copyright (c) 2020 wenjianzhang
 
-## ❤️ 赞助者
-
-zhuqiyun
