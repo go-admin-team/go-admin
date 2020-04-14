@@ -5,9 +5,10 @@ import (
 	orm "go-admin/database"
 	"go-admin/pkg"
 	"go-admin/pkg/utils"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User
@@ -43,17 +44,17 @@ type SysUserId struct {
 type SysUserB struct {
 	NickName  string `gorm:"type:varchar(128)" json:"nickName"` // 昵称
 	Phone     string `gorm:"type:varchar(11)" json:"phone"`     // 手机号
-	RoleId    int  `gorm:"type:int(11)" json:"roleId"`        // 角色编码
+	RoleId    int    `gorm:"type:int(11)" json:"roleId"`        // 角色编码
 	Salt      string `gorm:"type:varchar(255)" json:"salt"`     //盐
 	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`   //头像
 	Sex       string `gorm:"type:varchar(255)" json:"sex"`      //性别
 	Email     string `gorm:"type:varchar(128)" json:"email"`    //邮箱
-	DeptId    int  `gorm:"type:int(11)" json:"deptId"`        //部门编码
-	PostId    int  `gorm:"type:int(11)" json:"postId"`        //职位编码
+	DeptId    int    `gorm:"type:int(11)" json:"deptId"`        //部门编码
+	PostId    int    `gorm:"type:int(11)" json:"postId"`        //职位编码
 	CreateBy  string `gorm:"type:varchar(128)" json:"createBy"` //
 	UpdateBy  string `gorm:"type:varchar(128)" json:"updateBy"` //
 	Remark    string `gorm:"type:varchar(255)" json:"remark"`   //备注
-	Status    string    `gorm:"type:int(1);" json:"status"`
+	Status    string `gorm:"type:int(1);" json:"status"`
 	DataScope string `gorm:"-" json:"dataScope"`
 	Params    string `gorm:"-" json:"params"`
 
@@ -92,7 +93,7 @@ type SysUserView struct {
 // 获取用户数据
 func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 
-	table := orm.Eloquent.Table("sys_user").Select([]string{"sys_user.*", "sys_role.role_name"})
+	table := orm.Eloquent.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
 	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
 	if e.UserId != 0 {
 		table = table.Where("user_id = ?", e.UserId)
@@ -127,7 +128,7 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, error) {
 	var doc []SysUserPage
 
-	table := orm.Eloquent.Select("sys_user.*,sys_dept.dept_name").Table("sys_user")
+	table := orm.Eloquent.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
 	table = table.Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
 
 	if e.Username != "" {
@@ -175,14 +176,14 @@ func (e SysUser) Insert() (id int, err error) {
 
 	// check 用户名
 	var count int
-	orm.Eloquent.Table("sys_user").Where("username = ?", e.Username).Count(&count)
+	orm.Eloquent.Table(e.TableName()).Where("username = ?", e.Username).Count(&count)
 	if count > 0 {
 		err = errors.New("账户已存在！")
 		return
 	}
 
 	//添加数据
-	if err = orm.Eloquent.Table("sys_user").Create(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Create(&e).Error; err != nil {
 		return
 	}
 	id = e.UserId
@@ -195,7 +196,7 @@ func (e *SysUser) Update(id int) (update SysUser, err error) {
 		return
 	}
 
-	if err = orm.Eloquent.Table("sys_user").First(&update, id).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 	if e.RoleId == 0 {
@@ -204,14 +205,14 @@ func (e *SysUser) Update(id int) (update SysUser, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_user").Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table("sys_user").Where("user_id in (?)", id).Delete(&SysUser{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("user_id in (?)", id).Delete(&SysUser{}).Error; err != nil {
 		return
 	}
 	Result = true
