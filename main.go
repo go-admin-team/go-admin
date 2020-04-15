@@ -28,7 +28,11 @@ import (
 
 func main() {
 
-	gin.SetMode(gin.DebugMode)
+	if config.ApplicationConfig.Env == "dev" {
+		log.SetFlags(log.Lshortfile | log.LstdFlags)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	log.Println(config.DatabaseConfig.Port)
 
 	err := gorm.AutoMigrate(orm.Eloquent)
