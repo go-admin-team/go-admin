@@ -6,15 +6,15 @@ import (
 )
 
 type Dept struct {
-	DeptId    int  `json:"deptId" gorm:"primary_key;AUTO_INCREMENT"` //部门编码
-	ParentId  int  `json:"parentId" gorm:"type:int(11);"`         //上级部门
-	DeptPath  string `json:"deptPath" gorm:"type:varchar(255);"`     //
-	DeptName  string `json:"deptName"  gorm:"type:varchar(128);"`    //部门名称
-	Sort      int  `json:"sort" gorm:"type:int(4);"`         //排序
-	Leader    string `json:"leader" gorm:"type:varchar(128);"`       //负责人
-	Phone     string `json:"phone" gorm:"type:varchar(11);"`        //手机
-	Email     string `json:"email" gorm:"type:varchar(64);"`        //邮箱
-	Status    string `json:"status" gorm:"type:int(1);"`       //状态
+	DeptId    int    `json:"deptId" gorm:"primary_key;AUTO_INCREMENT"` //部门编码
+	ParentId  int    `json:"parentId" gorm:"type:int(11);"`            //上级部门
+	DeptPath  string `json:"deptPath" gorm:"type:varchar(255);"`       //
+	DeptName  string `json:"deptName"  gorm:"type:varchar(128);"`      //部门名称
+	Sort      int    `json:"sort" gorm:"type:int(4);"`                 //排序
+	Leader    string `json:"leader" gorm:"type:varchar(128);"`         //负责人
+	Phone     string `json:"phone" gorm:"type:varchar(11);"`           //手机
+	Email     string `json:"email" gorm:"type:varchar(64);"`           //邮箱
+	Status    string `json:"status" gorm:"type:int(1);"`               //状态
 	CreateBy  string `json:"createBy" gorm:"type:varchar(64);"`
 	UpdateBy  string `json:"updateBy" gorm:"type:varchar(64);"`
 	DataScope string `json:"dataScope" gorm:"-"`
@@ -28,14 +28,14 @@ func (Dept) TableName() string {
 }
 
 type DeptLable struct {
-	Id       int       `gorm:"-" json:"id"`
+	Id       int         `gorm:"-" json:"id"`
 	Label    string      `gorm:"-" json:"label"`
 	Children []DeptLable `gorm:"-" json:"children"`
 }
 
 func (e *Dept) Create() (Dept, error) {
 	var doc Dept
-	result := orm.Eloquent.Table("sys_dept").Create(&e)
+	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -43,14 +43,14 @@ func (e *Dept) Create() (Dept, error) {
 	deptPath := "/" + utils.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP Dept
-		orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.ParentId).First(&deptP)
+		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0" + deptPath
 	}
 	var mp = map[string]string{}
 	mp["deptPath"] = deptPath
-	if err := orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.DeptId).Update(mp).Error; err != nil {
+	if err := orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Update(mp).Error; err != nil {
 		err := result.Error
 		return doc, err
 	}
@@ -62,7 +62,7 @@ func (e *Dept) Create() (Dept, error) {
 func (e *Dept) Get() (Dept, error) {
 	var doc Dept
 
-	table := orm.Eloquent.Table("sys_dept")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.DeptId != 0 {
 		table = table.Where("dept_id = ?", e.DeptId)
 	}
@@ -79,7 +79,7 @@ func (e *Dept) Get() (Dept, error) {
 func (e *Dept) GetList() ([]Dept, error) {
 	var doc []Dept
 
-	table := orm.Eloquent.Table("sys_dept")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.DeptId != 0 {
 		table = table.Where("dept_id = ?", e.DeptId)
 	}
@@ -99,7 +99,7 @@ func (e *Dept) GetList() ([]Dept, error) {
 func (e *Dept) GetPage(bl bool) ([]Dept, error) {
 	var doc []Dept
 
-	table := orm.Eloquent.Select("*").Table("sys_dept")
+	table := orm.Eloquent.Select("*").Table(e.TableName())
 	if e.DeptId != 0 {
 		table = table.Where("dept_id = ?", e.DeptId)
 	}
@@ -169,14 +169,14 @@ func Digui(deptlist *[]Dept, menu Dept) Dept {
 }
 
 func (e *Dept) Update(id int) (update Dept, err error) {
-	if err = orm.Eloquent.Table("sys_dept").Where("dept_id = ?", id).First(&update).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	deptPath := "/" + utils.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP Dept
-		orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.ParentId).First(&deptP)
+		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0" + deptPath
@@ -185,14 +185,14 @@ func (e *Dept) Update(id int) (update Dept, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_dept").Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *Dept) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table("sys_dept").Where("dept_id = ?", e.DeptId).Delete(&Dept{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Delete(&Dept{}).Error; err != nil {
 		success = false
 		return
 	}

@@ -6,15 +6,15 @@ import (
 )
 
 type DictType struct {
-	DictId    int  `gorm:"primary_key;AUTO_INCREMENT" json:"dictId"`
+	DictId    int    `gorm:"primary_key;AUTO_INCREMENT" json:"dictId"`
 	DictName  string `gorm:"type:varchar(128);" json:"dictName"` //字典名称
 	DictType  string `gorm:"type:varchar(128);" json:"dictType"` //字典类型
-	Status    string `gorm:"type:int(1);" json:"status"`      //状态
-	DataScope string `gorm:"-" json:"dataScope"`               //
-	Params    string `gorm:"-" json:"params"`                  //
-	CreateBy  string `gorm:"type:varchar(11);" json:"createBy"` //创建者
-	UpdateBy  string `gorm:"type:varchar(11);" json:"updateBy"` //更新者
-	Remark    string `gorm:"type:varchar(255);" json:"remark"`      //备注
+	Status    string `gorm:"type:int(1);" json:"status"`         //状态
+	DataScope string `gorm:"-" json:"dataScope"`                 //
+	Params    string `gorm:"-" json:"params"`                    //
+	CreateBy  string `gorm:"type:varchar(11);" json:"createBy"`  //创建者
+	UpdateBy  string `gorm:"type:varchar(11);" json:"updateBy"`  //更新者
+	Remark    string `gorm:"type:varchar(255);" json:"remark"`   //备注
 	BaseModel
 }
 
@@ -24,7 +24,7 @@ func (DictType) TableName() string {
 
 func (e *DictType) Create() (DictType, error) {
 	var doc DictType
-	result := orm.Eloquent.Table("sys_dict_type").Create(&e)
+	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -36,7 +36,7 @@ func (e *DictType) Create() (DictType, error) {
 func (e *DictType) Get() (DictType, error) {
 	var doc DictType
 
-	table := orm.Eloquent.Table("sys_dict_type")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.DictId != 0 {
 		table = table.Where("dict_id = ?", e.DictId)
 	}
@@ -56,7 +56,7 @@ func (e *DictType) Get() (DictType, error) {
 func (e *DictType) GetList() ([]DictType, error) {
 	var doc []DictType
 
-	table := orm.Eloquent.Table("sys_dict_type")
+	table := orm.Eloquent.Table(e.TableName())
 	if e.DictId != 0 {
 		table = table.Where("dict_id = ?", e.DictId)
 	}
@@ -76,7 +76,7 @@ func (e *DictType) GetList() ([]DictType, error) {
 func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error) {
 	var doc []DictType
 
-	table := orm.Eloquent.Select("*").Table("sys_dict_type")
+	table := orm.Eloquent.Select("*").Table(e.TableName())
 	if e.DictId != 0 {
 		table = table.Where("dict_id = ?", e.DictId)
 	}
@@ -99,20 +99,20 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 }
 
 func (e *DictType) Update(id int) (update DictType, err error) {
-	if err = orm.Eloquent.Table("sys_dict_type").First(&update, id).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_dict_type").Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
 func (e *DictType) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table("sys_dict_type").Where("dict_id = ?", id).Delete(&DictData{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("dict_id = ?", id).Delete(&DictData{}).Error; err != nil {
 		success = false
 		return
 	}
