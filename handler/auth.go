@@ -6,7 +6,7 @@ import (
 	"github.com/mssola/user_agent"
 	"go-admin/models"
 	jwt "go-admin/pkg/jwtauth"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 	"log"
 	"net/http"
 )
@@ -57,9 +57,9 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 
 	ua := user_agent.New(c.Request.UserAgent())
 	loginlog.Ipaddr = c.ClientIP()
-	location := utils.GetLocation(c.ClientIP())
+	location := tools.GetLocation(c.ClientIP())
 	loginlog.LoginLocation = location
-	loginlog.LoginTime = utils.GetCurrntTime()
+	loginlog.LoginTime = tools.GetCurrntTime()
 	loginlog.Status = "0"
 	loginlog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
@@ -110,16 +110,16 @@ func LogOut(c *gin.Context) {
 	var loginlog models.LoginLog
 	ua := user_agent.New(c.Request.UserAgent())
 	loginlog.Ipaddr = c.ClientIP()
-	location := utils.GetLocation(c.ClientIP())
+	location := tools.GetLocation(c.ClientIP())
 	loginlog.LoginLocation = location
-	loginlog.LoginTime = utils.GetCurrntTime()
+	loginlog.LoginTime = tools.GetCurrntTime()
 	loginlog.Status = "0"
 	loginlog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
 	loginlog.Browser = browserName + " " + browserVersion
 	loginlog.Os = ua.OS()
 	loginlog.Platform = ua.Platform()
-	loginlog.Username = utils.GetUserName(c)
+	loginlog.Username = tools.GetUserName(c)
 	loginlog.Msg = "退出成功"
 	loginlog.Create()
 	c.JSON(http.StatusOK, gin.H{

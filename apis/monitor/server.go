@@ -5,7 +5,7 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-	"go-admin/pkg/app"
+	"go-admin/tools/app"
 	"runtime"
 )
 
@@ -46,7 +46,6 @@ func ServerInfo(c *gin.Context) {
 
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
-
 
 	app.Custum(c, gin.H{
 		"code": 200,

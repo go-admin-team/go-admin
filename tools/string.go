@@ -1,4 +1,4 @@
-package utils
+package tools
 
 import (
 	"encoding/json"
@@ -17,7 +17,6 @@ func StringToInt(e string) (int, error) {
 	return strconv.Atoi(e)
 }
 
-
 func GetCurrntTimeStr() string {
 	return time.Now().Format("2006/01/02 15:04:05")
 }
@@ -25,7 +24,6 @@ func GetCurrntTimeStr() string {
 func GetCurrntTime() time.Time {
 	return time.Now()
 }
-
 
 func StructToJsonStr(e interface{}) (string, error) {
 	if b, err := json.Marshal(e); err == nil {

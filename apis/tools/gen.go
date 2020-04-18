@@ -4,22 +4,21 @@ import (
 	"bytes"
 	"github.com/gin-gonic/gin"
 	"go-admin/models/tools"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	tools2 "go-admin/tools"
+	"go-admin/tools/app"
 	"net/http"
 	"text/template"
 )
 
 func Preview(c *gin.Context) {
 	table := tools.SysTables{}
-	id, err := utils.StringToInt(c.Param("tableId"))
-	pkg.HasError(err, "", -1)
+	id, err := tools2.StringToInt(c.Param("tableId"))
+	tools2.HasError(err, "", -1)
 	table.TableId = id
 	t1, err := template.ParseFiles("template/model.go.template")
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 	t2, err := template.ParseFiles("template/api.go.template")
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 	tab, _ := table.Get()
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)

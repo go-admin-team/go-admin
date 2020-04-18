@@ -6,14 +6,14 @@ import (
 	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/go-kit/kit/endpoint"
 	_ "github.com/go-sql-driver/mysql"
-	"go-admin/config"
-	"go-admin/pkg/utils"
+	"go-admin/database"
+	"go-admin/tools/config"
 )
 
 var Em endpoint.Middleware
 
 func Casbin() (*casbin.Enforcer, error) {
-	conn := config.DatabaseConfig.Username + ":" + config.DatabaseConfig.Password + "@tcp(" + config.DatabaseConfig.Host + ":" + utils.IntToString(config.DatabaseConfig.Port) + ")/" + config.DatabaseConfig.Database
+	conn := database.GetMysqlConnect()
 	if config.DatabaseConfig.Dbtype == "sqlite3" {
 		conn = config.DatabaseConfig.Host
 	}

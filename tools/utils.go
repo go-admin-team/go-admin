@@ -1,4 +1,4 @@
-package pkg
+package tools
 
 import (
 	"golang.org/x/crypto/bcrypt"
@@ -13,7 +13,6 @@ func StrToInt(err error, index string) int {
 	}
 	return result
 }
-
 
 func CompareHashAndPassword(e string, p string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(e), []byte(p))

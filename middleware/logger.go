@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"go-admin/config"
 	"go-admin/models"
-	"go-admin/pkg/utils"
-	"os"
+	"go-admin/tools"
 	"strings"
 	"time"
 )
@@ -18,20 +16,20 @@ var logger = logrus.New()
 // 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 
-	//写入文件
-	src, err := os.OpenFile(config.ApplicationConfig.LogPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-	if err != nil {
-		fmt.Println("err", err)
-	}
-
-	//设置输出
-	logger.Out = src
-
-	//设置日志级别
-	logger.SetLevel(logrus.DebugLevel)
-
-	//设置日志格式
-	logger.SetFormatter(&logrus.TextFormatter{})
+	////写入文件
+	//src, err := os.OpenFile(config2.LogConfig.Dir+"/", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	//if err != nil {
+	//	fmt.Println("err", err)
+	//}
+	//
+	////设置输出
+	//logger.Out = src
+	//
+	////设置日志级别
+	//logger.SetLevel(logrus.DebugLevel)
+	//
+	////设置日志格式
+	//logger.SetFormatter(&logrus.TextFormatter{})
 
 	return func(c *gin.Context) {
 		// 开始时间
@@ -84,9 +82,9 @@ func LoggerToFile() gin.HandlerFunc {
 			menuList, _ := menu.Get()
 			sysOperLog := models.SysOperLog{}
 			sysOperLog.OperIp = clientIP
-			sysOperLog.OperLocation = utils.GetLocation(clientIP)
-			sysOperLog.Status = utils.IntToString(statusCode)
-			sysOperLog.OperName = utils.GetUserName(c)
+			sysOperLog.OperLocation = tools.GetLocation(clientIP)
+			sysOperLog.Status = tools.IntToString(statusCode)
+			sysOperLog.OperName = tools.GetUserName(c)
 			sysOperLog.RequestMethod = c.Request.Method
 			sysOperLog.OperUrl = reqUri
 			if reqUri == "/login" {
@@ -112,9 +110,9 @@ func LoggerToFile() gin.HandlerFunc {
 				sysOperLog.Title = menuList[0].Title
 			}
 			b, _ := c.Get("body")
-			sysOperLog.OperParam, _ = utils.StructToJsonStr(b)
-			sysOperLog.CreateBy = utils.GetUserName(c)
-			sysOperLog.OperTime = utils.GetCurrntTime()
+			sysOperLog.OperParam, _ = tools.StructToJsonStr(b)
+			sysOperLog.CreateBy = tools.GetUserName(c)
+			sysOperLog.OperTime = tools.GetCurrntTime()
 			sysOperLog.LatencyTime = (latencyTime).String()
 			sysOperLog.UserAgent = c.Request.UserAgent()
 			if c.Err() == nil {

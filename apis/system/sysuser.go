@@ -5,9 +5,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
 	"log"
 )
 
@@ -27,25 +26,25 @@ func GetSysUserList(c *gin.Context) {
 
 	size := c.Request.FormValue("pageSize")
 	if size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools.StrToInt(err, size)
 	}
 
 	index := c.Request.FormValue("pageIndex")
 	if index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools.StrToInt(err, index)
 	}
 
 	data.Username = c.Request.FormValue("userName")
 
 	postId := c.Request.FormValue("postId")
-	data.PostId, _ = utils.StringToInt(postId)
+	data.PostId, _ = tools.StringToInt(postId)
 
 	deptId := c.Request.FormValue("deptId")
-	data.DeptId, _ = utils.StringToInt(deptId)
+	data.DeptId, _ = tools.StringToInt(deptId)
 
-	data.DataScope = utils.GetUserIdStr(c)
+	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 
 	app.PageOK(c, result, count, pageIndex, pageSize, "")
 }
@@ -59,9 +58,9 @@ func GetSysUserList(c *gin.Context) {
 // @Security
 func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
-	SysUser.UserId, _ = utils.StringToInt(c.Param("userId"))
+	SysUser.UserId, _ = tools.StringToInt(c.Param("userId"))
 	result, err := SysUser.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
 	var Post models.Post
 	roles, err := SysRole.GetList()
@@ -90,10 +89,10 @@ func GetSysUser(c *gin.Context) {
 // @Security
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
-	userId := utils.GetUserIdStr(c)
-	SysUser.UserId, _ = utils.StringToInt(userId)
+	userId := tools.GetUserIdStr(c)
+	SysUser.UserId, _ = tools.StringToInt(userId)
 	result, err := SysUser.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
 	var Post models.Post
 	var Dept models.Dept
@@ -133,7 +132,7 @@ func GetSysUserInit(c *gin.Context) {
 	var Post models.Post
 	roles, err := SysRole.GetList()
 	posts, err := Post.GetList()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	mp := make(map[string]interface{}, 2)
 	mp["roles"] = roles
 	mp["posts"] = posts
@@ -152,11 +151,11 @@ func GetSysUserInit(c *gin.Context) {
 func InsertSysUser(c *gin.Context) {
 	var sysuser models.SysUser
 	err := c.BindWith(&sysuser, binding.JSON)
-	pkg.HasError(err, "非法数据格式", 500)
+	tools.HasError(err, "非法数据格式", 500)
 
-	sysuser.CreateBy = utils.GetUserIdStr(c)
+	sysuser.CreateBy = tools.GetUserIdStr(c)
 	id, err := sysuser.Insert()
-	pkg.HasError(err, "添加失败", 500)
+	tools.HasError(err, "添加失败", 500)
 	app.OK(c, id, "添加成功")
 }
 
@@ -172,10 +171,10 @@ func InsertSysUser(c *gin.Context) {
 func UpdateSysUser(c *gin.Context) {
 	var data models.SysUser
 	err := c.BindWith(&data, binding.JSON)
-	pkg.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = utils.GetUserIdStr(c)
+	tools.HasError(err, "数据解析失败", -1)
+	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.UserId)
-	pkg.HasError(err, "修改失败", 500)
+	tools.HasError(err, "修改失败", 500)
 	app.OK(c, result, "修改成功")
 }
 
@@ -188,10 +187,10 @@ func UpdateSysUser(c *gin.Context) {
 // @Router /api/v1/sysuser/{userId} [delete]
 func DeleteSysUser(c *gin.Context) {
 	var data models.SysUser
-	data.UpdateBy = utils.GetUserIdStr(c)
-	IDS := utils.IdsStrToIdsIntGroup("userId", c)
+	data.UpdateBy = tools.GetUserIdStr(c)
+	IDS := tools.IdsStrToIdsIntGroup("userId", c)
 	result, err := data.BatchDelete(IDS)
-	pkg.HasError(err, "删除失败", 500)
+	tools.HasError(err, "删除失败", 500)
 	app.OK(c, result, "删除成功")
 }
 
@@ -214,9 +213,9 @@ func InsetSysUserAvatar(c *gin.Context) {
 		_ = c.SaveUploadedFile(file, filPath)
 	}
 	sysuser := models.SysUser{}
-	sysuser.UserId = utils.GetUserId(c)
+	sysuser.UserId = tools.GetUserId(c)
 	sysuser.Avatar = "/" + filPath
-	sysuser.UpdateBy = utils.GetUserIdStr(c)
+	sysuser.UpdateBy = tools.GetUserIdStr(c)
 	sysuser.Update(sysuser.UserId)
 	app.OK(c, filPath, "修改成功")
 }
@@ -224,9 +223,9 @@ func InsetSysUserAvatar(c *gin.Context) {
 func SysUserUpdatePwd(c *gin.Context) {
 	var pwd models.SysUserPwd
 	err := c.Bind(&pwd)
-	pkg.HasError(err, "数据解析失败", 500)
+	tools.HasError(err, "数据解析失败", 500)
 	sysuser := models.SysUser{}
-	sysuser.UserId = utils.GetUserId(c)
+	sysuser.UserId = tools.GetUserId(c)
 	sysuser.SetPwd(pwd)
 	app.OK(c, "", "密码修改成功")
 }

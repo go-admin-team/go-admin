@@ -3,12 +3,12 @@ package models
 import (
 	"fmt"
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type RoleMenu struct {
-	RoleId   int  `gorm:"type:int(11)"`
-	MenuId   int  `gorm:"type:int(11)"`
+	RoleId   int    `gorm:"type:int(11)"`
+	MenuId   int    `gorm:"type:int(11)"`
 	RoleName string `gorm:"type:varchar(128)"`
 	CreateBy string `gorm:"type:varchar(128)"`
 	UpdateBy string `gorm:"type:varchar(128)"`
@@ -134,7 +134,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 }
 
 func (rm *RoleMenu) Delete(RoleId string, MenuID string) (bool, error) {
-	rm.RoleId, _ = utils.StringToInt(RoleId)
+	rm.RoleId, _ = tools.StringToInt(RoleId)
 	table := orm.Eloquent.Table("sys_role_menu").Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		table = table.Where("menu_id = ?", MenuID)
