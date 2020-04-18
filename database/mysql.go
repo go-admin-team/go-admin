@@ -5,7 +5,6 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql" //加载mysql
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	config2 "go-admin/config"
 	"log"
 	"strconv"
@@ -58,9 +57,9 @@ func init() {
 
 	Eloquent.LogMode(true)
 	if err != nil {
-		log.Fatalln("%s connect error %v",dbType, err)
+		log.Fatalln("%s connect error %v", dbType, err)
 	} else {
-		log.Println("%s connect success!",dbType)
+		log.Println("%s connect success!", dbType)
 	}
 
 	if Eloquent.Error != nil {
