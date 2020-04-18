@@ -24,4 +24,3 @@ settings:
     enable: false
     cache_dir: /html/www/.cache
     domain: go-admin.dev
-    addr: https
