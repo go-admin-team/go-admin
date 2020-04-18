@@ -4,9 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
 	"net/http"
 )
 
@@ -28,20 +27,20 @@ func GetDictTypeList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools.StrToInt(err, size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools.StrToInt(err, index)
 	}
 
 	data.DictName = c.Request.FormValue("dictName")
 	id := c.Request.FormValue("dictId")
-	data.DictId, _ = utils.StringToInt(id)
+	data.DictId, _ = tools.StringToInt(id)
 	data.DictType = c.Request.FormValue("dictType")
-	data.DataScope = utils.GetUserIdStr(c)
+	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
@@ -64,9 +63,9 @@ func GetDictTypeList(c *gin.Context) {
 func GetDictType(c *gin.Context) {
 	var DictType models.DictType
 	DictType.DictName = c.Request.FormValue("dictName")
-	DictType.DictId, _ = utils.StringToInt(c.Param("dictId"))
+	DictType.DictId, _ = tools.StringToInt(c.Param("dictId"))
 	result, err := DictType.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -76,9 +75,9 @@ func GetDictType(c *gin.Context) {
 func GetDictTypeOptionSelect(c *gin.Context) {
 	var DictType models.DictType
 	DictType.DictName = c.Request.FormValue("dictName")
-	DictType.DictId, _ = utils.StringToInt(c.Param("dictId"))
+	DictType.DictId, _ = tools.StringToInt(c.Param("dictId"))
 	result, err := DictType.GetList()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -97,10 +96,10 @@ func GetDictTypeOptionSelect(c *gin.Context) {
 func InsertDictType(c *gin.Context) {
 	var data models.DictType
 	err := c.BindWith(&data, binding.JSON)
-	data.CreateBy = utils.GetUserIdStr(c)
-	pkg.HasError(err, "", 500)
+	data.CreateBy = tools.GetUserIdStr(c)
+	tools.HasError(err, "", 500)
 	result, err := data.Create()
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -119,10 +118,10 @@ func InsertDictType(c *gin.Context) {
 func UpdateDictType(c *gin.Context) {
 	var data models.DictType
 	err := c.BindWith(&data, binding.JSON)
-	data.UpdateBy = utils.GetUserIdStr(c)
-	pkg.HasError(err, "", -1)
+	data.UpdateBy = tools.GetUserIdStr(c)
+	tools.HasError(err, "", -1)
 	result, err := data.Update(data.DictId)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -137,10 +136,10 @@ func UpdateDictType(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [delete]
 func DeleteDictType(c *gin.Context) {
 	var data models.DictType
-	id, err := utils.StringToInt(c.Param("dictId"))
-	data.UpdateBy = utils.GetUserIdStr(c)
+	id, err := tools.StringToInt(c.Param("dictId"))
+	data.UpdateBy = tools.GetUserIdStr(c)
 	_, err = data.Delete(id)
-	pkg.HasError(err, "修改失败", 500)
+	tools.HasError(err, "修改失败", 500)
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,

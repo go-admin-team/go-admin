@@ -3,9 +3,8 @@ package tools
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/models/tools"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	tools2 "go-admin/tools"
+	"go-admin/tools/app"
 	"net/http"
 	"strings"
 )
@@ -25,16 +24,16 @@ func GetSysTableList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools2.StrToInt(err, size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools2.StrToInt(err, index)
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
@@ -57,9 +56,9 @@ func GetSysTableList(c *gin.Context) {
 // @Security
 func GetSysTables(c *gin.Context) {
 	var data tools.SysTables
-	data.TableId, _ = utils.StringToInt(c.Param("tableId"))
+	data.TableId, _ = tools2.StringToInt(c.Param("tableId"))
 	result, err := data.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools2.HasError(err, "抱歉未找到相关信息", -1)
 
 	var res app.Response
 	res.Data = result
@@ -85,7 +84,7 @@ func InsertSysTable(c *gin.Context) {
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TableName = c.Request.FormValue("tables")
-	data.CreateBy = utils.GetUserIdStr(c)
+	data.CreateBy = tools2.GetUserIdStr(c)
 
 	dbTable.TableName = data.TableName
 	dbtable, err := dbTable.Get()
@@ -103,7 +102,7 @@ func InsertSysTable(c *gin.Context) {
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList()
-	data.CreateBy = utils.GetUserIdStr(c)
+	data.CreateBy = tools2.GetUserIdStr(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -163,7 +162,7 @@ func InsertSysTable(c *gin.Context) {
 	}
 
 	result, err := data.Create()
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 
 	var res app.Response
 	res.Data = result
@@ -185,10 +184,10 @@ func InsertSysTable(c *gin.Context) {
 func UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
-	pkg.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = utils.GetUserIdStr(c)
+	tools2.HasError(err, "数据解析失败", -1)
+	data.UpdateBy = tools2.GetUserIdStr(c)
 	result, err := data.Update()
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 
 	var res app.Response
 	res.Data = result
@@ -205,10 +204,10 @@ func UpdateSysTable(c *gin.Context) {
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
 func DeleteSysTables(c *gin.Context) {
 	var data tools.SysTables
-	id, err := utils.StringToInt(c.Param("tableId"))
+	id, err := tools2.StringToInt(c.Param("tableId"))
 	data.TableId = id
 	_, err = data.Delete()
-	pkg.HasError(err, "删除失败", 500)
+	tools2.HasError(err, "删除失败", 500)
 	var res app.Response
 	res.Msg = "删除成功"
 	c.JSON(http.StatusOK, res.ReturnOK())

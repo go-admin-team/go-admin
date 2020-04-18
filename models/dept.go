@@ -2,7 +2,7 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type Dept struct {
@@ -40,7 +40,7 @@ func (e *Dept) Create() (Dept, error) {
 		err := result.Error
 		return doc, err
 	}
-	deptPath := "/" + utils.IntToString(e.DeptId)
+	deptPath := "/" + tools.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP Dept
 		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
@@ -115,7 +115,7 @@ func (e *Dept) GetPage(bl bool) ([]Dept, error) {
 	if bl {
 		// 数据权限控制
 		dataPermission := new(DataPermission)
-		dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
+		dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
 		table = dataPermission.GetDataScope("sys_dept", table)
 	}
 
@@ -173,7 +173,7 @@ func (e *Dept) Update(id int) (update Dept, err error) {
 		return
 	}
 
-	deptPath := "/" + utils.IntToString(e.DeptId)
+	deptPath := "/" + tools.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
 		var deptP Dept
 		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)

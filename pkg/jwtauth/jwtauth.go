@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"go-admin/config"
+	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -283,9 +283,9 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 	}
 
 	mw.Timeout = time.Hour
-	if config.JwtConfig.Timeout != 0 {
+	if config2.JwtConfig.Timeout != 0 {
 		// TODO: token过期时长
-		mw.Timeout = time.Duration(config.JwtConfig.Timeout) * time.Second
+		mw.Timeout = time.Duration(config2.JwtConfig.Timeout) * time.Second
 	}
 
 	if mw.TimeFunc == nil {
