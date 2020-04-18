@@ -25,20 +25,13 @@ func ConfigSetup(path string) {
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Read config file fail: %s", err.Error()))
 	}
+
+
 	//Replace environment variables
 	err = viper.ReadConfig(strings.NewReader(os.ExpandEnv(string(content))))
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Parse config file fail: %s", err.Error()))
 	}
-	//}
-	//
-	//func InitConfig(fileName string) {
-	//	viper.SetConfigName(fileName)
-	//	viper.AddConfigPath("/config")
-	//	err := viper.ReadInConfig()
-	//	if err != nil {
-	//		log.Println(err)
-	//	}
 
 	cfgDatabase = viper.Sub("settings.database")
 	if cfgDatabase == nil {

@@ -41,6 +41,11 @@ func init() {
 	StartCmd.PersistentFlags().StringVarP(&config, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
+	//if mode=="dev"{
+	//	config="config/settings.{dev.}yml"
+	//}else if mode=="test"{
+	//	config="config/settings.{test.}yml"
+	//}
 }
 
 func usage() {
