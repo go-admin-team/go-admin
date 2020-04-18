@@ -4,9 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
 	"net/http"
 )
 
@@ -28,21 +27,21 @@ func GetDictDataList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools.StrToInt(err, size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools.StrToInt(err, index)
 	}
 
 	data.DictLabel = c.Request.FormValue("dictLabel")
 	data.Status = c.Request.FormValue("status")
 	data.DictType = c.Request.FormValue("dictType")
 	id := c.Request.FormValue("dictCode")
-	data.DictCode, _ = utils.StringToInt(id)
-	data.DataScope = utils.GetUserIdStr(c)
+	data.DictCode, _ = tools.StringToInt(id)
+	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
@@ -66,9 +65,9 @@ func GetDictDataList(c *gin.Context) {
 func GetDictData(c *gin.Context) {
 	var DictData models.DictData
 	DictData.DictLabel = c.Request.FormValue("dictLabel")
-	DictData.DictCode, _ = utils.StringToInt(c.Param("dictCode"))
+	DictData.DictCode, _ = tools.StringToInt(c.Param("dictCode"))
 	result, err := DictData.GetByCode()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -85,7 +84,7 @@ func GetDictDataByDictType(c *gin.Context) {
 	var DictData models.DictData
 	DictData.DictType = c.Param("dictType")
 	result, err := DictData.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 
 	var res app.Response
 	res.Data = result
@@ -105,10 +104,10 @@ func GetDictDataByDictType(c *gin.Context) {
 func InsertDictData(c *gin.Context) {
 	var data models.DictData
 	err := c.BindWith(&data, binding.JSON)
-	data.CreateBy = utils.GetUserIdStr(c)
-	pkg.HasError(err, "", 500)
+	data.CreateBy = tools.GetUserIdStr(c)
+	tools.HasError(err, "", 500)
 	result, err := data.Create()
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -127,10 +126,10 @@ func InsertDictData(c *gin.Context) {
 func UpdateDictData(c *gin.Context) {
 	var data models.DictData
 	err := c.BindWith(&data, binding.JSON)
-	data.UpdateBy = utils.GetUserIdStr(c)
-	pkg.HasError(err, "", -1)
+	data.UpdateBy = tools.GetUserIdStr(c)
+	tools.HasError(err, "", -1)
 	result, err := data.Update(data.DictCode)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -145,10 +144,10 @@ func UpdateDictData(c *gin.Context) {
 // @Router /api/v1/dict/data/{dictCode} [delete]
 func DeleteDictData(c *gin.Context) {
 	var data models.DictData
-	id, err := utils.StringToInt(c.Param("dictCode"))
-	data.UpdateBy = utils.GetUserIdStr(c)
+	id, err := tools.StringToInt(c.Param("dictCode"))
+	data.UpdateBy = tools.GetUserIdStr(c)
 	_, err = data.Delete(id)
-	pkg.HasError(err, "修改失败", 500)
+	tools.HasError(err, "修改失败", 500)
 
 	var res app.Response
 	res.Msg = "删除成功"

@@ -2,15 +2,15 @@ package models
 
 import (
 	"fmt"
-	"go-admin/config"
 	orm "go-admin/database"
+	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"strings"
 )
 
 func InitDb() error {
 	filePath := "config/db.sql"
-	if config.DatabaseConfig.Dbtype == "sqlite3" {
+	if config2.DatabaseConfig.Dbtype == "sqlite3" {
 		fmt.Println("sqlite3数据库无需初始化！")
 		return nil
 	}

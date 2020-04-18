@@ -4,9 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
 	"net/http"
 )
 
@@ -29,19 +28,19 @@ func GetOperLogList(c *gin.Context) {
 
 	size := c.Request.FormValue("pageSize")
 	if size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools.StrToInt(err, size)
 	}
 
 	index := c.Request.FormValue("pageIndex")
 	if index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools.StrToInt(err, index)
 	}
 
 	data.OperName = c.Request.FormValue("operName")
 	data.Status = c.Request.FormValue("status")
 	data.OperIp = c.Request.FormValue("operIp")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
@@ -64,9 +63,9 @@ func GetOperLogList(c *gin.Context) {
 // @Security
 func GetOperLog(c *gin.Context) {
 	var OperLog models.SysOperLog
-	OperLog.OperId, _ = utils.StringToInt(c.Param("operId"))
+	OperLog.OperId, _ = tools.StringToInt(c.Param("operId"))
 	result, err := OperLog.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -85,9 +84,9 @@ func GetOperLog(c *gin.Context) {
 func InsertOperLog(c *gin.Context) {
 	var data models.SysOperLog
 	err := c.BindWith(&data, binding.JSON)
-	pkg.HasError(err, "", 500)
+	tools.HasError(err, "", 500)
 	result, err := data.Create()
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -102,10 +101,10 @@ func InsertOperLog(c *gin.Context) {
 // @Router /api/v1/operlog/{operId} [delete]
 func DeleteOperLog(c *gin.Context) {
 	var data models.SysOperLog
-	data.UpdateBy = utils.GetUserIdStr(c)
-	IDS := utils.IdsStrToIdsIntGroup("operId", c)
+	data.UpdateBy = tools.GetUserIdStr(c)
+	IDS := tools.IdsStrToIdsIntGroup("operId", c)
 	_, err := data.BatchDelete(IDS)
-	pkg.HasError(err, "删除失败", 500)
+	tools.HasError(err, "删除失败", 500)
 	var res app.Response
 	res.Msg = "删除成功"
 	c.JSON(http.StatusOK, res.ReturnOK())

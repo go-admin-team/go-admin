@@ -2,7 +2,7 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type SysConfig struct {
@@ -71,7 +71,7 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
 	table = dataPermission.GetDataScope("sys_config", table)
 
 	var count int

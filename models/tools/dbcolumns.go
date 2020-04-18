@@ -2,8 +2,8 @@ package tools
 
 import (
 	"errors"
-	"go-admin/config"
 	orm "go-admin/database"
+	config2 "go-admin/tools/config"
 )
 
 type DBColumns struct {
@@ -25,7 +25,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 	var doc []DBColumns
 
 	table := orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
-	table = table.Where("table_schema= ? ", config.DatabaseConfig.Database)
+	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
 
 	if e.TableName != "" {
 		return nil, 0, errors.New("table name cannot be empty！")
@@ -46,7 +46,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 	var doc []DBColumns
 
 	table := orm.Eloquent.Select("*").Table("information_schema.columns")
-	table = table.Where("table_schema= ? ", config.DatabaseConfig.Database)
+	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
 
 	if e.TableName == "" {
 		return nil, errors.New("table name cannot be empty！")

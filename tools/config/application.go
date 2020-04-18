@@ -10,9 +10,8 @@ type Application struct {
 	Port          string
 	Name          string
 	JwtSecret     string
-	LogPath       string
-	Env           string
-	EnvMsg        string
+	Mode          string
+	DemoMsg       string
 }
 
 func InitApplication(cfg *viper.Viper) *Application {
@@ -24,9 +23,8 @@ func InitApplication(cfg *viper.Viper) *Application {
 		Port:          cfg.GetString("port"),
 		Name:          cfg.GetString("name"),
 		JwtSecret:     cfg.GetString("jwtSecret"),
-		LogPath:       cfg.GetString("logPath"),
-		Env:           cfg.GetString("env"),
-		EnvMsg:        cfg.GetString("envMsg"),
+		Mode:          cfg.GetString("mode"),
+		DemoMsg:       cfg.GetString("demoMsg"),
 	}
 }
 
