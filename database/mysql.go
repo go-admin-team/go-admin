@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql" //加载mysql
 	"github.com/jinzhu/gorm"
 	config2 "go-admin/config"
+	"go-admin/tools/config"
 
 	"log"
 	"strconv"
@@ -16,7 +17,7 @@ var (
 	DbType   string
 	Host     string
 	Port     int
-	Name       string
+	Name     string
 	Username string
 	Password string
 )
