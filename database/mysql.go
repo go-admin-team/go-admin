@@ -4,8 +4,8 @@ import (
 	"bytes"
 	_ "github.com/go-sql-driver/mysql" //加载mysql
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"go-admin/tools/config"
+	config2 "go-admin/config"
+
 	"log"
 	"strconv"
 )
@@ -52,7 +52,9 @@ func Setup() {
 		panic("db type unknow")
 	}
 	if err != nil {
-		log.Fatalln("%s connect error %v", DbType, err)
+		log.Fatalln("%s connect error %v", dbType, err)
+	} else {
+		log.Println("%s connect success!", dbType)
 	}
 	log.Println("%s connect success!", DbType)
 
