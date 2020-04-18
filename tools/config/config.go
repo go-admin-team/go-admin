@@ -13,6 +13,7 @@ var cfgDatabase *viper.Viper
 var cfgApplication *viper.Viper
 var cfgJwt *viper.Viper
 var cfgLog *viper.Viper
+var cfgSSL *viper.Viper
 
 //func init() {
 //	InitConfig("settings.dev")
@@ -55,6 +56,12 @@ func ConfigSetup(path string) {
 		panic("config not found settings.log")
 	}
 	LogConfig = InitLog(cfgLog)
+
+	cfgSSL = viper.Sub("settings.ssl")
+	if cfgLog == nil {
+		panic("config not found settings.ssl")
+	}
+	SSLConfig = InitSSL(cfgSSL)
 }
 
 func SetApplicationIsInit() {

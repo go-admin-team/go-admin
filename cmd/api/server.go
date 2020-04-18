@@ -10,6 +10,7 @@ import (
 	"go-admin/router"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
+	"golang.org/x/crypto/acme/autocert"
 	"log"
 	"net/http"
 	"os"
@@ -77,13 +78,23 @@ func run() error {
 		Handler: r,
 	}
 
+	if config2.SSLConfig.Enable {
+		m := &autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(config2.SSLConfig.Domain),
+			Cache:      autocert.DirCache(config2.SSLConfig.CacheDir),
+		}
+		srv.TLSConfig = m.TLSConfig()
+		srv.Addr = ":https"
+	}
+
 	go func() {
 		// 服务连接
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
-	log.Println("Server Run ", config2.ApplicationConfig.Host+":"+config2.ApplicationConfig.Port)
+	log.Println("Server Run ", srv.Addr)
 	log.Println("Enter Control + C Shutdown Server")
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
