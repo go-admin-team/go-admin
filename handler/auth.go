@@ -59,7 +59,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 	loginlog.Ipaddr = c.ClientIP()
 	location := tools.GetLocation(c.ClientIP())
 	loginlog.LoginLocation = location
-	loginlog.LoginTime = tools.GetCurrntTime()
+	loginlog.LoginTime = tools.GetCurrentTime()
 	loginlog.Status = "0"
 	loginlog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
@@ -112,7 +112,7 @@ func LogOut(c *gin.Context) {
 	loginlog.Ipaddr = c.ClientIP()
 	location := tools.GetLocation(c.ClientIP())
 	loginlog.LoginLocation = location
-	loginlog.LoginTime = tools.GetCurrntTime()
+	loginlog.LoginTime = tools.GetCurrentTime()
 	loginlog.Status = "0"
 	loginlog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()

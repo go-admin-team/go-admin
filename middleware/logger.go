@@ -112,7 +112,7 @@ func LoggerToFile() gin.HandlerFunc {
 			b, _ := c.Get("body")
 			sysOperLog.OperParam, _ = tools.StructToJsonStr(b)
 			sysOperLog.CreateBy = tools.GetUserName(c)
-			sysOperLog.OperTime = tools.GetCurrntTime()
+			sysOperLog.OperTime = tools.GetCurrentTime()
 			sysOperLog.LatencyTime = (latencyTime).String()
 			sysOperLog.UserAgent = c.Request.UserAgent()
 			if c.Err() == nil {
