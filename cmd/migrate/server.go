@@ -9,6 +9,7 @@ import (
 	tools2 "go-admin/models/tools"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -41,8 +42,17 @@ func run() {
 	database.Setup()
 	//4. 数据库迁移
 	gorm.AutoMigrate(orm.Eloquent)
-	//db := gdb.GetDB()
-	//db.AutoMigrate(migrateModel()...)
+	log.Println("数据库结构初始化成功！")
+	//5. 数据初始化完成
+	if config2.ApplicationConfig.IsInit {
+		if err := models.InitDb(); err != nil {
+			log.Fatal("数据库基础数据初始化失败！")
+		} else {
+			config2.SetApplicationIsInit()
+		}
+		log.Println("数据库基础数据初始化成功！")
+	}
+
 	usage = `finish`
 	fmt.Println(usage)
 }
