@@ -192,7 +192,7 @@ func (e *Dept) Update(id int) (update Dept, err error) {
 }
 
 func (e *Dept) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Delete(&Dept{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", id).Delete(&Dept{}).Error; err != nil {
 		success = false
 		return
 	}
