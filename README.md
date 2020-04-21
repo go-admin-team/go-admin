@@ -71,29 +71,27 @@
 settings:
   application:  
     # 项目启动环境            
-    env: dev  
-    # 当 env:demo 时，GET以外的请求操作提示
-    envmsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
-    # 主机ip 或者域名，默认0.0.0.0
-    host: 0.0.0.0 
-    # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
-    isinit: false  
-    # log存放路径
-    logpath: temp/logs/log.log   
+    mode: dev  # dev开发环境 test测试环境 prod线上环境；当 mode:demo 时，GET以外的请求操作提示
+    demomsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
+    host: 0.0.0.0  # 主机ip 或者域名，默认0.0.0.0
+    isinit: false  # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
     # 服务名称
     name: go-admin   
     # 服务端口
     port: 8000   
     readtimeout: 1   
     writertimeout: 2 
+  log:
+    # 日志文件存放路径
+    dir: temp/logs
   jwt:
     # JWT加密字符串
-    jwtsecret: go-admin
+    secret: go-admin
     # 过期时间单位：秒
     timeout: 3600
   database:
     # 数据库名称
-    database: dbname 
+    name: dbname 
     # 数据库类型
     dbtype: mysql    
     # 数据库地址
@@ -134,7 +132,8 @@ vi ./config/setting.yml (更改isinit和数据库连接)
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin
+./go-admin server -c=config/settings.yml -p=8000 -m=dev
+c
 
 ```
 [在线文档](https://wenjianzhang.github.io/go-admin-site)

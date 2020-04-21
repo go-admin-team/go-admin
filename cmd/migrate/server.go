@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"fmt"
+	"go-admin/database"
 	orm "go-admin/database"
 	"go-admin/models"
 	"go-admin/models/gorm"
@@ -17,7 +18,7 @@ var (
 	mode     string
 	StartCmd = &cobra.Command{
 		Use:   "migrate",
-		Short: "Migrate about gdb operator",
+		Short: "migrate from struct to database",
 		Run: func(cmd *cobra.Command, args []string) {
 			run()
 		},
@@ -37,7 +38,7 @@ func run() {
 	//2. 设置日志
 	tools.InitLogger()
 	//3. 初始化数据库链接
-	//dao.Setup()
+	database.Setup()
 	//4. 数据库迁移
 	gorm.AutoMigrate(orm.Eloquent)
 	//db := gdb.GetDB()

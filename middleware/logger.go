@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"go-admin/models"
@@ -57,24 +56,16 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		logger.Infof(" %3d  %13v  %15s  %s  %s \r\n",
+		logger.Infof("%s [%s] %3d %13v %15s %s %s \r\n",
+			startTime.Format("2006-01-02 15:04:05.9999"),
+			strings.ToUpper(logger.Level.String()),
 			statusCode,
 			latencyTime,
 			clientIP,
 			reqMethod,
 			reqUri,
 		)
-		logger.Infoln("-")
-		fmt.Println(
-			startTime.Format("\n2006-01-02 15:04:05.9999"),
-			"[INFO]",
-			reqMethod,
-			reqUri,
-			statusCode,
-			latencyTime,
-			reqUri,
-			clientIP,
-		)
+
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" {
 			menu := models.Menu{}
 			menu.Path = reqUri

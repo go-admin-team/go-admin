@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"github.com/spf13/cobra"
 	"go-admin/cmd/api"
 	"go-admin/cmd/migrate"
@@ -14,6 +15,12 @@ var rootCmd = &cobra.Command{
 	SilenceUsage:      true,
 	DisableAutoGenTag: true,
 	Long:              `go-admin`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires at least one arg")
+		}
+		return nil
+	},
 	PersistentPreRunE: func(*cobra.Command, []string) error { return nil },
 	Run: func(cmd *cobra.Command, args []string) {
 		usageStr := `go-admin 0.0.1`
