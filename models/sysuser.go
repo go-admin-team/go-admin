@@ -131,6 +131,13 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	if e.Username != "" {
 		table = table.Where("username = ?", e.Username)
 	}
+	if e.Status != "" {
+		table = table.Where("sys_user.status = ?", e.Status)
+	}
+
+	if e.Phone != "" {
+		table = table.Where("sys_user.phone = ?", e.Phone)
+	}
 
 	if e.DeptId != 0 {
 		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+tools.IntToString(e.DeptId)+"%")
