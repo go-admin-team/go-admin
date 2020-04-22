@@ -19,11 +19,13 @@ import (
 func GetMenuList(c *gin.Context) {
 	var Menu models.Menu
 	Menu.MenuName = c.Request.FormValue("menuName")
+	Menu.Visible = c.Request.FormValue("visible")
+	Menu.Title = c.Request.FormValue("title")
 	Menu.DataScope = tools.GetUserIdStr(c)
 	result, err := Menu.SetMenu()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary Menu列表数据
@@ -40,7 +42,7 @@ func GetMenu(c *gin.Context) {
 	data.MenuId = id
 	result, err := data.GetByMenuId()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 func GetMenuTreeRoleselect(c *gin.Context) {
@@ -55,7 +57,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 		menuIds, err = SysRole.GetRoleMeunId()
 		tools.HasError(err, "抱歉未找到相关信息", -1)
 	}
-	app.Custum(c,gin.H{
+	app.Custum(c, gin.H{
 		"code":        200,
 		"menus":       result,
 		"checkedKeys": menuIds,
@@ -75,7 +77,7 @@ func GetMenuTreeelect(c *gin.Context) {
 	var data models.Menu
 	result, err := data.SetMenuLable()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 创建菜单
@@ -100,7 +102,7 @@ func InsertMenu(c *gin.Context) {
 	data.CreateBy = tools.GetUserIdStr(c)
 	result, err := data.Create()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 修改菜单
@@ -121,7 +123,7 @@ func UpdateMenu(c *gin.Context) {
 	tools.HasError(err2, "修改失败", -1)
 	_, err := data.Update(data.MenuId)
 	tools.HasError(err, "", 501)
-	app.OK(c,"","修改成功")
+	app.OK(c, "", "修改成功")
 
 }
 
@@ -138,7 +140,7 @@ func DeleteMenu(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c,"","删除成功")
+	app.OK(c, "", "删除成功")
 }
 
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）
@@ -153,7 +155,7 @@ func GetMenuRole(c *gin.Context) {
 	var Menu models.Menu
 	result, err := Menu.SetMenuRole(tools.GetRoleName(c))
 	tools.HasError(err, "获取失败", 500)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 获取角色对应的菜单id数组
@@ -170,5 +172,5 @@ func GetMenuIDS(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.GetIDS()
 	tools.HasError(err, "获取失败", 500)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
