@@ -32,6 +32,7 @@ func GetSysTableList(c *gin.Context) {
 	}
 
 	data.TBName = c.Request.FormValue("tableName")
+	data.TableComment = c.Request.FormValue("tableComment")
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools2.HasError(err, "", -1)
 
