@@ -28,7 +28,7 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.RequestId())
 	r.Use(middleware.DemoEvn())
 
-	r.GET("/", handler.HelloGoAdmin)
+	r.GET("/", system.HelloWorld)
 	r.Static("/static", "./static")
 	r.GET("/info", handler.Ping)
 
