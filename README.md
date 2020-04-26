@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="320" src="https://raw.githack.com/wenjianzhang/image/master/img/go-admin.svg">
+  <img width="320" src="https://gitee.com/mydearzwj/image/raw/master/img/go-admin.svg">
 </p>
 
 
@@ -16,7 +16,7 @@
 </p>
 
 
-  [English](./README.en.md) | 简体中文
+  [English](https://github.com/wenjianzhang/go-admin/blob/master/README.en.md) | 简体中文
   
 
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
@@ -44,6 +44,8 @@
 - 代码生成工具
 
 - 表单构建工具
+
+- 多命令模式
 
 - TODO: 单元测试
 
@@ -132,8 +134,7 @@ vi ./config/setting.yml (更改isinit和数据库连接)
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin server -c=config/settings.yml -p=8000 -m=dev
-c
+./go-admin server -c config/settings.yml -p 8000 -m dev
 
 ```
 [在线文档](https://wenjianzhang.github.io/go-admin-site)
@@ -165,6 +166,15 @@ env GOOS=linux GOARCH=amd64 go build main.go
 演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
 ## 📈 版本
+
+### 2020-04-23 新功能及优化
+
+1. 添加单服务命令
+2. 添加单数据库数据化命令
+3. 调整项目结构
+3. 部分代码优化
+3. 添加根接口
+4. 其他已知bug的修复
 
 ### 2020-04-13 新功能及优化
 
@@ -211,7 +221,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
   </tr>
   <tr>
     <td>微信</td>
-    <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=1affb445445bd442312fcad9a927007db74a0cd4380bbc08a6c97d2691744869"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流甲号" title="go-admin技术交流甲号"></a>已满</td>
+    <td>此群已满</td>
     <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=0f2bf59f5f2edec6a4550c364242c0641f870aa328e468c4ee4b7dbfb392627b"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流乙号" title="go-admin技术交流乙号"></a></td>
   </tr>
 </table>

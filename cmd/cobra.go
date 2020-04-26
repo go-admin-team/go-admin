@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 	},
 	PersistentPreRunE: func(*cobra.Command, []string) error { return nil },
 	Run: func(cmd *cobra.Command, args []string) {
-		usageStr := `go-admin 0.0.1`
+		usageStr := `go-admin 1.0.0 欢迎使用，可以是用 -h 查看命令`
 		log.Printf("%s\n", usageStr)
 	},
 }
