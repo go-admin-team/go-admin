@@ -15,21 +15,6 @@ var logger = logrus.New()
 // 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 
-	////写入文件
-	//src, err := os.OpenFile(config2.LogConfig.Dir+"/", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-	//if err != nil {
-	//	fmt.Println("err", err)
-	//}
-	//
-	////设置输出
-	//logger.Out = src
-	//
-	////设置日志级别
-	//logger.SetLevel(logrus.DebugLevel)
-	//
-	////设置日志格式
-	//logger.SetFormatter(&logrus.TextFormatter{})
-
 	return func(c *gin.Context) {
 		// 开始时间
 		startTime := time.Now()
