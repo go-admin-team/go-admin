@@ -123,10 +123,10 @@ cd ./go-admin
 go build
 
 # 修改配置
-vi ./config/setting.yml (更改isinit和数据库连接)
+vi ./config/setting.yml 
 
 # 1. 配置文件中修改数据库信息 
-# 注意: settings.database 下对应的配置数据)
+# 注意: settings.database 下对应的配置数据
 # 2. 确认log路径
 
 ```
