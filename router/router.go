@@ -27,6 +27,7 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.RequestId())
 	r.Use(middleware.DemoEvn())
 
+	r.GET("/", system.HelloWorld)
 	r.Static("/static", "./static")
 	r.GET("/info", handler.Ping)
 
@@ -75,6 +76,7 @@ func InitRouter() *gin.Engine {
 	auth := r.Group("/api/v1")
 	auth.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
+
 		auth.GET("/deptList", system.GetDeptList)
 		auth.GET("/deptTree", system.GetDeptTree)
 		auth.GET("/dept/:deptId", system.GetDept)

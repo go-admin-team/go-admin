@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-admin/models"
-	"go-admin/pkg/app"
+	"go-admin/tools/app"
 	"net/http"
 )
 

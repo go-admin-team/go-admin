@@ -3,9 +3,8 @@ package tools
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/models/tools"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	tools2 "go-admin/tools"
+	"go-admin/tools/app"
 	"net/http"
 	"strings"
 )
@@ -16,7 +15,7 @@ import (
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/page [get]
 func GetSysTableList(c *gin.Context) {
 	var data tools.SysTables
@@ -25,16 +24,17 @@ func GetSysTableList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools2.StrToInt(err, size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools2.StrToInt(err, index)
 	}
 
-	data.TableName = c.Request.FormValue("tableName")
+	data.TBName = c.Request.FormValue("tableName")
+	data.TableComment = c.Request.FormValue("tableComment")
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
@@ -52,14 +52,14 @@ func GetSysTableList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 工具 - 生成表
 // @Param configKey path int true "configKey"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/info/{tableId} [get]
 // @Security
 func GetSysTables(c *gin.Context) {
 	var data tools.SysTables
-	data.TableId, _ = utils.StringToInt(c.Param("tableId"))
+	data.TableId, _ = tools2.StringToInt(c.Param("tableId"))
 	result, err := data.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools2.HasError(err, "抱歉未找到相关信息", -1)
 
 	var res app.Response
 	res.Data = result
@@ -84,13 +84,13 @@ func InsertSysTable(c *gin.Context) {
 	var data tools.SysTables
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
-	data.TableName = c.Request.FormValue("tables")
-	data.CreateBy = utils.GetUserIdStr(c)
+	data.TBName = c.Request.FormValue("tables")
+	data.CreateBy = tools2.GetUserIdStr(c)
 
-	dbTable.TableName = data.TableName
+	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get()
 
-	dbColumn.TableName = data.TableName
+	dbColumn.TableName = data.TBName
 	tablenamelist := strings.Split(dbColumn.TableName, "_")
 	for i := 0; i < len(tablenamelist); i++ {
 		strStart := string([]byte(tablenamelist[i])[:1])
@@ -103,7 +103,7 @@ func InsertSysTable(c *gin.Context) {
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList()
-	data.CreateBy = utils.GetUserIdStr(c)
+	data.CreateBy = tools2.GetUserIdStr(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -163,7 +163,7 @@ func InsertSysTable(c *gin.Context) {
 	}
 
 	result, err := data.Create()
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 
 	var res app.Response
 	res.Data = result
@@ -185,10 +185,10 @@ func InsertSysTable(c *gin.Context) {
 func UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
-	pkg.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = utils.GetUserIdStr(c)
+	tools2.HasError(err, "数据解析失败", -1)
+	data.UpdateBy = tools2.GetUserIdStr(c)
 	result, err := data.Update()
-	pkg.HasError(err, "", -1)
+	tools2.HasError(err, "", -1)
 
 	var res app.Response
 	res.Data = result
@@ -205,10 +205,9 @@ func UpdateSysTable(c *gin.Context) {
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
 func DeleteSysTables(c *gin.Context) {
 	var data tools.SysTables
-	id, err := utils.StringToInt(c.Param("tableId"))
-	data.TableId = id
-	_, err = data.Delete()
-	pkg.HasError(err, "删除失败", 500)
+	IDS := tools2.IdsStrToIdsIntGroup("tableId", c)
+	_, err := data.BatchDelete(IDS)
+	tools2.HasError(err, "删除失败", 500)
 	var res app.Response
 	res.Msg = "删除成功"
 	c.JSON(http.StatusOK, res.ReturnOK())

@@ -1,20 +1,36 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"log"
+	"os"
+	"strings"
 )
 
 var cfgDatabase *viper.Viper
 var cfgApplication *viper.Viper
 var cfgJwt *viper.Viper
+var cfgLog *viper.Viper
 
-func init() {
-	viper.SetConfigName("settings")
-	viper.AddConfigPath("./config")
-	err := viper.ReadInConfig()
+//func init() {
+//	InitConfig("settings.dev")
+//}
+
+//载入配置文件
+func ConfigSetup(path string) {
+	viper.SetConfigFile(path)
+	content, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(fmt.Sprintf("Read config file fail: %s", err.Error()))
+	}
+
+
+	//Replace environment variables
+	err = viper.ReadConfig(strings.NewReader(os.ExpandEnv(string(content))))
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Parse config file fail: %s", err.Error()))
 	}
 
 	cfgDatabase = viper.Sub("settings.database")
@@ -34,13 +50,19 @@ func init() {
 		panic("config not found settings.jwt")
 	}
 	JwtConfig = InitJwt(cfgJwt)
+
+	cfgLog = viper.Sub("settings.log")
+	if cfgLog == nil {
+		panic("config not found settings.log")
+	}
+	LogConfig = InitLog(cfgLog)
 }
 
 func SetApplicationIsInit() {
-	SetConfig("./config","settings.application.isInit", false)
+	SetConfig("./config", "settings.application.isInit", false)
 }
 
-func SetConfig(configPath string,key string,value interface{}){
+func SetConfig(configPath string, key string, value interface{}) {
 	viper.AddConfigPath(configPath)
 	viper.Set(key, value)
 	viper.WriteConfig()

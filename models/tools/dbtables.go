@@ -2,8 +2,8 @@ package tools
 
 import (
 	"errors"
-	"go-admin/config"
 	orm "go-admin/database"
+	config2 "go-admin/tools/config"
 )
 
 type DBTables struct {
@@ -20,7 +20,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	var doc []DBTables
 
 	table := orm.Eloquent.Select("*").Table("information_schema.tables")
-	table = table.Where("table_schema= ? ", config.DatabaseConfig.Database)
+	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
 
 	if e.TableName != "" {
 		table = table.Where("TABLE_NAME = ?", e.TableName)
@@ -39,7 +39,7 @@ func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
 
 	table := orm.Eloquent.Select("*").Table("information_schema.tables")
-	table = table.Where("table_schema= ? ", config.DatabaseConfig.Database)
+	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
 	if e.TableName == "" {
 		return doc, errors.New("table name cannot be empty！")
 	}

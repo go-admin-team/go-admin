@@ -2,7 +2,7 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type DictType struct {
@@ -86,7 +86,7 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
 	table = dataPermission.GetDataScope("sys_dict_type", table)
 
 	var count int

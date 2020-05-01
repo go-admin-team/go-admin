@@ -34,7 +34,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Config"
+                            "$ref": "#/definitions/models.SysConfig"
                         }
                     }
                 ],
@@ -73,7 +73,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -128,7 +128,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -182,7 +182,81 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/db/columns/page": {
+            "get": {
+                "description": "数据库表列分页列表 / database table column page list",
+                "tags": [
+                    "工具 / Tools"
+                ],
+                "summary": "分页列表数据 / page list data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tableName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize / 页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageIndex / 页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/db/tables/page": {
+            "get": {
+                "description": "数据库表分页列表 / database table page list",
+                "tags": [
+                    "工具 / Tools"
+                ],
+                "summary": "分页列表数据 / page list data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tableName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize / 页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageIndex / 页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -297,7 +371,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -365,7 +439,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -418,9 +492,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "配置"
+                    "字典数据"
                 ],
-                "summary": "添加配置",
+                "summary": "添加字典数据",
                 "parameters": [
                     {
                         "description": "data",
@@ -429,7 +503,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Config"
+                            "$ref": "#/definitions/models.DictType"
                         }
                     }
                 ],
@@ -491,7 +565,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -522,7 +596,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -577,7 +651,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -703,7 +777,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -734,7 +808,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -861,7 +935,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -939,7 +1013,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1288,7 +1362,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1368,7 +1442,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1410,7 +1484,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1513,7 +1587,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1619,7 +1693,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Config"
+                            "$ref": "#/definitions/models.SysRole"
                         }
                     }
                 ],
@@ -1707,7 +1781,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1736,40 +1810,6 @@
                 "responses": {
                     "200": {
                         "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "获取JSON",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "tags": [
-                    "角色菜单"
-                ],
-                "summary": "创建角色菜单",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "role_id",
-                        "name": "role_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "menu_id",
-                        "name": "menu_id",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -1809,6 +1849,166 @@
                 }
             }
         },
+        "/api/v1/sys/tables/info": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改表结构",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "工具 - 生成表"
+                ],
+                "summary": "修改表结构",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.Dept"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "添加表结构",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "工具 - 生成表"
+                ],
+                "summary": "添加表结构",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tables",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys/tables/info/{tableId}": {
+            "get": {
+                "security": [
+                    {
+                        "": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "工具 - 生成表"
+                ],
+                "summary": "获取配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "configKey",
+                        "name": "configKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除表结构",
+                "tags": [
+                    "工具 - 生成表"
+                ],
+                "summary": "删除表结构",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "tableId",
+                        "name": "tableId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys/tables/page": {
+            "get": {
+                "description": "生成表分页列表",
+                "tags": [
+                    "工具 - 生成表"
+                ],
+                "summary": "分页列表数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tableName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize / 页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageIndex / 页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/sysUser": {
             "get": {
                 "security": [
@@ -1825,7 +2025,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1886,7 +2086,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -1978,43 +2178,6 @@
                 }
             }
         },
-        "/api/v1/tables/page": {
-            "get": {
-                "description": "数据库表分页列表 / database table page list",
-                "tags": [
-                    "工具 / Tools"
-                ],
-                "summary": "分页列表数据 / page list data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "tableName / 数据表名称",
-                        "name": "tableName",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageSize / 页条数",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageIndex / 页码",
-                        "name": "pageIndex",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/user/profile": {
             "get": {
                 "security": [
@@ -2031,7 +2194,7 @@
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "$ref": "#/definitions/models.Response"
+                            "$ref": "#/definitions/app.Response"
                         }
                     }
                 }
@@ -2129,19 +2292,7 @@
                 "summary": "CPU 使用量",
                 "responses": {
                     "200": {
-                        "description": "OK - Load average: 2.39, 2.13, 1.97 | Cores: 2",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "WARNING",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "CRITICAL",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -2213,19 +2364,7 @@
                 "summary": "OS",
                 "responses": {
                     "200": {
-                        "description": "OK - Free space: 455MB (0GB) / 8192MB (8GB) | Used: 5%",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "WARNING",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "CRITICAL",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -2245,19 +2384,7 @@
                 "summary": "内存使用量",
                 "responses": {
                     "200": {
-                        "description": "OK - Free space: 455MB (0GB) / 8192MB (8GB) | Used: 5%",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "WARNING",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "CRITICAL",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -2267,52 +2394,20 @@
         }
     },
     "definitions": {
-        "models.Config": {
+        "app.Response": {
             "type": "object",
             "properties": {
-                "configId": {
-                    "description": "编码",
-                    "type": "integer"
+                "code": {
+                    "description": "代码",
+                    "type": "integer",
+                    "example": 200
                 },
-                "configKey": {
-                    "description": "参数键名",
-                    "type": "string"
+                "data": {
+                    "description": "数据集",
+                    "type": "object"
                 },
-                "configName": {
-                    "description": "参数名称",
-                    "type": "string"
-                },
-                "configType": {
-                    "description": "是否系统内置",
-                    "type": "string"
-                },
-                "configValue": {
-                    "description": "参数键值",
-                    "type": "string"
-                },
-                "createBy": {
-                    "type": "string"
-                },
-                "createTime": {
-                    "type": "string"
-                },
-                "dataScope": {
-                    "type": "string"
-                },
-                "isDel": {
-                    "type": "string"
-                },
-                "params": {
-                    "type": "string"
-                },
-                "remark": {
-                    "description": "备注",
-                    "type": "string"
-                },
-                "updateBy": {
-                    "type": "string"
-                },
-                "updateTime": {
+                "msg": {
+                    "description": "消息",
                     "type": "string"
                 }
             }
@@ -2329,30 +2424,28 @@
                 "createBy": {
                     "type": "string"
                 },
-                "createTime": {
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
                     "type": "string"
                 },
-                "deptId": {
-                    "description": "部门编码",
-                    "type": "integer",
-                    "x-description": "标示",
-                    "example": 1
-                },
-                "deptath": {
+                "deletedAt": {
                     "type": "string"
                 },
-                "deptname": {
+                "deptId": {
+                    "description": "部门编码",
+                    "type": "integer"
+                },
+                "deptName": {
                     "description": "部门名称",
+                    "type": "string"
+                },
+                "deptPath": {
                     "type": "string"
                 },
                 "email": {
                     "description": "邮箱",
-                    "type": "string"
-                },
-                "isDel": {
                     "type": "string"
                 },
                 "leader": {
@@ -2362,7 +2455,7 @@
                 "params": {
                     "type": "string"
                 },
-                "parent_id": {
+                "parentId": {
                     "description": "上级部门",
                     "type": "integer"
                 },
@@ -2381,7 +2474,7 @@
                 "updateBy": {
                     "type": "string"
                 },
-                "updateTime": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2393,16 +2486,17 @@
                     "description": "创建者",
                     "type": "string"
                 },
-                "createTime": {
-                    "description": "创建时间",
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
                     "type": "string"
                 },
+                "deletedAt": {
+                    "type": "string"
+                },
                 "dictId": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "integer"
                 },
                 "dictName": {
                     "description": "字典名称",
@@ -2410,9 +2504,6 @@
                 },
                 "dictType": {
                     "description": "字典类型",
-                    "type": "string"
-                },
-                "isDel": {
                     "type": "string"
                 },
                 "params": {
@@ -2430,8 +2521,7 @@
                     "description": "更新者",
                     "type": "string"
                 },
-                "updateTime": {
-                    "description": "更新时间",
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2470,12 +2560,14 @@
                     "description": "创建人",
                     "type": "string"
                 },
-                "createTime": {
-                    "description": "创建时间",
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
                     "description": "数据",
+                    "type": "string"
+                },
+                "deletedAt": {
                     "type": "string"
                 },
                 "infoId": {
@@ -2484,10 +2576,6 @@
                 },
                 "ipaddr": {
                     "description": "ip地址",
-                    "type": "string"
-                },
-                "isDel": {
-                    "description": "是否删除",
                     "type": "string"
                 },
                 "loginLocation": {
@@ -2506,7 +2594,6 @@
                     "type": "string"
                 },
                 "params": {
-                    "description": "参数",
                     "type": "string"
                 },
                 "platform": {
@@ -2525,11 +2612,10 @@
                     "description": "更新者",
                     "type": "string"
                 },
-                "updateTime": {
-                    "description": "更新时间",
+                "updatedAt": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "description": "用户名",
                     "type": "string"
                 }
@@ -2556,16 +2642,19 @@
                 "createBy": {
                     "type": "string"
                 },
-                "createTime": {
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
                     "type": "string"
                 },
+                "deletedAt": {
+                    "type": "string"
+                },
                 "icon": {
                     "type": "string"
                 },
-                "isDel": {
+                "isFrame": {
                     "type": "string"
                 },
                 "is_select": {
@@ -2610,7 +2699,7 @@
                 "updateBy": {
                     "type": "string"
                 },
-                "updateTime": {
+                "updatedAt": {
                     "type": "string"
                 },
                 "visible": {
@@ -2624,16 +2713,14 @@
                 "createBy": {
                     "type": "string"
                 },
-                "createTime": {
-                    "description": "创建时间",
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
                     "type": "string"
                 },
-                "isDel": {
-                    "description": "是否删除",
-                    "type": "integer"
+                "deletedAt": {
+                    "type": "string"
                 },
                 "params": {
                     "type": "string"
@@ -2644,9 +2731,7 @@
                 },
                 "postId": {
                     "description": "岗位编号",
-                    "type": "integer",
-                    "x-description": "标示",
-                    "example": 1
+                    "type": "integer"
                 },
                 "postName": {
                     "description": "岗位名称",
@@ -2667,26 +2752,57 @@
                 "updateBy": {
                     "type": "string"
                 },
-                "updateTime": {
-                    "description": "最后修改时间",
+                "updatedAt": {
                     "type": "string"
                 }
             }
         },
-        "models.Response": {
+        "models.SysConfig": {
             "type": "object",
             "properties": {
-                "code": {
-                    "description": "代码",
-                    "type": "integer",
-                    "example": 200
+                "configId": {
+                    "description": "编码",
+                    "type": "integer"
                 },
-                "data": {
-                    "description": "数据集",
-                    "type": "object"
+                "configKey": {
+                    "description": "参数键名",
+                    "type": "string"
                 },
-                "msg": {
-                    "description": "错误消息",
+                "configName": {
+                    "description": "参数名称",
+                    "type": "string"
+                },
+                "configType": {
+                    "description": "是否系统内置",
+                    "type": "string"
+                },
+                "configValue": {
+                    "description": "参数键值",
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "string"
+                },
+                "remark": {
+                    "description": "备注",
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2705,20 +2821,18 @@
                     "description": "创建人",
                     "type": "string"
                 },
-                "createTime": {
-                    "description": "创建时间",
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
                     "description": "数据",
                     "type": "string"
                 },
-                "deptName": {
-                    "description": "部门名称",
+                "deletedAt": {
                     "type": "string"
                 },
-                "isDel": {
-                    "description": "是否删除",
+                "deptName": {
+                    "description": "部门名称",
                     "type": "string"
                 },
                 "jsonResult": {
@@ -2789,12 +2903,11 @@
                     "description": "更新者",
                     "type": "string"
                 },
-                "updateTime": {
-                    "description": "更新时间",
+                "updatedAt": {
                     "type": "string"
                 },
                 "userAgent": {
-                    "description": "us",
+                    "description": "ua",
                     "type": "string"
                 }
             }
@@ -2808,10 +2921,13 @@
                 "createBy": {
                     "type": "string"
                 },
-                "createTime": {
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
+                    "type": "string"
+                },
+                "deletedAt": {
                     "type": "string"
                 },
                 "deptIds": {
@@ -2821,9 +2937,6 @@
                     }
                 },
                 "flag": {
-                    "type": "string"
-                },
-                "isDel": {
                     "type": "string"
                 },
                 "menuIds": {
@@ -2861,7 +2974,7 @@
                 "updateBy": {
                     "type": "string"
                 },
-                "updateTime": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2876,11 +2989,13 @@
                 "createBy": {
                     "type": "string"
                 },
-                "createTime": {
-                    "description": "创建时间",
+                "createdAt": {
                     "type": "string"
                 },
                 "dataScope": {
+                    "type": "string"
+                },
+                "deletedAt": {
                     "type": "string"
                 },
                 "deptId": {
@@ -2889,9 +3004,6 @@
                 },
                 "email": {
                     "description": "邮箱",
-                    "type": "string"
-                },
-                "isDel": {
                     "type": "string"
                 },
                 "nickName": {
@@ -2935,8 +3047,7 @@
                 "updateBy": {
                     "type": "string"
                 },
-                "updateTime": {
-                    "description": "修改时间",
+                "updatedAt": {
                     "type": "string"
                 },
                 "userId": {
