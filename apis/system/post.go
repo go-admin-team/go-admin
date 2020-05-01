@@ -13,7 +13,7 @@ import (
 // @Param name query string false "name"
 // @Param id query string false "id"
 // @Param position query string false "position"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
 // @Security
 func GetPostList(c *gin.Context) {
@@ -45,7 +45,7 @@ func GetPostList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 字典数据
 // @Param postId path int true "postId"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
 // @Security
 func GetPost(c *gin.Context) {

@@ -15,7 +15,7 @@ import (
 // @Param name query string false "name"
 // @Param id query string false "id"
 // @Param position query string false "position"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/deptList [get]
 // @Security
 func GetDeptList(c *gin.Context) {
@@ -44,7 +44,7 @@ func GetDeptTree(c *gin.Context) {
 // @Tags 部门
 // @Param deptId path string false "deptId"
 // @Param position query string false "position"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept/{deptId} [get]
 // @Security
 func GetDept(c *gin.Context) {

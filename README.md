@@ -76,7 +76,6 @@ settings:
     mode: dev  # dev开发环境 test测试环境 prod线上环境；当 mode:demo 时，GET以外的请求操作提示
     demomsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
     host: 0.0.0.0  # 主机ip 或者域名，默认0.0.0.0
-    isinit: false  # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
     # 服务名称
     name: go-admin   
     # 服务端口
@@ -111,7 +110,7 @@ settings:
 
 ## 📦 本地开发
 
-首次启动说明
+### 首次启动说明
 
 ```bash
 # 获取代码
@@ -128,9 +127,14 @@ vi ./config/setting.yml (更改isinit和数据库连接)
 
 # 1. 配置文件中修改数据库信息 
 # 注意: settings.database 下对应的配置数据)
-# 2. 确认数据库初始化参数 
-# 注意: settings.application.isinit 如果是首次启动，请把当前值设置成true，系统会自动初始化数据库结构以及基本的数据信息；
-# 3. 确认log路径
+# 2. 确认log路径
+
+```
+
+### 初始化数据库，以及服务启动
+```
+# 首次配置需要初始化数据库资源信息
+./go-admin migrate -c config/settings.yml -m dev
 
 
 # 启动项目，也可以用IDE进行调试
@@ -140,17 +144,15 @@ vi ./config/setting.yml (更改isinit和数据库连接)
 [在线文档](https://wenjianzhang.github.io/go-admin-site)
 
 
-文档生成
+### 文档生成
 ```bash
 swag init  
-```
 
-如果没有swag命令 go get安装一下即可
-```bash
+# 如果没有swag命令 go get安装一下即可
 go get -u github.com/swaggo/swag/cmd/swag
 ```
 
-交叉编译
+### 交叉编译
 ```bash
 env GOOS=windows GOARCH=amd64 go build main.go
 

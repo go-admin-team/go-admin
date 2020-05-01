@@ -17,7 +17,7 @@ import (
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/list [get]
 // @Security
 func GetDictTypeList(c *gin.Context) {
@@ -57,7 +57,7 @@ func GetDictTypeList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 字典类型
 // @Param dictId path int true "字典类型编码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/{dictId} [get]
 // @Security
 func GetDictType(c *gin.Context) {

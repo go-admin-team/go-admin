@@ -21,8 +21,6 @@ var (
 	config string
 	port   string
 	mode   string
-	//auto tls
-	//StartCmd : set up restful api server
 	StartCmd = &cobra.Command{
 		Use:     "server",
 		Short:   "Start API server",

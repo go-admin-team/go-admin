@@ -16,7 +16,7 @@ import (
 // @Param roleKey query string false "roleKey"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/rolelist [get]
 // @Security
 func GetRoleList(c *gin.Context) {
@@ -68,7 +68,7 @@ func GetRole(c *gin.Context) {
 // @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Config true "data"
+// @Param data body models.SysRole true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/role [post]

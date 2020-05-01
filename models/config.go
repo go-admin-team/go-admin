@@ -3,6 +3,7 @@ package models
 import (
 	orm "go-admin/database"
 	"go-admin/tools"
+	_ "time"
 )
 
 type SysConfig struct {

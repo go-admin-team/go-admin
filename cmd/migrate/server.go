@@ -41,19 +41,14 @@ func run() {
 	//3. 初始化数据库链接
 	database.Setup()
 	//4. 数据库迁移
-	gorm.AutoMigrate(orm.Eloquent)
+	_ = gorm.AutoMigrate(orm.Eloquent)
 	log.Println("数据库结构初始化成功！")
 	//5. 数据初始化完成
-	if config2.ApplicationConfig.IsInit {
-		if err := models.InitDb(); err != nil {
-			log.Fatal("数据库基础数据初始化失败！")
-		} else {
-			config2.SetApplicationIsInit()
-		}
-		log.Println("数据库基础数据初始化成功！")
+	if err := models.InitDb(); err != nil {
+		log.Fatal("数据库基础数据初始化失败！")
 	}
 
-	usage = `finish`
+	usage = `数据库基础数据初始化成功`
 	fmt.Println(usage)
 }
 
