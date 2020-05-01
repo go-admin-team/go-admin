@@ -10,6 +10,7 @@ import (
 	"go-admin/router"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -76,7 +77,11 @@ func run() error {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
-	log.Println("Server Run ", config2.ApplicationConfig.Host+":"+config2.ApplicationConfig.Port)
+	content, _ := ioutil.ReadFile("./static/go-admin.txt")
+	log.Println(string(content))
+	log.Println("Server Run http://127.0.0.1:"+config2.ApplicationConfig.Port+"/")
+	log.Println("Swagger URL http://127.0.0.1:"+config2.ApplicationConfig.Port+"/swagger/index.html")
+
 	log.Println("Enter Control + C Shutdown Server")
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
