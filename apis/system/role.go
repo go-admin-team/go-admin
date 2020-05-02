@@ -77,6 +77,9 @@ func InsertRole(c *gin.Context) {
 	data.CreateBy = tools.GetUserIdStr(c)
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "", 500)
+	if len(data.DeptIds) > 0 {
+		data.Params = tools.IntArrayToString(data.DeptIds)
+	}
 	id, err := data.Insert()
 	data.RoleId = id
 	tools.HasError(err, "", -1)
@@ -100,13 +103,15 @@ func UpdateRole(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", -1)
+	if len(data.DeptIds) > 0 {
+		data.Params = tools.IntArrayToString(data.DeptIds)
+	}
 	result, err := data.Update(data.RoleId)
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(data.RoleId)
 	tools.HasError(err, "添加失败1", -1)
 	_, err2 := t.Insert(data.RoleId, data.MenuIds)
 	tools.HasError(err2, "添加失败2", -1)
-
 	app.OK(c, result, "修改成功")
 }
 

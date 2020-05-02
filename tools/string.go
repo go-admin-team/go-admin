@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -15,6 +16,15 @@ func StringToInt64(e string) (int64, error) {
 
 func StringToInt(e string) (int, error) {
 	return strconv.Atoi(e)
+}
+
+func StringToIntArray(e string) ([]int, error) {
+	strList:=strings.Split(e,",")
+	array:= make([]int,len(strList))
+	for i:=0;i< len(strList);i++  {
+		array[i],_=strconv.Atoi(strList[i])
+	}
+	return array,nil
 }
 
 
