@@ -25,6 +25,8 @@
 
 [在线文档](https://wenjianzhang.github.io/go-admin-site)
 
+[本地启动视频教程](https://www.bilibili.com/video/BV1z5411x7JG#reply2826286428)
+
 ## ✨ 特性
 
 - 遵循 RESTful API 设计规范
