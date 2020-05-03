@@ -6,7 +6,7 @@ import (
     "go-admin/models"
     "go-admin/tools"
     "go-admin/tools/app"
-    "go-admin/tools/msg"
+    "go-admin/tools/app/msg"
 )
 
 func Get{{.ClassName}}List(c *gin.Context) {
