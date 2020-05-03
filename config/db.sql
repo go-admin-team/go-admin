@@ -435,9 +435,9 @@ INSERT INTO `sys_post` VALUES (3, '首席运营官', 'COO', 3, 0, '测试工程�
 COMMIT;
 
 BEGIN;
-INSERT INTO `sys_role` VALUES (1, '系统管理员', 0, 'admin', 1, NULL, '1', NULL, NULL, '0', '2020-04-11 15:52:48', '2020-05-03 21:35:17', NULL, NULL);
-INSERT INTO `sys_role` VALUES (2, '普通角色', 0, 'common', 2, NULL, '1', NULL, NULL, '0', '2020-04-11 15:52:48', '2020-05-03 21:32:59', NULL, '2');
-INSERT INTO `sys_role` VALUES (3, '测试角色', 0, 'Tester', 3, '', '1', '', '', '0', '2020-04-11 15:52:48', '2020-04-12 14:10:52', NULL, NULL);
+INSERT INTO `sys_role` VALUES (1, '系统管理员', 0, 'admin', 1, NULL, '1', NULL, NULL, '0', NULL, '2020-04-11 15:52:48', '2020-05-03 21:35:17', NULL);
+INSERT INTO `sys_role` VALUES (2, '普通角色', 0, 'common', 2, NULL, '1', NULL, NULL, '0', '2', '2020-04-11 15:52:48', '2020-05-03 21:32:59', NULL);
+INSERT INTO `sys_role` VALUES (3, '测试角色', 0, 'Tester', 3, '', '1', NULL, NULL, '0', NULL, '2020-04-11 15:52:48', '2020-04-12 14:10:52', NULL);
 COMMIT;
 
 BEGIN;
