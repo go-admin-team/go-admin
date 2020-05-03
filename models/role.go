@@ -16,7 +16,7 @@ type SysRole struct {
 	UpdateBy  string  `json:"updateBy" gorm:"type:varchar(128);"`     //
 	Remark    string  `json:"remark" gorm:"type:varchar(255);"`       //备注
 	Admin     bool    `json:"admin" gorm:"type:char(1);"`
-	DataScope string  `json:"dataScope" gorm:"-"`
+	DataScope string `json:"dataScope" gorm:"type:varchar(128);"`
 	Params    string  `json:"params" gorm:"-"`
 	MenuIds   []int `json:"menuIds" gorm:"-"`
 	DeptIds   []int `json:"deptIds" gorm:"-"`
