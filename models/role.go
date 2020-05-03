@@ -92,6 +92,7 @@ func (role *SysRole) GetList() (SysRole []SysRole, err error) {
 	return
 }
 
+// 获取角色对应的菜单ids
 func (role *SysRole) GetRoleMeunId() ([]int, error) {
 	menuIds := make([]int, 0)
 	menuList := make([]MenuIdList, 0)
