@@ -2,8 +2,8 @@ package models
 
 import (
     orm "go-admin/database"
-    "go-admin/utils"
-    "time"
+    "go-admin/tools"
+    _ "time"
 )
 
 type {{.ClassName}} struct {
@@ -11,6 +11,9 @@ type {{.ClassName}} struct {
     {{$x := .Pk}}
     {{if ($x)}}{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key"`{{else}}{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};"`{{end}} // {{.ColumnComment}}
 {{- end }}
+    DataScope   string `json:"dataScope" gorm:"-"`
+    Params      string `json:"params"  gorm:"-"`
+    BaseModel
 }
 
 // 创建{{.ClassName}}
@@ -46,7 +49,7 @@ func (e *{{.ClassName}}) Get() ({{.ClassName}}, error) {
 }
 
 // 获取{{.ClassName}}带分页
-func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}}, int32, error) {
+func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}}, int, error) {
     var doc []{{.ClassName}}
 
     table := orm.Eloquent.Select("*").Table("{{.TableName}}")
@@ -59,12 +62,12 @@ func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}},
     {{ end -}}
     {{ end }}
 
-    // 数据权限控制
+    // 数据权限控制(如果不需要数据权限请将此处去掉)
     dataPermission := new(DataPermission)
-    dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
+    dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
     table = dataPermission.GetDataScope("{{.TableName}}", table)
 
-    var count int32
+    var count int
     table = table.Offset((pageIndex - 1) * pageSize).Limit(pageSize)
     if err := table.Find(&doc).Error; err != nil {
         return nil, 0, err
