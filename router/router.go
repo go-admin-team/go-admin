@@ -69,6 +69,7 @@ func InitRouter() *gin.Engine {
 		apiv1.DELETE("/sys/tables/info/:tableId", DeleteSysTables)
 		apiv1.GET("/sys/tables/info/:tableId", GetSysTables)
 		apiv1.GET("/gen/preview/:tableId", Preview)
+		apiv1.GET("/gen/gencode/:tableId", GenCode)
 		apiv1.GET("/menuTreeselect", system.GetMenuTreeelect)
 		apiv1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
