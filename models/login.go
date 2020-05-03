@@ -1,6 +1,8 @@
 package models
 
 import (
+	"github.com/jinzhu/gorm"
+        "golang.org/x/crypto/bcrypt"
 	orm "go-admin/database"
 	"go-admin/pkg"
 	"log"
@@ -18,7 +20,7 @@ func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 
 	e = orm.Eloquent.Table("sys_user").Where("username = ? ", u.Username).Find(&user).Error
 	if e != nil {
-		if strings.Contains(e.Error(), "record not found") {
+		if e == gorm.ErrRecordNotFound {
 			pkg.HasError(e, "账号或密码错误(代码204)", 500)
 		}
 		log.Print(e)
@@ -26,7 +28,7 @@ func (u *Login) GetUser() (user SysUser, role SysRole, e error) {
 	}
 	_, e = pkg.CompareHashAndPassword(user.Password, u.Password)
 	if e != nil {
-		if strings.Contains(e.Error(), "hashedPassword is not the hash of the given password") {
+		if e == bcrypt.ErrMismatchedHashAndPassword {
 			pkg.HasError(e, "账号或密码错误(代码201)", 500)
 		}
 		log.Print(e)
