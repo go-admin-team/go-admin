@@ -6,8 +6,7 @@ import (
     "go-admin/models"
     "go-admin/tools"
     "go-admin/tools/app"
-    "go-admin/tools/app/msg"
-    "net/http"
+    "go-admin/tools/msg"
 )
 
 func Get{{.ClassName}}List(c *gin.Context) {
@@ -71,6 +70,6 @@ func Delete{{.ClassName}}(c *gin.Context) {
     id, err := tools.StringToInt(c.Param("{{.PkJsonField}}"))
     data.UpdateBy = tools.GetUserIdStr(c)
     _, err = data.Delete(id)
-    tools.HasError(err, "修改失败", 500)
-    app.OK(c, result, "删除成功")
+    tools.HasError(err, msg.DeletedFail, 500)
+    app.OK(c, nil, msg.DeletedSuccess)
 }

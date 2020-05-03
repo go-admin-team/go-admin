@@ -143,6 +143,6 @@ func DeleteConfig(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	data.ConfigId = id
 	_, err = data.Delete()
-	tools.HasError(err, "修改失败", 500)
+	tools.HasError(err, msg.DeletedFail, 500)
 	app.OK(c, nil, msg.DeletedSuccess)
 }
