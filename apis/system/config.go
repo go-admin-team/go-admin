@@ -139,10 +139,9 @@ func UpdateConfig(c *gin.Context) {
 // @Router /api/v1/config/{configId} [delete]
 func DeleteConfig(c *gin.Context) {
 	var data models.SysConfig
-	id, err := tools.StringToInt(c.Param("configId"))
 	data.UpdateBy = tools.GetUserIdStr(c)
-	data.ConfigId = id
-	_, err = data.Delete()
-	tools.HasError(err, msg.DeletedFail, 500)
-	app.OK(c, nil, msg.DeletedSuccess)
+	IDS := tools.IdsStrToIdsIntGroup("configId", c)
+	result, err := data.BatchDelete(IDS)
+	tools.HasError(err, "修改失败", 500)
+	app.OK(c, result, msg.DeletedSuccess)
 }
