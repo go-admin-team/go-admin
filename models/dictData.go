@@ -131,3 +131,12 @@ func (e *DictData) Delete(id int) (success bool, err error) {
 	success = true
 	return
 }
+
+func (e *DictData) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("dict_code in (?)", id).Delete(&DictData{}).Error; err != nil {
+		return
+	}
+	Result = true
+	return
+}
+
