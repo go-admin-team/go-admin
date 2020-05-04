@@ -39,5 +39,5 @@ func GetInfo(c *gin.Context) {
 	}
 	mp["name"] = user.NickName
 
-	app.OK(c,mp,"")
+	app.OK(c, mp, "")
 }

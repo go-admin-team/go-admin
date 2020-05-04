@@ -337,9 +337,6 @@ INSERT INTO `sys_menu` VALUES (46, NULL, '删除用户', NULL, '/api/v1/sysuser/
 INSERT INTO `sys_menu` VALUES (50, 'Mangent', '基础信息', 'network', '/mangent', '/0/50', 'M', '无', '', 0, '1', '', 'Layout', 2, '0', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (51, 'Menu', '菜单管理', 'tree-table', 'menu', '/0/2/51', 'C', '无', 'system:sysmenu:list', 2, '1', '', '/menu/index', 3, '0', '1', '1', 0, '2020-04-11 15:52:48', '2020-04-12 11:16:30', NULL);
 INSERT INTO `sys_menu` VALUES (52, 'Role', '角色管理', 'peoples', 'role', '/0/2/52', 'C', '无', 'system:sysrole:list', 2, '1', '', '/role/index', 2, '0', '1', '1', 0, '2020-04-11 15:52:48', '2020-04-12 11:16:19', NULL);
-INSERT INTO `sys_menu` VALUES (53, 'Doctor', '医生管理', 'pass', 'doctor', '/0/50/53', 'C', '无', '', 50, '1', '', '/doctor/index', 0, '0', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (54, 'Calendar', '排班管理', 'calendar', 'calendar', '/0/50/54', 'C', '无', '', 50, '1', '', '/calendar/index', 0, '0', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (55, 'Menber', '会员管理', 'vip', 'member', '/0/50/55', 'C', '无', '', 50, '1', '', '/member/index', 0, '0', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (56, 'Dept', '部门管理', 'tree', 'dept', '/0/2/56', 'C', '无', 'system:sysdept:list', 2, '0', '', '/dept/index', 4, '0', '1', '1', 0, '2020-04-11 15:52:48', '2020-04-12 11:16:47', NULL);
 INSERT INTO `sys_menu` VALUES (57, 'post', '岗位管理', 'pass', 'post', '/0/2/57', 'C', '无', 'system:syspost:list', 2, '0', '', '/post/index', 5, '0', '1', '1', 0, '2020-04-11 15:52:48', '2020-04-12 11:16:53', NULL);
 INSERT INTO `sys_menu` VALUES (58, 'Dict', '字典管理', 'education', 'dict', '/0/2/58', 'C', '无', 'system:sysdicttype:list', 2, '0', '', '/dict/index', 6, '0', '1', '1', 0, '2020-04-11 15:52:48', '2020-04-12 11:17:04', NULL);
@@ -382,11 +379,6 @@ INSERT INTO `sys_menu` VALUES (94, NULL, '获取菜单树', 'bug', '/api/v1/menu
 INSERT INTO `sys_menu` VALUES (95, NULL, '获取角色菜单', 'bug', '/api/v1/rolemenu', '/0/63/205/95', 'A', 'GET', NULL, 205, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (96, NULL, '创建角色菜单', 'bug', '/api/v1/rolemenu', '/0/63/205/96', 'A', 'POST', NULL, 205, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (97, NULL, '删除用户菜单数据', 'bug', '/api/v1/rolemenu/:id', '/0/63/205/97', 'A', 'DELETE', NULL, 205, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (98, NULL, '医生获取', 'bug', '/api/v1/doctor', '/0/63/208/98', 'A', 'GET', NULL, 208, NULL, NULL, NULL, 1, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (99, NULL, '创建医生', 'bug', '/api/v1/doctor', '/0/63/208/99', 'A', 'POST', NULL, 208, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (100, NULL, '修改医生', 'bug', '/api/v1/doctor/:id', '/0/63/208/100', 'A', 'PUT', NULL, 208, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (101, NULL, '删除医生', 'bug', '/api/v1/doctor/:id', '/0/63/208/101', 'A', 'DELETE', NULL, 208, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (102, NULL, '添加医生头像', 'bug', '/api/v1/doctor/pic/', '/0/63/208/102', 'A', 'POST', NULL, 208, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (103, NULL, '部门菜单列表', 'bug', '/api/v1/deptList', '/0/63/203/103', 'A', 'GET', NULL, 203, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (104, NULL, '根据id获取部门信息', 'bug', '/api/v1/dept/:id', '/0/63/203/104', 'A', 'GET', NULL, 203, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (105, NULL, '创建部门', 'bug', '/api/v1/dept', '/0/63/203/105', 'A', 'POST', NULL, 203, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
@@ -433,10 +425,6 @@ INSERT INTO `sys_menu` VALUES (203, '', '部门管理', 'tree', '', '/0/63/203',
 INSERT INTO `sys_menu` VALUES (204, '', '岗位管理', 'pass', '', '/0/63/204', 'C', '', '', 63, '0', '', '', 1, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (205, '', '角色菜单管理', 'nested', '', '/0/63/205', 'C', '', '', 63, '0', '', '', 1, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (206, '', '数据', '', '', '/0/63/69/206', 'C', 'PUT', '', 69, '0', '', '', 2, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (207, '', '会员管理', 'vip', '', '/0/63/207', 'C', 'DELETE', '', 63, '0', '', '', 1, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (208, '', '医生管理', 'theme', '', '/0/63/208', 'C', '', '', 63, '0', '', '', 1, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (209, '', '订单管理', 'tab', '', '/0/63/209', 'M', '', '', 63, '0', '', '', 1, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (210, '', '排班管理', 'calendar', '', '/0/63/210', 'C', 'DELETE', '', 63, '0', '', '', 1, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (211, 'Log', '日志管理', 'log', '/log', '/0/2/211', 'M', '', '', 2, '0', '', '/log/index', 8, '0', '1', '1', 0, '2020-04-11 15:52:48', '2020-04-12 11:15:32', NULL);
 INSERT INTO `sys_menu` VALUES (212, 'LoginLog', '登录日志', 'logininfor', '/loginlog', '/0/2/211/212', 'C', '', 'system:sysloginlog:list', 211, '0', '', '/loginlog/index', 1, '0', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (213, NULL, '获取登录日志', 'bug', '/api/v1/loginloglist', '/0/63/214/213', 'A', 'GET', NULL, 214, NULL, NULL, NULL, 0, '1', '1', '1', 0, '2020-04-11 15:52:48', NULL, NULL);

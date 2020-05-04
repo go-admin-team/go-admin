@@ -6,15 +6,15 @@ import (
 )
 
 type SysTables struct {
-	TableId             int        `gorm:"primary_key;auto_increment" json:"tableId"` //表编码
-	TableName           string       `gorm:"type:varchar(255);" json:"tableName"`         //表名称
-	TableComment        string       `gorm:"type:varchar(255);" json:"tableComment"`   //表备注
-	ClassName           string       `gorm:"type:varchar(255);" json:"className"`         //类名
+	TableId             int          `gorm:"primary_key;auto_increment" json:"tableId"`             //表编码
+	TBName              string       `gorm:"column:table_name;type:varchar(255);" json:"tableName"` //表名称
+	TableComment        string       `gorm:"type:varchar(255);" json:"tableComment"`                //表备注
+	ClassName           string       `gorm:"type:varchar(255);" json:"className"`                   //类名
 	TplCategory         string       `gorm:"type:varchar(255);" json:"tplCategory"`
 	PackageName         string       `gorm:"type:varchar(255);" json:"packageName"` //包名
-	ModuleName          string       `gorm:"type:varchar(255);" json:"moduleName"`   //模块名
+	ModuleName          string       `gorm:"type:varchar(255);" json:"moduleName"`  //模块名
 	BusinessName        string       `gorm:"type:varchar(255);" json:"businessName"`
-	FunctionName        string       `gorm:"type:varchar(255);" json:"functionName"`     //功能名称
+	FunctionName        string       `gorm:"type:varchar(255);" json:"functionName"`   //功能名称
 	FunctionAuthor      string       `gorm:"type:varchar(255);" json:"functionAuthor"` //功能作者
 	PkColumn            string       `gorm:"type:varchar(255);" json:"pkColumn"`
 	PkGoField           string       `gorm:"type:varchar(255);" json:"pkGoField"`
@@ -38,6 +38,10 @@ type SysTables struct {
 	models.BaseModel
 }
 
+func (SysTables) TableName() string {
+	return "sys_tables"
+}
+
 type Params struct {
 	TreeCode       string `gorm:"-" json:"treeCode"`
 	TreeParentCode string `gorm:"-" json:"treeParentCode"`
@@ -49,8 +53,8 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, erro
 
 	table := orm.Eloquent.Select("*").Table("sys_tables")
 
-	if e.TableName != "" {
-		table = table.Where("table_name = ?", e.TableName)
+	if e.TBName != "" {
+		table = table.Where("table_name = ?", e.TBName)
 	}
 	if e.TableComment != "" {
 		table = table.Where("table_comment = ?", e.TableComment)
@@ -70,8 +74,8 @@ func (e *SysTables) Get() (SysTables, error) {
 	var err error
 	table := orm.Eloquent.Select("*").Table("sys_tables")
 
-	if e.TableName != "" {
-		table = table.Where("table_name = ?", e.TableName)
+	if e.TBName != "" {
+		table = table.Where("table_name = ?", e.TBName)
 	}
 	if e.TableId != 0 {
 		table = table.Where("table_id = ?", e.TableId)
@@ -136,5 +140,13 @@ func (e *SysTables) Delete() (success bool, err error) {
 		return
 	}
 	success = true
+	return
+}
+
+func (e *SysTables) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
+		return
+	}
+	Result = true
 	return
 }

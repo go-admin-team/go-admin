@@ -14,7 +14,7 @@ import (
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/columns/page [get]
 func GetDBColumnList(c *gin.Context) {
 	var data tools.DBColumns
@@ -31,7 +31,7 @@ func GetDBColumnList(c *gin.Context) {
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
-	tools2.Assert(data.TableName=="","table name cannot be empty！",500)
+	tools2.Assert(data.TableName == "", "table name cannot be empty！", 500)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools2.HasError(err, "", -1)
 

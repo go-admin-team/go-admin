@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"go-admin/models"
@@ -15,21 +14,6 @@ var logger = logrus.New()
 
 // 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
-
-	////写入文件
-	//src, err := os.OpenFile(config2.LogConfig.Dir+"/", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-	//if err != nil {
-	//	fmt.Println("err", err)
-	//}
-	//
-	////设置输出
-	//logger.Out = src
-	//
-	////设置日志级别
-	//logger.SetLevel(logrus.DebugLevel)
-	//
-	////设置日志格式
-	//logger.SetFormatter(&logrus.TextFormatter{})
 
 	return func(c *gin.Context) {
 		// 开始时间
@@ -57,24 +41,16 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		logger.Infof(" %3d  %13v  %15s  %s  %s \r\n",
+		logger.Infof("%s [%s] %3d %13v %15s %s %s \r\n",
+			startTime.Format("2006-01-02 15:04:05.9999"),
+			strings.ToUpper(logger.Level.String()),
 			statusCode,
 			latencyTime,
 			clientIP,
 			reqMethod,
 			reqUri,
 		)
-		logger.Infoln("-")
-		fmt.Println(
-			startTime.Format("\n2006-01-02 15:04:05.9999"),
-			"[INFO]",
-			reqMethod,
-			reqUri,
-			statusCode,
-			latencyTime,
-			reqUri,
-			clientIP,
-		)
+
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" {
 			menu := models.Menu{}
 			menu.Path = reqUri

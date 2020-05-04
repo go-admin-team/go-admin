@@ -28,6 +28,7 @@ require (
 	github.com/shirou/gopsutil v2.20.3+incompatible
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v1.0.0
+	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.6.2
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5

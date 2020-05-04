@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -17,9 +18,22 @@ func StringToInt(e string) (int, error) {
 	return strconv.Atoi(e)
 }
 
+func StringToIntArray(e string) ([]int, error) {
+	strList:=strings.Split(e,",")
+	array:= make([]int,len(strList))
+	for i:=0;i< len(strList);i++  {
+		array[i],_=strconv.Atoi(strList[i])
+	}
+	return array,nil
+}
+
 
 func GetCurrntTimeStr() string {
 	return time.Now().Format("2006/01/02 15:04:05")
+}
+
+func GetCurrntTimeStr2() string {
+	return time.Now().Format("20060102150405")
 }
 
 func GetCurrntTime() time.Time {

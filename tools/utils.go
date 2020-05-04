@@ -33,7 +33,7 @@ func Assert(condition bool, msg string, code ...int) {
 		if len(code) > 0 {
 			statusCode = code[0]
 		}
-		panic("CustomErroe#" + strconv.Itoa(statusCode) + "#" + msg)
+		panic("CustomError#" + strconv.Itoa(statusCode) + "#" + msg)
 	}
 }
 

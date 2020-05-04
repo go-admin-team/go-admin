@@ -18,7 +18,7 @@ import (
 // @Param configType query string false "configType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configList [get]
 // @Security
 func GetConfigList(c *gin.Context) {
@@ -58,7 +58,7 @@ func GetConfigList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 配置
 // @Param configId path int true "配置编码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/config/{configId} [get]
 // @Security
 func GetConfig(c *gin.Context) {
@@ -77,7 +77,7 @@ func GetConfig(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 配置
 // @Param configKey path int true "configKey"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configKey/{configKey} [get]
 // @Security
 func GetConfigByConfigKey(c *gin.Context) {
@@ -86,7 +86,7 @@ func GetConfigByConfigKey(c *gin.Context) {
 	result, err := Config.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	app.OK(c, result,result.ConfigValue)
+	app.OK(c, result, result.ConfigValue)
 }
 
 // @Summary 添加配置
@@ -107,7 +107,7 @@ func InsertConfig(c *gin.Context) {
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
 
-	app.OK(c, result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 修改配置
@@ -115,7 +115,7 @@ func InsertConfig(c *gin.Context) {
 // @Tags 配置
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Config true "body"
+// @Param data body models.SysConfig true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/config [put]
@@ -127,7 +127,7 @@ func UpdateConfig(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.ConfigId)
 	tools.HasError(err, "", -1)
-	app.OK(c, result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 删除配置
@@ -139,10 +139,9 @@ func UpdateConfig(c *gin.Context) {
 // @Router /api/v1/config/{configId} [delete]
 func DeleteConfig(c *gin.Context) {
 	var data models.SysConfig
-	id, err := tools.StringToInt(c.Param("configId"))
 	data.UpdateBy = tools.GetUserIdStr(c)
-	data.ConfigId = id
-	_, err = data.Delete()
+	IDS := tools.IdsStrToIdsIntGroup("configId", c)
+	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-	app.OK(c, nil, msg.DeletedSuccess)
+	app.OK(c, result, msg.DeletedSuccess)
 }

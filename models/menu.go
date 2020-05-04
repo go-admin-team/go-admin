@@ -248,6 +248,12 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 	if e.MenuName != "" {
 		table = table.Where("menu_name = ?", e.MenuName)
 	}
+	if e.Title != "" {
+		table = table.Where("title = ?", e.Title)
+	}
+	if e.Visible != "" {
+		table = table.Where("visible = ?", e.Visible)
+	}
 	if e.MenuType != "" {
 		table = table.Where("menu_type = ?", e.MenuType)
 	}

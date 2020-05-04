@@ -28,7 +28,7 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.RequestId())
 	r.Use(middleware.DemoEvn())
 
-	r.GET("/", handler.HelloGoAdmin)
+	r.GET("/", system.HelloWorld)
 	r.Static("/static", "./static")
 	r.GET("/info", handler.Ping)
 
@@ -69,6 +69,7 @@ func InitRouter() *gin.Engine {
 		apiv1.DELETE("/sys/tables/info/:tableId", DeleteSysTables)
 		apiv1.GET("/sys/tables/info/:tableId", GetSysTables)
 		apiv1.GET("/gen/preview/:tableId", Preview)
+		apiv1.GET("/gen/gencode/:tableId", GenCode)
 		apiv1.GET("/menuTreeselect", system.GetMenuTreeelect)
 		apiv1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
@@ -77,6 +78,7 @@ func InitRouter() *gin.Engine {
 	auth := r.Group("/api/v1")
 	auth.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
+
 		auth.GET("/deptList", system.GetDeptList)
 		auth.GET("/deptTree", system.GetDeptTree)
 		auth.GET("/dept/:deptId", system.GetDept)

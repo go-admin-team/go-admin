@@ -13,7 +13,7 @@ import (
 // @Param name query string false "name"
 // @Param id query string false "id"
 // @Param position query string false "position"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
 // @Security
 func GetPostList(c *gin.Context) {
@@ -45,7 +45,7 @@ func GetPostList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 字典数据
 // @Param postId path int true "postId"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
 // @Security
 func GetPost(c *gin.Context) {
@@ -53,7 +53,7 @@ func GetPost(c *gin.Context) {
 	Post.PostId, _ = tools.StringToInt(c.Param("postId"))
 	result, err := Post.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 添加职位
@@ -73,7 +73,7 @@ func InsertPost(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 修改职位
@@ -94,7 +94,7 @@ func UpdatePost(c *gin.Context) {
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.PostId)
 	tools.HasError(err, "", -1)
-	app.OK(c,result,"修改成功")
+	app.OK(c, result, "修改成功")
 }
 
 // @Summary 删除职位
@@ -110,5 +110,5 @@ func DeletePost(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c,"","删除成功")
+	app.OK(c, "", "删除成功")
 }

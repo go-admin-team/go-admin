@@ -17,7 +17,7 @@ import (
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/list [get]
 // @Security
 func GetDictTypeList(c *gin.Context) {
@@ -57,7 +57,7 @@ func GetDictTypeList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 字典类型
 // @Param dictId path int true "字典类型编码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/{dictId} [get]
 // @Security
 func GetDictType(c *gin.Context) {
@@ -70,7 +70,6 @@ func GetDictType(c *gin.Context) {
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
-
 
 func GetDictTypeOptionSelect(c *gin.Context) {
 	var DictType models.DictType
@@ -136,13 +135,9 @@ func UpdateDictType(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [delete]
 func DeleteDictType(c *gin.Context) {
 	var data models.DictType
-	id, err := tools.StringToInt(c.Param("dictId"))
 	data.UpdateBy = tools.GetUserIdStr(c)
-	_, err = data.Delete(id)
+	IDS := tools.IdsStrToIdsIntGroup("dictId", c)
+	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "删除成功",
-	})
+	app.OK(c, result, "删除成功")
 }

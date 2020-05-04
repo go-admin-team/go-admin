@@ -15,7 +15,7 @@ import (
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
 func GetDBTableList(c *gin.Context) {
 	var res app.Response
@@ -23,8 +23,8 @@ func GetDBTableList(c *gin.Context) {
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
-	if config2.DatabaseConfig.Dbtype=="sqlite3"{
-		res.Msg="对不起，sqlite3 暂不支持代码生成！"
+	if config2.DatabaseConfig.Dbtype == "sqlite3" {
+		res.Msg = "对不起，sqlite3 暂不支持代码生成！"
 		c.JSON(http.StatusOK, res.ReturnError(500))
 		return
 	}
@@ -46,7 +46,6 @@ func GetDBTableList(c *gin.Context) {
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
-
 
 	res.Data = mp
 

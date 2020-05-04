@@ -3,7 +3,6 @@ package config
 import "github.com/spf13/viper"
 
 type Application struct {
-	IsInit        bool
 	ReadTimeout   int
 	WriterTimeout int
 	Host          string
@@ -16,7 +15,6 @@ type Application struct {
 
 func InitApplication(cfg *viper.Viper) *Application {
 	return &Application{
-		IsInit:        cfg.GetBool("isInit"),
 		ReadTimeout:   cfg.GetInt("readTimeout"),
 		WriterTimeout: cfg.GetInt("writerTimeout"),
 		Host:          cfg.GetString("host"),

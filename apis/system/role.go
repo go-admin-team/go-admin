@@ -16,7 +16,7 @@ import (
 // @Param roleKey query string false "roleKey"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/rolelist [get]
 // @Security
 func GetRoleList(c *gin.Context) {
@@ -68,7 +68,7 @@ func GetRole(c *gin.Context) {
 // @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Config true "data"
+// @Param data body models.SysRole true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/role [post]
@@ -77,6 +77,9 @@ func InsertRole(c *gin.Context) {
 	data.CreateBy = tools.GetUserIdStr(c)
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "", 500)
+	if len(data.DeptIds) > 0 {
+		data.Params = tools.IntArrayToString(data.DeptIds)
+	}
 	id, err := data.Insert()
 	data.RoleId = id
 	tools.HasError(err, "", -1)
@@ -100,13 +103,15 @@ func UpdateRole(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", -1)
+	if len(data.DeptIds) > 0 {
+		data.Params = tools.IntArrayToString(data.DeptIds)
+	}
 	result, err := data.Update(data.RoleId)
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(data.RoleId)
 	tools.HasError(err, "添加失败1", -1)
 	_, err2 := t.Insert(data.RoleId, data.MenuIds)
 	tools.HasError(err2, "添加失败2", -1)
-
 	app.OK(c, result, "修改成功")
 }
 
