@@ -105,3 +105,11 @@ func (e *SysConfig) Delete() (success bool, err error) {
 	success = true
 	return
 }
+
+func (e *SysConfig) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("config_id in (?)", id).Delete(&SysConfig{}).Error; err != nil {
+		return
+	}
+	Result = true
+	return
+}
