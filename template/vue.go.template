@@ -2,12 +2,12 @@
     <div class="app-container">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
             {{range .Columns}}
-            {{- $x := .IsQuery -}}
-            {{- if ($x) -}}
-            <el-form-item label="参数名称" prop="{{.JsonField}}">
-                <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable size="small" @keyup.enter.native="handleQuery" />
-            </el-form-item>
-            {{end}}
+                {{- $x := .IsQuery -}}
+                {{- if ($x) -}}
+                    <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                        <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable size="small" @keyup.enter.native="handleQuery" />
+                    </el-form-item>
+                {{end}}
             {{- end }}
             <el-form-item>
                 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -47,13 +47,13 @@
             </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="configList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="{{.ModuleName}}List" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
             {{- range .Columns -}}
-            {{- $x := .IsList -}}
-            {{- if ($x) -}}
-                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :show-overflow-tooltip="true" />
-            {{- end -}}
+                {{- $x := .IsList -}}
+                {{- if ($x) -}}
+                    <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :show-overflow-tooltip="true" />
+                {{- end -}}
             {{- end }}
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
@@ -86,16 +86,13 @@
         <!-- 添加或修改参数配置对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
             <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-                <el-form-item label="参数名称" prop="configName">
-                    <el-input v-model="form.configName" placeholder="请输入参数名称" />
-                </el-form-item>
                 {{ range .Columns }}
-                {{- $x := .IsInsert -}}
-                {{- if ($x) -}}
-                <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
-                    <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}" />
-                </el-form-item>
-                {{ end }}
+                    {{- $x := .IsInsert -}}
+                    {{- if ($x) -}}
+                        <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                            <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}" />
+                        </el-form-item>
+                    {{ end }}
                 {{- end }}
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -107,8 +104,7 @@
 </template>
 
 <script>
-    import { list{{.ClassName}}, get{{.ClassName}}, del{{.ClassName}}, add{{.ClassName}}, update{{.ClassName}} } from '@/api/system/config'
-    import { formatJson } from '@/utils'
+    import { list{{.ClassName}}, get{{.ClassName}}, del{{.ClassName}}, add{{.ClassName}}, update{{.ClassName}} } from '@/api/{{.PackageName}}'
 
     export default {
         name: 'Config',
@@ -138,27 +134,27 @@
                 queryParams: {
                     pageIndex: 1,
                     pageSize: 10,
-                    {{- range .Columns -}}
-                    {{- $x := .IsQuery -}}
-                    {{- if ($x) -}}
-                    {{.JsonField}}: undefined,
-                    {{- end -}}
-                    {{- end }}
-                },
-                // 表单参数
-                form: {},
-                // 表单校验
-                rules: {
-                    {{- range .Columns -}}
-                    {{- $x := .IsQuery -}}
-                    {{- if ($x) -}}
-                    {{.JsonField}}: [
-                        { required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur' }
-                    ],
-                    {{ end }}
-                    {{- end -}}
-                }
+            {{- range .Columns -}}
+            {{- $x := .IsQuery -}}
+            {{- if ($x) -}}
+            {{.JsonField}}: undefined,
+            {{- end -}}
+            {{- end }}
+        },
+            // 表单参数
+            form: {},
+            // 表单校验
+            rules: {
+                {{- range .Columns -}}
+                {{- $x := .IsQuery -}}
+                {{- if ($x) -}}
+                {{.JsonField}}: [
+                    { required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur' }
+                ],
+                {{ end }}
+                {{- end -}}
             }
+        }
         },
         created() {
             this.getList()
@@ -173,7 +169,7 @@
                         this.loading = false
                     }
                 )
-            }
+            },
             // 取消按钮
             cancel() {
                 this.open = false
@@ -182,13 +178,13 @@
             // 表单重置
             reset() {
                 this.form = {
-                    {{ range .Columns}}
-                    {{- $x := .IsInsert -}}
-                    {{ if ($x) -}}
-                    {{.JsonField}}: undefined,
-                    {{ end }}
-                    {{- end -}}
-                }
+                {{ range .Columns}}
+                {{- $x := .IsInsert -}}
+                {{ if ($x) -}}
+                {{.JsonField}}: undefined,
+                {{ end }}
+                {{- end -}}
+            }
                 this.resetForm('form')
             },
             /** 搜索按钮操作 */
