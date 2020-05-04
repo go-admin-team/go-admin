@@ -140,5 +140,4 @@ func DeleteDictType(c *gin.Context) {
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
 	app.OK(c, result, "删除成功")
-
 }
