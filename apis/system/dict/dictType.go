@@ -71,7 +71,6 @@ func GetDictType(c *gin.Context) {
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
-
 func GetDictTypeOptionSelect(c *gin.Context) {
 	var DictType models.DictType
 	DictType.DictName = c.Request.FormValue("dictName")
@@ -136,13 +135,10 @@ func UpdateDictType(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [delete]
 func DeleteDictType(c *gin.Context) {
 	var data models.DictType
-	id, err := tools.StringToInt(c.Param("dictId"))
 	data.UpdateBy = tools.GetUserIdStr(c)
-	_, err = data.Delete(id)
+	IDS := tools.IdsStrToIdsIntGroup("dictId", c)
+	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
+	app.OK(c, result, "删除成功")
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "删除成功",
-	})
 }

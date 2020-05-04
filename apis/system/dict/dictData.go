@@ -144,12 +144,9 @@ func UpdateDictData(c *gin.Context) {
 // @Router /api/v1/dict/data/{dictCode} [delete]
 func DeleteDictData(c *gin.Context) {
 	var data models.DictData
-	id, err := tools.StringToInt(c.Param("dictCode"))
 	data.UpdateBy = tools.GetUserIdStr(c)
-	_, err = data.Delete(id)
+	IDS := tools.IdsStrToIdsIntGroup("dictCode", c)
+	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-
-	var res app.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	app.OK(c,result,"删除成功")
 }
