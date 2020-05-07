@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"go-admin/config"
+	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -283,9 +283,9 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 	}
 
 	mw.Timeout = time.Hour
-	if config.JwtConfig.Timeout != 0 {
+	if config2.JwtConfig.Timeout != 0 {
 		// TODO: token过期时长
-		mw.Timeout = time.Duration(config.JwtConfig.Timeout) * time.Second
+		mw.Timeout = time.Duration(config2.JwtConfig.Timeout) * time.Second
 	}
 
 	if mw.TimeFunc == nil {
@@ -391,7 +391,7 @@ func (mw *GinJWTMiddleware) middlewareImpl(c *gin.Context) {
 		return
 	}
 	if int64(claims["exp"].(float64)) < mw.TimeFunc().Unix() {
-		mw.unauthorized(c, http.StatusUnauthorized, mw.HTTPStatusMessageFunc(ErrExpiredToken, c))
+		mw.unauthorized(c, 6401, mw.HTTPStatusMessageFunc(ErrExpiredToken, c))
 		return
 	}
 
@@ -680,8 +680,6 @@ func (mw *GinJWTMiddleware) ParseToken(c *gin.Context) (*jwt.Token, error) {
 		if mw.usingPublicKeyAlgo() {
 			return mw.pubKey, nil
 		}
-
-		// save token string if vaild
 		c.Set("JWT_TOKEN", token)
 
 		return mw.Key, nil

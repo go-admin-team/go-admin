@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -28,6 +27,7 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.RequestId())
 	r.Use(middleware.DemoEvn())
 
+	r.GET("/", system.HelloWorld)
 	r.Static("/static", "./static")
 	r.GET("/info", handler.Ping)
 
@@ -45,7 +45,7 @@ func InitRouter() *gin.Engine {
 	authMiddleware, err := middleware.AuthInit()
 
 	if err != nil {
-		_ = fmt.Errorf("JWT Error", err.Error())
+		log.Fatalln("JWT Error", err.Error())
 	}
 
 	r.POST("/login", authMiddleware.LoginHandler)
@@ -76,6 +76,7 @@ func InitRouter() *gin.Engine {
 	auth := r.Group("/api/v1")
 	auth.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
+
 		auth.GET("/deptList", system.GetDeptList)
 		auth.GET("/deptTree", system.GetDeptTree)
 		auth.GET("/dept/:deptId", system.GetDept)

@@ -2,7 +2,7 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type DictData struct {
@@ -98,7 +98,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
 	table = dataPermission.GetDataScope("sys_dict_data", table)
 
 	var count int
@@ -129,5 +129,13 @@ func (e *DictData) Delete(id int) (success bool, err error) {
 		return
 	}
 	success = true
+	return
+}
+
+func (e *DictData) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("dict_code in (?)", id).Delete(&DictData{}).Error; err != nil {
+		return
+	}
+	Result = true
 	return
 }

@@ -3,9 +3,8 @@ package system
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
 )
 
 // @Summary 职位列表数据
@@ -14,7 +13,7 @@ import (
 // @Param name query string false "name"
 // @Param id query string false "id"
 // @Param position query string false "position"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
 // @Security
 func GetPostList(c *gin.Context) {
@@ -24,21 +23,21 @@ func GetPostList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools.StrToInt(err, size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools.StrToInt(err, index)
 	}
 
 	data.PostName = c.Request.FormValue("postName")
 	id := c.Request.FormValue("postId")
-	data.PostId, _ = utils.StringToInt(id)
+	data.PostId, _ = tools.StringToInt(id)
 
 	data.PostName = c.Request.FormValue("postName")
-	data.DataScope = utils.GetUserIdStr(c)
+	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	app.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
@@ -46,14 +45,14 @@ func GetPostList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 字典数据
 // @Param postId path int true "postId"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
 // @Security
 func GetPost(c *gin.Context) {
 	var Post models.Post
-	Post.PostId, _ = utils.StringToInt(c.Param("postId"))
+	Post.PostId, _ = tools.StringToInt(c.Param("postId"))
 	result, err := Post.Get()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c,result,"")
 }
 
@@ -70,10 +69,10 @@ func GetPost(c *gin.Context) {
 func InsertPost(c *gin.Context) {
 	var data models.Post
 	err := c.Bind(&data)
-	data.CreateBy = utils.GetUserIdStr(c)
-	pkg.HasError(err, "", 500)
+	data.CreateBy = tools.GetUserIdStr(c)
+	tools.HasError(err, "", 500)
 	result, err := data.Create()
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	app.OK(c,result,"")
 }
 
@@ -91,10 +90,10 @@ func UpdatePost(c *gin.Context) {
 	var data models.Post
 
 	err := c.Bind(&data)
-	data.UpdateBy = utils.GetUserIdStr(c)
-	pkg.HasError(err, "", -1)
+	data.UpdateBy = tools.GetUserIdStr(c)
+	tools.HasError(err, "", -1)
 	result, err := data.Update(data.PostId)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	app.OK(c,result,"修改成功")
 }
 
@@ -107,9 +106,9 @@ func UpdatePost(c *gin.Context) {
 // @Router /api/v1/post/{postId} [delete]
 func DeletePost(c *gin.Context) {
 	var data models.Post
-	id, err := utils.StringToInt(c.Param("postId"))
-	data.UpdateBy = utils.GetUserIdStr(c)
+	id, err := tools.StringToInt(c.Param("postId"))
+	data.UpdateBy = tools.GetUserIdStr(c)
 	_, err = data.Delete(id)
-	pkg.HasError(err, "删除失败", 500)
+	tools.HasError(err, "删除失败", 500)
 	app.OK(c,"","删除成功")
 }

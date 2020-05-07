@@ -37,7 +37,7 @@ func (rm *SysRoleDept) DeleteRoleDept(roleId int) (bool, error) {
 		return false, err
 	}
 	var role SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("id = ?", roleId).First(&role).Error; err != nil {
+	if err := orm.Eloquent.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		return false, err
 	}
 

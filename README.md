@@ -16,7 +16,7 @@
 </p>
 
 
-  [English](./README.en.md) | 简体中文
+  [English](https://github.com/wenjianzhang/go-admin/blob/master/README.en.md) | 简体中文
   
 
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
@@ -45,6 +45,8 @@
 
 - 表单构建工具
 
+- 多命令模式
+
 - TODO: 单元测试
 
 
@@ -71,29 +73,26 @@
 settings:
   application:  
     # 项目启动环境            
-    env: dev  
-    # 当 env:demo 时，GET以外的请求操作提示
-    envmsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
-    # 主机ip 或者域名，默认0.0.0.0
-    host: 0.0.0.0 
-    # 是否需要初始化数据库结构以及基本数据；true：需要；false：不需要 
-    isinit: false  
-    # log存放路径
-    logpath: temp/logs/log.log   
+    mode: dev  # dev开发环境 test测试环境 prod线上环境；当 mode:demo 时，GET以外的请求操作提示
+    demomsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
+    host: 0.0.0.0  # 主机ip 或者域名，默认0.0.0.0
     # 服务名称
     name: go-admin   
     # 服务端口
     port: 8000   
     readtimeout: 1   
     writertimeout: 2 
+  log:
+    # 日志文件存放路径
+    dir: temp/logs
   jwt:
     # JWT加密字符串
-    jwtsecret: go-admin
+    secret: go-admin
     # 过期时间单位：秒
     timeout: 3600
   database:
     # 数据库名称
-    database: dbname 
+    name: dbname 
     # 数据库类型
     dbtype: mysql    
     # 数据库地址
@@ -111,7 +110,7 @@ settings:
 
 ## 📦 本地开发
 
-首次启动说明
+### 首次启动说明
 
 ```bash
 # 获取代码
@@ -124,33 +123,36 @@ cd ./go-admin
 go build
 
 # 修改配置
-vi ./config/setting.yml (更改isinit和数据库连接)
+vi ./config/setting.yml 
 
 # 1. 配置文件中修改数据库信息 
-# 注意: settings.database 下对应的配置数据)
-# 2. 确认数据库初始化参数 
-# 注意: settings.application.isinit 如果是首次启动，请把当前值设置成true，系统会自动初始化数据库结构以及基本的数据信息；
-# 3. 确认log路径
+# 注意: settings.database 下对应的配置数据
+# 2. 确认log路径
+
+```
+
+### 初始化数据库，以及服务启动
+```
+# 首次配置需要初始化数据库资源信息
+./go-admin init -c config/settings.yml -m dev
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin
+./go-admin server -c config/settings.yml -p 8000 -m dev
 
 ```
 [在线文档](https://wenjianzhang.github.io/go-admin-site)
 
 
-文档生成
+### 文档生成
 ```bash
 swag init  
-```
 
-如果没有swag命令 go get安装一下即可
-```bash
+# 如果没有swag命令 go get安装一下即可
 go get -u github.com/swaggo/swag/cmd/swag
 ```
 
-交叉编译
+### 交叉编译
 ```bash
 env GOOS=windows GOARCH=amd64 go build main.go
 
@@ -166,6 +168,15 @@ env GOOS=linux GOARCH=amd64 go build main.go
 演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
 ## 📈 版本
+
+### 2020-04-23 新功能及优化
+
+1. 添加单服务命令
+2. 添加单数据库数据化命令
+3. 调整项目结构
+3. 部分代码优化
+3. 添加根接口
+4. 其他已知bug的修复
 
 ### 2020-04-13 新功能及优化
 
@@ -212,7 +223,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
   </tr>
   <tr>
     <td>微信</td>
-    <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=1affb445445bd442312fcad9a927007db74a0cd4380bbc08a6c97d2691744869"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流甲号" title="go-admin技术交流甲号"></a>已满</td>
+    <td>此群已满</td>
     <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=0f2bf59f5f2edec6a4550c364242c0641f870aa328e468c4ee4b7dbfb392627b"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流乙号" title="go-admin技术交流乙号"></a></td>
   </tr>
 </table>

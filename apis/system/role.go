@@ -4,9 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
 )
 
 // @Summary 角色列表数据
@@ -17,7 +16,7 @@ import (
 // @Param roleKey query string false "roleKey"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/rolelist [get]
 // @Security
 func GetRoleList(c *gin.Context) {
@@ -27,19 +26,19 @@ func GetRoleList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = pkg.StrToInt(err, size)
+		pageSize = tools.StrToInt(err, size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = pkg.StrToInt(err, index)
+		pageIndex = tools.StrToInt(err, index)
 	}
 
 	data.RoleKey = c.Request.FormValue("roleKey")
 	data.RoleName = c.Request.FormValue("roleName")
 	data.Status = c.Request.FormValue("status")
-	data.DataScope = utils.GetUserIdStr(c)
+	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 
 	app.PageOK(c, result, count, pageIndex, pageSize, "")
 }
@@ -54,11 +53,11 @@ func GetRoleList(c *gin.Context) {
 // @Security Bearer
 func GetRole(c *gin.Context) {
 	var Role models.SysRole
-	Role.RoleId, _ = utils.StringToInt(c.Param("roleId"))
+	Role.RoleId, _ = tools.StringToInt(c.Param("roleId"))
 	result, err := Role.Get()
 	menuIds := make([]int, 0)
 	menuIds, err = Role.GetRoleMeunId()
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	result.MenuIds = menuIds
 	app.OK(c, result, "")
 
@@ -69,21 +68,21 @@ func GetRole(c *gin.Context) {
 // @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Config true "data"
+// @Param data body models.SysRole true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/role [post]
 func InsertRole(c *gin.Context) {
 	var data models.SysRole
-	data.CreateBy = utils.GetUserIdStr(c)
+	data.CreateBy = tools.GetUserIdStr(c)
 	err := c.BindWith(&data, binding.JSON)
-	pkg.HasError(err, "", 500)
+	tools.HasError(err, "", 500)
 	id, err := data.Insert()
 	data.RoleId = id
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	var t models.RoleMenu
 	_, err = t.Insert(id, data.MenuIds)
-	pkg.HasError(err, "", -1)
+	tools.HasError(err, "", -1)
 	app.OK(c, data, "添加成功")
 }
 
@@ -98,32 +97,32 @@ func InsertRole(c *gin.Context) {
 // @Router /api/v1/role [put]
 func UpdateRole(c *gin.Context) {
 	var data models.SysRole
-	data.UpdateBy = utils.GetUserIdStr(c)
+	data.UpdateBy = tools.GetUserIdStr(c)
 	err := c.Bind(&data)
-	pkg.HasError(err, "数据解析失败", -1)
+	tools.HasError(err, "数据解析失败", -1)
 	result, err := data.Update(data.RoleId)
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(data.RoleId)
-	pkg.HasError(err, "添加失败1", -1)
+	tools.HasError(err, "添加失败1", -1)
 	_, err2 := t.Insert(data.RoleId, data.MenuIds)
-	pkg.HasError(err2, "添加失败2", -1)
+	tools.HasError(err2, "添加失败2", -1)
 
 	app.OK(c, result, "修改成功")
 }
 
 func UpdateRoleDataScope(c *gin.Context) {
 	var data models.SysRole
-	data.UpdateBy = utils.GetUserIdStr(c)
+	data.UpdateBy = tools.GetUserIdStr(c)
 	err := c.Bind(&data)
-	pkg.HasError(err, "数据解析失败", -1)
+	tools.HasError(err, "数据解析失败", -1)
 	result, err := data.Update(data.RoleId)
 
 	var t models.SysRoleDept
 	_, err = t.DeleteRoleDept(data.RoleId)
-	pkg.HasError(err, "添加失败1", -1)
+	tools.HasError(err, "添加失败1", -1)
 	if data.DataScope == "2" {
 		_, err2 := t.Insert(data.RoleId, data.DeptIds)
-		pkg.HasError(err2, "添加失败2", -1)
+		tools.HasError(err2, "添加失败2", -1)
 	}
 	app.OK(c, result, "修改成功")
 }
@@ -137,13 +136,13 @@ func UpdateRoleDataScope(c *gin.Context) {
 // @Router /api/v1/role/{roleId} [delete]
 func DeleteRole(c *gin.Context) {
 	var Role models.SysRole
-	Role.UpdateBy = utils.GetUserIdStr(c)
+	Role.UpdateBy = tools.GetUserIdStr(c)
 
-	IDS := utils.IdsStrToIdsIntGroup("roleId", c)
+	IDS := tools.IdsStrToIdsIntGroup("roleId", c)
 	_, err := Role.BatchDelete(IDS)
-	pkg.HasError(err, "删除失败1", -1)
+	tools.HasError(err, "删除失败1", -1)
 	var t models.RoleMenu
 	_, err = t.BatchDeleteRoleMenu(IDS)
-	pkg.HasError(err, "删除失败1", -1)
+	tools.HasError(err, "删除失败1", -1)
 	app.OK(c, "", "删除成功")
 }

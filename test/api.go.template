@@ -81,7 +81,7 @@ func Get{{.ClassName}}(c *gin.Context) {
 // @Tags 配置
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Config true "data"
+// @Param data body models.{{.ClassName}} true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data [post]

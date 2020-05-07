@@ -4,10 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/app/msg"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
+	"go-admin/tools/app/msg"
 )
 
 // @Summary 分页部门列表数据
@@ -16,17 +15,17 @@ import (
 // @Param name query string false "name"
 // @Param id query string false "id"
 // @Param position query string false "position"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/deptList [get]
 // @Security
 func GetDeptList(c *gin.Context) {
 	var Dept models.Dept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
-	Dept.DeptId, _ = utils.StringToInt(c.Request.FormValue("deptId"))
-	Dept.DataScope = utils.GetUserIdStr(c)
+	Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
+	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.SetDept(true)
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c,result,"")
 }
 
@@ -34,9 +33,9 @@ func GetDeptTree(c *gin.Context) {
 	var Dept models.Dept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status= c.Request.FormValue("status")
-	Dept.DeptId, _ = utils.StringToInt(c.Request.FormValue("deptId"))
+	Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
 	result, err := Dept.SetDept(false)
-	pkg.HasError(err, "抱歉未找到相关信息", -1)
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c,result,"")
 }
 
@@ -45,16 +44,16 @@ func GetDeptTree(c *gin.Context) {
 // @Tags 部门
 // @Param deptId path string false "deptId"
 // @Param position query string false "position"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept/{deptId} [get]
 // @Security
 func GetDept(c *gin.Context) {
 	var Dept models.Dept
-	Dept.DeptId, _ = utils.StringToInt(c.Param("deptId"))
-	Dept.DataScope = utils.GetUserIdStr(c)
+	Dept.DeptId, _ = tools.StringToInt(c.Param("deptId"))
+	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.Get()
-	pkg.HasError(err, msg.NotFound, 404)
-	app.OK(c,result,msg.GetSuccess)
+	tools.HasError(err, msg.NotFound, 404)
+	app.OK(c,result, msg.GetSuccess)
 }
 
 // @Summary 添加部门
@@ -70,11 +69,11 @@ func GetDept(c *gin.Context) {
 func InsertDept(c *gin.Context) {
 	var data models.Dept
 	err := c.BindWith(&data, binding.JSON)
-	pkg.HasError(err, "", 500)
-	data.CreateBy = utils.GetUserIdStr(c)
+	tools.HasError(err, "", 500)
+	data.CreateBy = tools.GetUserIdStr(c)
 	result, err := data.Create()
-	pkg.HasError(err, "", -1)
-	app.OK(c,result,msg.CreatedSuccess)
+	tools.HasError(err, "", -1)
+	app.OK(c,result, msg.CreatedSuccess)
 }
 
 // @Summary 修改部门
@@ -91,11 +90,11 @@ func InsertDept(c *gin.Context) {
 func UpdateDept(c *gin.Context) {
 	var data models.Dept
 	err := c.BindWith(&data, binding.JSON)
-	pkg.HasError(err, "", -1)
-	data.UpdateBy = utils.GetUserIdStr(c)
+	tools.HasError(err, "", -1)
+	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.DeptId)
-	pkg.HasError(err, "", -1)
-	app.OK(c,result,msg.UpdatedSuccess)
+	tools.HasError(err, "", -1)
+	app.OK(c,result, msg.UpdatedSuccess)
 }
 
 // @Summary 删除部门
@@ -107,23 +106,23 @@ func UpdateDept(c *gin.Context) {
 // @Router /api/v1/dept/{id} [delete]
 func DeleteDept(c *gin.Context) {
 	var data models.Dept
-	id, err := utils.StringToInt(c.Param("id"))
+	id, err := tools.StringToInt(c.Param("id"))
 	_, err = data.Delete(id)
-	pkg.HasError(err, "删除失败", 500)
-	app.OK(c,"",msg.DeletedSuccess)
+	tools.HasError(err, "删除失败", 500)
+	app.OK(c,"", msg.DeletedSuccess)
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
 	var Dept models.Dept
 	var SysRole models.SysRole
-	id, err := utils.StringToInt(c.Param("roleId"))
+	id, err := tools.StringToInt(c.Param("roleId"))
 	SysRole.RoleId = id
 	result, err := Dept.SetDeptLable()
-	pkg.HasError(err, msg.NotFound, -1)
+	tools.HasError(err, msg.NotFound, -1)
 	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = SysRole.GetRoleDeptId()
-		pkg.HasError(err, "抱歉未找到相关信息", -1)
+		tools.HasError(err, "抱歉未找到相关信息", -1)
 	}
 	app.Custum(c,gin.H{
 		"code":        200,
