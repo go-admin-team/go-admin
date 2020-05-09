@@ -144,7 +144,7 @@ func (e *SysTables) Delete() (success bool, err error) {
 }
 
 func (e *SysTables) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
+	if err = orm.Eloquent.Unscoped().Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
 		return
 	}
 	Result = true
