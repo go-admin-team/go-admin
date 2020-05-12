@@ -35,22 +35,21 @@ func (e *{{.ClassName}}) Create() ({{.ClassName}}, error) {
 
 // 获取{{.ClassName}}
 func (e *{{.ClassName}}) Get() ({{.ClassName}}, error) {
-    var doc {{.ClassName}}
-
+var doc {{.ClassName}}
     table := orm.Eloquent.Table(e.TableName())
     {{ range .Columns -}}
     {{$z := .IsQuery}}
     {{- if ($z) -}}
-    if e.{{.GoField}} !=  "" {
+        if e.{{.GoField}} !=  "" {
         table = table.Where("{{.ColumnName}} = ?", e.{{.GoField}})
-    }
+        }
     {{ end -}}
-    {{ end }}
+{{ end }}
 
-    if err := table.First(&doc).Error; err != nil {
-        return doc, err
-    }
-    return doc, nil
+if err := table.First(&doc).Error; err != nil {
+return doc, err
+}
+return doc, nil
 }
 
 // 获取{{.ClassName}}带分页
@@ -61,9 +60,9 @@ func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}},
     {{ range .Columns -}}
     {{$z := .IsQuery}}
     {{- if ($z) -}}
-    if e.{{.GoField}} != "" {
+        if e.{{.GoField}} != "" {
         table = table.Where("{{.ColumnName}} = ?", e.{{.GoField}})
-    }
+        }
     {{ end -}}
     {{ end }}
 

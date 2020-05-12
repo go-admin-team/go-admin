@@ -139,4 +139,3 @@ func (e *DictData) BatchDelete(id []int) (Result bool, err error) {
 	Result = true
 	return
 }
-
