@@ -113,4 +113,3 @@ func (e *SysConfig) BatchDelete(id []int) (Result bool, err error) {
 	Result = true
 	return
 }
-

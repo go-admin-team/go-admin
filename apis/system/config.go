@@ -145,3 +145,5 @@ func DeleteConfig(c *gin.Context) {
 	tools.HasError(err, "修改失败", 500)
 	app.OK(c, result, msg.DeletedSuccess)
 }
+
+

@@ -71,7 +71,6 @@ func GetDictType(c *gin.Context) {
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
-
 func GetDictTypeOptionSelect(c *gin.Context) {
 	var DictType models.DictType
 	DictType.DictName = c.Request.FormValue("dictName")
