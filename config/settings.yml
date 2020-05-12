@@ -1,7 +1,6 @@
 settings:
   application:
     mode: dev  # dev开发环境 test测试环境 prod线上环境
-    demomsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！\U0001F600\U0001F600\U0001F600"
     host: 0.0.0.0
     name: testApp
     port: 8000

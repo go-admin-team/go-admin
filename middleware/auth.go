@@ -10,10 +10,9 @@ import (
 func AuthInit() (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           "test zone",
-		Key:             []byte("secret key"),
+		Key:             []byte(config.ApplicationConfig.JwtSecret),
 		Timeout:         time.Hour,
 		MaxRefresh:      time.Hour,
-		IdentityKey:     config.ApplicationConfig.JwtSecret,
 		PayloadFunc:     handler.PayloadFunc,
 		IdentityHandler: handler.IdentityHandler,
 		Authenticator:   handler.Authenticator,
