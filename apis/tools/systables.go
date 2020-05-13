@@ -81,10 +81,26 @@ func GetSysTables(c *gin.Context) {
 // @Router /api/v1/sys/tables/info [post]
 // @Security Bearer
 func InsertSysTable(c *gin.Context) {
+
+	tablesList := strings.Split(c.Request.FormValue("tables"), ",")
+	for i := 0; i < len(tablesList); i++ {
+
+		data, err := genTableInit(tablesList, i, c)
+
+		_, err = data.Create()
+		tools2.HasError(err, "", -1)
+	}
+	var res app.Response
+	res.Msg = "添加成功！"
+	c.JSON(http.StatusOK, res.ReturnOK())
+
+}
+
+func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
 	var data tools.SysTables
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
-	data.TBName = c.Request.FormValue("tables")
+	data.TBName = tablesList[i]
 	data.CreateBy = tools2.GetUserIdStr(c)
 
 	dbTable.TableName = data.TBName
@@ -161,15 +177,7 @@ func InsertSysTable(c *gin.Context) {
 
 		data.Columns = append(data.Columns, column)
 	}
-
-	result, err := data.Create()
-	tools2.HasError(err, "", -1)
-
-	var res app.Response
-	res.Data = result
-	res.Msg = "添加成功！"
-	c.JSON(http.StatusOK, res.ReturnOK())
-
+	return data, err
 }
 
 // @Summary 修改表结构

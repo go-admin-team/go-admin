@@ -20,7 +20,7 @@ func InitDb() error {
 		return err
 	}
 	sqlList := strings.Split(sql, ";")
-	for i := 0; i < len(sqlList); i++ {
+	for i := 0; i < len(sqlList) - 1; i++ {
 		if strings.Contains(sqlList[i], "--") {
 			fmt.Println(sqlList[i])
 			continue

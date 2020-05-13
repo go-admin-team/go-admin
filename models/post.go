@@ -129,3 +129,11 @@ func (e *Post) Delete(id int) (success bool, err error) {
 	success = true
 	return
 }
+
+func (e *Post) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("post_id in (?)", id).Delete(&Post{}).Error; err != nil {
+		return
+	}
+	Result = true
+	return
+}

@@ -106,9 +106,9 @@ func UpdatePost(c *gin.Context) {
 // @Router /api/v1/post/{postId} [delete]
 func DeletePost(c *gin.Context) {
 	var data models.Post
-	id, err := tools.StringToInt(c.Param("postId"))
 	data.UpdateBy = tools.GetUserIdStr(c)
-	_, err = data.Delete(id)
+	IDS := tools.IdsStrToIdsIntGroup("postId", c)
+	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c,"","删除成功")
+	app.OK(c,result,"删除成功")
 }
