@@ -101,6 +101,7 @@ func UpdateRole(c *gin.Context) {
 	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", -1)
 	result, err := data.Update(data.RoleId)
+	tools.HasError(err, "", -1)
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(data.RoleId)
 	tools.HasError(err, "添加失败1", -1)

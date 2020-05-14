@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	orm "go-admin/database"
 	"go-admin/tools"
 	_ "time"
@@ -27,6 +28,12 @@ func (SysConfig) TableName() string {
 // Config 创建
 func (e *SysConfig) Create() (SysConfig, error) {
 	var doc SysConfig
+	i := 0
+	orm.Eloquent.Table(e.TableName()).Where("config_name=? or config_key = ?", e.ConfigName, e.ConfigKey).Count(&i)
+	if i > 0 {
+		return doc, errors.New("参数名称或者参数键名已经存在！")
+	}
+
 	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -80,13 +87,21 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Count(&count)
+	table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, count, nil
 }
 
 func (e *SysConfig) Update(id int) (update SysConfig, err error) {
 	if err = orm.Eloquent.Table(e.TableName()).Where("config_id = ?", id).First(&update).Error; err != nil {
 		return
+	}
+
+	if e.ConfigName != "" && e.ConfigName != update.ConfigName {
+		return update, errors.New("参数名称不允许修改！")
+	}
+
+	if e.ConfigKey != "" && e.ConfigKey != update.ConfigKey {
+		return update, errors.New("参数键名不允许修改！")
 	}
 
 	//参数1:是要修改的数据

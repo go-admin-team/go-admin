@@ -23,6 +23,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.1
+	github.com/pkg/errors v0.8.1
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v2.20.3+incompatible
