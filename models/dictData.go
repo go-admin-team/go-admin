@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	orm "go-admin/database"
 	"go-admin/tools"
 )
@@ -30,6 +31,13 @@ func (DictData) TableName() string {
 
 func (e *DictData) Create() (DictData, error) {
 	var doc DictData
+
+	i := 0
+	orm.Eloquent.Table(e.TableName()).Where("dict_label=? or dict_value = ?", e.DictLabel, e.DictValue).Count(&i)
+	if i > 0 {
+		return doc, errors.New("字典标签或者字典键值已经存在！")
+	}
+
 	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -106,13 +114,21 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 	if err := table.Order("dict_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Count(&count)
+	table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, count, nil
 }
 
 func (e *DictData) Update(id int) (update DictData, err error) {
 	if err = orm.Eloquent.Table(e.TableName()).Where("dict_code = ?", id).First(&update).Error; err != nil {
 		return
+	}
+
+	if e.DictLabel != "" && e.DictLabel != update.DictLabel {
+		return update, errors.New("标签不允许修改！")
+	}
+
+	if e.DictValue != "" && e.DictValue != update.DictValue {
+		return update, errors.New("键值不允许修改！")
 	}
 
 	//参数1:是要修改的数据

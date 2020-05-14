@@ -104,7 +104,7 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Count(&count)
+	table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, count, nil
 }
 
