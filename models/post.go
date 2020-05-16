@@ -97,8 +97,10 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 	// 数据权限控制
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_post", table)
-
+	table, err := dataPermission.GetDataScope("sys_post", table)
+	if err != nil {
+		return nil, 0, err
+	}
 	var count int
 
 	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
