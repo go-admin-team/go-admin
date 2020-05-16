@@ -14,7 +14,10 @@ func TestGoModelTemplate(t *testing.T) {
 	}
 	table := tools.SysTables{}
 	table.TableName = "sys_tables"
-	tab, _ := table.Get()
+	tab, err := table.Get()
+	if err != nil {
+		t.Error(err)
+	}
 	file, err := os.Create("models/"+table.PackageName+".go")
 	if err != nil {
 		t.Error(err)

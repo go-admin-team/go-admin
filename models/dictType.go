@@ -95,8 +95,10 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 	// 数据权限控制
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_dict_type", table)
-
+	table, err := dataPermission.GetDataScope("sys_dict_type", table)
+	if err != nil {
+		return nil, 0, err
+	}
 	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {

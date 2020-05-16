@@ -73,8 +73,7 @@
 settings:
   application:  
     # 项目启动环境            
-    mode: dev  # dev开发环境 test测试环境 prod线上环境；当 mode:demo 时，GET以外的请求操作提示
-    demomsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
+    mode: dev  # dev开发环境 test测试环境 prod线上环境；
     host: 0.0.0.0  # 主机ip 或者域名，默认0.0.0.0
     # 服务名称
     name: go-admin   
