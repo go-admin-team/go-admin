@@ -261,8 +261,10 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 	// 数据权限控制
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_menu", table)
-
+	table, err = dataPermission.GetDataScope("sys_menu", table)
+	if err != nil {
+		return nil, err
+	}
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}

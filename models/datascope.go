@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	"go-admin/tools"
 )
@@ -12,14 +13,19 @@ type DataPermission struct {
 	RoleId    int
 }
 
-func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) *gorm.DB {
+func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) (*gorm.DB, error) {
 	SysUser := new(SysUser)
 	SysRole := new(SysRole)
 	SysUser.UserId = e.UserId
-	user, _ := SysUser.Get()
+	user, err := SysUser.Get()
+	if err != nil {
+		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
+	}
 	SysRole.RoleId = user.RoleId
-	role, _ := SysRole.Get()
-
+	role, err := SysRole.Get()
+	if err != nil {
+		return nil, errors.New("获取用户数据出错 msg:" + err.Error())
+	}
 	if role.DataScope == "2" {
 		table = table.Where(tbname+".create_by in (select sys_user.user_id from sys_role_dept left join sys_user on sys_user.dept_id=sys_role_dept.dept_id where sys_role_dept.role_id = ?)", user.RoleId)
 	}
@@ -33,5 +39,5 @@ func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) *gorm.DB {
 		table = table.Where(tbname+".create_by = ?", e.UserId)
 	}
 
-	return table
+	return table, nil
 }

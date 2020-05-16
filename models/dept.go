@@ -117,7 +117,11 @@ func (e *Dept) GetPage(bl bool) ([]Dept, error) {
 		// 数据权限控制
 		dataPermission := new(DataPermission)
 		dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-		table = dataPermission.GetDataScope("sys_dept", table)
+		tableper, err := dataPermission.GetDataScope("sys_dept", table)
+		if err != nil {
+			return nil, err
+		}
+		table = tableper
 	}
 
 	if err := table.Order("sort").Find(&doc).Error; err != nil {

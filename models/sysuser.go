@@ -146,8 +146,10 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	// 数据权限控制
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_user", table)
-
+	table,err := dataPermission.GetDataScope("sys_user", table)
+	if err != nil {
+		return nil, 0, err
+	}
 	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
@@ -224,7 +226,10 @@ func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
 }
 
 func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
-	user, _ := e.Get()
+	user, err := e.Get()
+	if err != nil {
+		tools.HasError(err, "获取用户数据失败(代码202)", 500)
+	}
 	_, err = tools.CompareHashAndPassword(user.Password, pwd.OldPassword)
 	if err != nil {
 		if strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
