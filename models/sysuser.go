@@ -155,7 +155,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	table.Where("`sys_user.deleted_at` IS NULL").Count(&count)
 	return doc, count, nil
 }
 
