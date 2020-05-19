@@ -33,7 +33,7 @@ func (e *DictData) Create() (DictData, error) {
 	var doc DictData
 
 	i := 0
-	orm.Eloquent.Table(e.TableName()).Where("dict_label=? or dict_value = ?", e.DictLabel, e.DictValue).Count(&i)
+	orm.Eloquent.Table(e.TableName()).Where("dict_label=? or (dict_label=? and dict_value = ?)", e.DictLabel, e.DictValue).Count(&i)
 	if i > 0 {
 		return doc, errors.New("字典标签或者字典键值已经存在！")
 	}
