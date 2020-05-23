@@ -94,7 +94,15 @@ func GetSysUserProfile(c *gin.Context) {
 	userId := tools.GetUserIdStr(c)
 	SysUser.UserId, _ = tools.StringToInt(userId)
 	result, err := SysUser.Get()
+	if err != nil {
+		app.Error(c, 404, err, "抱歉未找到相关信息")
+		return
+	}
 	tools.HasError(err, "抱歉未找到相关信息", -1)
+	
+	// 不返回密码数据内容
+	result.Password = ""
+	
 	var SysRole models.SysRole
 	var Post models.Post
 	var Dept models.Dept
@@ -174,6 +182,7 @@ func UpdateSysUser(c *gin.Context) {
 	var data models.SysUser
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "数据解析失败", -1)
+	data.Password = ""
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.UserId)
 	tools.HasError(err, "修改失败", 500)
