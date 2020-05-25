@@ -30,7 +30,7 @@ func Setup() {
 	Username = config.DatabaseConfig.Username
 	Password = config.DatabaseConfig.Password
 
-	if DbType != "mysql" && DbType != "sqlite3" {
+	if DbType != "mysql" {
 		log.Println("db type unknow")
 	}
 	var err error
@@ -43,10 +43,6 @@ func Setup() {
 	if DbType == "mysql" {
 		db = new(Mysql)
 		Eloquent, err = db.Open(DbType, conn)
-
-	} else if DbType == "sqlite3" {
-		db = new(SqlLite)
-		Eloquent, err = db.Open(DbType, Host)
 
 	} else {
 		panic("db type unknow")
