@@ -120,6 +120,7 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 	if err = table.First(&SysUserView).Error; err != nil {
 		return
 	}
+	SysUserView.Password = ""
 	return
 }
 
@@ -146,7 +147,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	// 数据权限控制
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table,err := dataPermission.GetDataScope("sys_user", table)
+	table, err := dataPermission.GetDataScope("sys_user", table)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -198,10 +199,10 @@ func (e SysUser) Insert() (id int, err error) {
 
 //修改
 func (e *SysUser) Update(id int) (update SysUser, err error) {
-	if err = e.Encrypt(); err != nil {
-		return
-	}
-
+	//if err = e.Encrypt(); err != nil {
+	//	return
+	//}
+	e.Password = ""
 	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}

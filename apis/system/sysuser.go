@@ -172,7 +172,7 @@ func InsertSysUser(c *gin.Context) {
 // @Router /api/v1/sysuser/{userId} [put]
 func UpdateSysUser(c *gin.Context) {
 	var data models.SysUser
-	err := c.BindWith(&data, binding.JSON)
+	err := c.Bind(&data)
 	tools.HasError(err, "数据解析失败", -1)
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.UserId)

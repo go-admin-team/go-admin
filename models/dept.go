@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	orm "go-admin/database"
 	"go-admin/tools"
 	_ "time"
@@ -188,11 +189,17 @@ func (e *Dept) Update(id int) (update Dept, err error) {
 	}
 	e.DeptPath = deptPath
 
+	if e.DeptPath != "" && e.DeptPath != update.DeptPath {
+		return update, errors.New("上级部门不允许修改！")
+	}
+
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
+
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
+
 	return
 }
 

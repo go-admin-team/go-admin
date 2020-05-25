@@ -763,7 +763,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.DictType'
+          $ref: '#/definitions/models.SysConfig'
           type: object
       responses:
         "200":
@@ -772,9 +772,9 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 添加字典数据
+      summary: 添加配置
       tags:
-      - 字典数据
+      - 配置
     put:
       consumes:
       - application/json
