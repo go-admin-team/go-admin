@@ -14,9 +14,6 @@ var cfgApplication *viper.Viper
 var cfgJwt *viper.Viper
 var cfgLog *viper.Viper
 
-//func init() {
-//	InitConfig("settings.dev")
-//}
 
 //载入配置文件
 func ConfigSetup(path string) {
@@ -58,9 +55,6 @@ func ConfigSetup(path string) {
 	LogConfig = InitLog(cfgLog)
 }
 
-func SetApplicationIsInit() {
-	SetConfig("./config", "settings.application.isInit", false)
-}
 
 func SetConfig(configPath string, key string, value interface{}) {
 	viper.AddConfigPath(configPath)

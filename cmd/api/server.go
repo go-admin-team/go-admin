@@ -18,10 +18,12 @@ import (
 	"time"
 )
 
+
+
 var (
-	config string
-	port   string
-	mode   string
+	config   string
+	port     string
+	mode     string
 	StartCmd = &cobra.Command{
 		Use:     "server",
 		Short:   "Start API server",
@@ -55,16 +57,25 @@ func setup() {
 	tools.InitLogger()
 	//3. 初始化数据库链接
 	database.Setup()
-	//4. 设置gin mode
-	if viper.GetString("settings.application.mode") == string(tools.ModeProd) {
-		gin.SetMode(gin.ReleaseMode)
-	}
+
+
 }
 
 func run() error {
+	if mode != "" {
+		config2.SetConfig(config, "settings.application.mode", mode)
+	}
+	if viper.GetString("settings.application.mode") == string(tools.ModeProd) {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	r := router.InitRouter()
 
 	defer database.Eloquent.Close()
+	if port != "" {
+		config2.SetConfig(config, "settings.application.port", port)
+	}
+
 
 	srv := &http.Server{
 		Addr:    config2.ApplicationConfig.Host + ":" + config2.ApplicationConfig.Port,
@@ -79,8 +90,8 @@ func run() error {
 	}()
 	content, _ := ioutil.ReadFile("./static/go-admin.txt")
 	log.Println(string(content))
-	log.Println("Server Run http://127.0.0.1:"+config2.ApplicationConfig.Port+"/")
-	log.Println("Swagger URL http://127.0.0.1:"+config2.ApplicationConfig.Port+"/swagger/index.html")
+	log.Println("Server Run http://127.0.0.1:" + config2.ApplicationConfig.Port + "/")
+	log.Println("Swagger URL http://127.0.0.1:" + config2.ApplicationConfig.Port + "/swagger/index.html")
 
 	log.Println("Enter Control + C Shutdown Server")
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）

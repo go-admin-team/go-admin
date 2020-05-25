@@ -89,7 +89,7 @@ func InsertDept(c *gin.Context) {
 // @Security Bearer
 func UpdateDept(c *gin.Context) {
 	var data models.Dept
-	err := c.BindWith(&data, binding.JSON)
+	err := c.BindJSON(&data)
 	tools.HasError(err, "", -1)
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.DeptId)

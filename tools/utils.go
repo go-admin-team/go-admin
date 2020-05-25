@@ -14,7 +14,6 @@ func StrToInt(err error, index string) int {
 	return result
 }
 
-
 func CompareHashAndPassword(e string, p string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(e), []byte(p))
 	if err != nil {
@@ -50,6 +49,7 @@ func HasError(err error, msg string, code ...int) {
 		if msg == "" {
 			msg = err.Error()
 		}
+		log.Println(err)
 		panic("CustomError#" + strconv.Itoa(statusCode) + "#" + msg)
 	}
 }
