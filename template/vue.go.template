@@ -1,13 +1,25 @@
+{{$tableComment:=.TableComment}}
 <template>
     <div class="app-container">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
             {{range .Columns}}
-                {{- $x := .IsQuery -}}
-                {{- if ($x) -}}
-                    <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
-                        <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable size="small" @keyup.enter.native="handleQuery" />
-                    </el-form-item>
-                {{end}}
+            {{- $x := .IsQuery -}}
+            {{- if ($x) -}}
+            <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                {{if eq .DictType "" -}}
+                <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable size="small" @keyup.enter.native="handleQuery" />
+                {{- else -}}
+                <el-select v-model="queryParams.{{.JsonField}}" placeholder="{{$tableComment}}{{.ColumnComment}}" clearable size="small">
+                    <el-option
+                            v-for="dict in {{.JsonField}}Options"
+                            :key="dict.dictValue"
+                            :label="dict.dictLabel"
+                            :value="dict.dictValue"
+                    />
+                </el-select>
+                {{- end}}
+            </el-form-item>
+            {{end}}
             {{- end }}
             <el-form-item>
                 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -50,10 +62,20 @@
         <el-table v-loading="loading" :data="{{.ModuleName}}List" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
             {{- range .Columns -}}
-                {{- $x := .IsList -}}
-                {{- if ($x) -}}
-                    <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :show-overflow-tooltip="true" />
+            {{- $x := .IsList -}}
+            {{- if ($x) }}
+                {{- if ne .DictType "" -}}
+                    <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :formatter="{{.JsonField}}Format" width="100">
+                        <template slot-scope="scope">
+                            {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
+                        </template>
+                    </el-table-column>
                 {{- end -}}
+                {{- if eq .DictType "" -}}
+                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :show-overflow-tooltip="true" />
+                {{- end -}}
+
+            {{- end }}
             {{- end }}
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
@@ -83,16 +105,39 @@
                 @pagination="getList"
         />
 
-        <!-- 添加或修改参数配置对话框 -->
+        <!-- 添加或修改对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
             <el-form ref="form" :model="form" :rules="rules" label-width="80px">
                 {{ range .Columns }}
-                    {{- $x := .IsInsert -}}
-                    {{- if ($x) -}}
-                        <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
-                            <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}" />
-                        </el-form-item>
-                    {{ end }}
+                {{- $x := .IsInsert -}}
+                {{- if ($x) -}}
+                    {{- if (.Pk) }}
+                    {{- else if eq .GoField "CreatedAt" -}}
+                    {{- else if eq .GoField "UpdatedAt" -}}
+                    {{- else if eq .GoField "DeletedAt" -}}
+                    {{- else if eq .GoField "UpdateBy" -}}
+                    {{- else if eq .GoField "CreateBy" -}}
+                    {{- else }}
+                <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}"  >
+                {{ if eq "input" .HtmlType -}}
+                    <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"  {{if eq .IsEdit "false" -}}:disabled="isEdit"  {{- end}}/>
+                {{- else if eq "select" .HtmlType -}}
+                    <el-select v-model="form.{{.JsonField}}"  {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                        <el-option label="demo1" value="demo1" />
+                        <el-option label="demo2" value="demo2" />
+                    </el-select>
+                {{- else if eq "radio" .HtmlType -}}
+                    <el-radio-group v-model="form.{{.JsonField}}">
+                        <el-radio
+                                v-for="dict in {{.JsonField}}Options"
+                                :key="dict.dictValue"
+                                :label="dict.dictValue"
+                        >{{"{{"}} dict.dictLabel {{"}}"}}</el-radio>
+                    </el-radio-group>
+                {{- end }}
+                </el-form-item>
+                    {{- end }}
+                {{- end }}
                 {{- end }}
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -120,44 +165,54 @@
                 multiple: true,
                 // 总条数
                 total: 0,
-                // 参数表格数据
-                configList: [],
                 // 弹出层标题
                 title: '',
                 // 是否显示弹出层
                 open: false,
+                isEdit: false,
                 // 类型数据字典
                 typeOptions: [],
-                // 日期范围
-                dateRange: [],
+                {{range .Columns}}
+                {{- if ne .DictType "" -}}
+                {{.JsonField}}Options: [],
+                {{- end -}}
+                {{- end }}
                 // 查询参数
                 queryParams: {
                     pageIndex: 1,
                     pageSize: 10,
-            {{- range .Columns -}}
-            {{- $x := .IsQuery -}}
-            {{- if ($x) -}}
-            {{.JsonField}}: undefined,
-            {{- end -}}
-            {{- end }}
-        },
-            // 表单参数
-            form: {},
-            // 表单校验
-            rules: {
-                {{- range .Columns -}}
-                {{- $x := .IsQuery -}}
-                {{- if ($x) -}}
-                {{.JsonField}}: [
-                    { required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur' }
-                ],
-                {{ end }}
-                {{- end -}}
+                    {{ range .Columns }}
+                    {{- if (.IsQuery) -}}
+                    {{.JsonField}}:undefined,
+                    {{ end -}}
+                    {{- end }}
+                },
+                // 表单参数
+                form: {
+                },
+                // 表单校验
+                rules: {
+                    {{- range .Columns -}}
+                    {{- $x := .IsQuery -}}
+                    {{- if ($x) -}}
+                    {{.JsonField}}:
+                    [
+                        {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'}
+                    ],
+                    {{ end }}
+                    {{- end -}}
+                }
             }
-        }
         },
         created() {
             this.getList()
+            {{range .Columns}}
+            {{- if ne .DictType "" -}}
+            this.getDicts('{{.DictType}}').then(response => {
+                this.{{.JsonField}}Options = response.data
+            })
+            {{- end -}}
+            {{- end }}
         },
         methods: {
             /** 查询参数列表 */
@@ -180,13 +235,28 @@
                 this.form = {
                 {{ range .Columns}}
                 {{- $x := .IsInsert -}}
-                {{ if ($x) -}}
+                {{- if ($x) -}}
+                {{- if eq .GoField "CreatedAt" -}}
+                {{- else if eq .GoField "UpdatedAt" -}}
+                {{- else if eq .GoField "DeletedAt" -}}
+                {{- else if eq .GoField "UpdateBy" -}}
+                {{- else if eq .GoField "CreateBy" -}}
+                {{- else }}
                 {{.JsonField}}: undefined,
-                {{ end }}
+                {{- end }}
                 {{- end -}}
-            }
+                {{- end }}
+                }
                 this.resetForm('form')
             },
+            {{range .Columns}}
+            {{- if ne .DictType "" -}}
+            {{.JsonField}}Format(row) {
+                return this.selectDictLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
+            },
+            {{- end -}}
+            {{- end }}
+
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageIndex = 1
@@ -203,6 +273,7 @@
                 this.reset()
                 this.open = true
                 this.title = '添加{{.TableComment}}'
+                this.isEdit = false
             },
             // 多选框选中数据
             handleSelectionChange(selection) {
@@ -218,6 +289,7 @@
                     this.form = response.data
                     this.open = true
                     this.title = '修改{{.TableComment}}'
+                    this.isEdit = true
                 })
             },
             /** 提交按钮 */

@@ -166,51 +166,6 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 演示地址：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
-## 📈 版本
-
-### 2020-04-23 新功能及优化
-
-1. 添加单服务命令
-2. 添加单数据库数据化命令
-3. 调整项目结构
-3. 部分代码优化
-3. 添加根接口
-4. 其他已知bug的修复
-
-### 2020-04-13 新功能及优化
-
-1. 数据库初始化方式改为gorm 迁移方式
-2. 删除原有创建、修改时间和is_del字段，改用gorm 原生逻辑删除功能
-3. 添加服务监控基础指标
-3. 框架结构调整
-3. 部分代码优化
-4. 其他已知bug的修复
-
-
-### 2020-04-08 新功能及优化
-
-1. 添加sqlite3的支持
-1. 数据库字段格式统一
-2. 用户新增bug修复
-3. 修改数据初始化脚本
-4. 验证码改为数字验证 
-5. 删除redis暂时无用组件
-6. 其他已知bug的修复
-
-### 2020-04-01 新功能及优化
-
-1. 代码生成器
-2. 代码优化
-3. 已知bug修复
-
-#### 2020-03-15 新功能及优化
-
-1. 添加用户头像上传
-2. 添加用户密码修改
-3. 操作日志页面调整
-4. 优化验证码背景色
-
-看到好多体验的朋友验证码错误，所以调整了对比度，方便大家体验！
 
 ## 📨 互动
 
@@ -227,8 +182,6 @@ env GOOS=linux GOARCH=amd64 go build main.go
   </tr>
 </table>
   
-
-
 
 ## 🤝 特别感谢
 [chengxiao](https://github.com/chengxiao)
@@ -250,7 +203,7 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 ## ❤️ 赞助者
 
-zhuqiyun
+zhuqiyun LLL狐
 
 ## 🔑 License
 
