@@ -7,10 +7,16 @@ _ "time"
 )
 
 type {{.ClassName}} struct {
-{{ range .Columns -}}
+    {{ range .Columns -}}
     {{$x := .Pk}}
-    {{if ($x)}}{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key"`{{else}}{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};"`{{end}} // {{.ColumnComment}}
-{{- end }}
+    {{- if ($x) }}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key"` // {{.ColumnComment}}
+    {{- else if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else }}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};"` // {{.ColumnComment}}{{end -}}
+    {{- end }}
     DataScope   string `json:"dataScope" gorm:"-"`
     Params      string `json:"params"  gorm:"-"`
     BaseModel
@@ -37,19 +43,23 @@ func (e *{{.ClassName}}) Create() ({{.ClassName}}, error) {
 func (e *{{.ClassName}}) Get() ({{.ClassName}}, error) {
 var doc {{.ClassName}}
     table := orm.Eloquent.Table(e.TableName())
-    {{ range .Columns -}}
-    {{$z := .IsQuery}}
-    {{- if ($z) -}}
-        if e.{{.GoField}} !=  "" {
-        table = table.Where("{{.ColumnName}} = ?", e.{{.GoField}})
-        }
+    {{ range .Columns }}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+    if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
+    table = table.Where("{{.ColumnName}}{{if eq .QueryType "EQ"}} = {{else if eq .QueryType "NE"}} != {{else if eq .QueryType "GT"}} >  {{else if eq .QueryType "GTE"}} >=  {{else if eq .QueryType "LT"}} < {{else if eq .QueryType "LTE"}} <= {{else if eq .QueryType "LIKE"}} like {{end}}?", {{ if eq .QueryType "LIKE"}}"%"+e.{{.GoField}}+"%"{{else}}e.{{.GoField}}{{end}})
+    }
+    {{- else if .IsQuery }}
+    if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
+        table = table.Where("{{.ColumnName}}{{if eq .QueryType "EQ"}} = {{else if eq .QueryType "NE"}} != {{else if eq .QueryType "GT"}} >  {{else if eq .QueryType "GTE"}} >=  {{else if eq .QueryType "LT"}} < {{else if eq .QueryType "LTE"}} <= {{else if eq .QueryType "LIKE"}} like {{end}}?", {{ if eq .QueryType "LIKE"}}"%"+e.{{.GoField}}+"%"{{else}}e.{{.GoField}}{{end}})
+    }
     {{ end -}}
-{{ end }}
+    {{- end }}
 
-if err := table.First(&doc).Error; err != nil {
-return doc, err
-}
-return doc, nil
+    if err := table.First(&doc).Error; err != nil {
+        return doc, err
+    }
+    return doc, nil
 }
 
 // 获取{{.ClassName}}带分页
@@ -57,14 +67,13 @@ func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}},
     var doc []{{.ClassName}}
 
     table := orm.Eloquent.Select("*").Table(e.TableName())
-    {{ range .Columns -}}
-    {{$z := .IsQuery}}
-    {{- if ($z) -}}
-        if e.{{.GoField}} != "" {
-        table = table.Where("{{.ColumnName}} = ?", e.{{.GoField}})
-        }
+    {{ range .Columns }}
+    {{- if .IsQuery }}
+    if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
+        table = table.Where("{{.ColumnName}}{{if eq .QueryType "EQ"}} = {{else if eq .QueryType "NE"}} != {{else if eq .QueryType "GT"}} >  {{else if eq .QueryType "GTE"}} >=  {{else if eq .QueryType "LT"}} < {{else if eq .QueryType "LTE"}} <= {{else if eq .QueryType "LIKE"}} like {{end}}?", {{ if eq .QueryType "LIKE"}}"%"+e.{{.GoField}}+"%"{{else}}e.{{.GoField}}{{end}})
+    }
     {{ end -}}
-    {{ end }}
+    {{- end }}
 
     // 数据权限控制(如果不需要数据权限请将此处去掉)
     dataPermission := new(DataPermission)
