@@ -1,0 +1,33 @@
+
+// 需认证的路由代码
+func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+
+r := v1.Group("/{{.ModuleName}}").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+{
+r.GET("/:{{.PkJsonField}}", {{.ModuleName}}.Get{{.ClassName}})
+r.POST("", {{.ModuleName}}.Insert{{.ClassName}})
+r.PUT("", {{.ModuleName}}.Update{{.ClassName}})
+r.DELETE("/:{{.PkJsonField}}", {{.ModuleName}}.Delete{{.ClassName}})
+}
+
+l := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+{
+l.GET("/{{.ModuleName}}List",{{.ModuleName}}.Get{{.ClassName}}List)
+}
+
+}
+
+// 无需认证的路由代码
+func register{{.ClassName}}Router(v1 *gin.RouterGroup) {
+
+v1.GET("/{{.ModuleName}}List",{{.ModuleName}}.Get{{.ClassName}}List)
+
+r := v1.Group("/{{.ModuleName}}")
+{
+r.GET("/:{{.PkJsonField}}", {{.ModuleName}}.Get{{.ClassName}})
+r.POST("", {{.ModuleName}}.Insert{{.ClassName}})
+r.PUT("", {{.ModuleName}}.Update{{.ClassName}})
+r.DELETE("/:{{.PkJsonField}}", {{.ModuleName}}.Delete{{.ClassName}})
+}
+}
+

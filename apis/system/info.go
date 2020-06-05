@@ -14,6 +14,10 @@ func GetInfo(c *gin.Context) {
 
 	var permissions = make([]string, 1)
 	permissions[0] = "*:*:*"
+
+	var buttons = make([]string, 1)
+	buttons[0] = "*:*:*"
+
 	RoleMenu := models.RoleMenu{}
 	RoleMenu.RoleId = tools.GetRoleId(c)
 
@@ -21,9 +25,11 @@ func GetInfo(c *gin.Context) {
 	mp["roles"] = roles
 	if tools.GetRoleName(c) == "admin" || tools.GetRoleName(c) == "系统管理员" {
 		mp["permissions"] = permissions
+		mp["buttons"] = buttons
 	} else {
 		list, _ := RoleMenu.GetPermis()
 		mp["permissions"] = list
+		mp["buttons"] = list
 	}
 
 	sysuser := models.SysUser{}
@@ -37,7 +43,10 @@ func GetInfo(c *gin.Context) {
 	if user.Avatar != "" {
 		mp["avatar"] = user.Avatar
 	}
+	mp["userName"] = user.NickName
+	mp["userId"] = user.UserId
+	mp["deptId"] = user.DeptId
 	mp["name"] = user.NickName
 
-	app.OK(c,mp,"")
+	app.OK(c, mp, "")
 }
