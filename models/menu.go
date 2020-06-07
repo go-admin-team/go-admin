@@ -8,7 +8,7 @@ import (
 
 type Menu struct {
 	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"`
-	MenuName   string `json:"menuName" gorm:"type:varchar(11);"`
+	MenuName   string `json:"menuName" gorm:"type:varchar(128);"`
 	Title      string `json:"title" gorm:"type:varchar(64);"`
 	Icon       string `json:"icon" gorm:"type:varchar(128);"`
 	Path       string `json:"path" gorm:"type:varchar(128);"`
