@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type RoleMenu struct {
@@ -37,7 +37,7 @@ func (rm *RoleMenu) Get() ([]RoleMenu, error) {
 
 func (rm *RoleMenu) GetPermis() ([]string, error) {
 	var r []Menu
-	table := orm.Eloquent.Select("sys_menu.permission").Table("sys_role_menu").Joins("left join sys_menu on sys_menu.menu_id = sys_role_menu.menu_id")
+	table := orm.Eloquent.Select("sys_menu.permission").Table("sys_menu").Joins("left join sys_role_menu on sys_menu.menu_id = sys_role_menu.menu_id")
 
 	table = table.Where("role_id = ?", rm.RoleId)
 
@@ -134,7 +134,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 }
 
 func (rm *RoleMenu) Delete(RoleId string, MenuID string) (bool, error) {
-	rm.RoleId, _ = utils.StringToInt(RoleId)
+	rm.RoleId, _ = tools.StringToInt(RoleId)
 	table := orm.Eloquent.Table("sys_role_menu").Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		table = table.Where("menu_id = ?", MenuID)

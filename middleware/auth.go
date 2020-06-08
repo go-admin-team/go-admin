@@ -1,19 +1,18 @@
 package middleware
 
 import (
-	config2 "go-admin/config"
 	"go-admin/handler"
 	jwt "go-admin/pkg/jwtauth"
+	"go-admin/tools/config"
 	"time"
 )
 
 func AuthInit() (*jwt.GinJWTMiddleware, error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           "test zone",
-		Key:             []byte("secret key"),
+		Key:             []byte(config.ApplicationConfig.JwtSecret),
 		Timeout:         time.Hour,
 		MaxRefresh:      time.Hour,
-		IdentityKey:     config2.ApplicationConfig.JwtSecret,
 		PayloadFunc:     handler.PayloadFunc,
 		IdentityHandler: handler.IdentityHandler,
 		Authenticator:   handler.Authenticator,

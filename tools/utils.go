@@ -1,4 +1,4 @@
-package pkg
+package tools
 
 import (
 	"golang.org/x/crypto/bcrypt"
@@ -13,7 +13,6 @@ func StrToInt(err error, index string) int {
 	}
 	return result
 }
-
 
 func CompareHashAndPassword(e string, p string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(e), []byte(p))
@@ -33,7 +32,7 @@ func Assert(condition bool, msg string, code ...int) {
 		if len(code) > 0 {
 			statusCode = code[0]
 		}
-		panic("CustomErroe#" + strconv.Itoa(statusCode) + "#" + msg)
+		panic("CustomError#" + strconv.Itoa(statusCode) + "#" + msg)
 	}
 }
 
@@ -50,6 +49,7 @@ func HasError(err error, msg string, code ...int) {
 		if msg == "" {
 			msg = err.Error()
 		}
+		log.Println(err)
 		panic("CustomError#" + strconv.Itoa(statusCode) + "#" + msg)
 	}
 }

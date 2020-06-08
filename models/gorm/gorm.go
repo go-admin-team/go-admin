@@ -2,15 +2,11 @@ package gorm
 
 import (
 	"github.com/jinzhu/gorm"
-	"go-admin/config"
 	"go-admin/models"
 	"go-admin/models/tools"
 )
 
 func AutoMigrate(db *gorm.DB) error {
-	if config.DatabaseConfig.Dbtype == "mysql" {
-		db = db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
-	}
 	db.SingularTable(true)
 	return db.AutoMigrate(
 		new(models.CasbinRule),

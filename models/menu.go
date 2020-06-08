@@ -3,12 +3,12 @@ package models
 import (
 	"errors"
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type Menu struct {
 	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"`
-	MenuName   string `json:"menuName" gorm:"type:varchar(11);"`
+	MenuName   string `json:"menuName" gorm:"type:varchar(128);"`
 	Title      string `json:"title" gorm:"type:varchar(64);"`
 	Icon       string `json:"icon" gorm:"type:varchar(128);"`
 	Path       string `json:"path" gorm:"type:varchar(128);"`
@@ -248,15 +248,23 @@ func (e *Menu) GetPage() (Menus []Menu, err error) {
 	if e.MenuName != "" {
 		table = table.Where("menu_name = ?", e.MenuName)
 	}
+	if e.Title != "" {
+		table = table.Where("title = ?", e.Title)
+	}
+	if e.Visible != "" {
+		table = table.Where("visible = ?", e.Visible)
+	}
 	if e.MenuType != "" {
 		table = table.Where("menu_type = ?", e.MenuType)
 	}
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_menu", table)
-
+	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	table, err = dataPermission.GetDataScope("sys_menu", table)
+	if err != nil {
+		return nil, err
+	}
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}
@@ -285,9 +293,9 @@ func InitPaths(menu *Menu) (err error) {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return
 		}
-		menu.Paths = parentMenu.Paths + "/" + utils.IntToString(menu.MenuId)
+		menu.Paths = parentMenu.Paths + "/" + tools.IntToString(menu.MenuId)
 	} else {
-		menu.Paths = "/0/" + utils.IntToString(menu.MenuId)
+		menu.Paths = "/0/" + tools.IntToString(menu.MenuId)
 	}
 	orm.Eloquent.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return

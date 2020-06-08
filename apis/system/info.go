@@ -3,34 +3,39 @@ package system
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/app"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"go-admin/tools/app"
 )
 
 func GetInfo(c *gin.Context) {
 
 	var roles = make([]string, 1)
-	roles[0] = utils.GetRoleName(c)
+	roles[0] = tools.GetRoleName(c)
 
 	var permissions = make([]string, 1)
 	permissions[0] = "*:*:*"
+
+	var buttons = make([]string, 1)
+	buttons[0] = "*:*:*"
+
 	RoleMenu := models.RoleMenu{}
-	RoleMenu.RoleId = utils.GetRoleId(c)
+	RoleMenu.RoleId = tools.GetRoleId(c)
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
-	if utils.GetRoleName(c) == "admin" || utils.GetRoleName(c) == "系统管理员" {
+	if tools.GetRoleName(c) == "admin" || tools.GetRoleName(c) == "系统管理员" {
 		mp["permissions"] = permissions
+		mp["buttons"] = buttons
 	} else {
 		list, _ := RoleMenu.GetPermis()
 		mp["permissions"] = list
+		mp["buttons"] = list
 	}
 
 	sysuser := models.SysUser{}
-	sysuser.UserId = utils.GetUserId(c)
+	sysuser.UserId = tools.GetUserId(c)
 	user, err := sysuser.Get()
-	pkg.HasError(err, "", 500)
+	tools.HasError(err, "", 500)
 
 	mp["introduction"] = " am a super administrator"
 
@@ -38,7 +43,10 @@ func GetInfo(c *gin.Context) {
 	if user.Avatar != "" {
 		mp["avatar"] = user.Avatar
 	}
+	mp["userName"] = user.NickName
+	mp["userId"] = user.UserId
+	mp["deptId"] = user.DeptId
 	mp["name"] = user.NickName
 
-	app.OK(c,mp,"")
+	app.OK(c, mp, "")
 }

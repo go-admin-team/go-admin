@@ -1,8 +1,9 @@
 package models
 
 import (
+	"errors"
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type DictType struct {
@@ -24,6 +25,13 @@ func (DictType) TableName() string {
 
 func (e *DictType) Create() (DictType, error) {
 	var doc DictType
+
+	i := 0
+	orm.Eloquent.Table(e.TableName()).Where("dict_name=? or dict_type = ?", e.DictName, e.DictType).Count(&i)
+	if i > 0 {
+		return doc, errors.New("字典名称或者字典类型已经存在！")
+	}
+
 	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -86,21 +94,31 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_dict_type", table)
-
+	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	table, err := dataPermission.GetDataScope("sys_dict_type", table)
+	if err != nil {
+		return nil, 0, err
+	}
 	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Count(&count)
+	table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, count, nil
 }
 
 func (e *DictType) Update(id int) (update DictType, err error) {
 	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
+	}
+
+	if e.DictName != "" && e.DictName != update.DictName {
+		return update, errors.New("名称不允许修改！")
+	}
+
+	if e.DictType != "" && e.DictType != update.DictType {
+		return update, errors.New("类型不允许修改！")
 	}
 
 	//参数1:是要修改的数据
@@ -117,5 +135,13 @@ func (e *DictType) Delete(id int) (success bool, err error) {
 		return
 	}
 	success = true
+	return
+}
+
+func (e *DictType) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("dict_id in (?)", id).Delete(&DictType{}).Error; err != nil {
+		return
+	}
+	Result = true
 	return
 }

@@ -2,7 +2,7 @@ package models
 
 import (
 	orm "go-admin/database"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
 )
 
 type Post struct {
@@ -96,15 +96,17 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_post", table)
-
+	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	table, err := dataPermission.GetDataScope("sys_post", table)
+	if err != nil {
+		return nil, 0, err
+	}
 	var count int
 
 	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Count(&count)
+	table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, count, nil
 }
 
@@ -127,5 +129,13 @@ func (e *Post) Delete(id int) (success bool, err error) {
 		return
 	}
 	success = true
+	return
+}
+
+func (e *Post) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("post_id in (?)", id).Delete(&Post{}).Error; err != nil {
+		return
+	}
+	Result = true
 	return
 }

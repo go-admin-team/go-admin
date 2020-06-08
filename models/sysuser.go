@@ -3,12 +3,10 @@ package models
 import (
 	"errors"
 	orm "go-admin/database"
-	"go-admin/pkg"
-	"go-admin/pkg/utils"
+	"go-admin/tools"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"strings"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 // User
@@ -122,34 +120,43 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 	if err = table.First(&SysUserView).Error; err != nil {
 		return
 	}
+	SysUserView.Password = ""
 	return
 }
 
 func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, error) {
 	var doc []SysUserPage
-
 	table := orm.Eloquent.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
 	table = table.Joins("left join sys_dept on sys_dept.dept_id = sys_user.dept_id")
 
 	if e.Username != "" {
 		table = table.Where("username = ?", e.Username)
 	}
+	if e.Status != "" {
+		table = table.Where("sys_user.status = ?", e.Status)
+	}
+
+	if e.Phone != "" {
+		table = table.Where("sys_user.phone = ?", e.Phone)
+	}
 
 	if e.DeptId != 0 {
-		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+utils.IntToString(e.DeptId)+"%")
+		table = table.Where("sys_user.dept_id in (select dept_id from sys_dept where dept_path like ? )", "%"+tools.IntToString(e.DeptId)+"%")
 	}
 
 	// 数据权限控制
 	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = utils.StringToInt(e.DataScope)
-	table = dataPermission.GetDataScope("sys_user", table)
-
+	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	table, err := dataPermission.GetDataScope("sys_user", table)
+	if err != nil {
+		return nil, 0, err
+	}
 	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Count(&count)
+	table.Where("sys_user.deleted_at IS NULL").Count(&count)
 	return doc, count, nil
 }
 
@@ -192,10 +199,10 @@ func (e SysUser) Insert() (id int, err error) {
 
 //修改
 func (e *SysUser) Update(id int) (update SysUser, err error) {
-	if err = e.Encrypt(); err != nil {
-		return
-	}
-
+	//if err = e.Encrypt(); err != nil {
+	//	return
+	//}
+	e.Password = ""
 	if err = orm.Eloquent.Table(e.TableName()).First(&update, id).Error; err != nil {
 		return
 	}
@@ -220,17 +227,20 @@ func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
 }
 
 func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
-	user, _ := e.Get()
-	_, err = pkg.CompareHashAndPassword(user.Password, pwd.OldPassword)
+	user, err := e.Get()
+	if err != nil {
+		tools.HasError(err, "获取用户数据失败(代码202)", 500)
+	}
+	_, err = tools.CompareHashAndPassword(user.Password, pwd.OldPassword)
 	if err != nil {
 		if strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
-			pkg.HasError(err, "密码错误(代码202)", 500)
+			tools.HasError(err, "密码错误(代码202)", 500)
 		}
 		log.Print(err)
 		return
 	}
 	e.Password = pwd.NewPassword
 	_, err = e.Update(e.UserId)
-	pkg.HasError(err, "更新密码失败(代码202)", 500)
+	tools.HasError(err, "更新密码失败(代码202)", 500)
 	return
 }
