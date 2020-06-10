@@ -1,8 +1,9 @@
 package cronjob
 
 import (
-	"github.com/robfig/cron/v3"
 	"log"
+
+	"github.com/robfig/cron/v3"
 )
 
 func TestJob(c *cron.Cron) {
@@ -14,6 +15,6 @@ func TestJob(c *cron.Cron) {
 		log.Println(err)
 		log.Println("start error")
 	} else {
-		log.Println("Start Success; ID: %v", id)
+		log.Printf("Start Success; ID: %+v\n", id)
 	}
 }

@@ -2,12 +2,13 @@ package mycasbin
 
 import (
 	"fmt"
+	"go-admin/database"
+	"go-admin/tools/config"
+
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/go-kit/kit/endpoint"
 	_ "github.com/go-sql-driver/mysql"
-	"go-admin/database"
-	"go-admin/tools/config"
 )
 
 var Em endpoint.Middleware
@@ -28,7 +29,7 @@ func Casbin() (*casbin.Enforcer, error) {
 	if err := e.LoadPolicy(); err == nil {
 		return e, err
 	} else {
-		fmt.Print("casbin rbac_model or policy init error, message: %v", err)
+		fmt.Printf("casbin rbac_model or policy init error, message: %+v", err)
 		return nil, err
 	}
 }
