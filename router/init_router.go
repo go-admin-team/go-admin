@@ -2,14 +2,19 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-admin/handler"
 	"go-admin/middleware"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
+	config2 "go-admin/tools/config"
 )
 
 func InitRouter() *gin.Engine {
 
 	r := gin.New()
+	if config2.ApplicationConfig.IsHttps {
+		r.Use(handler.TlsHandler())
+	}
 	middleware.InitMiddleware(r)
 	// the jwt middleware
 	authMiddleware, err := middleware.AuthInit()
