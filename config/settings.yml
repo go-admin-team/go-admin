@@ -6,6 +6,11 @@ settings:
     port: 8000
     readtimeout: 1
     writertimeout: 2
+    domain: localhost:8000
+    ishttps: false
+  ssl:
+    key: keystring
+    pem: temp/pem.pem
   log:
     dir: temp/logs
   jwt:
