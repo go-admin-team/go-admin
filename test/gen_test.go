@@ -7,18 +7,19 @@ import (
 	"text/template"
 )
 
+
 func TestGoModelTemplate(t *testing.T) {
 	t1, err := template.ParseFiles("model.go.template")
 	if err != nil {
 		t.Error(err)
 	}
 	table := tools.SysTables{}
-	table.TableName = "sys_tables"
+	table.TBName = "sys_tables"
 	tab, err := table.Get()
 	if err != nil {
 		t.Error(err)
 	}
-	file, err := os.Create("models/"+table.PackageName+".go")
+	file, err := os.Create("models/" + table.PackageName + ".go")
 	if err != nil {
 		t.Error(err)
 	}
@@ -34,9 +35,9 @@ func TestGoApiTemplate(t *testing.T) {
 		t.Error(err)
 	}
 	table := tools.SysTables{}
-	table.TableName = "sys_tables"
+	table.TBName = "sys_tables"
 	tab, _ := table.Get()
-	file, err := os.Create("apis/"+table.PackageName+".go")
+	file, err := os.Create("apis/" + table.PackageName + ".go")
 	if err != nil {
 		t.Error(err)
 	}

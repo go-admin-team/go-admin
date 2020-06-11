@@ -28,7 +28,7 @@ func Casbin() (*casbin.Enforcer, error) {
 	if err := e.LoadPolicy(); err == nil {
 		return e, err
 	} else {
-		fmt.Print("casbin rbac_model or policy init error, message: %v", err)
+		fmt.Printf("casbin rbac_model or policy init error, message: %v \r\n", err.Error())
 		return nil, err
 	}
 }
