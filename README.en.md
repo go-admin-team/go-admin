@@ -107,7 +107,7 @@ cd ./go-admin
 go build
 
 # Change setting
-vi ./config/setting.yml (Note: Change isinit and database connection)
+vi ./config/settings.yml (Note: Change isinit and database connection)
 
 # 1. Database information in the configuration file
 # Note: the corresponding configuration data under settings.database
