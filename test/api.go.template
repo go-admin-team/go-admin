@@ -17,7 +17,7 @@ import (
 // @Param configType query string false "configType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configList [get]
 // @Security
 func Get{{.ClassName}}List(c *gin.Context) {
@@ -51,7 +51,7 @@ func Get{{.ClassName}}List(c *gin.Context) {
 	mp["pageIndex"] = pageIndex
 	mp["pageIndex"] = pageSize
 
-	var res models.Response
+	var res app.Response
 	res.Data = mp
 
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -61,7 +61,7 @@ func Get{{.ClassName}}List(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 配置
 // @Param configId path int true "配置编码"
-// @Success 200 {object} models.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/config/{configId} [get]
 // @Security
 func Get{{.ClassName}}(c *gin.Context) {
@@ -70,7 +70,7 @@ func Get{{.ClassName}}(c *gin.Context) {
 	result, err := data.Get()
 	pkg.HasError(err, "抱歉未找到相关信息", -1)
 
-	var res models.Response
+	var res app.Response
 	res.Data = result
 
 	c.JSON(http.StatusOK, res.ReturnOK())
@@ -94,7 +94,7 @@ func Insert{{.ClassName}}(c *gin.Context) {
 	result, err := data.Create()
 	pkg.HasError(err, "", -1)
 
-	var res models.Response
+	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
 
@@ -108,7 +108,7 @@ func Update{{.ClassName}}(c *gin.Context) {
 	result, err := data.Update(data.{{.PkGoField}})
 	pkg.HasError(err, "", -1)
 
-	var res models.Response
+	var res app.Response
 	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
@@ -120,7 +120,7 @@ func Delete{{.ClassName}}(c *gin.Context) {
 	_, err = data.Delete(id)
 	pkg.HasError(err, "修改失败", 500)
 
-	var res models.Response
+	var res app.Response
 	res.Msg = "删除成功"
 	c.JSON(http.StatusOK, res.ReturnOK())
 }

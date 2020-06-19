@@ -2,13 +2,13 @@ package migrate
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"go-admin/database"
-	orm "go-admin/database"
+	"go-admin/global/orm"
 	"go-admin/models"
 	"go-admin/models/gorm"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
-	"log"
 
 	"github.com/spf13/cobra"
 )

@@ -6,7 +6,7 @@ import (
 	"go-admin/pkg/jwtauth"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 

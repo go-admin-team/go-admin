@@ -7,7 +7,7 @@ import (
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 // @Summary 列表数据

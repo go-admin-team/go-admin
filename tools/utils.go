@@ -1,8 +1,8 @@
 package tools
 
 import (
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"strconv"
 )
 

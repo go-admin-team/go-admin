@@ -12,6 +12,7 @@ settings:
     key: keystring
     pem: temp/pem.pem
   log:
+    operdb: false
     dir: temp/logs
   jwt:
     secret: go-admin

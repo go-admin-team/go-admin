@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/pkg/errors"
-	orm "go-admin/database"
+	"go-admin/global/orm"
 	"go-admin/tools"
 )
 
