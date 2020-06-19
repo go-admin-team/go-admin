@@ -3,18 +3,24 @@ package tools
 import (
 	"errors"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	config2 "go-admin/tools/config"
 	"os"
 	"time"
 )
 
 func InitLogger() {
-	switch Mode(viper.GetString("settings.application.mode")) {
+	log.SetFormatter(&log.TextFormatter{FieldMap: log.FieldMap{
+		log.FieldKeyTime:  "@timestamp",
+		log.FieldKeyLevel: "@level",
+		log.FieldKeyMsg:   "@message"}})
+
+
+	switch Mode(config2.ApplicationConfig.Mode) {
 	case ModeDev, ModeTest:
 		log.SetOutput(os.Stdout)
 		log.SetLevel(log.TraceLevel)
 	case ModeProd:
-		file, err := os.OpenFile(viper.GetString("logger.dir")+"/api-"+time.Now().Format("2006-01-02")+".log", os.O_WRONLY|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0600)
+		file, err := os.OpenFile(config2.LogConfig.Dir+"/api-"+time.Now().Format("2006-01-02")+".log", os.O_WRONLY|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0600)
 		if err != nil {
 			log.Fatalln("log init failed")
 		}
@@ -26,7 +32,7 @@ func InitLogger() {
 		}
 		fileWriter := logFileWriter{file, info.Size()}
 		log.SetOutput(&fileWriter)
-		log.SetLevel(log.ErrorLevel)
+		log.SetLevel(log.WarnLevel)
 	}
 
 	log.SetReportCaller(true)
@@ -47,9 +53,9 @@ func (p *logFileWriter) Write(data []byte) (n int, err error) {
 	n, e := p.file.Write(data)
 	p.size += int64(n)
 	//每天一个文件
-	if p.file.Name() != viper.GetString("logger.dir")+"/api-"+time.Now().Format("2006-01-02")+".log" {
+	if p.file.Name() != config2.LogConfig.Dir+"/api-"+time.Now().Format("2006-01-02")+".log" {
 		p.file.Close()
-		p.file, _ = os.OpenFile(viper.GetString("logger.dir")+"/api-"+time.Now().Format("2006-01-02")+".log", os.O_WRONLY|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0600)
+		p.file, _ = os.OpenFile(config2.LogConfig.Dir+"/api-"+time.Now().Format("2006-01-02")+".log", os.O_WRONLY|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0600)
 		p.size = 0
 	}
 	return n, e

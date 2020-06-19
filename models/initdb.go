@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	orm "go-admin/database"
+	"go-admin/global/orm"
 	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"strings"

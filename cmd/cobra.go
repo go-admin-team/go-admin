@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"go-admin/cmd/api"
 	"go-admin/cmd/migrate"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 )
 
