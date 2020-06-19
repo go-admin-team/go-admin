@@ -2,7 +2,7 @@ package tools
 
 import (
 	"errors"
-	orm "go-admin/database"
+	"go-admin/global/orm"
 	config2 "go-admin/tools/config"
 )
 

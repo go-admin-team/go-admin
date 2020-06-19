@@ -2,7 +2,7 @@ package cronjob
 
 import (
 	"github.com/robfig/cron/v3"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 func TestJob(c *cron.Cron) {
