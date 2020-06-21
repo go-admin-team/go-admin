@@ -48,3 +48,34 @@ func Preview(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
+
+
+func GenCode(c *gin.Context) {
+	table := tools.SysTables{}
+	id, err := tools2.StringToInt(c.Param("tableId"))
+	tools2.HasError(err, "", -1)
+	table.TableId = id
+
+	t1, err := template.ParseFiles("template/model.go.template")
+	tools2.HasError(err, "", -1)
+	t2, err := template.ParseFiles("template/api.go.template")
+	tools2.HasError(err, "", -1)
+	t3, err := template.ParseFiles("template/router.go.template")
+	tools2.HasError(err, "", -1)
+	tab, _ := table.Get()
+	_ = tools2.PathCreate("./apis/")
+	_ = tools2.PathCreate("./apis/")
+	_ = tools2.PathCreate("./models/")
+	_ = tools2.PathCreate("./router/" + tab.ModuleName + "/")
+
+	var b1 bytes.Buffer
+	err = t1.Execute(&b1, tab)
+	var b2 bytes.Buffer
+	err = t2.Execute(&b2, tab)
+	var b3 bytes.Buffer
+	err = t3.Execute(&b3, tab)
+	tools2.FileCreate(b1, "./models/"+tab.PackageName+".go")
+	tools2.FileCreate(b2, "./apis/"+tab.PackageName+".go")
+	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
+
+}
