@@ -2,12 +2,14 @@ package database
 
 import (
 	"bytes"
-	_ "github.com/go-sql-driver/mysql" //加载mysql
-	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
+	"strconv"
+
 	"go-admin/global/orm"
 	"go-admin/tools/config"
-	"strconv"
+
+	_ "github.com/go-sql-driver/mysql" // 加载mysql
+	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 var (

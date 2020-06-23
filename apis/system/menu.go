@@ -1,11 +1,12 @@
 package system
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // @Summary Menu列表数据

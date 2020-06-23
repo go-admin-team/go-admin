@@ -1,12 +1,14 @@
 package monitor
 
 import (
+	"runtime"
+
+	"go-admin/tools/app"
+
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-	"go-admin/tools/app"
-	"runtime"
 )
 
 const (
@@ -46,7 +48,6 @@ func ServerInfo(c *gin.Context) {
 
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
-
 
 	app.Custum(c, gin.H{
 		"code": 200,

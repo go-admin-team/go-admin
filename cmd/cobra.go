@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"errors"
-	"github.com/spf13/cobra"
+	"os"
+
 	"go-admin/cmd/api"
 	"go-admin/cmd/migrate"
+
 	log "github.com/sirupsen/logrus"
-	"os"
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -33,7 +35,7 @@ func init() {
 	rootCmd.AddCommand(migrate.StartCmd)
 }
 
-//Execute : apply commands
+// Execute : apply commands
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(-1)

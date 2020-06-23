@@ -2,18 +2,19 @@ package models
 
 import (
 	"errors"
+	_ "time"
+
 	orm "go-admin/global/orm"
 	"go-admin/tools"
-	_ "time"
 )
 
 type SysConfig struct {
-	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` //编码
-	ConfigName  string `json:"configName" gorm:"type:varchar(128);"`        //参数名称
-	ConfigKey   string `json:"configKey" gorm:"type:varchar(128);"`         //参数键名
-	ConfigValue string `json:"configValue" gorm:"type:varchar(255);"`       //参数键值
-	ConfigType  string `json:"configType" gorm:"type:varchar(64);"`         //是否系统内置
-	Remark      string `json:"remark" gorm:"type:varchar(128);"`            //备注
+	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` // 编码
+	ConfigName  string `json:"configName" gorm:"type:varchar(128);"`        // 参数名称
+	ConfigKey   string `json:"configKey" gorm:"type:varchar(128);"`         // 参数键名
+	ConfigValue string `json:"configValue" gorm:"type:varchar(255);"`       // 参数键值
+	ConfigType  string `json:"configType" gorm:"type:varchar(64);"`         // 是否系统内置
+	Remark      string `json:"remark" gorm:"type:varchar(128);"`            // 备注
 	CreateBy    string `json:"createBy" gorm:"type:varchar(128);"`
 	UpdateBy    string `json:"updateBy" gorm:"type:varchar(128);"`
 	DataScope   string `json:"dataScope" gorm:"-"`
@@ -106,8 +107,8 @@ func (e *SysConfig) Update(id int) (update SysConfig, err error) {
 		return update, errors.New("参数键名不允许修改！")
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

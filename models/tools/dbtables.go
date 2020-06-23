@@ -2,6 +2,7 @@ package tools
 
 import (
 	"errors"
+
 	"go-admin/global/orm"
 	config2 "go-admin/tools/config"
 )
@@ -20,7 +21,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	var doc []DBTables
 
 	table := orm.Eloquent.Select("*").Table("information_schema.tables")
-	table = table.Where("TABLE_NAME not in (select table_name from "+config2.DatabaseConfig.Name+".sys_tables) ")
+	table = table.Where("TABLE_NAME not in (select table_name from " + config2.DatabaseConfig.Name + ".sys_tables) ")
 	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
 
 	if e.TableName != "" {

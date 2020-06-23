@@ -1,12 +1,14 @@
 package dict
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
+	"net/http"
+
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // @Summary 字典类型列表数据

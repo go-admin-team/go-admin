@@ -3,20 +3,22 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"go-admin/database"
-	"go-admin/global/orm"
-	"go-admin/router"
-	"go-admin/tools"
-	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"go-admin/database"
+	"go-admin/global/orm"
+	"go-admin/router"
+	"go-admin/tools"
+	config2 "go-admin/tools/config"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -50,11 +52,11 @@ func usage() {
 
 func setup() {
 
-	//1. 读取配置
+	// 1. 读取配置
 	config2.ConfigSetup(config)
-	//2. 设置日志
+	// 2. 设置日志
 	tools.InitLogger()
-	//3. 初始化数据库链接
+	// 3. 初始化数据库链接
 	database.Setup()
 
 }

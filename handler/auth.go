@@ -1,14 +1,16 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/mojocn/base64Captcha"
-	"github.com/mssola/user_agent"
+	"net/http"
+
 	"go-admin/models"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/tools"
+
+	"github.com/gin-gonic/gin"
+	"github.com/mojocn/base64Captcha"
+	"github.com/mssola/user_agent"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 var store = base64Captcha.DefaultMemStore

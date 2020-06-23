@@ -6,16 +6,16 @@ import (
 )
 
 type SysTables struct {
-	TableId             int          `gorm:"primary_key;auto_increment" json:"tableId"`             //表编码
-	TBName              string       `gorm:"column:table_name;type:varchar(255);" json:"tableName"` //表名称
-	TableComment        string       `gorm:"type:varchar(255);" json:"tableComment"`                //表备注
-	ClassName           string       `gorm:"type:varchar(255);" json:"className"`                   //类名
+	TableId             int          `gorm:"primary_key;auto_increment" json:"tableId"`             // 表编码
+	TBName              string       `gorm:"column:table_name;type:varchar(255);" json:"tableName"` // 表名称
+	TableComment        string       `gorm:"type:varchar(255);" json:"tableComment"`                // 表备注
+	ClassName           string       `gorm:"type:varchar(255);" json:"className"`                   // 类名
 	TplCategory         string       `gorm:"type:varchar(255);" json:"tplCategory"`
-	PackageName         string       `gorm:"type:varchar(255);" json:"packageName"` //包名
-	ModuleName          string       `gorm:"type:varchar(255);" json:"moduleName"`  //模块名
+	PackageName         string       `gorm:"type:varchar(255);" json:"packageName"` // 包名
+	ModuleName          string       `gorm:"type:varchar(255);" json:"moduleName"`  // 模块名
 	BusinessName        string       `gorm:"type:varchar(255);" json:"businessName"`
-	FunctionName        string       `gorm:"type:varchar(255);" json:"functionName"`   //功能名称
-	FunctionAuthor      string       `gorm:"type:varchar(255);" json:"functionAuthor"` //功能作者
+	FunctionName        string       `gorm:"type:varchar(255);" json:"functionName"`   // 功能名称
+	FunctionAuthor      string       `gorm:"type:varchar(255);" json:"functionAuthor"` // 功能作者
 	PkColumn            string       `gorm:"type:varchar(255);" json:"pkColumn"`
 	PkGoField           string       `gorm:"type:varchar(255);" json:"pkGoField"`
 	PkJsonField         string       `gorm:"type:varchar(255);" json:"pkJsonField"`
@@ -118,8 +118,8 @@ func (e *SysTables) Update() (update SysTables, err error) {
 		return
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table("sys_tables").Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

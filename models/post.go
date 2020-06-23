@@ -6,12 +6,12 @@ import (
 )
 
 type Post struct {
-	PostId    int    `gorm:"primary_key;AUTO_INCREMENT" json:"postId"` //岗位编号
-	PostName  string `gorm:"type:varchar(128);" json:"postName"`       //岗位名称
-	PostCode  string `gorm:"type:varchar(128);" json:"postCode"`       //岗位代码
-	Sort      int    `gorm:"type:int(4);" json:"sort"`                 //岗位排序
-	Status    string `gorm:"type:int(1);" json:"status"`               //状态
-	Remark    string `gorm:"type:varchar(255);" json:"remark"`         //描述
+	PostId    int    `gorm:"primary_key;AUTO_INCREMENT" json:"postId"` // 岗位编号
+	PostName  string `gorm:"type:varchar(128);" json:"postName"`       // 岗位名称
+	PostCode  string `gorm:"type:varchar(128);" json:"postCode"`       // 岗位代码
+	Sort      int    `gorm:"type:int(4);" json:"sort"`                 // 岗位排序
+	Status    string `gorm:"type:int(1);" json:"status"`               // 状态
+	Remark    string `gorm:"type:varchar(255);" json:"remark"`         // 描述
 	CreateBy  string `gorm:"type:varchar(128);" json:"createBy"`
 	UpdateBy  string `gorm:"type:varchar(128);" json:"updateBy"`
 	DataScope string `gorm:"-" json:"dataScope"`
@@ -115,8 +115,8 @@ func (e *Post) Update(id int) (update Post, err error) {
 		return
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

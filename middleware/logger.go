@@ -1,13 +1,15 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"strings"
+	"time"
+
 	"go-admin/models"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
-	"strings"
-	"time"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // 日志记录到文件

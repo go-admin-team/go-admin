@@ -2,15 +2,17 @@ package sd
 
 import (
 	"fmt"
+	"net/http"
+	"runtime"
+	"time"
+
+	"go-admin/tools/app"
+
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
-	"go-admin/tools/app"
-	"net/http"
-	"runtime"
-	"time"
 )
 
 const (
@@ -75,12 +77,12 @@ func DiskCheck(c *gin.Context) {
 func OSCheck(c *gin.Context) {
 	status := http.StatusOK
 	app.Custum(c, gin.H{
-		"code":   200,
-		"status": status,
-		"goOs":  runtime.GOOS,
-		"compiler":  runtime.Compiler,
-		"numCpu":  runtime.NumCPU(),
-		"version": runtime.Version(),
+		"code":         200,
+		"status":       status,
+		"goOs":         runtime.GOOS,
+		"compiler":     runtime.Compiler,
+		"numCpu":       runtime.NumCPU(),
+		"version":      runtime.Version(),
 		"numGoroutine": runtime.NumGoroutine(),
 	})
 }
@@ -153,13 +155,12 @@ func RAMCheck(c *gin.Context) {
 		text = "WARNING"
 	}
 
-
 	app.Custum(c, gin.H{
-		"code":   200,
-		"msg":    text,
-		"status": status,
-		"used":  usedMB,
-		"total":  totalMB,
-		"usedPercent":  usedPercent,
+		"code":        200,
+		"msg":         text,
+		"status":      status,
+		"used":        usedMB,
+		"total":       totalMB,
+		"usedPercent": usedPercent,
 	})
 }

@@ -1,11 +1,13 @@
 package tools
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
+
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary 分页列表数据 / page list data
@@ -31,7 +33,7 @@ func GetDBColumnList(c *gin.Context) {
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
-	tools2.Assert(data.TableName=="","table name cannot be empty！",500)
+	tools2.Assert(data.TableName == "", "table name cannot be empty！", 500)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools2.HasError(err, "", -1)
 

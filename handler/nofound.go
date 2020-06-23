@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	jwt "go-admin/pkg/jwtauth"
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	jwt "go-admin/pkg/jwtauth"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 func NoFound(c *gin.Context) {

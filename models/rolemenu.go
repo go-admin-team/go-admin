@@ -2,13 +2,14 @@ package models
 
 import (
 	"fmt"
+
 	"go-admin/global/orm"
 	"go-admin/tools"
 )
 
 type RoleMenu struct {
-	RoleId   int  `gorm:"type:int(11)"`
-	MenuId   int  `gorm:"type:int(11)"`
+	RoleId   int    `gorm:"type:int(11)"`
+	MenuId   int    `gorm:"type:int(11)"`
 	RoleName string `gorm:"type:varchar(128)"`
 	CreateBy string `gorm:"type:varchar(128)"`
 	UpdateBy string `gorm:"type:varchar(128)"`
@@ -108,13 +109,13 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	if err := orm.Eloquent.Table("sys_menu").Where("menu_id in (?)", menuId).Find(&menu).Error; err != nil {
 		return false, err
 	}
-	//ORM不支持批量插入所以需要拼接 sql 串
+	// ORM不支持批量插入所以需要拼接 sql 串
 	sql := "INSERT INTO `sys_role_menu` (`role_id`,`menu_id`,`role_name`) VALUES "
 
 	sql2 := "INSERT INTO casbin_rule  (`p_type`,`v0`,`v1`,`v2`) VALUES "
 	for i := 0; i < len(menu); i++ {
 		if len(menu)-1 == i {
-			//最后一条数据 以分号结尾
+			// 最后一条数据 以分号结尾
 			sql += fmt.Sprintf("(%d,%d,'%s');", role.RoleId, menu[i].MenuId, role.RoleKey)
 			if menu[i].MenuType == "A" {
 				sql2 += fmt.Sprintf("('p','%s','%s','%s');", role.RoleKey, menu[i].Path, menu[i].Action)

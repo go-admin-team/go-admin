@@ -12,3 +12,6 @@ build-sqlite:
 #.PHONY: docker
 #docker:
 #	docker build . -t go-admin:latest
+
+.PHONY: fmt
+	goimports -w -srcdir .

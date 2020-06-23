@@ -6,7 +6,7 @@ type Database struct {
 	Dbtype   string
 	Host     string
 	Port     int
-	Name string
+	Name     string
 	Username string
 	Password string
 }
@@ -16,7 +16,7 @@ func InitDatabase(cfg *viper.Viper) *Database {
 		Port:     cfg.GetInt("port"),
 		Dbtype:   cfg.GetString("dbType"),
 		Host:     cfg.GetString("host"),
-		Name: cfg.GetString("name"),
+		Name:     cfg.GetString("name"),
 		Username: cfg.GetString("username"),
 		Password: cfg.GetString("password"),
 	}

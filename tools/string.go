@@ -3,10 +3,11 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func StringToInt64(e string) (int64, error) {
@@ -17,7 +18,6 @@ func StringToInt(e string) (int, error) {
 	return strconv.Atoi(e)
 }
 
-
 func GetCurrntTimeStr() string {
 	return time.Now().Format("2006/01/02 15:04:05")
 }
@@ -25,7 +25,6 @@ func GetCurrntTimeStr() string {
 func GetCurrntTime() time.Time {
 	return time.Now()
 }
-
 
 func StructToJsonStr(e interface{}) (string, error) {
 	if b, err := json.Marshal(e); err == nil {

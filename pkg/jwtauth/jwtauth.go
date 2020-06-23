@@ -3,13 +3,15 @@ package jwtauth
 import (
 	"crypto/rsa"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	config2 "go-admin/tools/config"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 type MapClaims map[string]interface{}

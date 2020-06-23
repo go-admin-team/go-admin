@@ -2,20 +2,21 @@ package models
 
 import (
 	"errors"
+
 	"go-admin/global/orm"
 	"go-admin/tools"
 )
 
 type DictType struct {
 	DictId    int    `gorm:"primary_key;AUTO_INCREMENT" json:"dictId"`
-	DictName  string `gorm:"type:varchar(128);" json:"dictName"` //字典名称
-	DictType  string `gorm:"type:varchar(128);" json:"dictType"` //字典类型
-	Status    string `gorm:"type:int(1);" json:"status"`         //状态
+	DictName  string `gorm:"type:varchar(128);" json:"dictName"` // 字典名称
+	DictType  string `gorm:"type:varchar(128);" json:"dictType"` // 字典类型
+	Status    string `gorm:"type:int(1);" json:"status"`         // 状态
 	DataScope string `gorm:"-" json:"dataScope"`                 //
 	Params    string `gorm:"-" json:"params"`                    //
-	CreateBy  string `gorm:"type:varchar(11);" json:"createBy"`  //创建者
-	UpdateBy  string `gorm:"type:varchar(11);" json:"updateBy"`  //更新者
-	Remark    string `gorm:"type:varchar(255);" json:"remark"`   //备注
+	CreateBy  string `gorm:"type:varchar(11);" json:"createBy"`  // 创建者
+	UpdateBy  string `gorm:"type:varchar(11);" json:"updateBy"`  // 更新者
+	Remark    string `gorm:"type:varchar(255);" json:"remark"`   // 备注
 	BaseModel
 }
 
@@ -121,8 +122,8 @@ func (e *DictType) Update(id int) (update DictType, err error) {
 		return update, errors.New("类型不允许修改！")
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

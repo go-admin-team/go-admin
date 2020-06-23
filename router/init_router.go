@@ -1,12 +1,13 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-admin/handler"
 	"go-admin/middleware"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
+
+	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() *gin.Engine {

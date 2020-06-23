@@ -2,10 +2,11 @@ package models
 
 import (
 	"fmt"
+
 	"go-admin/global/orm"
 )
 
-//sys_role_dept
+// sys_role_dept
 type SysRoleDept struct {
 	RoleId int `gorm:"type:int(11)"`
 	DeptId int `gorm:"type:int(11)"`
@@ -16,12 +17,12 @@ func (SysRoleDept) TableName() string {
 }
 
 func (rm *SysRoleDept) Insert(roleId int, deptIds []int) (bool, error) {
-	//ORM不支持批量插入所以需要拼接 sql 串
+	// ORM不支持批量插入所以需要拼接 sql 串
 	sql := "INSERT INTO `sys_role_dept` (`role_id`,`dept_id`) VALUES "
 
 	for i := 0; i < len(deptIds); i++ {
 		if len(deptIds)-1 == i {
-			//最后一条数据 以分号结尾
+			// 最后一条数据 以分号结尾
 			sql += fmt.Sprintf("(%d,%d);", roleId, deptIds[i])
 		} else {
 			sql += fmt.Sprintf("(%d,%d),", roleId, deptIds[i])

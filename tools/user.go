@@ -2,8 +2,10 @@ package tools
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
+
 	jwt "go-admin/pkg/jwtauth"
+
+	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 

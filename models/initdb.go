@@ -2,10 +2,11 @@ package models
 
 import (
 	"fmt"
-	"go-admin/global/orm"
-	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"strings"
+
+	"go-admin/global/orm"
+	config2 "go-admin/tools/config"
 )
 
 func InitDb() error {
@@ -20,7 +21,7 @@ func InitDb() error {
 		return err
 	}
 	sqlList := strings.Split(sql, ";")
-	for i := 0; i < len(sqlList) - 1; i++ {
+	for i := 0; i < len(sqlList)-1; i++ {
 		if strings.Contains(sqlList[i], "--") {
 			fmt.Println(sqlList[i])
 			continue
@@ -37,7 +38,7 @@ func InitDb() error {
 
 func Ioutil(name string) (string, error) {
 	if contents, err := ioutil.ReadFile(name); err == nil {
-		//因为contents是[]byte类型，直接转换成string类型后会多一行空格,需要使用strings.Replace替换换行符
+		// 因为contents是[]byte类型，直接转换成string类型后会多一行空格,需要使用strings.Replace替换换行符
 		result := strings.Replace(string(contents), "\n", "", 1)
 		fmt.Println("Use ioutil.ReadFile to read a file:", result)
 		return result, nil

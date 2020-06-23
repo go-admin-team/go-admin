@@ -2,10 +2,12 @@ package system
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"net/http"
+
 	"go-admin/models"
 	"go-admin/tools/app"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary RoleMenu列表数据

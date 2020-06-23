@@ -1,13 +1,15 @@
 package system
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
+	"net/http"
+
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/app/msg"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // @Summary 配置列表数据
@@ -86,7 +88,7 @@ func GetConfigByConfigKey(c *gin.Context) {
 	result, err := Config.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
-	app.OK(c, result,result.ConfigValue)
+	app.OK(c, result, result.ConfigValue)
 }
 
 // @Summary 添加配置
@@ -107,7 +109,7 @@ func InsertConfig(c *gin.Context) {
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
 
-	app.OK(c, result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 修改配置
@@ -127,7 +129,7 @@ func UpdateConfig(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.ConfigId)
 	tools.HasError(err, "", -1)
-	app.OK(c, result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 删除配置
@@ -145,5 +147,3 @@ func DeleteConfig(c *gin.Context) {
 	tools.HasError(err, "修改失败", 500)
 	app.OK(c, result, msg.DeletedSuccess)
 }
-
-

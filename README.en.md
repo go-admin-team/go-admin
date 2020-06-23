@@ -11,19 +11,12 @@
 ## ✨ Feature
 
 - Follow RESTful API design specifications
-
 - Provides rich middleware support based on GIN WEB API framework (user authentication, cross domain, access log, tracking ID, etc.)
-
 - Casbin-based RBAC access control model
-
 - JWT certification
-
 - Support Swagger documentation (based on swaggo)
-
 - GORM-based database storage that can expand many types of databases
-
 - Simple model mapping of configuration files to quickly get the desired configuration
-
 - TODO: unit test
 
 

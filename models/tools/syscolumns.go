@@ -6,8 +6,8 @@ import (
 )
 
 type SysColumns struct {
-	ColumnId      int  `gorm:"primary_key;auto_increment" json:"columnId"`
-	TableId       int  `gorm:"type:int(11);" json:"tableId"`
+	ColumnId      int    `gorm:"primary_key;auto_increment" json:"columnId"`
+	TableId       int    `gorm:"type:int(11);" json:"tableId"`
 	ColumnName    string `gorm:"type:varchar(128);" json:"columnName"`
 	ColumnComment string `gorm:"column:column_comment;type:varchar(128);" json:"columnComment"`
 	ColumnType    string `gorm:"column:column_type;type:varchar(128);" json:"columnType"`
@@ -74,8 +74,8 @@ func (e *SysColumns) Update() (update SysColumns, err error) {
 		return
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

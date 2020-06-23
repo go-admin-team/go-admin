@@ -2,12 +2,14 @@ package tools
 
 import (
 	"bytes"
+	"net/http"
+	"text/template"
+
 	"github.com/gin-gonic/gin"
+
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
-	"net/http"
-	"text/template"
 )
 
 func Preview(c *gin.Context) {

@@ -1,9 +1,10 @@
 package tools
 
 import (
+	"strconv"
+
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"strconv"
 )
 
 func StrToInt(err error, index string) int {

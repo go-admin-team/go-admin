@@ -1,13 +1,14 @@
 package mycasbin
 
 import (
+	"go-admin/global/orm"
+	"go-admin/tools/config"
+
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/go-kit/kit/endpoint"
 	_ "github.com/go-sql-driver/mysql"
 	log "github.com/sirupsen/logrus"
-	"go-admin/global/orm"
-	"go-admin/tools/config"
 )
 
 var Em endpoint.Middleware

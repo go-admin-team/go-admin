@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+
 	"go-admin/global/orm"
 	"go-admin/tools"
 )
@@ -306,8 +307,8 @@ func (e *Menu) Update(id int) (update Menu, err error) {
 		return
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

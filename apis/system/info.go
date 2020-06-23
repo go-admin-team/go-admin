@@ -1,10 +1,11 @@
 package system
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetInfo(c *gin.Context) {

@@ -1,12 +1,13 @@
 package system
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/app/msg"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // @Summary 分页部门列表数据
@@ -26,17 +27,17 @@ func GetDeptList(c *gin.Context) {
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.SetDept(true)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 func GetDeptTree(c *gin.Context) {
 	var Dept models.Dept
 	Dept.DeptName = c.Request.FormValue("deptName")
-	Dept.Status= c.Request.FormValue("status")
+	Dept.Status = c.Request.FormValue("status")
 	Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
 	result, err := Dept.SetDept(false)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 部门列表数据
@@ -53,7 +54,7 @@ func GetDept(c *gin.Context) {
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.Get()
 	tools.HasError(err, msg.NotFound, 404)
-	app.OK(c,result, msg.GetSuccess)
+	app.OK(c, result, msg.GetSuccess)
 }
 
 // @Summary 添加部门
@@ -73,7 +74,7 @@ func InsertDept(c *gin.Context) {
 	data.CreateBy = tools.GetUserIdStr(c)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	app.OK(c,result, msg.CreatedSuccess)
+	app.OK(c, result, msg.CreatedSuccess)
 }
 
 // @Summary 修改部门
@@ -94,7 +95,7 @@ func UpdateDept(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.Update(data.DeptId)
 	tools.HasError(err, "", -1)
-	app.OK(c,result, msg.UpdatedSuccess)
+	app.OK(c, result, msg.UpdatedSuccess)
 }
 
 // @Summary 删除部门
@@ -109,7 +110,7 @@ func DeleteDept(c *gin.Context) {
 	id, err := tools.StringToInt(c.Param("id"))
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c,"", msg.DeletedSuccess)
+	app.OK(c, "", msg.DeletedSuccess)
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
@@ -124,7 +125,7 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 		menuIds, err = SysRole.GetRoleDeptId()
 		tools.HasError(err, "抱歉未找到相关信息", -1)
 	}
-	app.Custum(c,gin.H{
+	app.Custum(c, gin.H{
 		"code":        200,
 		"depts":       result,
 		"checkedKeys": menuIds,

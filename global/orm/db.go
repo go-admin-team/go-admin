@@ -6,4 +6,3 @@ import (
 
 var Eloquent *gorm.DB
 var MysqlConn string
-

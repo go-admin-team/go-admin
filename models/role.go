@@ -1,21 +1,22 @@
 package models
 
 import (
-	"github.com/pkg/errors"
 	"go-admin/global/orm"
 	"go-admin/tools"
+
+	"github.com/pkg/errors"
 )
 
 type SysRole struct {
 	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"` // 角色编码
 	RoleName  string `json:"roleName" gorm:"type:varchar(128);"`       // 角色名称
 	Status    string `json:"status" gorm:"type:int(1);"`               //
-	RoleKey   string `json:"roleKey" gorm:"type:varchar(128);"`        //角色代码
-	RoleSort  int    `json:"roleSort" gorm:"type:int(4);"`             //角色排序
+	RoleKey   string `json:"roleKey" gorm:"type:varchar(128);"`        // 角色代码
+	RoleSort  int    `json:"roleSort" gorm:"type:int(4);"`             // 角色排序
 	Flag      string `json:"flag" gorm:"type:varchar(128);"`           //
 	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"`       //
 	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"`       //
-	Remark    string `json:"remark" gorm:"type:varchar(255);"`         //备注
+	Remark    string `json:"remark" gorm:"type:varchar(255);"`         // 备注
 	Admin     bool   `json:"admin" gorm:"type:char(1);"`
 	DataScope string `json:"dataScope" gorm:"type:varchar(128);"`
 	Params    string `json:"params" gorm:"-"`
@@ -52,7 +53,7 @@ func (e *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error) {
 	// 数据权限控制
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table,err := dataPermission.GetDataScope("sys_role", table)
+	table, err := dataPermission.GetDataScope("sys_role", table)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -143,7 +144,7 @@ func (role *SysRole) GetRoleDeptId() ([]int, error) {
 	return deptIds, nil
 }
 
-//修改
+// 修改
 func (role *SysRole) Update(id int) (update SysRole, err error) {
 	if err = orm.Eloquent.Table("sys_role").First(&update, id).Error; err != nil {
 		return
@@ -157,15 +158,15 @@ func (role *SysRole) Update(id int) (update SysRole, err error) {
 		return update, errors.New("角色标识不允许修改！")
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table("sys_role").Model(&update).Updates(&role).Error; err != nil {
 		return
 	}
 	return
 }
 
-//批量删除
+// 批量删除
 func (e *SysRole) BatchDelete(id []int) (Result bool, err error) {
 	if err = orm.Eloquent.Table("sys_role").Where("role_id in (?)", id).Delete(&SysRole{}).Error; err != nil {
 		return

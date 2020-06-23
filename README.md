@@ -17,7 +17,7 @@
 
 
   [English](https://github.com/wenjianzhang/go-admin/blob/master/README.en.md) | 简体中文
-  
+
 
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
 
@@ -30,25 +30,15 @@
 ## ✨ 特性
 
 - 遵循 RESTful API 设计规范
-
 - 基于 GIN WEB API 框架，提供了丰富的中间件支持（用户认证、跨域、访问日志、追踪ID等）
-
 - 基于Casbin的 RBAC 访问控制模型
-
 - JWT 认证
-
 - 支持 Swagger 文档(基于swaggo)
-
 - 基于 GORM 的数据库存储，可扩展多种类型数据库 
-
 - 配置文件简单的模型映射，快速能够得到想要的配置
-
 - 代码生成工具
-
 - 表单构建工具
-
 - 多命令模式
-
 - TODO: 单元测试
 
 

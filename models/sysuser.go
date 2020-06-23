@@ -2,11 +2,13 @@ package models
 
 import (
 	"errors"
+	"strings"
+
 	"go-admin/global/orm"
 	"go-admin/tools"
-	"golang.org/x/crypto/bcrypt"
+
 	log "github.com/sirupsen/logrus"
-	"strings"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User
@@ -43,15 +45,15 @@ type SysUserB struct {
 	NickName  string `gorm:"type:varchar(128)" json:"nickName"` // 昵称
 	Phone     string `gorm:"type:varchar(11)" json:"phone"`     // 手机号
 	RoleId    int    `gorm:"type:int(11)" json:"roleId"`        // 角色编码
-	Salt      string `gorm:"type:varchar(255)" json:"salt"`     //盐
-	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`   //头像
-	Sex       string `gorm:"type:varchar(255)" json:"sex"`      //性别
-	Email     string `gorm:"type:varchar(128)" json:"email"`    //邮箱
-	DeptId    int    `gorm:"type:int(11)" json:"deptId"`        //部门编码
-	PostId    int    `gorm:"type:int(11)" json:"postId"`        //职位编码
+	Salt      string `gorm:"type:varchar(255)" json:"salt"`     // 盐
+	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`   // 头像
+	Sex       string `gorm:"type:varchar(255)" json:"sex"`      // 性别
+	Email     string `gorm:"type:varchar(128)" json:"email"`    // 邮箱
+	DeptId    int    `gorm:"type:int(11)" json:"deptId"`        // 部门编码
+	PostId    int    `gorm:"type:int(11)" json:"postId"`        // 职位编码
 	CreateBy  string `gorm:"type:varchar(128)" json:"createBy"` //
 	UpdateBy  string `gorm:"type:varchar(128)" json:"updateBy"` //
-	Remark    string `gorm:"type:varchar(255)" json:"remark"`   //备注
+	Remark    string `gorm:"type:varchar(255)" json:"remark"`   // 备注
 	Status    string `gorm:"type:int(1);" json:"status"`
 	DataScope string `gorm:"-" json:"dataScope"`
 	Params    string `gorm:"-" json:"params"`
@@ -160,7 +162,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	return doc, count, nil
 }
 
-//加密
+// 加密
 func (e *SysUser) Encrypt() (err error) {
 	if e.Password == "" {
 		return
@@ -175,7 +177,7 @@ func (e *SysUser) Encrypt() (err error) {
 	}
 }
 
-//添加
+// 添加
 func (e SysUser) Insert() (id int, err error) {
 	if err = e.Encrypt(); err != nil {
 		return
@@ -189,7 +191,7 @@ func (e SysUser) Insert() (id int, err error) {
 		return
 	}
 
-	//添加数据
+	// 添加数据
 	if err = orm.Eloquent.Table(e.TableName()).Create(&e).Error; err != nil {
 		return
 	}
@@ -197,9 +199,9 @@ func (e SysUser) Insert() (id int, err error) {
 	return
 }
 
-//修改
+// 修改
 func (e *SysUser) Update(id int) (update SysUser, err error) {
-	if e.Password!="" {
+	if e.Password != "" {
 		if err = e.Encrypt(); err != nil {
 			return
 		}
@@ -211,8 +213,8 @@ func (e *SysUser) Update(id int) (update SysUser, err error) {
 		e.RoleId = update.RoleId
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

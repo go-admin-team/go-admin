@@ -1,25 +1,26 @@
 package models
 
 import (
-	"go-admin/global/orm"
 	"time"
+
+	"go-admin/global/orm"
 )
 
 type LoginLog struct {
-	InfoId        int       `json:"infoId" gorm:"primary_key;AUTO_INCREMENT"` //主键
-	Username      string    `json:"username" gorm:"type:varchar(128);"`       //用户名
-	Status        string    `json:"status" gorm:"type:int(1);"`               //状态
-	Ipaddr        string    `json:"ipaddr" gorm:"type:varchar(255);"`         //ip地址
-	LoginLocation string    `json:"loginLocation" gorm:"type:varchar(255);"`  //归属地
-	Browser       string    `json:"browser" gorm:"type:varchar(255);"`        //浏览器
-	Os            string    `json:"os" gorm:"type:varchar(255);"`             //系统
+	InfoId        int       `json:"infoId" gorm:"primary_key;AUTO_INCREMENT"` // 主键
+	Username      string    `json:"username" gorm:"type:varchar(128);"`       // 用户名
+	Status        string    `json:"status" gorm:"type:int(1);"`               // 状态
+	Ipaddr        string    `json:"ipaddr" gorm:"type:varchar(255);"`         // ip地址
+	LoginLocation string    `json:"loginLocation" gorm:"type:varchar(255);"`  // 归属地
+	Browser       string    `json:"browser" gorm:"type:varchar(255);"`        // 浏览器
+	Os            string    `json:"os" gorm:"type:varchar(255);"`             // 系统
 	Platform      string    `json:"platform" gorm:"type:varchar(255);"`       // 固件
-	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;"`         //登录时间
-	CreateBy      string    `json:"createBy" gorm:"type:varchar(128);"`       //创建人
-	UpdateBy      string    `json:"updateBy" gorm:"type:varchar(128);"`       //更新者
-	DataScope     string    `json:"dataScope" gorm:"-"`                       //数据
+	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;"`         // 登录时间
+	CreateBy      string    `json:"createBy" gorm:"type:varchar(128);"`       // 创建人
+	UpdateBy      string    `json:"updateBy" gorm:"type:varchar(128);"`       // 更新者
+	DataScope     string    `json:"dataScope" gorm:"-"`                       // 数据
 	Params        string    `json:"params" gorm:"-"`                          //
-	Remark        string    `json:"remark" gorm:"type:varchar(255);"`         //备注
+	Remark        string    `json:"remark" gorm:"type:varchar(255);"`         // 备注
 	Msg           string    `json:"msg" gorm:"type:varchar(255);"`
 	BaseModel
 }
@@ -87,8 +88,8 @@ func (e *LoginLog) Update(id int) (update LoginLog, err error) {
 		return
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
+	// 参数1:是要修改的数据
+	// 参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
