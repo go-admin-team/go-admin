@@ -204,11 +204,29 @@ func (e *Dept) Update(id int) (update Dept, err error) {
 }
 
 func (e *Dept) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", id).Delete(&Dept{}).Error; err != nil {
+
+	tx := orm.Eloquent.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return
+	}
+
+	if err = tx.Table(e.TableName()).Where("dept_id = ?", id).Delete(&Dept{}).Error; err != nil {
+		success = false
+		tx.Rollback()
+		return
+	}
+	if err =tx.Commit().Error; err != nil {
 		success = false
 		return
 	}
 	success = true
+
 	return
 }
 
