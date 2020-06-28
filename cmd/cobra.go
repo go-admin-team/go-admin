@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"github.com/spf13/cobra"
 	"go-admin/cmd/api"
 	"go-admin/cmd/migrate"
-	log "github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -23,8 +23,8 @@ var rootCmd = &cobra.Command{
 	},
 	PersistentPreRunE: func(*cobra.Command, []string) error { return nil },
 	Run: func(cmd *cobra.Command, args []string) {
-		usageStr := `go-admin 1.0.0 欢迎使用，可以是用 -h 查看命令`
-		log.Printf("%s\n", usageStr)
+		usageStr := `go-admin 1.0.0 欢迎使用，可以使用 -h 查看命令`
+		fmt.Printf("%s\n", usageStr)
 	},
 }
 
