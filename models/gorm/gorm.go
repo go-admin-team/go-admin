@@ -8,6 +8,7 @@ import (
 
 func AutoMigrate(db *gorm.DB) error {
 	db.SingularTable(true)
+
 	return db.AutoMigrate(
 		new(models.CasbinRule),
 		new(tools.SysTables),
@@ -26,3 +27,10 @@ func AutoMigrate(db *gorm.DB) error {
 		new(models.DictType),
 	).Error
 }
+
+
+func CustomMigrate(db *gorm.DB,table interface{}) error {
+	db.SingularTable(true)
+	return db.AutoMigrate(&table).Error
+}
+
