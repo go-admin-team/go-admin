@@ -204,6 +204,13 @@ func (e *Dept) Update(id int) (update Dept, err error) {
 }
 
 func (e *Dept) Delete(id int) (success bool, err error) {
+
+	user := SysUser{}
+	user.DeptId = id
+	userlist, err := user.GetList()
+	tools.HasError(err, "", 500)
+	tools.Assert(len(userlist) <= 0, "当前部门存在用户，不能删除！",500)
+
 	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", id).Delete(&Dept{}).Error; err != nil {
 		success = false
 		return
