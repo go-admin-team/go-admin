@@ -212,7 +212,8 @@ func (e *Dept) Delete(id int) (success bool, err error) {
 		}
 	}()
 
-	if err := tx.Error; err != nil {
+	if err = tx.Error; err != nil {
+		success = false
 		return
 	}
 
