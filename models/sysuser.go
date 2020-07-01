@@ -159,6 +159,40 @@ func (e *SysUser) GetUserInfo() (SysUserView SysUserView, err error) {
 	return
 }
 
+func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
+
+	table := orm.Eloquent.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
+	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
+	if e.UserId != 0 {
+		table = table.Where("user_id = ?", e.UserId)
+	}
+
+	if e.Username != "" {
+		table = table.Where("username = ?", e.Username)
+	}
+
+	if e.Password != "" {
+		table = table.Where("password = ?", e.Password)
+	}
+
+	if e.RoleId != 0 {
+		table = table.Where("role_id = ?", e.RoleId)
+	}
+
+	if e.DeptId != 0 {
+		table = table.Where("dept_id = ?", e.DeptId)
+	}
+
+	if e.PostId != 0 {
+		table = table.Where("post_id = ?", e.PostId)
+	}
+
+	if err = table.Find(&SysUserView).Error; err != nil {
+		return
+	}
+	return
+}
+
 func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, error) {
 	var doc []SysUserPage
 	table := orm.Eloquent.Select("sys_user.*,sys_dept.dept_name").Table(e.TableName())
