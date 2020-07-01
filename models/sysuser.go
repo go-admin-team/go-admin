@@ -120,7 +120,76 @@ func (e *SysUser) Get() (SysUserView SysUserView, err error) {
 	if err = table.First(&SysUserView).Error; err != nil {
 		return
 	}
+
 	SysUserView.Password = ""
+	return
+}
+
+func (e *SysUser) GetUserInfo() (SysUserView SysUserView, err error) {
+
+	table := orm.Eloquent.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
+	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
+	if e.UserId != 0 {
+		table = table.Where("user_id = ?", e.UserId)
+	}
+
+	if e.Username != "" {
+		table = table.Where("username = ?", e.Username)
+	}
+
+	if e.Password != "" {
+		table = table.Where("password = ?", e.Password)
+	}
+
+	if e.RoleId != 0 {
+		table = table.Where("role_id = ?", e.RoleId)
+	}
+
+	if e.DeptId != 0 {
+		table = table.Where("dept_id = ?", e.DeptId)
+	}
+
+	if e.PostId != 0 {
+		table = table.Where("post_id = ?", e.PostId)
+	}
+
+	if err = table.First(&SysUserView).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (e *SysUser) GetList() (SysUserView []SysUserView, err error) {
+
+	table := orm.Eloquent.Table(e.TableName()).Select([]string{"sys_user.*", "sys_role.role_name"})
+	table = table.Joins("left join sys_role on sys_user.role_id=sys_role.role_id")
+	if e.UserId != 0 {
+		table = table.Where("user_id = ?", e.UserId)
+	}
+
+	if e.Username != "" {
+		table = table.Where("username = ?", e.Username)
+	}
+
+	if e.Password != "" {
+		table = table.Where("password = ?", e.Password)
+	}
+
+	if e.RoleId != 0 {
+		table = table.Where("role_id = ?", e.RoleId)
+	}
+
+	if e.DeptId != 0 {
+		table = table.Where("dept_id = ?", e.DeptId)
+	}
+
+	if e.PostId != 0 {
+		table = table.Where("post_id = ?", e.PostId)
+	}
+
+	if err = table.Find(&SysUserView).Error; err != nil {
+		return
+	}
 	return
 }
 
@@ -199,7 +268,7 @@ func (e SysUser) Insert() (id int, err error) {
 
 //修改
 func (e *SysUser) Update(id int) (update SysUser, err error) {
-	if e.Password!="" {
+	if e.Password != "" {
 		if err = e.Encrypt(); err != nil {
 			return
 		}
@@ -228,7 +297,7 @@ func (e *SysUser) BatchDelete(id []int) (Result bool, err error) {
 }
 
 func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
-	user, err := e.Get()
+	user, err := e.GetUserInfo()
 	if err != nil {
 		tools.HasError(err, "获取用户数据失败(代码202)", 500)
 	}
