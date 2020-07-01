@@ -49,7 +49,6 @@ func Preview(c *gin.Context) {
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
-
 func GenCode(c *gin.Context) {
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
@@ -63,10 +62,9 @@ func GenCode(c *gin.Context) {
 	t3, err := template.ParseFiles("template/router.go.template")
 	tools2.HasError(err, "", -1)
 	tab, _ := table.Get()
-	_ = tools2.PathCreate("./apis/")
-	_ = tools2.PathCreate("./apis/")
+	_ = tools2.PathCreate("./apis/" + tab.ModuleName + "/")
 	_ = tools2.PathCreate("./models/")
-	_ = tools2.PathCreate("./router/" + tab.ModuleName + "/")
+	_ = tools2.PathCreate("./router/")
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -75,7 +73,7 @@ func GenCode(c *gin.Context) {
 	var b3 bytes.Buffer
 	err = t3.Execute(&b3, tab)
 	tools2.FileCreate(b1, "./models/"+tab.PackageName+".go")
-	tools2.FileCreate(b2, "./apis/"+tab.PackageName+".go")
+	tools2.FileCreate(b2, "./apis/"+tab.ModuleName+"/"+tab.PackageName+".go")
 	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
-
+	app.OK(c, "", "代码生成成功！")
 }
