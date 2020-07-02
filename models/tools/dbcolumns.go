@@ -2,6 +2,7 @@ package tools
 
 import (
 	"errors"
+	"github.com/jinzhu/gorm"
 	"go-admin/global/orm"
 	config2 "go-admin/tools/config"
 )
@@ -23,37 +24,43 @@ type DBColumns struct {
 
 func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, error) {
 	var doc []DBColumns
+	var count int
+	table := new(gorm.DB)
 
-	table := orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
-	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
+	if config2.DatabaseConfig.DbType == "mysql" {
+		table = orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
+		table = table.Where("table_schema= ? ", config2.DatabaseConfig.Mysql.DBName)
 
-	if e.TableName != "" {
-		return nil, 0, errors.New("table name cannot be empty！")
+		if e.TableName != "" {
+			return nil, 0, errors.New("table name cannot be empty！")
+		}
+
+		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
 
-	table = table.Where("TABLE_NAME = ?", e.TableName)
-
-	var count int
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Count(&count)
 	return doc, count, nil
+
 }
 
 func (e *DBColumns) GetList() ([]DBColumns, error) {
 	var doc []DBColumns
+	table := new(gorm.DB)
 
-	table := orm.Eloquent.Select("*").Table("information_schema.columns")
-	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
+	if config2.DatabaseConfig.DbType == "mysql" {
+		table = orm.Eloquent.Select("*").Table("information_schema.columns")
+		table = table.Where("table_schema= ? ", config2.DatabaseConfig.Mysql.DBName)
 
-	if e.TableName == "" {
-		return nil, errors.New("table name cannot be empty！")
+		if e.TableName == "" {
+			return nil, errors.New("table name cannot be empty！")
+		}
+
+		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
-
-	table = table.Where("TABLE_NAME = ?", e.TableName)
-
 	if err := table.Find(&doc).Error; err != nil {
 		return doc, err
 	}

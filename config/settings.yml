@@ -18,9 +18,10 @@ settings:
     secret: go-admin
     timeout: 3600
   database:
-    name: goadmindb
     dbtype: mysql
-    host: 127.0.0.1
-    password: 123456
-    port: 3306
-    username: root
+    sqlite:
+      masterconn: ./sqlite3.db
+    mysql:
+      masterconn: user:password@/tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local
+    pgsql:
+      masterconn: host=myhost port=myport user=gorm dbname=gorm password=mypassword

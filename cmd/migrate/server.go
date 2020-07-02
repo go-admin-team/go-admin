@@ -52,7 +52,7 @@ func run() {
 }
 
 func migrateModel() error {
-	if config2.DatabaseConfig.Dbtype == "mysql" {
+	if config2.DatabaseConfig.DbType == "mysql" {
 		orm.Eloquent = orm.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
 	return gorm.AutoMigrate(orm.Eloquent)

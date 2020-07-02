@@ -1,6 +1,4 @@
 -- 开始初始化数据 ;
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
 
 BEGIN;
 INSERT INTO `casbin_rule` VALUES ('p', 'Tester', '/api/v1/calendar', 'GET', NULL, NULL, NULL);
@@ -661,5 +659,4 @@ INSERT INTO `sys_user` VALUES (3, '李四', '13838385438', 2, '', '', '0', 'qq@q
 INSERT INTO `sys_user` VALUES (4, '王五', '13535353535', 3, '', '', '2', 'qq@qq.com', 8, 2, '1', '1', '', 0, '2020-04-12 14:06:49', '2020-04-12 14:07:09', NULL, 'wangwu', '$2a$10$3.RT6rpXANXvvlibX6PzU.FGA2CvfDxd1UmJ2H5zTzF4sYocbvsTO');
 COMMIT;
 
-SET FOREIGN_KEY_CHECKS = 1;
 -- 数据完成 ;

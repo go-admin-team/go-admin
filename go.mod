@@ -9,7 +9,6 @@ require (
 	github.com/casbin/gorm-adapter/v2 v2.0.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.4.0
-	github.com/go-kit/kit v0.8.0
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.8 // indirect
