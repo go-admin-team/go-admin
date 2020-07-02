@@ -7,28 +7,28 @@ import (
 	"go-admin/global/orm"
 )
 
-type SqLite struct {
+type PgSql struct {
 }
 
-func (*SqLite) Open(dbType string, conn string) (db *gorm.DB, err error) {
+func (*PgSql) Open(dbType string, conn string) (db *gorm.DB, err error) {
 	eloquent, err := gorm.Open(dbType, conn)
 	return eloquent, err
 }
 
-func (e *SqLite) GetConnect() string {
+func (e *PgSql) GetConnect() string {
 
 	return ""
 }
 
-func (e *SqLite) Setup() {
+func (e *PgSql) Setup() {
 
 	var err error
 	var db Database
 
-	db = new(SqLite)
-	orm.SqLiteConn = db.GetConnect()
-	log.Info(orm.SqLiteConn)
-	orm.Eloquent, err = db.Open(DbType, orm.SqLiteConn)
+	db = new(PgSql)
+	orm.PgSqlConn = db.GetConnect()
+	log.Info(orm.PgSqlConn)
+	orm.Eloquent, err = db.Open(DbType, orm.PgSqlConn)
 
 	if err != nil {
 		log.Fatalf("%s connect error %v", DbType, err)
