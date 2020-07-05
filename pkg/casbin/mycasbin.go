@@ -24,21 +24,27 @@ e = some(where (p.eft == allow))
 m = r.sub == p.sub && (keyMatch2(r.obj, p.obj) || keyMatch(r.obj, p.obj)) && (r.act == p.act || p.act == "*")
 `
 
-func Casbin() (*casbin.Enforcer, error) {
+var CasbinEnforcer *casbin.Enforcer
+
+func init() {
 	Apter, err := gormAdapter.NewAdapterByDB(orm.Eloquent)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	m, err := model.NewModelFromString(text)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	e, err := casbin.NewEnforcer(m, Apter)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	if err := e.LoadPolicy(); err == nil {
-		return e, err
+	CasbinEnforcer = e
+}
+
+func Casbin() (*casbin.Enforcer, error) {
+	if err := CasbinEnforcer.LoadPolicy(); err == nil {
+		return CasbinEnforcer, err
 	} else {
 		log.Printf("casbin rbac_model or policy init error, message: %v \r\n", err.Error())
 		return nil, err

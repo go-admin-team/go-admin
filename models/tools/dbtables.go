@@ -22,10 +22,10 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	table := new(gorm.DB)
 	var count int
 
-	if config2.DatabaseConfig.DbType == "mysql" {
+	if config2.DatabaseConfig.Driver == "mysql" {
 		table = orm.Eloquent.Select("*").Table("information_schema.tables")
-		table = table.Where("TABLE_NAME not in (select table_name from " + config2.DatabaseConfig.Mysql.DBName + ".sys_tables) ")
-		table = table.Where("table_schema= ? ", config2.DatabaseConfig.Mysql.DBName)
+		table = table.Where("TABLE_NAME not in (select table_name from " + config2.DatabaseConfig.DBName + ".sys_tables) ")
+		table = table.Where("table_schema= ? ", config2.DatabaseConfig.DBName)
 
 		if e.TableName != "" {
 			table = table.Where("TABLE_NAME = ?", e.TableName)
@@ -33,7 +33,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 			return nil, 0, err
 		}
-	} else if config2.DatabaseConfig.DbType == "sqlite3" {
+	} else if config2.DatabaseConfig.Driver == "sqlite3" {
 		table = orm.Eloquent.Select("name as TABLE_NAME,name as ENGINE,name as TABLE_ROWS,name as TABLE_COLLATION,name as CREATE_TIME,name as UPDATE_TIME,name as TABLE_COMMENT ").Table("sqlite_master")
 		table = table.Where("type = 'table' ")
 
@@ -52,14 +52,14 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
 	table := new(gorm.DB)
-	if config2.DatabaseConfig.DbType == "mysql" {
+	if config2.DatabaseConfig.Driver == "mysql" {
 		table = orm.Eloquent.Select("*").Table("information_schema.tables")
-		table = table.Where("table_schema= ? ", config2.DatabaseConfig.Mysql.DBName)
+		table = table.Where("table_schema= ? ", config2.DatabaseConfig.DBName)
 		if e.TableName == "" {
 			return doc, errors.New("table name cannot be empty！")
 		}
 		table = table.Where("TABLE_NAME = ?", e.TableName)
-	} else if config2.DatabaseConfig.DbType == "sqlite3" {
+	} else if config2.DatabaseConfig.Driver == "sqlite3" {
 		table = orm.Eloquent.Select("name as TABLE_NAME,name as ENGINE,name as TABLE_ROWS,name as TABLE_COLLATION,name as CREATE_TIME,name as UPDATE_TIME,name as TABLE_COMMENT ").Table("sqlite_master")
 		table = table.Where("type = 'table' ")
 

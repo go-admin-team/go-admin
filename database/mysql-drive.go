@@ -8,36 +8,33 @@ import (
 	"go-admin/tools/config"
 )
 
-func (e *Mysql) Setup() {
-
-	var err error
-	var db Database
-
-	db = new(Mysql)
-	orm.MysqlConn = db.GetConnect()
-	log.Info(orm.MysqlConn)
-	orm.Eloquent, err = db.Open(config.DatabaseConfig.DbType, orm.MysqlConn)
-
-	if err != nil {
-		log.Fatalf("%s connect error %v", config.DatabaseConfig.DbType, err)
-	} else {
-		log.Printf("%s connect success!", config.DatabaseConfig.DbType)
-	}
-
-	if orm.Eloquent.Error != nil {
-		log.Fatalf("database error %v", orm.Eloquent.Error)
-	}
-
-	orm.Eloquent.LogMode(true)
-}
-
 type Mysql struct {
 }
 
+func (e *Mysql) Setup() {
+	var err error
+	var db Database
+	db = new(Mysql)
+	orm.Source = db.GetConnect()
+	log.Info(orm.Source)
+	orm.Eloquent, err = db.Open(orm.Driver, orm.Source)
+	if err != nil {
+		log.Fatalf("%s connect error %v", orm.Driver, err)
+	} else {
+		log.Printf("%s connect success!", orm.Driver)
+	}
+	if orm.Eloquent.Error != nil {
+		log.Fatalf("database error %v", orm.Eloquent.Error)
+	}
+	orm.Eloquent.LogMode(true)
+}
+
+// 打开数据库连接
 func (e *Mysql) Open(dbType string, conn string) (db *gorm.DB, err error) {
 	return gorm.Open(dbType, conn)
 }
 
+// 获取数据库连接
 func (e *Mysql) GetConnect() string {
-	return config.DatabaseConfig.Mysql.MasterConn
+	return config.DatabaseConfig.Source
 }

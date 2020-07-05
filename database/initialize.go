@@ -1,10 +1,8 @@
 package database
 
-import "go-admin/tools/config"
 
-
-func Setup() {
-	dbType := config.DatabaseConfig.DbType
+func Setup(driver string) {
+	dbType := driver
 	if dbType == "mysql" {
 		var db = new(Mysql)
 		db.Setup()

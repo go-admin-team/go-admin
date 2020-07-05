@@ -5,7 +5,6 @@ import (
 )
 
 var Eloquent *gorm.DB
-var MysqlConn string
-var SqLiteConn string
-var PgSqlConn string
-var DbType string
+var Source string
+var Driver string
+var DBName string

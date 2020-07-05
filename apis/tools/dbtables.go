@@ -22,7 +22,7 @@ func GetDBTableList(c *gin.Context) {
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
-	//if config2.DatabaseConfig.DbType=="sqlite3"{
+	//if config2.DatabaseConfig.Driver=="sqlite3"{
 	//	res.Msg="对不起，sqlite3 暂不支持代码生成！"
 	//	c.JSON(http.StatusOK, res.ReturnError(500))
 	//	return
