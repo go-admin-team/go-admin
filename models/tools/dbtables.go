@@ -3,7 +3,7 @@ package tools
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
-	"go-admin/global/orm"
+	orm "go-admin/global"
 	config2 "go-admin/tools/config"
 )
 

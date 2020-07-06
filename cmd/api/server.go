@@ -8,7 +8,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go-admin/database"
-	"go-admin/global/orm"
+	"go-admin/global"
+	mycasbin "go-admin/pkg/casbin"
 	"go-admin/router"
 	"go-admin/tools"
 	"go-admin/tools/config"
@@ -56,6 +57,8 @@ import (
 		//3. 初始化数据库链接
 		database.Setup(config.DatabaseConfig.Driver)
 
+		mycasbin.Setup()
+
 }
 
 func run() error {
@@ -68,7 +71,7 @@ func run() error {
 
 	r := router.InitRouter()
 
-	defer orm.Eloquent.Close()
+	defer global.Eloquent.Close()
 
 	srv := &http.Server{
 		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,

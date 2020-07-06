@@ -4,7 +4,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"go-admin/database"
-	"go-admin/global/orm"
+	orm "go-admin/global"
 	"go-admin/models"
 	"go-admin/models/gorm"
 	"go-admin/tools"

@@ -8,10 +8,11 @@ func Setup(driver string) {
 		db.Setup()
 	}
 
-	if dbType == "sqlite3" {
-		var db = new(SqLite)
-		db.Setup()
-	}
+	//TODO： 如果需要sqlite3请开启下面注释
+	//if dbType == "sqlite3" {
+	//	var db = new(SqLite)
+	//	db.Setup()
+	//}
 
 	if dbType == "pgsql" {
 		var db = new(PgSql)

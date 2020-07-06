@@ -12,7 +12,7 @@ func InitDatabase(cfg *viper.Viper) *Database {
 
 	db := &Database{
 		Driver: cfg.GetString("driver"),
-		Source: cfg.GetString("dbname"),
+		Source: cfg.GetString("source"),
 		DBName: cfg.GetString("dbname"),
 	}
 	return db
