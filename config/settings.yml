@@ -18,7 +18,7 @@ settings:
     secret: go-admin
     timeout: 3600
   database:
-    driver: mysql # mysql，sqlite3， pgsql
+    driver: mysql # mysql，sqlite3， postgres
     dbname: dbname
     source: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local
     # source: sqlite3.db

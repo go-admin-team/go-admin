@@ -14,7 +14,7 @@ func Setup(driver string) {
 	//	db.Setup()
 	//}
 
-	if dbType == "pgsql" {
+	if dbType == "postgres" {
 		var db = new(PgSql)
 		db.Setup()
 	}

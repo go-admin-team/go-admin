@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	log "github.com/sirupsen/logrus"
 	"go-admin/global"
 	"go-admin/tools/config"

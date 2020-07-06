@@ -4,6 +4,7 @@ import (
 	"errors"
 	orm "go-admin/global"
 	"go-admin/tools"
+	"time"
 	_ "time"
 )
 
@@ -19,6 +20,12 @@ type SysConfig struct {
 	DataScope   string `json:"dataScope" gorm:"-"`
 	Params      string `json:"params"  gorm:"-"`
 	BaseModel
+}
+
+func DataInit()  {
+	config1:=SysConfig{1, "主框架页-默认皮肤样式名称", "sys_index_skinName", "skin-blue", "Y", "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow", "1", "1", "","",BaseModel{time.Now(), time.Now(), nil}}
+
+	orm.Eloquent.Create(&config1)
 }
 
 func (SysConfig) TableName() string {

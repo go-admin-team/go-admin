@@ -19,7 +19,7 @@ import (
 // @Router /api/v1/deptList [get]
 // @Security
 func GetDeptList(c *gin.Context) {
-	var Dept models.Dept
+	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status = c.Request.FormValue("status")
 	Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
@@ -30,7 +30,7 @@ func GetDeptList(c *gin.Context) {
 }
 
 func GetDeptTree(c *gin.Context) {
-	var Dept models.Dept
+	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
 	Dept.Status= c.Request.FormValue("status")
 	Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
@@ -48,7 +48,7 @@ func GetDeptTree(c *gin.Context) {
 // @Router /api/v1/dept/{deptId} [get]
 // @Security
 func GetDept(c *gin.Context) {
-	var Dept models.Dept
+	var Dept models.SysDept
 	Dept.DeptId, _ = tools.StringToInt(c.Param("deptId"))
 	Dept.DataScope = tools.GetUserIdStr(c)
 	result, err := Dept.Get()
@@ -67,7 +67,7 @@ func GetDept(c *gin.Context) {
 // @Router /api/v1/dept [post]
 // @Security Bearer
 func InsertDept(c *gin.Context) {
-	var data models.Dept
+	var data models.SysDept
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "", 500)
 	data.CreateBy = tools.GetUserIdStr(c)
@@ -88,7 +88,7 @@ func InsertDept(c *gin.Context) {
 // @Router /api/v1/dept [put]
 // @Security Bearer
 func UpdateDept(c *gin.Context) {
-	var data models.Dept
+	var data models.SysDept
 	err := c.BindJSON(&data)
 	tools.HasError(err, "", -1)
 	data.UpdateBy = tools.GetUserIdStr(c)
@@ -105,7 +105,7 @@ func UpdateDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dept/{id} [delete]
 func DeleteDept(c *gin.Context) {
-	var data models.Dept
+	var data models.SysDept
 	id, err := tools.StringToInt(c.Param("id"))
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
@@ -113,7 +113,7 @@ func DeleteDept(c *gin.Context) {
 }
 
 func GetDeptTreeRoleselect(c *gin.Context) {
-	var Dept models.Dept
+	var Dept models.SysDept
 	var SysRole models.SysRole
 	id, err := tools.StringToInt(c.Param("roleId"))
 	SysRole.RoleId = id

@@ -97,7 +97,7 @@ func GetSysUserProfile(c *gin.Context) {
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
 	var Post models.Post
-	var Dept models.Dept
+	var Dept models.SysDept
 	//获取角色列表
 	roles, err := SysRole.GetList()
 	//获取职位列表

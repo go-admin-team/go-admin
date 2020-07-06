@@ -25,6 +25,7 @@ func InitDb() error {
 			continue
 		}
 		sql := strings.Replace(sqlList[i]+";", "\n", "", 0)
+		sql = strings.TrimSpace(sql)
 		if err = orm.Eloquent.Exec(sql).Error; err != nil {
 			if !strings.Contains(err.Error(), "Query was empty") {
 				return err
