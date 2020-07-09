@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
-	log "github.com/sirupsen/logrus"
 )
 
 // @Summary 列表数据
@@ -34,7 +34,7 @@ func GetSysUserList(c *gin.Context) {
 		pageIndex = tools.StrToInt(err, index)
 	}
 
-	data.Username = c.Request.FormValue("userName")
+	data.Username = c.Request.FormValue("username")
 	data.Status = c.Request.FormValue("status")
 	data.Phone = c.Request.FormValue("phone")
 
