@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/jinzhu/gorm"
 	orm "go-admin/global"
+	"go-admin/tools"
 	config2 "go-admin/tools/config"
 )
 
@@ -33,16 +34,8 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 			return nil, 0, err
 		}
-	} else if config2.DatabaseConfig.Driver == "sqlite3" {
-		table = orm.Eloquent.Select("name as TABLE_NAME,name as ENGINE,name as TABLE_ROWS,name as TABLE_COLLATION,name as CREATE_TIME,name as UPDATE_TIME,name as TABLE_COMMENT ").Table("sqlite_master")
-		table = table.Where("type = 'table' ")
-
-		if e.TableName != "" {
-			table = table.Where("name = ?", e.TableName)
-		}
-		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
-			return nil, 0, err
-		}
+	} else {
+		tools.Assert(true, "目前只支持mysql数据库", 500)
 	}
 
 	table.Count(&count)
@@ -59,13 +52,8 @@ func (e *DBTables) Get() (DBTables, error) {
 			return doc, errors.New("table name cannot be empty！")
 		}
 		table = table.Where("TABLE_NAME = ?", e.TableName)
-	} else if config2.DatabaseConfig.Driver == "sqlite3" {
-		table = orm.Eloquent.Select("name as TABLE_NAME,name as ENGINE,name as TABLE_ROWS,name as TABLE_COLLATION,name as CREATE_TIME,name as UPDATE_TIME,name as TABLE_COMMENT ").Table("sqlite_master")
-		table = table.Where("type = 'table' ")
-
-		if e.TableName != "" {
-			table = table.Where("name = ?", e.TableName)
-		}
+	} else {
+		tools.Assert(true, "目前只支持mysql数据库", 500)
 	}
 	if err := table.First(&doc).Error; err != nil {
 		return doc, err

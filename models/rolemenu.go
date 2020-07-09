@@ -7,11 +7,11 @@ import (
 )
 
 type RoleMenu struct {
-	RoleId   int    `gorm:"type:int(11)"`
-	MenuId   int    `gorm:"type:int(11)"`
-	RoleName string `gorm:"type:varchar(128)"`
-	CreateBy string `gorm:"type:varchar(128)"`
-	UpdateBy string `gorm:"type:varchar(128)"`
+	RoleId   int    `gorm:""`
+	MenuId   int    `gorm:""`
+	RoleName string `gorm:"size:128)"`
+	CreateBy string `gorm:"size:128)"`
+	UpdateBy string `gorm:"size:128)"`
 }
 
 func (RoleMenu) TableName() string {

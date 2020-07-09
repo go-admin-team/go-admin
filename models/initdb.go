@@ -2,31 +2,30 @@ package models
 
 import (
 	"fmt"
-	orm "go-admin/global"
+	"go-admin/global"
 	"io/ioutil"
 	"strings"
 )
 
 func InitDb() error {
 	filePath := "config/db.sql"
-	//if config2.DatabaseConfig.DbType == "sqlite" {
-	//	fmt.Println("sqlite3数据库无需初始化！")
-	//	return nil
-	//}
+	if global.Driver == "postgres" {
+		filePath = "config/pg.sql"
+	}
 	sql, err := Ioutil(filePath)
 	if err != nil {
 		fmt.Println("数据库基础数据初始化脚本读取失败！原因:", err.Error())
 		return err
 	}
 	sqlList := strings.Split(sql, ";")
-	for i := 0; i < len(sqlList) - 1; i++ {
+	for i := 0; i < len(sqlList)-1; i++ {
 		if strings.Contains(sqlList[i], "--") {
 			fmt.Println(sqlList[i])
 			continue
 		}
 		sql := strings.Replace(sqlList[i]+";", "\n", "", 0)
 		sql = strings.TrimSpace(sql)
-		if err = orm.Eloquent.Exec(sql).Error; err != nil {
+		if err = global.Eloquent.Exec(sql).Error; err != nil {
 			if !strings.Contains(err.Error(), "Query was empty") {
 				return err
 			}

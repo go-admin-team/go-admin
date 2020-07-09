@@ -8,31 +8,72 @@ import (
 
 func AutoMigrate(db *gorm.DB) error {
 	db.SingularTable(true)
-	err:=db.AutoMigrate(
-		new(models.CasbinRule),
-		new(models.SysDept),
-		new(models.SysConfig),
-		new(tools.SysTables),
-		new(tools.SysColumns),
-		new(models.Menu),
-		new(models.LoginLog),
-		new(models.SysOperLog),
-		new(models.RoleMenu),
-		new(models.SysRoleDept),
-		new(models.SysUser),
-		new(models.SysRole),
-		new(models.Post),
-		new(models.DictData),
-		new(models.DictType),
-	).Error
+	err := db.AutoMigrate(new(models.CasbinRule)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysDept)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysConfig)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(tools.SysTables)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(tools.SysColumns)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.Menu)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.LoginLog)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysOperLog)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.RoleMenu)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysRoleDept)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysUser)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysRole)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.Post)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.DictData)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.DictType)).Error
+	if err != nil {
+		return err
+	}
 
 	models.DataInit()
 	return err
 }
 
-
-func CustomMigrate(db *gorm.DB,table interface{}) error {
+func CustomMigrate(db *gorm.DB, table interface{}) error {
 	db.SingularTable(true)
 	return db.AutoMigrate(&table).Error
 }
-

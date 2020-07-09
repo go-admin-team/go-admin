@@ -4,28 +4,27 @@ import (
 	"errors"
 	orm "go-admin/global"
 	"go-admin/tools"
-	"time"
 	_ "time"
 )
 
 type SysConfig struct {
 	ConfigId    int    `json:"configId" gorm:"primary_key;auto_increment;"` //编码
-	ConfigName  string `json:"configName" gorm:"type:varchar(128);"`        //参数名称
-	ConfigKey   string `json:"configKey" gorm:"type:varchar(128);"`         //参数键名
-	ConfigValue string `json:"configValue" gorm:"type:varchar(255);"`       //参数键值
-	ConfigType  string `json:"configType" gorm:"type:varchar(64);"`         //是否系统内置
-	Remark      string `json:"remark" gorm:"type:varchar(128);"`            //备注
-	CreateBy    string `json:"createBy" gorm:"type:varchar(128);"`
-	UpdateBy    string `json:"updateBy" gorm:"type:varchar(128);"`
+	ConfigName  string `json:"configName" gorm:"size:128;"`                 //参数名称
+	ConfigKey   string `json:"configKey" gorm:"size:128;"`                  //参数键名
+	ConfigValue string `json:"configValue" gorm:"size:255;"`                //参数键值
+	ConfigType  string `json:"configType" gorm:"size:64;"`                  //是否系统内置
+	Remark      string `json:"remark" gorm:"size:128;"`                     //备注
+	CreateBy    string `json:"createBy" gorm:"size:128;"`
+	UpdateBy    string `json:"updateBy" gorm:"size:128;"`
 	DataScope   string `json:"dataScope" gorm:"-"`
 	Params      string `json:"params"  gorm:"-"`
 	BaseModel
 }
 
-func DataInit()  {
-	config1:=SysConfig{1, "主框架页-默认皮肤样式名称", "sys_index_skinName", "skin-blue", "Y", "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow", "1", "1", "","",BaseModel{time.Now(), time.Now(), nil}}
-
-	orm.Eloquent.Create(&config1)
+func DataInit() {
+	//config1:=SysConfig{1, "主框架页-默认皮肤样式名称", "sys_index_skinName", "skin-blue", "Y", "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow", "1", "1", "","",BaseModel{time.Now(), time.Now(), nil}}
+	//
+	//orm.Eloquent.Create(&config1)
 }
 
 func (SysConfig) TableName() string {
