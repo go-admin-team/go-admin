@@ -5,6 +5,7 @@ import (
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
+	"go-admin/tools/config"
 	"net/http"
 )
 
@@ -22,11 +23,11 @@ func GetDBTableList(c *gin.Context) {
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
-	//if config2.DatabaseConfig.Driver=="sqlite3"{
-	//	res.Msg="对不起，sqlite3 暂不支持代码生成！"
-	//	c.JSON(http.StatusOK, res.ReturnError(500))
-	//	return
-	//}
+	if config.DatabaseConfig.Driver == "sqlite3" || config.DatabaseConfig.Driver == "postgres" {
+		res.Msg = "对不起，sqlite3 或 postgres 不支持代码生成！"
+		c.JSON(http.StatusOK, res.ReturnError(500))
+		return
+	}
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
 		pageSize = tools2.StrToInt(err, size)
@@ -45,7 +46,6 @@ func GetDBTableList(c *gin.Context) {
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
-
 
 	res.Data = mp
 
