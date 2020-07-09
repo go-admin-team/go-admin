@@ -33,8 +33,12 @@ func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddle
 	//v1 := r.Group("/api/v1")
 	//v1auth := v1.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	//{
-	//	v1auth.GET("/examples/list", examples.apis)
+	//	registerDemoRouter(v1auth)
 	//}
 }
+
+//func registerDemoRouter(v1 gin.IRoutes) {
+//	v1.GET("/demo", Demo)
+//}
 
 
