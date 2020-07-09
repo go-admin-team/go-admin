@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/jwtauth"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 

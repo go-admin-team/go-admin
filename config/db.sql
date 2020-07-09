@@ -1,4 +1,5 @@
 -- 开始初始化数据 ;
+BEGIN;
 INSERT INTO casbin_rule VALUES ('p', 'Tester', '/api/v1/calendar', 'GET', NULL, NULL, NULL);
 INSERT INTO casbin_rule VALUES ('p', 'Tester', '/api/v1/calendar', 'POST', NULL, NULL, NULL);
 INSERT INTO casbin_rule VALUES ('p', 'Tester', '/api/v1/calendar/:id', 'DELETE', NULL, NULL, NULL);
@@ -637,5 +638,6 @@ INSERT INTO sys_user VALUES (1, 'zhangwj', '13818888888', 1, NULL, '', '0', '1@q
 INSERT INTO sys_user VALUES (2, 'zhangwj', '13211111111', 3, NULL, NULL, '0', 'q@q.com', 8, 2, '1', '1', NULL, 0, '2019-11-12 18:28:27', '2020-03-14 20:08:43', NULL, 'zhangwj', '$2a$10$CqMwHahA3cNrNv16CoSxmeD4XMPU.BiKHPEAeaG5oXMavOKrjInXi');
 INSERT INTO sys_user VALUES (3, '李四', '13838385438', 2, '', '', '0', 'qq@qq.com', 7, 2, '1', '1', '', 0, '2020-04-07 22:17:38', '2020-05-03 20:31:00', NULL, 'lisi', '$2a$10$DejldFea5.hGZGC7/oVN9OLDrHAWgu9l29RDz9FomLnWnro4umYl2');
 INSERT INTO sys_user VALUES (4, '王五', '13535353535', 3, '', '', '2', 'qq@qq.com', 8, 2, '1', '1', '', 0, '2020-04-12 14:06:49', '2020-04-12 14:07:09', NULL, 'wangwu', '$2a$10$3.RT6rpXANXvvlibX6PzU.FGA2CvfDxd1UmJ2H5zTzF4sYocbvsTO');
+COMMIT;
 
 -- 数据完成 ;

@@ -92,14 +92,14 @@ func run() error {
 	}()
 	content, _ := ioutil.ReadFile("./static/go-admin.txt")
 	fmt.Println(string(content))
-	fmt.Printf("%s Server Run http://%s:%s/ \r\n", tools.GetCurrntTimeStr(), config.ApplicationConfig.Host, config.ApplicationConfig.Port)
-	fmt.Printf("%s Swagger URL http://%s:%s/swagger/index.html \r\n", tools.GetCurrntTimeStr(), config.ApplicationConfig.Host, config.ApplicationConfig.Port)
-	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrntTimeStr())
+	fmt.Printf("%s Server Run http://%s:%s/ \r\n", tools.GetCurrentTimeStr(), config.ApplicationConfig.Host, config.ApplicationConfig.Port)
+	fmt.Printf("%s Swagger URL http://%s:%s/swagger/index.html \r\n", tools.GetCurrentTimeStr(), config.ApplicationConfig.Host, config.ApplicationConfig.Port)
+	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrentTimeStr())
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	fmt.Printf("%s Shutdown Server ... \r\n", tools.GetCurrntTimeStr())
+	fmt.Printf("%s Shutdown Server ... \r\n", tools.GetCurrentTimeStr())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
