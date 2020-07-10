@@ -10,7 +10,7 @@ import (
 	"go-admin/tools/app"
 )
 
-// @Summary 列表数据
+// @Summary 列表用户信息数据
 // @Description 获取JSON
 // @Tags 用户
 // @Param username query string false "username"
@@ -83,7 +83,7 @@ func GetSysUser(c *gin.Context) {
 	})
 }
 
-// @Summary 获取当前登录用户
+// @Summary 获取个人中心用户
 // @Description 获取JSON
 // @Tags 个人中心
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
