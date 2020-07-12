@@ -148,5 +148,5 @@ func DeleteDictData(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup("dictCode", c)
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "修改失败", 500)
-	app.OK(c,result,"删除成功")
+	app.OK(c, result, "删除成功")
 }

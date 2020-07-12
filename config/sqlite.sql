@@ -300,6 +300,12 @@ INSERT INTO `sys_dict_data` VALUES (28, 0, '失败', '1', 'sys_notice_status', '
 INSERT INTO `sys_dict_data` VALUES (29, 0, '登录', '10', 'sys_oper_type', '', '', '', 0, '', '1', '1', '登录操作', '2020-03-15 18:35:23', '2020-03-15 18:39:30', NULL);
 INSERT INTO `sys_dict_data` VALUES (30, 0, '退出', '11', 'sys_oper_type', '', '', '', 0, '', '1', '', '', '2020-03-15 18:35:39', '2020-03-15 18:35:39', NULL);
 INSERT INTO `sys_dict_data` VALUES (31, 0, '获取验证码', '12', 'sys_oper_type', '', '', '', 0, '', '1', '', '获取验证码', '2020-03-15 18:38:42', '2020-03-15 18:35:39', NULL);
+INSERT INTO `sys_dict_data` VALUES (32, 0, 'Linux', 'Linux', 'system', '', '', '', 0, '', '1', '', '', '2020-07-12 09:29:57', '2020-07-12 09:29:57', NULL, 0);
+INSERT INTO `sys_dict_data` VALUES (33, 0, 'Windows', 'Windows', 'system', '', '', '', 0, '', '1', '', '', '2020-07-12 09:30:15', '2020-07-12 09:30:15', NULL, 0);
+INSERT INTO `sys_dict_data` VALUES (34, 0, 'Centos', 'Centos', 'Linux', '', '', '', 0, '', '1', '1', '', '2020-07-12 09:30:48', '2020-07-12 09:30:58', NULL, 32);
+INSERT INTO `sys_dict_data` VALUES (35, 0, 'windows7', 'windows7', 'Windows', '', '', '', 0, '', '1', '', '', '2020-07-12 09:31:32', '2020-07-12 09:31:32', NULL, 33);
+INSERT INTO `sys_dict_data` VALUES (36, 0, 'centos7', 'centos7', 'Centos', '', '', '', 0, '', '1', '', '', '2020-07-12 09:31:50', '2020-07-12 09:31:50', NULL, 34);
+INSERT INTO `sys_dict_data` VALUES (37, 0, 'windows7(x64)', 'windows7(x64)', 'windows7', '', '', '', 0, '', '1', '', '', '2020-07-12 09:32:07', '2020-07-12 09:32:07', NULL, 35);
 INSERT INTO `sys_dict_type` VALUES (1, '系统开关', 'sys_normal_disable', 0, '1', '1', '系统开关列表', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_dict_type` VALUES (2, '用户性别', 'sys_user_sex', 0, '1', '', '用户性别列表', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_dict_type` VALUES (3, '菜单状态', 'sys_show_hide', 0, '1', '', '菜单状态列表', '2020-04-11 15:52:48', NULL, NULL);
