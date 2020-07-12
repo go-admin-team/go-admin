@@ -7,21 +7,23 @@ import (
 )
 
 type DictData struct {
-	DictCode  int    `gorm:"primary_key;AUTO_INCREMENT" json:"dictCode" example:"1"` //字典编码
-	DictSort  int    `gorm:"" json:"dictSort"`                           //显示顺序
-	DictLabel string `gorm:"size:128;" json:"dictLabel"`                    //数据标签
-	DictValue string `gorm:"size:255;" json:"dictValue"`                    //数据键值
-	DictType  string `gorm:"size:64;" json:"dictType"`                      //字典类型
-	CssClass  string `gorm:"size:128;" json:"cssClass"`                     //
-	ListClass string `gorm:"size:128;" json:"listClass"`                    //
-	IsDefault string `gorm:"size:8;" json:"isDefault"`                      //
-	Status    string `gorm:"size:4;" json:"status"`                             //状态
-	Default   string `gorm:"size:8;" json:"default"`                        //
-	CreateBy  string `gorm:"size:64;" json:"createBy"`                      //
-	UpdateBy  string `gorm:"size:64;" json:"updateBy"`                      //
-	Remark    string `gorm:"size:255;" json:"remark"`                       //备注
-	Params    string `gorm:"-" json:"params"`
-	DataScope string `gorm:"-" json:"dataScope"`
+	DictCode  int        `gorm:"primary_key;AUTO_INCREMENT" json:"dictCode" example:"1"` //字典编码
+	DictSort  int        `gorm:"" json:"dictSort"`                                       //显示顺序
+	DictLabel string     `gorm:"size:128;" json:"dictLabel"`                             //数据标签
+	DictValue string     `gorm:"size:255;" json:"dictValue"`                             //数据键值
+	DictType  string     `gorm:"size:64;" json:"dictType"`                               //字典类型
+	CssClass  string     `gorm:"size:128;" json:"cssClass"`                              //
+	ListClass string     `gorm:"size:128;" json:"listClass"`                             //
+	IsDefault string     `gorm:"size:8;" json:"isDefault"`                               //
+	Status    string     `gorm:"size:4;" json:"status"`                                  //状态
+	Default   string     `gorm:"size:8;" json:"default"`                                 //
+	CreateBy  string     `gorm:"size:64;" json:"createBy"`                               //
+	UpdateBy  string     `gorm:"size:64;" json:"updateBy"`                               //
+	Remark    string     `gorm:"size:255;" json:"remark"`                                //备注
+	Params    string     `gorm:"-" json:"params"`
+	DataScope string     `gorm:"-" json:"dataScope"`
+	Pid       int        `gorm:"type:int(11);" json:"pid"` //
+	Children  []DictData `gorm:"-" json:"children"`
 	BaseModel
 }
 
@@ -84,7 +86,20 @@ func (e *DictData) Get() ([]DictData, error) {
 	if err := table.Order("dict_sort").Find(&doc).Error; err != nil {
 		return doc, err
 	}
+	DiguiDictData(e, doc)
 	return doc, nil
+}
+
+func DiguiDictData(e *DictData, list []DictData) {
+	for i := 0; i < len(list); i++ {
+		var doc []DictData
+		table := orm.Eloquent.Table(e.TableName())
+		table.Where("pid = ? and `deleted_at` IS NULL", list[i].DictCode).Find(&doc)
+		list[i].Children = doc
+		if len(list[i].Children) > 0 {
+			DiguiDictData(e, list[i].Children)
+		}
+	}
 }
 
 func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error) {
@@ -117,6 +132,7 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
+	DiguiDictData(e, doc)
 	return doc, count, nil
 }
 
