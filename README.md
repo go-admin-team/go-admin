@@ -98,6 +98,12 @@
 
 **如有问题请先看上述使用文档和文章，若不能满足，欢迎 issue 和 pr ，视频教程和文档持续更新中**
 
+## 🗞 系统架构
+
+<p align="center">
+  <img  src="https://gitee.com/mydearzwj/image/raw/d9f59ea603e3c8a3977491a1bfa8f122e1a80824/img/go-admin-system.png" width="936px" height="491px">
+</p>
+
 ## 📦 本地开发
 
 ### 首次启动说明
