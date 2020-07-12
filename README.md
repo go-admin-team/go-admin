@@ -86,11 +86,23 @@
 
 [使用生成工具轻松实现业务](https://www.bilibili.com/video/BV1Dg4y1i79D)
 
-[go-admin菜单的配置说明](https://www.bilibili.com/video/BV1Wp4y1D715)
-
 [多命令启动方式讲解以及IDE配置](https://www.bilibili.com/video/BV1Fg4y1q7ph)
 
+[go-admin菜单的配置说明](https://www.bilibili.com/video/BV1Wp4y1D715) [必看]
+
+[如何配置菜单信息以及接口信息](https://www.bilibili.com/video/BV1zv411B7nG) [必看]
+
+[go-admin权限配置使用说明](https://www.bilibili.com/video/BV1rt4y197d3) [必看]
+
+[go-admin数据权限使用说明](https://www.bilibili.com/video/BV1LK4y1s71e) [必看]
+
 **如有问题请先看上述使用文档和文章，若不能满足，欢迎 issue 和 pr ，视频教程和文档持续更新中**
+
+## 🗞 系统架构
+
+<p align="center">
+  <img width="320" src="https://gitee.com/mydearzwj/image/raw/d9f59ea603e3c8a3977491a1bfa8f122e1a80824/img/go-admin-system.png">
+</p>
 
 ## 📦 本地开发
 
