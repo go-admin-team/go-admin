@@ -89,7 +89,13 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 		table = table.Where("dict_id = ?", e.DictId)
 	}
 	if e.DictName != "" {
-		table = table.Where("dict_name = ?", e.DictName)
+		table = table.Where("dict_name like ?", "%"+e.DictName+"%")
+	}
+	if e.DictType != "" {
+		table = table.Where("dict_type like ?", "%"+e.DictType+"%")
+	}
+	if e.Status != "" {
+		table = table.Where("status = ?", e.Status)
 	}
 
 	// 数据权限控制

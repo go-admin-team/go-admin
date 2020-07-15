@@ -38,6 +38,7 @@ func GetDictTypeList(c *gin.Context) {
 	id := c.Request.FormValue("dictId")
 	data.DictId, _ = tools.StringToInt(id)
 	data.DictType = c.Request.FormValue("dictType")
+	data.Status = c.Request.FormValue("status")
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
