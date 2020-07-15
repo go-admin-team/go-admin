@@ -82,7 +82,7 @@ func InsertPost(c *gin.Context) {
 // @Tags 岗位
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Dept true "body"
+// @Param data body models.Post true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/post/ [put]
@@ -103,7 +103,7 @@ func UpdatePost(c *gin.Context) {
 // @Tags 岗位
 // @Param id path int true "id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
 // @Router /api/v1/post/{postId} [delete]
 func DeletePost(c *gin.Context) {
 	var data models.Post

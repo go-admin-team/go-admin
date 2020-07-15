@@ -24,11 +24,11 @@ func GetSysTableList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = tools2.StrToInt(err, size)
+		pageSize, err = tools2.StringToInt(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = tools2.StrToInt(err, index)
+		pageIndex, err = tools2.StringToInt(index)
 	}
 
 	data.TBName = c.Request.FormValue("tableName")
@@ -185,7 +185,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 // @Tags 工具 - 生成表
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Dept true "body"
+// @Param data body tools.SysTables true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [put]
