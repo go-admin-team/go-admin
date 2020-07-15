@@ -12,10 +12,10 @@ import (
 	_ "go-admin/docs"
 	"go-admin/handler"
 	"go-admin/middleware"
-	"go-admin/pkg/jwtauth"
+	jwt "go-admin/pkg/jwtauth"
 )
 
-func InitSysRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddleware) *gin.RouterGroup {
+func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
 	g := r.Group("")
 	sysBaseRouter(g)
 	// 静态文件
@@ -52,7 +52,7 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/getCaptcha", system.GenerateCaptchaHandler)
 	v1.GET("/gen/preview/:tableId", Preview)
 	v1.GET("/gen/toproject/:tableId", GenCode)
-
+	v1.GET("/gen/todb/:tableId", GenMenuAndApi)
 	v1.GET("/menuTreeselect", system.GetMenuTreeelect)
 	v1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
@@ -84,146 +84,161 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwtauth.GinJWTMiddleware) {
+func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r.POST("/login", authMiddleware.LoginHandler)
 	// Refresh time can be longer than token timeout
 	r.GET("/refresh_token", authMiddleware.RefreshHandler)
 
-	v1 := r.Group("/api/v1").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	v1 := r.Group("/api/v1")
+
+	registerPageRouter(v1, authMiddleware)
+	registerBaseRouter(v1, authMiddleware)
+	registerDeptRouter(v1, authMiddleware)
+	registerDictRouter(v1, authMiddleware)
+	registerSysUserRouter(v1, authMiddleware)
+	registerRoleRouter(v1, authMiddleware)
+	registerConfigRouter(v1, authMiddleware)
+	registerUserCenterRouter(v1, authMiddleware)
+	registerPostRouter(v1, authMiddleware)
+	registerMenuRouter(v1, authMiddleware)
+	registerLoginLogRouter(v1, authMiddleware)
+	registerOperLogRouter(v1, authMiddleware)
+}
+
+func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	v1auth := v1.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		registerPageRouter(v1)
-		registerBaseRouter(v1)
-		registerDeptRouter(v1)
-		registerDictRouter(v1)
-		registerSysUserRouter(v1)
-		registerRoleRouter(v1)
-		registerConfigRouter(v1)
-		registerUserCenterRouter(v1)
-		registerPostRouter(v1)
-		registerMenuRouter(v1)
-		registerLoginLogRouter(v1)
-		registerOperLogRouter(v1)
+		v1auth.GET("/getinfo", system.GetInfo)
+		v1auth.GET("/menurole", system.GetMenuRole)
+		v1auth.PUT("/roledatascope", system.UpdateRoleDataScope)
+		v1auth.GET("/roleMenuTreeselect/:roleId", system.GetMenuTreeRoleselect)
+		v1auth.GET("/roleDeptTreeselect/:roleId", system.GetDeptTreeRoleselect)
+
+		v1auth.POST("/logout", handler.LogOut)
+		v1auth.GET("/menuids", system.GetMenuIDS)
+
+		v1auth.GET("/operloglist", log2.GetOperLogList)
+		v1auth.GET("/configKey/:configKey", system.GetConfigByConfigKey)
 	}
 }
 
-func registerBaseRouter(v1 gin.IRoutes) {
-
-	v1.GET("/getinfo", system.GetInfo)
-	v1.GET("/menurole", system.GetMenuRole)
-	v1.PUT("/roledatascope", system.UpdateRoleDataScope)
-	v1.GET("/roleMenuTreeselect/:roleId", system.GetMenuTreeRoleselect)
-	v1.GET("/roleDeptTreeselect/:roleId", system.GetDeptTreeRoleselect)
-
-	v1.POST("/logout", handler.LogOut)
-	v1.GET("/menuids", system.GetMenuIDS)
-
-	v1.GET("/operloglist", log2.GetOperLogList)
-	v1.GET("/configKey/:configKey", system.GetConfigByConfigKey)
-
+func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	v1auth := v1.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		v1auth.GET("/deptList", system.GetDeptList)
+		v1auth.GET("/deptTree", system.GetDeptTree)
+		v1auth.GET("/sysUserList", system.GetSysUserList)
+		v1auth.GET("/rolelist", system.GetRoleList)
+		v1auth.GET("/configList", system.GetConfigList)
+		v1auth.GET("/postlist", system.GetPostList)
+		v1auth.GET("/menulist", system.GetMenuList)
+		v1auth.GET("/loginloglist", log2.GetLoginLogList)
+	}
 }
 
-func registerPageRouter(v1 gin.IRoutes) {
-	v1.GET("/deptList", system.GetDeptList)
-	v1.GET("/deptTree", system.GetDeptTree)
-	v1.GET("/sysUserList", system.GetSysUserList)
-	v1.GET("/rolelist", system.GetRoleList)
-	v1.GET("/configList", system.GetConfigList)
-	v1.GET("/postlist", system.GetPostList)
-	v1.GET("/menulist", system.GetMenuList)
-	v1.GET("/loginloglist", log2.GetLoginLogList)
-
+func registerUserCenterRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	user := v1.Group("/user").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		user.GET("/profile", system.GetSysUserProfile)
+		user.POST("/avatar", system.InsetSysUserAvatar)
+		user.PUT("/pwd", system.SysUserUpdatePwd)
+	}
 }
 
-func registerUserCenterRouter(v1 gin.IRoutes) {
-	v1.GET("/user/profile", system.GetSysUserProfile)
-	v1.POST("/user/avatar", system.InsetSysUserAvatar)
-	v1.PUT("/user/pwd", system.SysUserUpdatePwd)
+func registerOperLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	operlog := v1.Group("/operlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		operlog.GET("/:operId", log2.GetOperLog)
+		operlog.DELETE("/:operId", log2.DeleteOperLog)
+	}
 }
 
-func registerOperLogRouter(v1 gin.IRoutes) {
-
-	v1.GET("/operlog/:operId", log2.GetOperLog)
-	v1.DELETE("/operlog/:operId", log2.DeleteOperLog)
-
+func registerLoginLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	loginlog := v1.Group("/loginlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		loginlog.GET("/:infoId", log2.GetLoginLog)
+		loginlog.POST("", log2.InsertLoginLog)
+		loginlog.PUT("", log2.UpdateLoginLog)
+		loginlog.DELETE("/:infoId", log2.DeleteLoginLog)
+	}
 }
 
-func registerLoginLogRouter(v1 gin.IRoutes) {
-
-	v1.GET("/loginlog/:infoId", log2.GetLoginLog)
-	v1.POST("/loginlog", log2.InsertLoginLog)
-	v1.PUT("/loginlog", log2.UpdateLoginLog)
-	v1.DELETE("/loginlog/:infoId", log2.DeleteLoginLog)
-
+func registerPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	post := v1.Group("/post").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		post.GET("/:postId", system.GetPost)
+		post.POST("", system.InsertPost)
+		post.PUT("", system.UpdatePost)
+		post.DELETE("/:postId", system.DeletePost)
+	}
 }
 
-func registerPostRouter(v1 gin.IRoutes) {
-
-	v1.GET("/post/:postId", system.GetPost)
-	v1.POST("/post", system.InsertPost)
-	v1.PUT("/post", system.UpdatePost)
-	v1.DELETE("/post/:postId", system.DeletePost)
-
+func registerMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	menu := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		menu.GET("/:id", system.GetMenu)
+		menu.POST("", system.InsertMenu)
+		menu.PUT("", system.UpdateMenu)
+		menu.DELETE("/:id", system.DeleteMenu)
+	}
 }
 
-func registerMenuRouter(v1 gin.IRoutes) {
-
-	v1.GET("/menu/:id", system.GetMenu)
-	v1.POST("/menu", system.InsertMenu)
-	v1.PUT("/menu", system.UpdateMenu)
-	v1.DELETE("/menu/:id", system.DeleteMenu)
-
+func registerConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	config := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		config.GET("/:configId", system.GetConfig)
+		config.POST("", system.InsertConfig)
+		config.PUT("", system.UpdateConfig)
+		config.DELETE("/:configId", system.DeleteConfig)
+	}
 }
 
-func registerConfigRouter(v1 gin.IRoutes) {
-	v1.GET("/config/:configId", system.GetConfig)
-	v1.POST("/config", system.InsertConfig)
-	v1.PUT("/config", system.UpdateConfig)
-	v1.DELETE("/config/:configId", system.DeleteConfig)
-
+func registerRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	role := v1.Group("/role").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		role.GET("/:roleId", system.GetRole)
+		role.POST("", system.InsertRole)
+		role.PUT("", system.UpdateRole)
+		role.DELETE("/:roleId", system.DeleteRole)
+	}
 }
 
-func registerRoleRouter(v1 gin.IRoutes) {
-
-	v1.GET("/role/:roleId", system.GetRole)
-	v1.POST("/role", system.InsertRole)
-	v1.PUT("/role", system.UpdateRole)
-	v1.DELETE("/role/:roleId", system.DeleteRole)
-
+func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	sysuser := v1.Group("/sysUser").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		sysuser.GET("/:userId", system.GetSysUser)
+		sysuser.GET("/", system.GetSysUserInit)
+		sysuser.POST("", system.InsertSysUser)
+		sysuser.PUT("", system.UpdateSysUser)
+		sysuser.DELETE("/:userId", system.DeleteSysUser)
+	}
 }
 
-func registerSysUserRouter(v1 gin.IRoutes) {
+func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		dicts.GET("/datalist", dict.GetDictDataList)
+		dicts.GET("/typelist", dict.GetDictTypeList)
+		dicts.GET("/typeoptionselect", dict.GetDictTypeOptionSelect)
 
-	v1.GET("/sysUser/:userId", system.GetSysUser)
-	v1.GET("/sysUser/", system.GetSysUserInit)
-	v1.POST("/sysUser", system.InsertSysUser)
-	v1.PUT("/sysUser", system.UpdateSysUser)
-	v1.DELETE("/sysUser/:userId", system.DeleteSysUser)
+		dicts.GET("/data/:dictCode", dict.GetDictData)
+		dicts.POST("/data", dict.InsertDictData)
+		dicts.PUT("/data/", dict.UpdateDictData)
+		dicts.DELETE("/data/:dictCode", dict.DeleteDictData)
 
+		dicts.GET("/type/:dictId", dict.GetDictType)
+		dicts.POST("/type", dict.InsertDictType)
+		dicts.PUT("/type", dict.UpdateDictType)
+		dicts.DELETE("/type/:dictId", dict.DeleteDictType)
+	}
 }
 
-func registerDictRouter(v1 gin.IRoutes) {
-
-	v1.GET("/dict/datalist", dict.GetDictDataList)
-	v1.GET("/dict/typelist", dict.GetDictTypeList)
-	v1.GET("/dict/typeoptionselect", dict.GetDictTypeOptionSelect)
-
-	v1.GET("/dict/data/:dictCode", dict.GetDictData)
-	v1.POST("/dict/data", dict.InsertDictData)
-	v1.PUT("/dict/data/", dict.UpdateDictData)
-	v1.DELETE("/dict/data/:dictCode", dict.DeleteDictData)
-
-	v1.GET("/dict/type/:dictId", dict.GetDictType)
-	v1.POST("/dict/type", dict.InsertDictType)
-	v1.PUT("/dict/type", dict.UpdateDictType)
-	v1.DELETE("/dict/type/:dictId", dict.DeleteDictType)
-
-}
-
-func registerDeptRouter(v1 gin.IRoutes) {
-
-	v1.GET("/dept/:deptId", system.GetDept)
-	v1.POST("/dept", system.InsertDept)
-	v1.PUT("/dept", system.UpdateDept)
-	v1.DELETE("/dept/:id", system.DeleteDept)
-
+func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	dept := v1.Group("/dept").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		dept.GET("/:deptId", system.GetDept)
+		dept.POST("", system.InsertDept)
+		dept.PUT("", system.UpdateDept)
+		dept.DELETE("/:id", system.DeleteDept)
+	}
 }
