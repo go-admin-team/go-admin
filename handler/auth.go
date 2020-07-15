@@ -8,6 +8,7 @@ import (
 	"go-admin/models"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/tools"
+	"go-admin/tools/config"
 	"net/http"
 )
 
@@ -43,58 +44,74 @@ func IdentityHandler(c *gin.Context) interface{} {
 
 // @Summary 登陆
 // @Description 获取token
-// LoginHandler can be used by clients to get a jwt token.
-// Payload needs to be json in the form of {"username": "USERNAME", "password": "PASSWORD"}.
-// Reply will be of the form {"token": "TOKEN"}.
+// @Description LoginHandler can be used by clients to get a jwt token.
+// @Description Payload needs to be json in the form of {"username": "USERNAME", "password": "PASSWORD"}.
+// @Description Reply will be of the form {"token": "TOKEN"}.
+// @Description dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
+// @Description 注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
 // @Accept  application/json
 // @Product application/json
-// @Param username body models.Login  true "Add account"
+// @Param account body models.Login  true "account"
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
 	var loginVals models.Login
-	var loginlog models.LoginLog
-
-	ua := user_agent.New(c.Request.UserAgent())
-	loginlog.Ipaddr = c.ClientIP()
-	location := tools.GetLocation(c.ClientIP())
-	loginlog.LoginLocation = location
-	loginlog.LoginTime = tools.GetCurrentTime()
-	loginlog.Status = "0"
-	loginlog.Remark = c.Request.UserAgent()
-	browserName, browserVersion := ua.Browser()
-	loginlog.Browser = browserName + " " + browserVersion
-	loginlog.Os = ua.OS()
-	loginlog.Msg = "登录成功"
-	loginlog.Platform = ua.Platform()
+	var status = "0"
+	var msg = "登录成功"
+	var username = ""
 
 	if err := c.ShouldBind(&loginVals); err != nil {
-		loginlog.Status = "1"
-		loginlog.Msg = "数据解析失败"
-		loginlog.Username = loginVals.Username
-		loginlog.Create()
+		username = loginVals.Username
+		msg = "数据解析失败"
+		status = "1"
+		LoginLogToDB(c, status, msg, username)
+
 		return nil, jwt.ErrMissingLoginValues
 	}
-	loginlog.Username = loginVals.Username
-	if !store.Verify(loginVals.UUID, loginVals.Code, true) {
-		loginlog.Status = "1"
-		loginlog.Msg = "验证码错误"
-		loginlog.Create()
-		return nil, jwt.ErrInvalidVerificationode
-	}
+	if config.ApplicationConfig.Mode != "dev" {
+		if !store.Verify(loginVals.UUID, loginVals.Code, true) {
+			username = loginVals.Username
+			msg = "验证码错误"
+			status = "1"
+			LoginLogToDB(c, status, msg, username)
 
+			return nil, jwt.ErrInvalidVerificationode
+		}
+	}
 	user, role, e := loginVals.GetUser()
 	if e == nil {
-		loginlog.Create()
+		username = loginVals.Username
+		LoginLogToDB(c, status, msg, username)
+
 		return map[string]interface{}{"user": user, "role": role}, nil
 	} else {
-		loginlog.Status = "1"
-		loginlog.Msg = "登录失败"
-		loginlog.Create()
+		msg = "登录失败"
+		status = "1"
+		LoginLogToDB(c, status, msg, username)
 		log.Println(e.Error())
 	}
-
 	return nil, jwt.ErrFailedAuthentication
+}
+
+// Write log to database
+func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
+	if config.LogConfig.Operdb {
+		var loginlog models.LoginLog
+		ua := user_agent.New(c.Request.UserAgent())
+		loginlog.Ipaddr = c.ClientIP()
+		loginlog.Username = username
+		location := tools.GetLocation(c.ClientIP())
+		loginlog.LoginLocation = location
+		loginlog.LoginTime = tools.GetCurrentTime()
+		loginlog.Status = status
+		loginlog.Remark = c.Request.UserAgent()
+		browserName, browserVersion := ua.Browser()
+		loginlog.Browser = browserName + " " + browserVersion
+		loginlog.Os = ua.OS()
+		loginlog.Msg = msg
+		loginlog.Platform = ua.Platform()
+		_, _ = loginlog.Create()
+	}
 }
 
 // @Summary 退出登录
@@ -122,6 +139,7 @@ func LogOut(c *gin.Context) {
 	loginlog.Username = tools.GetUserName(c)
 	loginlog.Msg = "退出成功"
 	loginlog.Create()
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "退出成功",
