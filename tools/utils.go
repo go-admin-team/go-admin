@@ -6,6 +6,8 @@ import (
 	"strconv"
 )
 
+// 不建议使用的方法（即将过时）
+// Deprecated method (out of date)
 func StrToInt(err error, index string) int {
 	result, err := strconv.Atoi(index)
 	if err != nil {
