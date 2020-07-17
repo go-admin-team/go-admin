@@ -19,12 +19,21 @@ type DBTables struct {
 func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error) {
 	var doc []DBTables
 
-	table := orm.Eloquent.Select("*").Table("information_schema.tables")
-	table = table.Where("TABLE_NAME not in (select table_name from "+config2.DatabaseConfig.Name+".sys_tables) ")
-	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
+	table := orm.Eloquent
+	if config2.DatabaseConfig.Dbtype == "sqlite3" {
+		table = table.Select("tbl_name TABLE_NAME, name TABLE_COMMENT").Table("sqlite_master").Where("type=?", "table")
 
-	if e.TableName != "" {
-		table = table.Where("TABLE_NAME = ?", e.TableName)
+		if e.TableName != "" {
+			table = table.Where("tbl_name = ?", e.TableName)
+		}
+	} else {
+		table = table.Select("*").Table("information_schema.tables")
+		table = table.Where("TABLE_NAME not in (select table_name from " + config2.DatabaseConfig.Name + ".sys_tables) ")
+		table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
+
+		if e.TableName != "" {
+			table = table.Where("TABLE_NAME = ?", e.TableName)
+		}
 	}
 
 	var count int
@@ -39,14 +48,24 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
 
-	table := orm.Eloquent.Select("*").Table("information_schema.tables")
-	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
-	if e.TableName == "" {
-		return doc, errors.New("table name cannot be empty！")
-	}
-	table = table.Where("TABLE_NAME = ?", e.TableName)
+	table := orm.Eloquent
+	if config2.DatabaseConfig.Dbtype == "sqlite3" {
+		table = table.Select("tbl_name TABLE_NAME, name TABLE_COMMENT").Table("sqlite_master").Where("type=?", "table")
 
-	if err := table.First(&doc).Error; err != nil {
+		if e.TableName == "" {
+			return doc, errors.New("table name cannot be empty！")
+		}
+		table = table.Where("tbl_name = ?", e.TableName)
+	} else {
+		table = table.Select("*").Table("information_schema.tables")
+		table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
+		if e.TableName == "" {
+			return doc, errors.New("table name cannot be empty！")
+		}
+		table = table.Where("TABLE_NAME = ?", e.TableName)
+	}
+
+	if err := table.Take(&doc).Error; err != nil {
 		return doc, err
 	}
 	return doc, nil

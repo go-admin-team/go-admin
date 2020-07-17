@@ -1,12 +1,12 @@
 package tools
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
-	config2 "go-admin/tools/config"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary 分页列表数据 / page list data
@@ -23,11 +23,11 @@ func GetDBTableList(c *gin.Context) {
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
-	if config2.DatabaseConfig.Dbtype=="sqlite3"{
-		res.Msg="对不起，sqlite3 暂不支持代码生成！"
-		c.JSON(http.StatusOK, res.ReturnError(500))
-		return
-	}
+	// if config2.DatabaseConfig.Dbtype=="sqlite3"{
+	// 	res.Msg="对不起，sqlite3 暂不支持代码生成！"
+	// 	c.JSON(http.StatusOK, res.ReturnError(500))
+	// 	return
+	// }
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
 		pageSize = tools2.StrToInt(err, size)
@@ -46,7 +46,6 @@ func GetDBTableList(c *gin.Context) {
 	mp["count"] = count
 	mp["pageIndex"] = pageIndex
 	mp["pageSize"] = pageSize
-
 
 	res.Data = mp
 
