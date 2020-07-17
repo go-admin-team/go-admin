@@ -172,6 +172,7 @@
                 isEdit: false,
                 // 类型数据字典
                 typeOptions: [],
+                {{.ModuleName}}List:[],
                 {{range .Columns}}
                 {{- if ne .DictType "" -}}
                 {{.JsonField}}Options: [],
