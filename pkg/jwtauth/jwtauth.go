@@ -289,8 +289,8 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 	}
 
 	if config2.ApplicationConfig.Mode == "dev" {
-		// TODO: dev mode token过期时长 为 100 年
-		mw.Timeout = time.Duration(8760100) * time.Hour
+		// TODO: dev mode token过期时长 为 10 年
+		mw.Timeout = time.Duration(876010) * time.Hour
 	}
 
 	if mw.TimeFunc == nil {
