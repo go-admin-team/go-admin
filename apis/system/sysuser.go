@@ -57,7 +57,7 @@ func GetSysUserList(c *gin.Context) {
 // @Param userId path int true "用户编码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sysUser/{userId} [get]
-// @Security
+// @Security Bearer
 func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
 	SysUser.UserId, _ = tools.StringToInt(c.Param("userId"))
@@ -88,7 +88,7 @@ func GetSysUser(c *gin.Context) {
 // @Tags 个人中心
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/profile [get]
-// @Security
+// @Security Bearer
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
 	userId := tools.GetUserIdStr(c)
@@ -128,7 +128,7 @@ func GetSysUserProfile(c *gin.Context) {
 // @Tags 用户
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sysUser [get]
-// @Security
+// @Security Bearer
 func GetSysUserInit(c *gin.Context) {
 	var SysRole models.SysRole
 	var Post models.Post

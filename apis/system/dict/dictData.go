@@ -19,7 +19,7 @@ import (
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data/list [get]
-// @Security
+// @Security Bearer
 func GetDictDataList(c *gin.Context) {
 	var data models.DictData
 	var err error
@@ -61,7 +61,7 @@ func GetDictDataList(c *gin.Context) {
 // @Param dictCode path int true "字典编码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data/{dictCode} [get]
-// @Security
+// @Security Bearer
 func GetDictData(c *gin.Context) {
 	var DictData models.DictData
 	DictData.DictLabel = c.Request.FormValue("dictLabel")
@@ -79,7 +79,7 @@ func GetDictData(c *gin.Context) {
 // @Param dictType path int true "dictType"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/databyType/{dictType} [get]
-// @Security
+// @Security Bearer
 func GetDictDataByDictType(c *gin.Context) {
 	var DictData models.DictData
 	DictData.DictType = c.Param("dictType")

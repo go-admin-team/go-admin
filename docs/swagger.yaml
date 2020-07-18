@@ -632,7 +632,7 @@ info:
     name: MIT
     url: https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md
   title: go-admin API
-  version: 0.0.1
+  version: 1.0.1
 paths:
   /api/v1/config:
     put:
@@ -688,7 +688,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取配置
       tags:
       - 配置
@@ -707,7 +707,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取配置
       tags:
       - 配置
@@ -741,7 +741,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 配置列表数据
       tags:
       - 配置
@@ -861,7 +861,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 部门列表数据
       tags:
       - 部门
@@ -904,7 +904,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 分页部门列表数据
       tags:
       - 部门
@@ -984,7 +984,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过编码获取字典数据
       tags:
       - 字典数据
@@ -1018,7 +1018,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 字典数据列表
       tags:
       - 字典数据
@@ -1037,7 +1037,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过字典类型获取字典数据
       tags:
       - 字典数据
@@ -1117,7 +1117,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过字典id获取字典类型
       tags:
       - 字典类型
@@ -1151,7 +1151,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 字典类型列表数据
       tags:
       - 字典类型
@@ -1231,7 +1231,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过编码获取登录日志
       tags:
       - 登录日志
@@ -1265,7 +1265,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 登录日志列表
       tags:
       - 登录日志
@@ -1484,7 +1484,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过编码获取登录日志
       tags:
       - 登录日志
@@ -1535,7 +1535,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 登录日志列表
       tags:
       - 登录日志
@@ -1565,7 +1565,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 岗位列表数据
       tags:
       - 岗位
@@ -1649,7 +1649,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取岗位信息
       tags:
       - 岗位
@@ -1758,7 +1758,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 角色列表数据
       tags:
       - 角色/Role
@@ -1874,7 +1874,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取配置
       tags:
       - 工具 - 生成表
@@ -1911,7 +1911,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取用户角色和职位
       tags:
       - 用户
@@ -1950,7 +1950,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取用户
       tags:
       - 用户
@@ -2018,7 +2018,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取个人中心用户
       tags:
       - 个人中心
@@ -2051,7 +2051,7 @@ paths:
         Payload needs to be json in the form of {"username": "USERNAME", "password": "PASSWORD"}.
         Reply will be of the form {"token": "TOKEN"}.
         dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
-        开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
+        注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
       parameters:
       - description: account
         in: body
@@ -2079,7 +2079,7 @@ paths:
           schema:
             type: string
       security:
-      - "": []
+      - Bearer: []
       summary: 退出登录
   /sd/cpu:
     get:

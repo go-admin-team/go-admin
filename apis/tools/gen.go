@@ -97,7 +97,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.Permission = tab.PackageName + ":" + tab.ModuleName + ":list"
 	Mmenu.ParentId = 0
 	Mmenu.NoCache = false
-	Mmenu.Component = tab.ModuleName + "/index"
+	Mmenu.Component = "/" + tab.ModuleName + "/index"
 	Mmenu.Sort = 0
 	Mmenu.Visible = "0"
 	Mmenu.IsFrame = "0"

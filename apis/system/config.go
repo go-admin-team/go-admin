@@ -20,7 +20,7 @@ import (
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configList [get]
-// @Security
+// @Security Bearer
 func GetConfigList(c *gin.Context) {
 	var data models.SysConfig
 	var err error
@@ -60,7 +60,7 @@ func GetConfigList(c *gin.Context) {
 // @Param configId path int true "配置编码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/config/{configId} [get]
-// @Security
+// @Security Bearer
 func GetConfig(c *gin.Context) {
 	var Config models.SysConfig
 	Config.ConfigId, _ = tools.StringToInt(c.Param("configId"))
@@ -79,7 +79,7 @@ func GetConfig(c *gin.Context) {
 // @Param configKey path int true "configKey"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configKey/{configKey} [get]
-// @Security
+// @Security Bearer
 func GetConfigByConfigKey(c *gin.Context) {
 	var Config models.SysConfig
 	Config.ConfigKey = c.Param("configKey")

@@ -19,7 +19,7 @@ import (
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/loginloglist [get]
-// @Security
+// @Security Bearer
 func GetLoginLogList(c *gin.Context) {
 	var data models.LoginLog
 	var err error
@@ -59,7 +59,7 @@ func GetLoginLogList(c *gin.Context) {
 // @Param infoId path int true "infoId"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/loginlog/{infoId} [get]
-// @Security
+// @Security Bearer
 func GetLoginLog(c *gin.Context) {
 	var LoginLog models.LoginLog
 	LoginLog.InfoId, _ = tools.StringToInt(c.Param("infoId"))

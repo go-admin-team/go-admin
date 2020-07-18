@@ -8,7 +8,7 @@
             "name": "MIT",
             "url": "https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md"
         },
-        "version": "0.0.1"
+        "version": "1.0.1"
     },
     "paths": {
         "/api/v1/config": {
@@ -52,7 +52,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -107,7 +107,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -138,7 +138,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -345,7 +345,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -407,7 +407,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "分页列表",
@@ -521,7 +521,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -575,7 +575,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -630,7 +630,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -733,7 +733,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -787,7 +787,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -914,7 +914,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -969,7 +969,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1341,7 +1341,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1398,7 +1398,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1452,7 +1452,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1572,7 +1572,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1749,7 +1749,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "Get JSON",
@@ -1933,7 +1933,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -2025,7 +2025,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -2077,7 +2077,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -2194,7 +2194,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -2243,7 +2243,7 @@
         },
         "/login": {
             "post": {
-                "description": "获取token\nLoginHandler can be used by clients to get a jwt token.\nPayload needs to be json in the form of {\"username\": \"USERNAME\", \"password\": \"PASSWORD\"}.\nReply will be of the form {\"token\": \"TOKEN\"}.\ndev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password\n开发模式：需要注意全部字段不能为空，账号密码外可以传入0值",
+                "description": "获取token\nLoginHandler can be used by clients to get a jwt token.\nPayload needs to be json in the form of {\"username\": \"USERNAME\", \"password\": \"PASSWORD\"}.\nReply will be of the form {\"token\": \"TOKEN\"}.\ndev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password\n注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值",
                 "consumes": [
                     "application/json"
                 ],
@@ -2274,7 +2274,7 @@
             "post": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取token",

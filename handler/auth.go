@@ -122,7 +122,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Product application/json
 // @Success 200 {string} string "{"code": 200, "msg": "成功退出系统" }"
 // @Router /logout [post]
-// @Security
+// @Security Bearer
 func LogOut(c *gin.Context) {
 	var loginlog models.LoginLog
 	ua := user_agent.New(c.Request.UserAgent())

@@ -17,7 +17,7 @@ import (
 // @Param position query string false "position"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/deptList [get]
-// @Security
+// @Security Bearer
 func GetDeptList(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptName = c.Request.FormValue("deptName")
@@ -46,7 +46,7 @@ func GetDeptTree(c *gin.Context) {
 // @Param position query string false "position"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept/{deptId} [get]
-// @Security
+// @Security Bearer
 func GetDept(c *gin.Context) {
 	var Dept models.SysDept
 	Dept.DeptId, _ = tools.StringToInt(c.Param("deptId"))

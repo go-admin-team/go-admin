@@ -16,7 +16,7 @@ import (
 // @Param status query string false "status"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
-// @Security
+// @Security Bearer
 func GetPostList(c *gin.Context) {
 	var data models.Post
 	var err error
@@ -48,7 +48,7 @@ func GetPostList(c *gin.Context) {
 // @Param postId path int true "postId"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
-// @Security
+// @Security Bearer
 func GetPost(c *gin.Context) {
 	var Post models.Post
 	Post.PostId, _ = tools.StringToInt(c.Param("postId"))

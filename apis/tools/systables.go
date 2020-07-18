@@ -54,7 +54,7 @@ func GetSysTableList(c *gin.Context) {
 // @Param configKey path int true "configKey"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/info/{tableId} [get]
-// @Security
+// @Security Bearer
 func GetSysTables(c *gin.Context) {
 	var data tools.SysTables
 	data.TableId, _ = tools2.StringToInt(c.Param("tableId"))
