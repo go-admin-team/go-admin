@@ -288,6 +288,11 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 		mw.Timeout = time.Duration(config2.JwtConfig.Timeout) * time.Second
 	}
 
+	if config2.ApplicationConfig.Mode == "dev" {
+		// TODO: dev mode token过期时长 为 100 年
+		mw.Timeout = time.Duration(8760100) * time.Hour
+	}
+
 	if mw.TimeFunc == nil {
 		mw.TimeFunc = time.Now
 	}
