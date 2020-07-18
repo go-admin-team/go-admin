@@ -9,9 +9,15 @@ import (
 
 func InitDb() error {
 	filePath := "config/db.sql"
+	err := ExecSql(filePath)
 	if global.Driver == "postgres" {
 		filePath = "config/pg.sql"
+		err = ExecSql(filePath)
 	}
+	return err
+}
+
+func ExecSql(filePath string) error {
 	sql, err := Ioutil(filePath)
 	if err != nil {
 		fmt.Println("数据库基础数据初始化脚本读取失败！原因:", err.Error())
