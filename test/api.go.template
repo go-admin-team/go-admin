@@ -19,7 +19,7 @@ import (
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/configList [get]
-// @Security
+// @Security Bearer
 func Get{{.ClassName}}List(c *gin.Context) {
 	var data models.{{.ClassName}}
 	var err error
@@ -63,7 +63,7 @@ func Get{{.ClassName}}List(c *gin.Context) {
 // @Param configId path int true "配置编码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/config/{configId} [get]
-// @Security
+// @Security Bearer
 func Get{{.ClassName}}(c *gin.Context) {
 	var data models.{{.ClassName}}
 	data.{{.PkGoField}}, _ = utils.StringToInt(c.Param("{{.PkJsonField}}"))
