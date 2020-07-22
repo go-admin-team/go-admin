@@ -15,7 +15,7 @@ type Menu struct {
 	Paths      string `json:"paths" gorm:"size:128;"`
 	MenuType   string `json:"menuType" gorm:"size:1;"`
 	Action     string `json:"action" gorm:"size:16;"`
-	Permission string `json:"permission" gorm:"size:32;"`
+	Permission string `json:"permission" gorm:"size:255;"`
 	ParentId   int    `json:"parentId" gorm:"size:11;"`
 	NoCache    bool   `json:"noCache" gorm:"size:8;"`
 	Breadcrumb string `json:"breadcrumb" gorm:"size:255;"`
