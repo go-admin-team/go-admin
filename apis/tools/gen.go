@@ -8,6 +8,7 @@ import (
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
+	"log"
 	"net/http"
 	"text/template"
 )
@@ -90,6 +91,26 @@ func GenCode(c *gin.Context) {
 	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
 	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
 	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
+
+	oldTest:="// {{认证路由自动补充在此处请勿删除}}"
+	newText:="// {{认证路由自动补充在此处请勿删除}} \r\n register"+tab.ClassName+"Router(v1,authMiddleware)"
+
+	helper := tools2.ReplaceHelper{
+		Root: "./router/router.go",
+		OldText:oldTest,
+		NewText: newText,
+	}
+	if helper.OldText == helper.NewText{
+		log.Println("error !! the NewText isEqual the OldText")
+		return
+	}
+	if err := helper.DoWrok(); err != nil {
+		log.Print("error:", err.Error())
+
+	} else {
+		log.Print("done!")
+	}
+
 	app.OK(c, "", "代码生成成功！")
 }
 

@@ -23,22 +23,19 @@ func InitExamplesRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gi
 // 无需认证的路由示例
 func examplesNoCheckRoleRouter(r *gin.Engine) {
 
-	//v1 := r.Group("/api/v1")
-	//v1.GET("/examples/list", examples.apis)
+	v1 := r.Group("/api/v1")
+	v1.GET("/nilcheckrole", nil)
 
+	// {{无需认证路由自动补充在此处请勿删除}}
 }
 
 // 需要认证的路由示例
 func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddleware) {
-	//v1 := r.Group("/api/v1")
-	//v1auth := v1.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
-	//{
-	//	registerDemoRouter(v1auth)
-	//}
+	v1 := r.Group("/api/v1")
+    v1.GET("/checkrole",nil)
+
+	// {{认证路由自动补充在此处请勿删除}}
 }
 
-//func registerDemoRouter(v1 gin.IRoutes) {
-//	v1.GET("/demo", Demo)
-//}
 
 
