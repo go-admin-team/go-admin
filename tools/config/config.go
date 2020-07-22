@@ -14,6 +14,7 @@ var cfgApplication *viper.Viper
 var cfgJwt *viper.Viper
 var cfgLog *viper.Viper
 var cfgSsl *viper.Viper
+var cfgGen *viper.Viper
 
 
 //载入配置文件
@@ -60,6 +61,12 @@ func ConfigSetup(path string) {
 		panic("config not found settings.ssl")
 	}
 	SslConfig = InitSsl(cfgSsl)
+
+	cfgGen = viper.Sub("settings.gen")
+	if cfgGen == nil {
+		panic("config not found settings.gen")
+	}
+	GenConfig = InitGen(cfgGen)
 }
 
 

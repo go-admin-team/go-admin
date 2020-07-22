@@ -23,3 +23,6 @@ settings:
     source: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local
     # source: sqlite3.db
     # source: host=myhost port=myport user=gorm dbname=gorm password=mypassword
+  gen:
+    dbname: dbname
+    frontpath: /go-admin-ur/src
