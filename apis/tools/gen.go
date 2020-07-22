@@ -7,6 +7,7 @@ import (
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
+	"go-admin/tools/config"
 	"net/http"
 	"text/template"
 )
@@ -62,10 +63,17 @@ func GenCode(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	t3, err := template.ParseFiles("template/router.go.template")
 	tools2.HasError(err, "", -1)
+	t4, err := template.ParseFiles("template/js.go.template")
+	tools2.HasError(err, "", -1)
+	t5, err := template.ParseFiles("template/vue.go.template")
+	tools2.HasError(err, "", -1)
+
 	tab, _ := table.Get()
 	_ = tools2.PathCreate("./apis/" + tab.ModuleName + "/")
 	_ = tools2.PathCreate("./models/")
 	_ = tools2.PathCreate("./router/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath+"/api/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath+"/views/"+tab.PackageName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -73,9 +81,15 @@ func GenCode(c *gin.Context) {
 	err = t2.Execute(&b2, tab)
 	var b3 bytes.Buffer
 	err = t3.Execute(&b3, tab)
+	var b4 bytes.Buffer
+	err = t4.Execute(&b4, tab)
+	var b5 bytes.Buffer
+	err = t5.Execute(&b5, tab)
 	tools2.FileCreate(b1, "./models/"+tab.PackageName+".go")
 	tools2.FileCreate(b2, "./apis/"+tab.ModuleName+"/"+tab.PackageName+".go")
 	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
+	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
+	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
 	app.OK(c, "", "代码生成成功！")
 }
 
@@ -91,7 +105,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.MenuName = tab.TBName + "管理"
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
-	Mmenu.Path = tab.TBName
+	Mmenu.Path = "/" + tab.TBName
 	Mmenu.MenuType = "M"
 	Mmenu.Action = "无"
 	Mmenu.Permission = tab.PackageName + ":" + tab.ModuleName + ":list"
