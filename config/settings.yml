@@ -25,4 +25,4 @@ settings:
     # source: host=myhost port=myport user=gorm dbname=gorm password=mypassword
   gen:
     dbname: dbname
-    frontpath: /go-admin-ur/src
+    frontpath: /go-admin-ui/src
