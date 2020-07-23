@@ -267,6 +267,7 @@ INSERT INTO sys_dict_type VALUES (11, '1', '1', 1, '1', '1', '1', '2020-04-11 15
 
 INSERT INTO `sys_menu` VALUES (2, 'Upms', '系统管理', 'example', '/upms', '/0/2', 'M', '无', '', 0, 1, '', 'Layout', 1, '0', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (3, 'Sysuser', '用户管理', 'user', 'sysuser', '/0/2/3', 'C', '无', 'system:sysuser:list', 2, NULL, NULL, '/sysuser/index', 1, '0', '1', '1', '0', '2020-04-11 15:52:48', '2020-04-12 11:10:42', NULL);
+INSERT INTO `sys_menu` VALUES (4, 'GenCode', '新功能', 'example', '/gencode', '/0/4', 'M', '无', '', 0, 1, '', 'Layout', 1, '0', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (43, NULL, '新增用户', NULL, '/api/v1/sysuser', '/0/2/3/43', 'F', 'POST', 'system:sysuser:add', 3, NULL, NULL, NULL, 0, '0', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (44, NULL, '查询用户', NULL, '/api/v1/sysuser', '/0/2/3/44', 'F', 'GET', 'system:sysuser:query', 3, NULL, NULL, NULL, 0, '0', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO `sys_menu` VALUES (45, NULL, '修改用户', NULL, '/api/v1/sysuser/', '/0/2/3/45', 'F', 'PUT', 'system:sysuser:edit', 3, NULL, NULL, NULL, 0, '0', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
@@ -495,6 +496,7 @@ INSERT INTO sys_role_menu VALUES (2, 263, 'common', NULL, NULL);
 INSERT INTO sys_role_menu VALUES (2, 267, 'common', NULL, NULL);
 INSERT INTO sys_role_menu VALUES (1, 2, 'admin', NULL, NULL);
 INSERT INTO sys_role_menu VALUES (1, 3, 'admin', NULL, NULL);
+INSERT INTO sys_role_menu VALUES (1, 4, 'admin', NULL, NULL);
 INSERT INTO sys_role_menu VALUES (1, 43, 'admin', NULL, NULL);
 INSERT INTO sys_role_menu VALUES (1, 44, 'admin', NULL, NULL);
 INSERT INTO sys_role_menu VALUES (1, 45, 'admin', NULL, NULL);

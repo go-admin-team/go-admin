@@ -160,7 +160,7 @@
 </template>
 
 <script>
-    import {add, del, get, list, update} from '@/api/'
+    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .PackageName}}'
 
     export default {
         name: 'Config',
@@ -183,7 +183,7 @@
                 isEdit: false,
                 // 类型数据字典
                 typeOptions: [],
-                {{.ModuleName}}List: [],
+                list{{.ClassName}}: [],
                 {{range .Columns}}
                 {{- if ne .DictType "" -}}
                 {{.JsonField}}Options: [],

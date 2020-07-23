@@ -55,6 +55,28 @@ func Preview(c *gin.Context) {
 func GenCode(c *gin.Context) {
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
+	ischeckrole := true
+
+	rouyerfile := "template/routercheckrole.go.template"
+
+	if c.Param("ischeckrole") != "" {
+		ischeckrole, err = tools2.StringToBool(c.Query("ischeckrole"))
+		if err != nil {
+			ischeckrole = true
+		}
+	}
+
+	tab, _ := table.Get()
+
+	oldTest := "// {{认证路由自动补充在此处请勿删除}}"
+	newText := "// {{认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1,authMiddleware)"
+
+	if !ischeckrole {
+		oldTest = "// {{无需认证路由自动补充在此处请勿删除}}"
+		newText = "// {{无需认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1)"
+		rouyerfile = "template/routernocheckrole.go.template"
+	}
+
 	tools2.HasError(err, "", -1)
 	table.TableId = id
 
@@ -62,14 +84,13 @@ func GenCode(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	t2, err := template.ParseFiles("template/api.go.template")
 	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles("template/router.go.template")
+	t3, err := template.ParseFiles(rouyerfile)
 	tools2.HasError(err, "", -1)
 	t4, err := template.ParseFiles("template/js.go.template")
 	tools2.HasError(err, "", -1)
 	t5, err := template.ParseFiles("template/vue.go.template")
 	tools2.HasError(err, "", -1)
 
-	tab, _ := table.Get()
 	_ = tools2.PathCreate("./apis/" + tab.ModuleName + "/")
 	_ = tools2.PathCreate("./models/")
 	_ = tools2.PathCreate("./router/")
@@ -91,9 +112,6 @@ func GenCode(c *gin.Context) {
 	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
 	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
 	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
-
-	oldTest := "// {{认证路由自动补充在此处请勿删除}}"
-	newText := "// {{认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1,authMiddleware)"
 
 	helper := tools2.ReplaceHelper{
 		Root:    "./router/router.go",
@@ -126,11 +144,11 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.MenuName = tab.TBName + "管理"
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
-	Mmenu.Path = "/" + tab.TBName
-	Mmenu.MenuType = "M"
+	Mmenu.Path = tab.TBName
+	Mmenu.MenuType = "C"
 	Mmenu.Action = "无"
 	Mmenu.Permission = tab.PackageName + ":" + tab.ModuleName + ":list"
-	Mmenu.ParentId = 0
+	Mmenu.ParentId = 4
 	Mmenu.NoCache = false
 	Mmenu.Component = "/" + tab.ModuleName + "/index"
 	Mmenu.Sort = 0
@@ -143,8 +161,8 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.MenuId, err = Mmenu.Create()
 
 	MList := models.Menu{}
-	MList.MenuName = "分页获取" + tab.TBName
-	MList.Title = tab.TableComment
+	MList.MenuName = tab.TBName
+	MList.Title = "分页获取" + tab.TableComment
 	MList.Icon = "pass"
 	MList.Path = tab.TBName
 	MList.MenuType = "F"
@@ -182,9 +200,9 @@ func GenMenuAndApi(c *gin.Context) {
 
 	MUpdate := models.Menu{}
 	MUpdate.MenuName = tab.TBName
-	MUpdate.Title = tab.TableComment
+	MUpdate.Title = "修改" + tab.TableComment
 	MUpdate.Icon = "pass"
-	MUpdate.Path = "修改" + tab.TBName
+	MUpdate.Path = tab.TBName
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
 	MUpdate.Permission = tab.PackageName + ":" + tab.ModuleName + ":edit"

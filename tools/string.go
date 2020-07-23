@@ -17,6 +17,10 @@ func StringToInt(e string) (int, error) {
 	return strconv.Atoi(e)
 }
 
+func StringToBool(e string) (bool, error) {
+	return strconv.ParseBool(e)
+}
+
 func GetCurrentTimeStr() string {
 	return time.Now().Format("2006/01/02 15:04:05")
 }
