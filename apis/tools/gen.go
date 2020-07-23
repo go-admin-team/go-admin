@@ -55,6 +55,8 @@ func Preview(c *gin.Context) {
 func GenCode(c *gin.Context) {
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
+	tools2.HasError(err, "", -1)
+	table.TableId = id
 	ischeckrole := true
 
 	rouyerfile := "template/routercheckrole.go.template"
@@ -77,8 +79,8 @@ func GenCode(c *gin.Context) {
 		rouyerfile = "template/routernocheckrole.go.template"
 	}
 
-	tools2.HasError(err, "", -1)
-	table.TableId = id
+
+
 
 	t1, err := template.ParseFiles("template/model.go.template")
 	tools2.HasError(err, "", -1)
