@@ -41,7 +41,7 @@ func portDefault(cfg *viper.Viper) string {
 }
 
 func isHttpsDefault(cfg *viper.Viper) bool {
-	if cfg.GetString("ishttps") == "" ||  cfg.GetBool("ishttps") == false{
+	if cfg.GetString("ishttps") == "" || cfg.GetBool("ishttps") == false {
 		return false
 	} else {
 		return true

@@ -6,7 +6,7 @@ import (
 )
 
 type SysTables struct {
-	TableId             int          `gorm:"primary_key;auto_increment" json:"tableId"`             //表编码
+	TableId             int          `gorm:"primary_key;auto_increment" json:"tableId"`    //表编码
 	TBName              string       `gorm:"column:table_name;size:255;" json:"tableName"` //表名称
 	TableComment        string       `gorm:"size:255;" json:"tableComment"`                //表备注
 	ClassName           string       `gorm:"size:255;" json:"className"`                   //类名

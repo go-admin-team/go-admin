@@ -31,7 +31,7 @@ func GetDBColumnList(c *gin.Context) {
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
-	tools2.Assert(data.TableName=="","table name cannot be empty！",500)
+	tools2.Assert(data.TableName == "", "table name cannot be empty！", 500)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools2.HasError(err, "", -1)
 

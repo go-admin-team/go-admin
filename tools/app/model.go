@@ -10,10 +10,10 @@ type Response struct {
 }
 
 type Page struct {
-	List interface{} `json:"list"`
-	Count int `json:"count"`
-	PageIndex int `json:"pageIndex"`
-	PageSize int `json:"pageSize"`
+	List      interface{} `json:"list"`
+	Count     int         `json:"count"`
+	PageIndex int         `json:"pageIndex"`
+	PageSize  int         `json:"pageSize"`
 }
 
 type PageResponse struct {
@@ -25,7 +25,6 @@ type PageResponse struct {
 	Msg string `json:"msg"`
 }
 
-
 func (res *Response) ReturnOK() *Response {
 	res.Code = 200
 	return res
@@ -36,11 +35,7 @@ func (res *Response) ReturnError(code int) *Response {
 	return res
 }
 
-
 func (res *PageResponse) ReturnOK() *PageResponse {
 	res.Code = 200
 	return res
 }
-
-
-

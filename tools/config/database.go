@@ -19,4 +19,3 @@ func InitDatabase(cfg *viper.Viper) *Database {
 }
 
 var DatabaseConfig = new(Database)
-

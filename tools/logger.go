@@ -14,7 +14,6 @@ func InitLogger() {
 		log.FieldKeyLevel: "@level",
 		log.FieldKeyMsg:   "@message"}})
 
-
 	switch Mode(config2.ApplicationConfig.Mode) {
 	case ModeDev, ModeTest:
 		log.SetOutput(os.Stdout)

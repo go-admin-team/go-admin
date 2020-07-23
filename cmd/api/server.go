@@ -18,46 +18,46 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	)
+)
 
-	var (
-		configYml string
-		port      string
-		mode      string
-		StartCmd  = &cobra.Command{
-			Use:     "server",
-			Short:   "Start API server",
-			Example: "go-admin server config/settings.yml",
-			PreRun: func(cmd *cobra.Command, args []string) {
-				usage()
-				setup()
-			},
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return run()
-			},
-		}
-	)
-
-	func init() {
-		StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
-		StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
-		StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
+var (
+	configYml string
+	port      string
+	mode      string
+	StartCmd  = &cobra.Command{
+		Use:     "server",
+		Short:   "Start API server",
+		Example: "go-admin server config/settings.yml",
+		PreRun: func(cmd *cobra.Command, args []string) {
+			usage()
+			setup()
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return run()
+		},
 	}
+)
 
-	func usage() {
-		usageStr := `starting api server`
-		log.Printf("%s\n", usageStr)
-	}
+func init() {
+	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
+	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
+	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
+}
 
-	func setup() {
-		//1. 读取配置
-		config.ConfigSetup(configYml)
-		//2. 设置日志
-		tools.InitLogger()
-		//3. 初始化数据库链接
-		database.Setup(config.DatabaseConfig.Driver)
+func usage() {
+	usageStr := `starting api server`
+	log.Printf("%s\n", usageStr)
+}
 
-		mycasbin.Setup()
+func setup() {
+	//1. 读取配置
+	config.ConfigSetup(configYml)
+	//2. 设置日志
+	tools.InitLogger()
+	//3. 初始化数据库链接
+	database.Setup(config.DatabaseConfig.Driver)
+
+	mycasbin.Setup()
 
 }
 

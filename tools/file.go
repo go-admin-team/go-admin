@@ -55,7 +55,7 @@ func FileRemove(name string) {
 	}
 }
 
-func FileZip(dst, src string,notContPath string) (err error) {
+func FileZip(dst, src string, notContPath string) (err error) {
 	//创建准备写入的文件
 	fw, err := os.Create(dst)
 	defer fw.Close()
@@ -119,6 +119,7 @@ type ReplaceHelper struct {
 	OldText string //需要替换的文本
 	NewText string //新的文本
 }
+
 func (h *ReplaceHelper) DoWrok() error {
 
 	return filepath.Walk(h.Root, h.walkCallback)
@@ -134,7 +135,7 @@ func (h ReplaceHelper) walkCallback(path string, f os.FileInfo, err error) error
 		return nil
 	}
 	if f.IsDir() {
-		log.Println("DIR:",path)
+		log.Println("DIR:", path)
 		return nil
 	}
 
@@ -146,8 +147,8 @@ func (h ReplaceHelper) walkCallback(path string, f os.FileInfo, err error) error
 		return err
 	}
 	content := string(buf)
-	log.Printf("h.OldText: %s \n",h.OldText)
-	log.Printf("h.NewText: %s \n",h.NewText)
+	log.Printf("h.OldText: %s \n", h.OldText)
+	log.Printf("h.NewText: %s \n", h.NewText)
 
 	//替换
 	newContent := strings.Replace(content, h.OldText, h.NewText, -1)

@@ -73,8 +73,8 @@ func GenCode(c *gin.Context) {
 	_ = tools2.PathCreate("./apis/" + tab.ModuleName + "/")
 	_ = tools2.PathCreate("./models/")
 	_ = tools2.PathCreate("./router/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath+"/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath+"/views/"+tab.PackageName)
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -92,15 +92,15 @@ func GenCode(c *gin.Context) {
 	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
 	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
 
-	oldTest:="// {{认证路由自动补充在此处请勿删除}}"
-	newText:="// {{认证路由自动补充在此处请勿删除}} \r\n register"+tab.ClassName+"Router(v1,authMiddleware)"
+	oldTest := "// {{认证路由自动补充在此处请勿删除}}"
+	newText := "// {{认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1,authMiddleware)"
 
 	helper := tools2.ReplaceHelper{
-		Root: "./router/router.go",
-		OldText:oldTest,
+		Root:    "./router/router.go",
+		OldText: oldTest,
 		NewText: newText,
 	}
-	if helper.OldText == helper.NewText{
+	if helper.OldText == helper.NewText {
 		log.Println("error !! the NewText isEqual the OldText")
 		return
 	}

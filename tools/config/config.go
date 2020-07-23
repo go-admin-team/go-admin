@@ -16,7 +16,6 @@ var cfgLog *viper.Viper
 var cfgSsl *viper.Viper
 var cfgGen *viper.Viper
 
-
 //载入配置文件
 func ConfigSetup(path string) {
 	viper.SetConfigFile(path)
@@ -24,7 +23,6 @@ func ConfigSetup(path string) {
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Read config file fail: %s", err.Error()))
 	}
-
 
 	//Replace environment variables
 	err = viper.ReadConfig(strings.NewReader(os.ExpandEnv(string(content))))
@@ -68,7 +66,6 @@ func ConfigSetup(path string) {
 	}
 	GenConfig = InitGen(cfgGen)
 }
-
 
 func SetConfig(configPath string, key string, value interface{}) {
 	viper.AddConfigPath(configPath)

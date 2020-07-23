@@ -7,3 +7,4 @@ temp/
 vendor
 config/settings.dev.yml
 go-admin
+middleware/demo.go

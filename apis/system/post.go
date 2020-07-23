@@ -54,7 +54,7 @@ func GetPost(c *gin.Context) {
 	Post.PostId, _ = tools.StringToInt(c.Param("postId"))
 	result, err := Post.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 添加岗位
@@ -74,7 +74,7 @@ func InsertPost(c *gin.Context) {
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
 	tools.HasError(err, "", -1)
-	app.OK(c,result,"")
+	app.OK(c, result, "")
 }
 
 // @Summary 修改岗位
@@ -95,7 +95,7 @@ func UpdatePost(c *gin.Context) {
 	tools.HasError(err, "", -1)
 	result, err := data.Update(data.PostId)
 	tools.HasError(err, "", -1)
-	app.OK(c,result,"修改成功")
+	app.OK(c, result, "修改成功")
 }
 
 // @Summary 删除岗位
@@ -111,5 +111,5 @@ func DeletePost(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup("postId", c)
 	result, err := data.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", 500)
-	app.OK(c,result,"删除成功")
+	app.OK(c, result, "删除成功")
 }

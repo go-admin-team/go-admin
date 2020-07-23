@@ -1,6 +1,6 @@
 package system
 
-import(
+import (
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,8 +33,7 @@ $(function(){
 </html>
 `
 
-
-func HelloWorld(c *gin.Context){
+func HelloWorld(c *gin.Context) {
 	c.Header("Content-Type", "text/html; charset=utf-8")
-    c.String(200, INDEX)
+	c.String(200, INDEX)
 }
