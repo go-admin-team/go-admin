@@ -39,7 +39,7 @@ func sysBaseRouter(r *gin.RouterGroup) {
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
 	r.Static("/static", "./static")
-	r.Static("/form-generator","./static/form-generator")
+	r.Static("/form-generator", "./static/form-generator")
 }
 
 func sysSwaggerRouter(r *gin.RouterGroup) {
