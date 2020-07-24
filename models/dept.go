@@ -166,6 +166,7 @@ func Digui(deptlist *[]Dept, menu Dept) Dept {
 		mi.Email = list[j].Email
 		mi.Status = list[j].Status
 		mi.Children = []Dept{}
+		mi.CreatedAt = list[j].CreatedAt
 		ms := Digui(deptlist, mi)
 		min = append(min, ms)
 
@@ -209,7 +210,7 @@ func (e *Dept) Delete(id int) (success bool, err error) {
 	user.DeptId = id
 	userlist, err := user.GetList()
 	tools.HasError(err, "", 500)
-	tools.Assert(len(userlist) <= 0, "当前部门存在用户，不能删除！",500)
+	tools.Assert(len(userlist) <= 0, "当前部门存在用户，不能删除！", 500)
 
 	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", id).Delete(&Dept{}).Error; err != nil {
 		success = false
