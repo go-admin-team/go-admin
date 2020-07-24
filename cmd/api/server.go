@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go-admin/database"
@@ -29,7 +28,6 @@ var (
 		Short:   "Start API server",
 		Example: "go-admin server config/settings.yml",
 		PreRun: func(cmd *cobra.Command, args []string) {
-			usage()
 			setup()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -44,11 +42,6 @@ func init() {
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
 }
 
-func usage() {
-	usageStr := `starting api server`
-	log.Printf("%s\n", usageStr)
-}
-
 func setup() {
 	//1. 读取配置
 	config.ConfigSetup(configYml)
@@ -59,6 +52,8 @@ func setup() {
 
 	mycasbin.Setup()
 
+	usageStr := `starting api server`
+	tools.Logger.Printf("%s\n", usageStr)
 }
 
 func run() error {
@@ -82,11 +77,11 @@ func run() error {
 		// 服务连接
 		if config.ApplicationConfig.IsHttps {
 			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
-				log.Fatalf("listen: %s \r\n", err)
+				tools.Logger.Fatalf("listen: %s \r\n", err)
 			}
 		} else {
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				log.Fatalf("listen: %s \r\n", err)
+				tools.Logger.Fatalf("listen: %s \r\n", err)
 			}
 		}
 	}()
@@ -104,8 +99,8 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		tools.Logger.Fatal("Server Shutdown:", err)
 	}
-	log.Println("Server exiting")
+	tools.Logger.Println("Server exiting")
 	return nil
 }

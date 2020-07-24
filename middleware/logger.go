@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"go-admin/global"
 	"go-admin/models"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
@@ -39,16 +39,18 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		log.Infof(" %s %3d %13v %15s %s %s \r\n",
-			startTime.Format("2006-01-02 15:04:05.9999"),
-			statusCode,
-			latencyTime,
-			clientIP,
-			reqMethod,
-			reqUri,
-		)
+		//global.AccessLogger.Printf(" %s %3d %13v %15s %s %s \r\n",
+		//	startTime.Format("2006-01-02 15:04:05.9999"),
+		//	statusCode,
+		//	latencyTime,
+		//	clientIP,
+		//	reqMethod,
+		//	reqUri,
+		//)
 
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LogConfig.Operdb {
+		global.AccessLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
+
+		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LoggerConfig.Enabled {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime)
 		}
 	}

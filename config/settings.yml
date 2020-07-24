@@ -8,12 +8,19 @@ settings:
     writertimeout: 2
     domain: localhost:8000
     ishttps: false
+    logger:  #請求日志
+      path: temp/logs/access
+      stdout: true
+      level: all
+      enabled: true
   ssl:
     key: keystring
     pem: temp/pem.pem
-  log:
-    operdb: false
-    dir: temp/logs
+  logger:   # 业务日志
+    path: temp/logs/bus
+    stdout: true
+    level: all
+    enabled: true
   jwt:
     secret: go-admin
     timeout: 3600
@@ -23,6 +30,16 @@ settings:
     source: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local
     # source: sqlite3.db
     # source: host=myhost port=myport user=gorm dbname=gorm password=mypassword
+    logger: #数据库日志
+      path: temp/logs/db
+      stdout: true
+      level: all
+      enabled: true
   gen:
     dbname: dbname
     frontpath: /go-admin-ui/src # 代码生成是使用前端代码存放位置，需要指定到src文件夹，相对路径
+    logger: #数据库日志
+      path: temp/logs/gen
+      stdout: true
+      level: all
+      enabled: true

@@ -12,7 +12,8 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-openapi/spec v0.19.7 // indirect
 	github.com/go-openapi/swag v0.19.8 // indirect
-	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-sql-driver/mysql v1.5.0
+	github.com/gogf/gf v1.13.2
 	github.com/google/uuid v1.1.1
 	github.com/jinzhu/gorm v1.9.10
 	github.com/mailru/easyjson v0.7.1 // indirect
