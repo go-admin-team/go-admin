@@ -30,7 +30,7 @@ func (e *Mysql) Setup() {
 	}
 
 	global.Eloquent.LogMode(config.DatabaseConfig.Logger.Enabled)
-	global.Eloquent.SetLogger(global.DBLogger)
+	//global.Eloquent.SetLogger(global.DBLogger)
 }
 
 // 打开数据库连接
