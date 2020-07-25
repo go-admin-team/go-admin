@@ -29,7 +29,8 @@ func (e *Mysql) Setup() {
 		log.Fatalf("database error %v", global.Eloquent.Error)
 	}
 
-	global.Eloquent.LogMode(true)
+	global.Eloquent.LogMode(config.DatabaseConfig.Logger.Enabled)
+	global.Eloquent.SetLogger(global.DBLogger)
 }
 
 // 打开数据库连接

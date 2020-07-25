@@ -12,7 +12,7 @@ import (
 var cfgDatabase *viper.Viper
 var cfgApplication *viper.Viper
 var cfgJwt *viper.Viper
-var cfgLog *viper.Viper
+var cfgLogger *viper.Viper
 var cfgSsl *viper.Viper
 var cfgGen *viper.Viper
 
@@ -48,11 +48,11 @@ func ConfigSetup(path string) {
 	}
 	JwtConfig = InitJwt(cfgJwt)
 
-	cfgLog = viper.Sub("settings.log")
-	if cfgLog == nil {
-		panic("config not found settings.log")
+	cfgLogger = viper.Sub("settings.logger")
+	if cfgLogger == nil {
+		panic("config not found settings.logger")
 	}
-	LogConfig = InitLog(cfgLog)
+	LoggerConfig = InitLog(cfgLogger)
 
 	cfgSsl = viper.Sub("settings.ssl")
 	if cfgSsl == nil {

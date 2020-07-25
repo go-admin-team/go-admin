@@ -8,7 +8,6 @@ import (
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
-	"log"
 	"net/http"
 	"text/template"
 )
@@ -57,6 +56,7 @@ func GenCode(c *gin.Context) {
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
+	tab, _ := table.Get()
 	ischeckrole := true
 
 	rouyerfile := "template/routercheckrole.go.template"
@@ -68,8 +68,6 @@ func GenCode(c *gin.Context) {
 		}
 	}
 
-	tab, _ := table.Get()
-
 	oldTest := "// {{认证路由自动补充在此处请勿删除}}"
 	newText := "// {{认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1,authMiddleware)"
 
@@ -78,9 +76,6 @@ func GenCode(c *gin.Context) {
 		newText = "// {{无需认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1)"
 		rouyerfile = "template/routernocheckrole.go.template"
 	}
-
-
-
 
 	t1, err := template.ParseFiles("template/model.go.template")
 	tools2.HasError(err, "", -1)
@@ -121,14 +116,14 @@ func GenCode(c *gin.Context) {
 		NewText: newText,
 	}
 	if helper.OldText == helper.NewText {
-		log.Println("error !! the NewText isEqual the OldText")
+		tools2.Logger.Println("error !! the NewText isEqual the OldText")
 		return
 	}
 	if err := helper.DoWrok(); err != nil {
-		log.Print("error:", err.Error())
+		tools2.Logger.Print("error:", err.Error())
 
 	} else {
-		log.Print("done!")
+		tools2.Logger.Print("done!")
 	}
 
 	app.OK(c, "", "代码生成成功！")
@@ -146,13 +141,12 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.MenuName = tab.TBName + "管理"
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
-	Mmenu.Path = tab.TBName
-	Mmenu.MenuType = "C"
+	Mmenu.Path = "/" + tab.TBName
+	Mmenu.MenuType = "M"
 	Mmenu.Action = "无"
-	Mmenu.Permission = tab.PackageName + ":" + tab.ModuleName + ":list"
-	Mmenu.ParentId = 4
+	Mmenu.ParentId = 0
 	Mmenu.NoCache = false
-	Mmenu.Component = "/" + tab.ModuleName + "/index"
+	Mmenu.Component = "Layout"
 	Mmenu.Sort = 0
 	Mmenu.Visible = "0"
 	Mmenu.IsFrame = "0"
@@ -162,6 +156,26 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.UpdatedAt = timeNow
 	Mmenu.MenuId, err = Mmenu.Create()
 
+	Cmenu := models.Menu{}
+	Cmenu.MenuName = tab.TBName + "管理"
+	Cmenu.Title = tab.TableComment
+	Cmenu.Icon = "pass"
+	Cmenu.Path = tab.TBName
+	Cmenu.MenuType = "C"
+	Cmenu.Action = "无"
+	Cmenu.Permission = tab.PackageName + ":" + tab.ModuleName + ":list"
+	Cmenu.ParentId = Mmenu.MenuId
+	Cmenu.NoCache = false
+	Cmenu.Component = "/" + tab.ModuleName + "/index"
+	Cmenu.Sort = 0
+	Cmenu.Visible = "0"
+	Cmenu.IsFrame = "0"
+	Cmenu.CreateBy = "1"
+	Cmenu.UpdateBy = "1"
+	Cmenu.CreatedAt = timeNow
+	Cmenu.UpdatedAt = timeNow
+	Cmenu.MenuId, err = Cmenu.Create()
+
 	MList := models.Menu{}
 	MList.MenuName = tab.TBName
 	MList.Title = "分页获取" + tab.TableComment
@@ -170,7 +184,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.MenuType = "F"
 	MList.Action = "无"
 	MList.Permission = tab.PackageName + ":" + tab.ModuleName + ":query"
-	MList.ParentId = Mmenu.MenuId
+	MList.ParentId = Cmenu.MenuId
 	MList.NoCache = false
 	MList.Sort = 0
 	MList.Visible = "0"
@@ -189,7 +203,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.MenuType = "F"
 	MCreate.Action = "无"
 	MCreate.Permission = tab.PackageName + ":" + tab.ModuleName + ":add"
-	MCreate.ParentId = Mmenu.MenuId
+	MCreate.ParentId = Cmenu.MenuId
 	MCreate.NoCache = false
 	MCreate.Sort = 0
 	MCreate.Visible = "0"
@@ -208,7 +222,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
 	MUpdate.Permission = tab.PackageName + ":" + tab.ModuleName + ":edit"
-	MUpdate.ParentId = Mmenu.MenuId
+	MUpdate.ParentId = Cmenu.MenuId
 	MUpdate.NoCache = false
 	MUpdate.Sort = 0
 	MUpdate.Visible = "0"
@@ -227,7 +241,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MDelete.MenuType = "F"
 	MDelete.Action = "无"
 	MDelete.Permission = tab.PackageName + ":" + tab.ModuleName + ":remove"
-	MDelete.ParentId = Mmenu.MenuId
+	MDelete.ParentId = Cmenu.MenuId
 	MDelete.NoCache = false
 	MDelete.Sort = 0
 	MDelete.Visible = "0"

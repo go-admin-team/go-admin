@@ -13,6 +13,7 @@ type Application struct {
 	DemoMsg       string
 	Domain        string
 	IsHttps       bool
+	Logger        *Logger
 }
 
 func InitApplication(cfg *viper.Viper) *Application {
@@ -27,6 +28,12 @@ func InitApplication(cfg *viper.Viper) *Application {
 		DemoMsg:       cfg.GetString("demoMsg"),
 		Domain:        cfg.GetString("domain"),
 		IsHttps:       cfg.GetBool("ishttps"),
+		Logger: &Logger{
+			Path:    cfg.GetString("logger.path"),
+			Level:   cfg.GetString("logger.level"),
+			Stdout:  cfg.GetBool("logger.stdout"),
+			Enabled: cfg.GetBool("logger.enabled"),
+		},
 	}
 }
 

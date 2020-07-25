@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
-	log "github.com/sirupsen/logrus"
+	"go-admin/global"
 	"go-admin/models"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/tools"
@@ -88,14 +88,14 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		msg = "登录失败"
 		status = "1"
 		LoginLogToDB(c, status, msg, username)
-		log.Println(e.Error())
+		global.AccessLogger.Println(e.Error())
 	}
 	return nil, jwt.ErrFailedAuthentication
 }
 
 // Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
-	if config.LogConfig.Operdb {
+	if config.LoggerConfig.Enabled {
 		var loginlog models.LoginLog
 		ua := user_agent.New(c.Request.UserAgent())
 		loginlog.Ipaddr = c.ClientIP()
