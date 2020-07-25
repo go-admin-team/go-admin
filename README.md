@@ -23,7 +23,8 @@
 
 系统初始化极度简单，只需要配置文件中，修改数据库连接，系统启动后会自动初始化数据库信息以及必须的基础数据
 
-[在线文档](https://wenjianzhang.github.io/go-admin-site)
+[在线文档国际](https://wenjianzhang.github.io/go-admin-site)
+[在线文档国内](http://mydearzwj.gitee.io/go-admin-site/)
 
 [视频教程](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
