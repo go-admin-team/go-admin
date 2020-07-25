@@ -183,7 +183,7 @@
                 isEdit: false,
                 // 类型数据字典
                 typeOptions: [],
-                list{{.ClassName}}: [],
+                {{.ModuleName}}List: [],
                 {{range .Columns}}
                 {{- if ne .DictType "" -}}
                 {{.JsonField}}Options: [],
@@ -222,11 +222,13 @@
             this.getList()
             {{range .Columns}}
             {{- if ne .DictType "" -}}
+
             this.getDicts('{{.DictType}}').then(response => {
                 this.{{.JsonField}}Options = response.data
             })
+
+            {{ end -}}
             {{- end -}}
-            {{- end }}
         },
         methods: {
             /** 查询参数列表 */
@@ -256,8 +258,7 @@
                 {{- else if eq .GoField "UpdateBy" -}}
                 {{- else if eq .GoField "CreateBy" -}}
                 {{- else }}
-                {{.JsonField}}:
-                undefined,
+                {{.JsonField}}: undefined,
                 {{- end }}
                 {{- end -}}
                 {{- end }}
@@ -269,7 +270,7 @@
             {{.JsonField}}Format(row) {
                 return this.selectDictLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
             },
-            {{- end -}}
+            {{ end -}}
             {{- end }}
 
             /** 搜索按钮操作 */
