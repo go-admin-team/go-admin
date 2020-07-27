@@ -21,7 +21,7 @@ var (
 var Version string
 
 func init() {
-	Version = "1.0.10"
+	Version = "1.1.0"
 }
 
 var (
