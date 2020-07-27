@@ -88,14 +88,14 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		msg = "登录失败"
 		status = "1"
 		LoginLogToDB(c, status, msg, username)
-		global.AccessLogger.Println(e.Error())
+		global.RequestLogger.Println(e.Error())
 	}
 	return nil, jwt.ErrFailedAuthentication
 }
 
 // Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
-	if config.LoggerConfig.Enabled {
+	if config.LoggerConfig.EnabledDB {
 		var loginlog models.LoginLog
 		ua := user_agent.New(c.Request.UserAgent())
 		loginlog.Ipaddr = c.ClientIP()

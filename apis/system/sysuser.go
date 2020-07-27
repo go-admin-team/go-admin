@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
+	"go-admin/global"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
@@ -209,7 +210,7 @@ func InsetSysUserAvatar(c *gin.Context) {
 	guid := uuid.New().String()
 	filPath := "static/uploadfile/" + guid + ".jpg"
 	for _, file := range files {
-		tools.Logger.Println(file.Filename)
+		global.Logger.Debug(file.Filename)
 		// 上传文件至指定目录
 		_ = c.SaveUploadedFile(file, filPath)
 	}

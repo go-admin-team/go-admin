@@ -3,6 +3,7 @@ package tools
 import (
 	"bytes"
 	"github.com/gin-gonic/gin"
+	"go-admin/global"
 	"go-admin/models"
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
@@ -116,17 +117,17 @@ func GenCode(c *gin.Context) {
 		NewText: newText,
 	}
 	if helper.OldText == helper.NewText {
-		tools2.Logger.Println("error !! the NewText isEqual the OldText")
+		global.Logger.Println("error !! the NewText isEqual the OldText")
 		return
 	}
 	if err := helper.DoWrok(); err != nil {
-		tools2.Logger.Print("error:", err.Error())
+		global.Logger.Print("error:", err.Error())
 
 	} else {
-		tools2.Logger.Print("done!")
+		global.Logger.Print("done!")
 	}
 
-	app.OK(c, "", "代码生成成功！")
+	app.OK(c, "", "Code generated successfully！")
 }
 
 func GenMenuAndApi(c *gin.Context) {
