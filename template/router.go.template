@@ -1,3 +1,11 @@
+package router
+
+import (
+"github.com/gin-gonic/gin"
+"go-admin/middleware"
+"go-admin/apis/{{.ModuleName}}"
+jwt "go-admin/pkg/jwtauth"
+)
 
 // 需认证的路由代码
 func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
@@ -30,4 +38,3 @@ r.PUT("", {{.ModuleName}}.Update{{.ClassName}})
 r.DELETE("/:{{.PkJsonField}}", {{.ModuleName}}.Delete{{.ClassName}})
 }
 }
-

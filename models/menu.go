@@ -2,29 +2,29 @@ package models
 
 import (
 	"errors"
-	"go-admin/global/orm"
+	orm "go-admin/global"
 	"go-admin/tools"
 )
 
 type Menu struct {
 	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"`
-	MenuName   string `json:"menuName" gorm:"type:varchar(128);"`
-	Title      string `json:"title" gorm:"type:varchar(64);"`
-	Icon       string `json:"icon" gorm:"type:varchar(128);"`
-	Path       string `json:"path" gorm:"type:varchar(128);"`
-	Paths      string `json:"paths" gorm:"type:varchar(128);"`
-	MenuType   string `json:"menuType" gorm:"type:varchar(1);"`
-	Action     string `json:"action" gorm:"type:varchar(16);"`
-	Permission string `json:"permission" gorm:"type:varchar(32);"`
-	ParentId   int    `json:"parentId" gorm:"type:int(11);"`
-	NoCache    bool   `json:"noCache" gorm:"type:char(1);"`
-	Breadcrumb string `json:"breadcrumb" gorm:"type:varchar(255);"`
-	Component  string `json:"component" gorm:"type:varchar(255);"`
-	Sort       int    `json:"sort" gorm:"type:int(4);"`
-	Visible    string `json:"visible" gorm:"type:char(1);"`
-	CreateBy   string `json:"createBy" gorm:"type:varchar(128);"`
-	UpdateBy   string `json:"updateBy" gorm:"type:varchar(128);"`
-	IsFrame    string `json:"isFrame" gorm:"type:int(1);DEFAULT:0;"`
+	MenuName   string `json:"menuName" gorm:"size:128;"`
+	Title      string `json:"title" gorm:"size:64;"`
+	Icon       string `json:"icon" gorm:"size:128;"`
+	Path       string `json:"path" gorm:"size:128;"`
+	Paths      string `json:"paths" gorm:"size:128;"`
+	MenuType   string `json:"menuType" gorm:"size:1;"`
+	Action     string `json:"action" gorm:"size:16;"`
+	Permission string `json:"permission" gorm:"size:255;"`
+	ParentId   int    `json:"parentId" gorm:"size:11;"`
+	NoCache    bool   `json:"noCache" gorm:"size:8;"`
+	Breadcrumb string `json:"breadcrumb" gorm:"size:255;"`
+	Component  string `json:"component" gorm:"size:255;"`
+	Sort       int    `json:"sort" gorm:"size:4;"`
+	Visible    string `json:"visible" gorm:"size:1;"`
+	CreateBy   string `json:"createBy" gorm:"size:128;"`
+	UpdateBy   string `json:"updateBy" gorm:"size:128;"`
+	IsFrame    string `json:"isFrame" gorm:"size:1;DEFAULT:0;"`
 	DataScope  string `json:"dataScope" gorm:"-"`
 	Params     string `json:"params" gorm:"-"`
 	RoleId     int    `gorm:"-"`
@@ -128,6 +128,7 @@ func DiguiMenu(menulist *[]Menu, menu Menu) Menu {
 		mi.Component = list[j].Component
 		mi.Sort = list[j].Sort
 		mi.Visible = list[j].Visible
+		mi.CreatedAt = list[j].CreatedAt
 		mi.Children = []Menu{}
 
 		if mi.MenuType != "F" {

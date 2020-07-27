@@ -75,12 +75,12 @@ func DiskCheck(c *gin.Context) {
 func OSCheck(c *gin.Context) {
 	status := http.StatusOK
 	app.Custum(c, gin.H{
-		"code":   200,
-		"status": status,
-		"goOs":  runtime.GOOS,
-		"compiler":  runtime.Compiler,
-		"numCpu":  runtime.NumCPU(),
-		"version": runtime.Version(),
+		"code":         200,
+		"status":       status,
+		"goOs":         runtime.GOOS,
+		"compiler":     runtime.Compiler,
+		"numCpu":       runtime.NumCPU(),
+		"version":      runtime.Version(),
 		"numGoroutine": runtime.NumGoroutine(),
 	})
 }
@@ -153,13 +153,12 @@ func RAMCheck(c *gin.Context) {
 		text = "WARNING"
 	}
 
-
 	app.Custum(c, gin.H{
-		"code":   200,
-		"msg":    text,
-		"status": status,
-		"used":  usedMB,
-		"total":  totalMB,
-		"usedPercent":  usedPercent,
+		"code":        200,
+		"msg":         text,
+		"status":      status,
+		"used":        usedMB,
+		"total":       totalMB,
+		"usedPercent": usedPercent,
 	})
 }

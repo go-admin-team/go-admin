@@ -18,7 +18,7 @@ import (
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/rolelist [get]
-// @Security
+// @Security Bearer
 func GetRoleList(c *gin.Context) {
 	var data models.SysRole
 	var err error

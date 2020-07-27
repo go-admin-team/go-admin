@@ -12,7 +12,6 @@ import (
 	_ "go-admin/docs"
 	"go-admin/handler"
 	"go-admin/middleware"
-	"go-admin/pkg/jwtauth"
 	jwt "go-admin/pkg/jwtauth"
 )
 
@@ -40,6 +39,7 @@ func sysBaseRouter(r *gin.RouterGroup) {
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
 	r.Static("/static", "./static")
+	r.Static("/form-generator", "./static/form-generator")
 }
 
 func sysSwaggerRouter(r *gin.RouterGroup) {
@@ -52,6 +52,8 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/monitor/server", monitor.ServerInfo)
 	v1.GET("/getCaptcha", system.GenerateCaptchaHandler)
 	v1.GET("/gen/preview/:tableId", Preview)
+	v1.GET("/gen/toproject/:tableId", GenCode)
+	v1.GET("/gen/todb/:tableId", GenMenuAndApi)
 	v1.GET("/menuTreeselect", system.GetMenuTreeelect)
 	v1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
@@ -83,7 +85,7 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwtauth.GinJWTMiddleware) {
+func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r.POST("/login", authMiddleware.LoginHandler)
 	// Refresh time can be longer than token timeout
 	r.GET("/refresh_token", authMiddleware.RefreshHandler)
@@ -105,7 +107,7 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwtauth.GinJWTMi
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	v1auth := v1.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		v1auth.GET("/getinfo", system.GetInfo)
 		v1auth.GET("/menurole", system.GetMenuRole)
@@ -122,7 +124,7 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 }
 
 func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	v1auth := v1.Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		v1auth.GET("/deptList", system.GetDeptList)
 		v1auth.GET("/deptTree", system.GetDeptTree)

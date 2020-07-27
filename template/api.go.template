@@ -1,4 +1,4 @@
-package apis
+package {{.ModuleName}}
 
 import (
 "github.com/gin-gonic/gin"
@@ -24,8 +24,13 @@ pageIndex = tools.StrToInt(err, index)
 
 {{ range .Columns -}}
     {{$z := .IsQuery}}
-    {{- if ($z) -}}data.{{.GoField}} = c.Request.FormValue("{{.JsonField}}")
-    {{ end -}}
+    {{- if ($z) -}}
+    {{ if eq (.GoType) "int" -}}
+    data.{{.GoField}}, _ = tools.StringToInt(c.Request.FormValue("{{.JsonField}}"))
+    {{ else -}}
+    data.{{.GoField}} = c.Request.FormValue("{{.JsonField}}")
+    {{ end }}
+    {{- end -}}
 {{end}}
 
 data.DataScope = tools.GetUserIdStr(c)

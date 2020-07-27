@@ -2,16 +2,16 @@ package models
 
 import (
 	"fmt"
-	"go-admin/global/orm"
+	orm "go-admin/global"
 	"go-admin/tools"
 )
 
 type RoleMenu struct {
-	RoleId   int  `gorm:"type:int(11)"`
-	MenuId   int  `gorm:"type:int(11)"`
-	RoleName string `gorm:"type:varchar(128)"`
-	CreateBy string `gorm:"type:varchar(128)"`
-	UpdateBy string `gorm:"type:varchar(128)"`
+	RoleId   int    `gorm:""`
+	MenuId   int    `gorm:""`
+	RoleName string `gorm:"size:128)"`
+	CreateBy string `gorm:"size:128)"`
+	UpdateBy string `gorm:"size:128)"`
 }
 
 func (RoleMenu) TableName() string {
@@ -65,47 +65,98 @@ func (rm *RoleMenu) GetIDS() ([]MenuPath, error) {
 }
 
 func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
-	if err := orm.Eloquent.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
+	tx := orm.Eloquent.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
 		return false, err
 	}
-	if err := orm.Eloquent.Table("sys_role_menu").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
+
+	if err := tx.Table("sys_role_dept").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+	if err := tx.Table("sys_role_menu").Where("role_id = ?", roleId).Delete(&rm).Error; err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	var role SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
+	if err := tx.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	sql3 := "delete from casbin_rule where v0= '" + role.RoleKey + "';"
-	orm.Eloquent.Exec(sql3)
+	if err := tx.Exec(sql3).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+	if err := tx.Commit().Error; err != nil {
+		return false, err
+	}
 
 	return true, nil
 
 }
 
 func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
-	if err := orm.Eloquent.Table("sys_role_menu").Where("role_id in (?)", roleIds).Delete(&rm).Error; err != nil {
+	tx := orm.Eloquent.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return false, err
+	}
+
+	if err := tx.Table("sys_role_menu").Where("role_id in (?)", roleIds).Delete(&rm).Error; err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	var role []SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("role_id in (?)", roleIds).Find(&role).Error; err != nil {
+	if err := tx.Table("sys_role").Where("role_id in (?)", roleIds).Find(&role).Error; err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	sql := ""
 	for i := 0; i < len(role); i++ {
 		sql += "delete from casbin_rule where v0= '" + role[i].RoleName + "';"
 	}
-	orm.Eloquent.Exec(sql)
+	if err := tx.Exec(sql).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+	if err := tx.Commit().Error; err != nil {
+		return false, err
+	}
 	return true, nil
 
 }
 
 func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	var role SysRole
-	if err := orm.Eloquent.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
+	tx := orm.Eloquent.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return false, err
+	}
+	if err := tx.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	var menu []Menu
-	if err := orm.Eloquent.Table("sys_menu").Where("menu_id in (?)", menuId).Find(&menu).Error; err != nil {
+	if err := tx.Table("sys_menu").Where("menu_id in (?)", menuId).Find(&menu).Error; err != nil {
+		tx.Rollback()
 		return false, err
 	}
 	//ORM不支持批量插入所以需要拼接 sql 串
@@ -126,10 +177,18 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 			}
 		}
 	}
-	orm.Eloquent.Exec(sql)
+	if err := tx.Exec(sql).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
 	sql2 = sql2[0:len(sql2)-1] + ";"
-	orm.Eloquent.Exec(sql2)
-
+	if err := tx.Exec(sql2).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+	if err := tx.Commit().Error; err != nil {
+		return false, err
+	}
 	return true, nil
 }
 

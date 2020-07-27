@@ -2,7 +2,9 @@ package tools
 
 import (
 	"errors"
-	"go-admin/global/orm"
+	"github.com/jinzhu/gorm"
+	orm "go-admin/global"
+	"go-admin/tools"
 	config2 "go-admin/tools/config"
 )
 
@@ -18,34 +20,41 @@ type DBTables struct {
 
 func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error) {
 	var doc []DBTables
-
-	table := orm.Eloquent.Select("*").Table("information_schema.tables")
-	table = table.Where("TABLE_NAME not in (select table_name from "+config2.DatabaseConfig.Name+".sys_tables) ")
-	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
-
-	if e.TableName != "" {
-		table = table.Where("TABLE_NAME = ?", e.TableName)
-	}
-
+	table := new(gorm.DB)
 	var count int
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
-		return nil, 0, err
+	if config2.DatabaseConfig.Driver == "mysql" {
+		table = orm.Eloquent.Select("*").Table("information_schema.tables")
+		table = table.Where("TABLE_NAME not in (select table_name from " + config2.GenConfig.DBName + ".sys_tables) ")
+		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+
+		if e.TableName != "" {
+			table = table.Where("TABLE_NAME = ?", e.TableName)
+		}
+		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+			return nil, 0, err
+		}
+	} else {
+		tools.Assert(true, "目前只支持mysql数据库", 500)
 	}
+
 	table.Count(&count)
 	return doc, count, nil
 }
 
 func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
-
-	table := orm.Eloquent.Select("*").Table("information_schema.tables")
-	table = table.Where("table_schema= ? ", config2.DatabaseConfig.Name)
-	if e.TableName == "" {
-		return doc, errors.New("table name cannot be empty！")
+	table := new(gorm.DB)
+	if config2.DatabaseConfig.Driver == "mysql" {
+		table = orm.Eloquent.Select("*").Table("information_schema.tables")
+		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+		if e.TableName == "" {
+			return doc, errors.New("table name cannot be empty！")
+		}
+		table = table.Where("TABLE_NAME = ?", e.TableName)
+	} else {
+		tools.Assert(true, "目前只支持mysql数据库", 500)
 	}
-	table = table.Where("TABLE_NAME = ?", e.TableName)
-
 	if err := table.First(&doc).Error; err != nil {
 		return doc, err
 	}

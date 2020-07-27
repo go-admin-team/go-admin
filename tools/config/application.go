@@ -11,8 +11,7 @@ type Application struct {
 	JwtSecret     string
 	Mode          string
 	DemoMsg       string
-	Domain        string
-	IsHttps       bool
+	EnableDP      bool
 }
 
 func InitApplication(cfg *viper.Viper) *Application {
@@ -25,8 +24,7 @@ func InitApplication(cfg *viper.Viper) *Application {
 		JwtSecret:     cfg.GetString("jwtSecret"),
 		Mode:          cfg.GetString("mode"),
 		DemoMsg:       cfg.GetString("demoMsg"),
-		Domain:        cfg.GetString("domain"),
-		IsHttps:       cfg.GetBool("ishttps"),
+		EnableDP:      cfg.GetBool("enabledp"),
 	}
 }
 
@@ -40,10 +38,3 @@ func portDefault(cfg *viper.Viper) string {
 	}
 }
 
-func isHttpsDefault(cfg *viper.Viper) bool {
-	if cfg.GetString("ishttps") == "" ||  cfg.GetBool("ishttps") == false{
-		return false
-	} else {
-		return true
-	}
-}

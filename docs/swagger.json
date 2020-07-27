@@ -8,7 +8,7 @@
             "name": "MIT",
             "url": "https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md"
         },
-        "version": "0.0.1"
+        "version": "1.0.1"
     },
     "paths": {
         "/api/v1/config": {
@@ -52,7 +52,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -107,7 +107,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -138,7 +138,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -292,7 +292,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Dept"
+                            "$ref": "#/definitions/models.SysDept"
                         }
                     }
                 ],
@@ -327,7 +327,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Dept"
+                            "$ref": "#/definitions/models.SysDept"
                         }
                     }
                 ],
@@ -345,7 +345,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -407,7 +407,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "分页列表",
@@ -521,7 +521,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -575,7 +575,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -630,7 +630,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -733,7 +733,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -787,7 +787,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -914,7 +914,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -969,7 +969,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1341,7 +1341,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1398,7 +1398,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -1452,31 +1452,37 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
                 "tags": [
-                    "职位"
+                    "岗位"
                 ],
-                "summary": "职位列表数据",
+                "summary": "岗位列表数据",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "name",
-                        "name": "name",
+                        "description": "postName",
+                        "name": "postName",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "id",
-                        "name": "id",
+                        "description": "postCode",
+                        "name": "postCode",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "position",
-                        "name": "position",
+                        "description": "postId",
+                        "name": "postId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "status",
+                        "name": "status",
                         "in": "query"
                     }
                 ],
@@ -1500,9 +1506,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "职位"
+                    "岗位"
                 ],
-                "summary": "添加职位",
+                "summary": "添加岗位",
                 "parameters": [
                     {
                         "description": "data",
@@ -1537,9 +1543,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "职位"
+                    "岗位"
                 ],
-                "summary": "修改职位",
+                "summary": "修改岗位",
                 "parameters": [
                     {
                         "description": "body",
@@ -1548,7 +1554,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Dept"
+                            "$ref": "#/definitions/models.Post"
                         }
                     }
                 ],
@@ -1566,14 +1572,14 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
                 "tags": [
-                    "字典数据"
+                    "岗位"
                 ],
-                "summary": "获取字典数据",
+                "summary": "获取岗位信息",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1595,9 +1601,9 @@
             "delete": {
                 "description": "删除数据",
                 "tags": [
-                    "职位"
+                    "岗位"
                 ],
-                "summary": "删除职位",
+                "summary": "删除岗位",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1609,7 +1615,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"code\": 500, \"message\": \"删除失败\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -1737,7 +1749,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "Get JSON",
@@ -1872,7 +1884,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/models.Dept"
+                            "$ref": "#/definitions/tools.SysTables"
                         }
                     }
                 ],
@@ -1921,7 +1933,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -2013,7 +2025,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -2065,7 +2077,7 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
@@ -2103,7 +2115,7 @@
                 "tags": [
                     "用户"
                 ],
-                "summary": "列表数据",
+                "summary": "列表用户信息数据",
                 "parameters": [
                     {
                         "type": "string",
@@ -2182,14 +2194,14 @@
             "get": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取JSON",
                 "tags": [
                     "个人中心"
                 ],
-                "summary": "获取当前登录用户",
+                "summary": "获取个人中心用户",
                 "responses": {
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
@@ -2231,15 +2243,15 @@
         },
         "/login": {
             "post": {
-                "description": "获取token",
+                "description": "获取token\nLoginHandler can be used by clients to get a jwt token.\nPayload needs to be json in the form of {\"username\": \"USERNAME\", \"password\": \"PASSWORD\"}.\nReply will be of the form {\"token\": \"TOKEN\"}.\ndev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password\n注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值",
                 "consumes": [
                     "application/json"
                 ],
                 "summary": "登陆",
                 "parameters": [
                     {
-                        "description": "Add account",
-                        "name": "username",
+                        "description": "account",
+                        "name": "account",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -2262,7 +2274,7 @@
             "post": {
                 "security": [
                     {
-                        "": []
+                        "Bearer": []
                     }
                 ],
                 "description": "获取token",
@@ -2408,73 +2420,6 @@
                 },
                 "msg": {
                     "description": "消息",
-                    "type": "string"
-                }
-            }
-        },
-        "models.Dept": {
-            "type": "object",
-            "properties": {
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Dept"
-                    }
-                },
-                "createBy": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "dataScope": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "deptId": {
-                    "description": "部门编码",
-                    "type": "integer"
-                },
-                "deptName": {
-                    "description": "部门名称",
-                    "type": "string"
-                },
-                "deptPath": {
-                    "type": "string"
-                },
-                "email": {
-                    "description": "邮箱",
-                    "type": "string"
-                },
-                "leader": {
-                    "description": "负责人",
-                    "type": "string"
-                },
-                "params": {
-                    "type": "string"
-                },
-                "parentId": {
-                    "description": "上级部门",
-                    "type": "integer"
-                },
-                "phone": {
-                    "description": "手机",
-                    "type": "string"
-                },
-                "sort": {
-                    "description": "排序",
-                    "type": "integer"
-                },
-                "status": {
-                    "description": "状态",
-                    "type": "string"
-                },
-                "updateBy": {
-                    "type": "string"
-                },
-                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2807,6 +2752,73 @@
                 }
             }
         },
+        "models.SysDept": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysDept"
+                    }
+                },
+                "createBy": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deptId": {
+                    "description": "部门编码",
+                    "type": "integer"
+                },
+                "deptName": {
+                    "description": "部门名称",
+                    "type": "string"
+                },
+                "deptPath": {
+                    "type": "string"
+                },
+                "email": {
+                    "description": "邮箱",
+                    "type": "string"
+                },
+                "leader": {
+                    "description": "负责人",
+                    "type": "string"
+                },
+                "params": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "description": "上级部门",
+                    "type": "integer"
+                },
+                "phone": {
+                    "description": "手机",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "models.SysOperLog": {
             "type": "object",
             "properties": {
@@ -3055,6 +3067,237 @@
                     "type": "integer"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "tools.Params": {
+            "type": "object",
+            "properties": {
+                "treeCode": {
+                    "type": "string"
+                },
+                "treeName": {
+                    "type": "string"
+                },
+                "treeParentCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "tools.SysColumns": {
+            "type": "object",
+            "properties": {
+                "columnComment": {
+                    "type": "string"
+                },
+                "columnId": {
+                    "type": "integer"
+                },
+                "columnName": {
+                    "type": "string"
+                },
+                "columnType": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "dictType": {
+                    "type": "string"
+                },
+                "edit": {
+                    "type": "boolean"
+                },
+                "goField": {
+                    "type": "string"
+                },
+                "goType": {
+                    "type": "string"
+                },
+                "htmlType": {
+                    "type": "string"
+                },
+                "increment": {
+                    "type": "boolean"
+                },
+                "insert": {
+                    "type": "boolean"
+                },
+                "isEdit": {
+                    "type": "string"
+                },
+                "isIncrement": {
+                    "type": "string"
+                },
+                "isInsert": {
+                    "type": "string"
+                },
+                "isList": {
+                    "type": "string"
+                },
+                "isPk": {
+                    "type": "string"
+                },
+                "isQuery": {
+                    "type": "string"
+                },
+                "isRequired": {
+                    "type": "string"
+                },
+                "jsonField": {
+                    "type": "string"
+                },
+                "list": {
+                    "type": "string"
+                },
+                "pk": {
+                    "type": "boolean"
+                },
+                "query": {
+                    "type": "boolean"
+                },
+                "queryType": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "sort": {
+                    "type": "integer"
+                },
+                "superColumn": {
+                    "type": "boolean"
+                },
+                "tableId": {
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "usableColumn": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "tools.SysTables": {
+            "type": "object",
+            "properties": {
+                "businessName": {
+                    "type": "string"
+                },
+                "className": {
+                    "description": "类名",
+                    "type": "string"
+                },
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tools.SysColumns"
+                    }
+                },
+                "createBy": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "crud": {
+                    "type": "boolean"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "functionAuthor": {
+                    "description": "功能作者",
+                    "type": "string"
+                },
+                "functionName": {
+                    "description": "功能名称",
+                    "type": "string"
+                },
+                "isLogicalDelete": {
+                    "type": "string"
+                },
+                "logicalDelete": {
+                    "type": "boolean"
+                },
+                "logicalDeleteColumn": {
+                    "type": "string"
+                },
+                "moduleName": {
+                    "description": "模块名",
+                    "type": "string"
+                },
+                "options": {
+                    "type": "string"
+                },
+                "packageName": {
+                    "description": "包名",
+                    "type": "string"
+                },
+                "params": {
+                    "type": "object",
+                    "$ref": "#/definitions/tools.Params"
+                },
+                "pkColumn": {
+                    "type": "string"
+                },
+                "pkGoField": {
+                    "type": "string"
+                },
+                "pkJsonField": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "tableComment": {
+                    "description": "表备注",
+                    "type": "string"
+                },
+                "tableId": {
+                    "description": "表编码",
+                    "type": "integer"
+                },
+                "tableName": {
+                    "description": "表名称",
+                    "type": "string"
+                },
+                "tplCategory": {
+                    "type": "string"
+                },
+                "tree": {
+                    "type": "boolean"
+                },
+                "treeCode": {
+                    "type": "string"
+                },
+                "treeName": {
+                    "type": "string"
+                },
+                "treeParentCode": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

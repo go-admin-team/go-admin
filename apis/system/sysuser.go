@@ -4,13 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
+	"go-admin/global"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
-	log "github.com/sirupsen/logrus"
 )
 
-// @Summary 列表数据
+// @Summary 列表用户信息数据
 // @Description 获取JSON
 // @Tags 用户
 // @Param username query string false "username"
@@ -57,7 +57,7 @@ func GetSysUserList(c *gin.Context) {
 // @Param userId path int true "用户编码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sysUser/{userId} [get]
-// @Security
+// @Security Bearer
 func GetSysUser(c *gin.Context) {
 	var SysUser models.SysUser
 	SysUser.UserId, _ = tools.StringToInt(c.Param("userId"))
@@ -83,12 +83,12 @@ func GetSysUser(c *gin.Context) {
 	})
 }
 
-// @Summary 获取当前登录用户
+// @Summary 获取个人中心用户
 // @Description 获取JSON
 // @Tags 个人中心
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/profile [get]
-// @Security
+// @Security Bearer
 func GetSysUserProfile(c *gin.Context) {
 	var SysUser models.SysUser
 	userId := tools.GetUserIdStr(c)
@@ -97,7 +97,7 @@ func GetSysUserProfile(c *gin.Context) {
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	var SysRole models.SysRole
 	var Post models.Post
-	var Dept models.Dept
+	var Dept models.SysDept
 	//获取角色列表
 	roles, err := SysRole.GetList()
 	//获取职位列表
@@ -128,7 +128,7 @@ func GetSysUserProfile(c *gin.Context) {
 // @Tags 用户
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sysUser [get]
-// @Security
+// @Security Bearer
 func GetSysUserInit(c *gin.Context) {
 	var SysRole models.SysRole
 	var Post models.Post
@@ -210,7 +210,7 @@ func InsetSysUserAvatar(c *gin.Context) {
 	guid := uuid.New().String()
 	filPath := "static/uploadfile/" + guid + ".jpg"
 	for _, file := range files {
-		log.Println(file.Filename)
+		global.Logger.Debug(file.Filename)
 		// 上传文件至指定目录
 		_ = c.SaveUploadedFile(file, filPath)
 	}

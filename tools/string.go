@@ -17,15 +17,23 @@ func StringToInt(e string) (int, error) {
 	return strconv.Atoi(e)
 }
 
-
-func GetCurrntTimeStr() string {
-	return time.Now().Format("2006/01/02 15:04:05")
+func StringToBool(e string) (bool, error) {
+	return strconv.ParseBool(e)
 }
 
-func GetCurrntTime() time.Time {
+func GetCurrentTimeStr() string {
+	return time.Now().Format("2006-01-02 15:04:05.9999")
+}
+
+func GetCurrentTime() time.Time {
 	return time.Now()
 }
 
+func FormatTimeStr(timeStr string) (string, error) {
+	loc, _ := time.LoadLocation("Local")
+	theTime, err := time.ParseInLocation("2006-01-02T15:04:05.000Z", timeStr, loc)
+	return theTime.Format("2006/01/02 15:04:05"), err
+}
 
 func StructToJsonStr(e interface{}) (string, error) {
 	if b, err := json.Marshal(e); err == nil {

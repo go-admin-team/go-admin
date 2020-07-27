@@ -23,7 +23,10 @@
 
 系统初始化极度简单，只需要配置文件中，修改数据库连接，系统启动后会自动初始化数据库信息以及必须的基础数据
 
-[在线文档](https://wenjianzhang.github.io/go-admin-site)
+[在线文档国际](https://wenjianzhang.github.io/go-admin-site)
+[在线文档国内](http://mydearzwj.gitee.io/go-admin-site/)
+
+[前端项目](https://github.com/wenjianzhang/go-admin-ui)
 
 [视频教程](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
@@ -96,6 +99,7 @@
 
 [go-admin数据权限使用说明](https://www.bilibili.com/video/BV1LK4y1s71e) [必看]
 
+
 **如有问题请先看上述使用文档和文章，若不能满足，欢迎 issue 和 pr ，视频教程和文档持续更新中**
 
 ## 🗞 系统架构
@@ -106,13 +110,35 @@
 
 ## 📦 本地开发
 
-### 首次启动说明
+### 开发目录创建
 
 ```bash
-# 获取代码
+
+# 创建开发目录
+mkdir goadmin
+cd goadmin
+```
+
+### 获取代码
+
+> 重点注意：两个项目必须放在同一文件夹下；
+
+```bash
+# 获取后端代码
 git clone https://github.com/wenjianzhang/go-admin.git
 
-# 进入工作路径
+# 获取前端代码
+git clone https://github.com/wenjianzhang/go-admin-ui.git
+
+```
+
+
+### 启动说明
+
+#### 服务端启动说明
+
+```bash
+# 进入 go-admin 后端项目
 cd ./go-admin
 
 # 编译项目
@@ -125,10 +151,9 @@ vi ./config/setting.yml
 # 1. 配置文件中修改数据库信息 
 # 注意: settings.database 下对应的配置数据
 # 2. 确认log路径
-
 ```
 
-### 初始化数据库，以及服务启动
+#### 初始化数据库，以及服务启动
 ```
 # 首次配置需要初始化数据库资源信息
 ./go-admin init -c config/settings.yml -m dev
@@ -139,7 +164,7 @@ vi ./config/setting.yml
 
 ```
 
-### 文档生成
+#### 文档生成
 ```bash
 swag init  
 
@@ -147,7 +172,7 @@ swag init
 go get -u github.com/swaggo/swag/cmd/swag
 ```
 
-### 交叉编译
+#### 交叉编译
 ```bash
 env GOOS=windows GOARCH=amd64 go build main.go
 
@@ -156,6 +181,18 @@ env GOOS=windows GOARCH=amd64 go build main.go
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
+### UI交互端启动说明
+
+```bash
+# 安装依赖
+npm install
+
+# 建议不要直接使用 cnpm 安装依赖，会有各种诡异的 bug。可以通过如下操作解决 npm 下载速度慢的问题
+npm install --registry=https://registry.npm.taobao.org
+
+# 启动服务
+npm run dev
+```
 
 ## 🎬 在线体验
 > admin  /  123456
@@ -199,7 +236,9 @@ env GOOS=linux GOARCH=amd64 go build main.go
 
 ## ❤️ 赞助者
 
-zhuqiyun LLL狐
+> 有部分是微信名称
+
+zhuqiyun LLL狐 星星之火 cjj770 Sam 唐*i 晓聪 aLong *渊 海马 魏镇坪 + 111 *哥 我的宇哥哥 *声 *节
 
 ## 🔑 License
 

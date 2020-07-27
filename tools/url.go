@@ -10,7 +10,6 @@ func IdsStrToIdsIntGroup(key string, c *gin.Context) []int {
 	return idsStrToIdsIntGroup(c.Param(key))
 }
 
-
 func idsStrToIdsIntGroup(keys string) []int {
 	IDS := make([]int, 0)
 	ids := strings.Split(keys, ",")

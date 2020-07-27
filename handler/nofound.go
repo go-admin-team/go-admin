@@ -3,7 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	jwt "go-admin/pkg/jwtauth"
-	log "github.com/sirupsen/logrus"
+	"log"
 	"net/http"
 )
 

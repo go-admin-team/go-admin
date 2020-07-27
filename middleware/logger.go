@@ -1,8 +1,9 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"go-admin/global"
 	"go-admin/models"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
@@ -39,16 +40,18 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		log.Infof(" %s %3d %13v %15s %s %s \r\n",
+		fmt.Printf("%s [INFO] %s %s %3d %13v %15s \r\n",
 			startTime.Format("2006-01-02 15:04:05.9999"),
+			reqMethod,
+			reqUri,
 			statusCode,
 			latencyTime,
 			clientIP,
-			reqMethod,
-			reqUri,
 		)
 
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LogConfig.Operdb {
+		global.RequestLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
+
+		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime)
 		}
 	}
@@ -93,7 +96,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	b, _ := c.Get("body")
 	sysOperLog.OperParam, _ = tools.StructToJsonStr(b)
 	sysOperLog.CreateBy = tools.GetUserName(c)
-	sysOperLog.OperTime = tools.GetCurrntTime()
+	sysOperLog.OperTime = tools.GetCurrentTime()
 	sysOperLog.LatencyTime = (latencyTime).String()
 	sysOperLog.UserAgent = c.Request.UserAgent()
 	if c.Err() == nil {

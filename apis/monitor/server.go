@@ -47,7 +47,6 @@ func ServerInfo(c *gin.Context) {
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
-
 	app.Custum(c, gin.H{
 		"code": 200,
 		"os":   osDic,

@@ -12,53 +12,6 @@ definitions:
         description: 消息
         type: string
     type: object
-  models.Dept:
-    properties:
-      children:
-        items:
-          $ref: '#/definitions/models.Dept'
-        type: array
-      createBy:
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
-      deptId:
-        description: 部门编码
-        type: integer
-      deptName:
-        description: 部门名称
-        type: string
-      deptPath:
-        type: string
-      email:
-        description: 邮箱
-        type: string
-      leader:
-        description: 负责人
-        type: string
-      params:
-        type: string
-      parentId:
-        description: 上级部门
-        type: integer
-      phone:
-        description: 手机
-        type: string
-      sort:
-        description: 排序
-        type: integer
-      status:
-        description: 状态
-        type: string
-      updateBy:
-        type: string
-      updatedAt:
-        type: string
-    type: object
   models.DictType:
     properties:
       createBy:
@@ -287,6 +240,53 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.SysDept:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/models.SysDept'
+        type: array
+      createBy:
+        type: string
+      createdAt:
+        type: string
+      dataScope:
+        type: string
+      deletedAt:
+        type: string
+      deptId:
+        description: 部门编码
+        type: integer
+      deptName:
+        description: 部门名称
+        type: string
+      deptPath:
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      leader:
+        description: 负责人
+        type: string
+      params:
+        type: string
+      parentId:
+        description: 上级部门
+        type: integer
+      phone:
+        description: 手机
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      status:
+        description: 状态
+        type: string
+      updateBy:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   models.SysOperLog:
     properties:
       businessType:
@@ -467,6 +467,162 @@ definitions:
       username:
         type: string
     type: object
+  tools.Params:
+    properties:
+      treeCode:
+        type: string
+      treeName:
+        type: string
+      treeParentCode:
+        type: string
+    type: object
+  tools.SysColumns:
+    properties:
+      columnComment:
+        type: string
+      columnId:
+        type: integer
+      columnName:
+        type: string
+      columnType:
+        type: string
+      createBy:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      dictType:
+        type: string
+      edit:
+        type: boolean
+      goField:
+        type: string
+      goType:
+        type: string
+      htmlType:
+        type: string
+      increment:
+        type: boolean
+      insert:
+        type: boolean
+      isEdit:
+        type: string
+      isIncrement:
+        type: string
+      isInsert:
+        type: string
+      isList:
+        type: string
+      isPk:
+        type: string
+      isQuery:
+        type: string
+      isRequired:
+        type: string
+      jsonField:
+        type: string
+      list:
+        type: string
+      pk:
+        type: boolean
+      query:
+        type: boolean
+      queryType:
+        type: string
+      remark:
+        type: string
+      required:
+        type: boolean
+      sort:
+        type: integer
+      superColumn:
+        type: boolean
+      tableId:
+        type: integer
+      updateBy:
+        type: string
+      updatedAt:
+        type: string
+      usableColumn:
+        type: boolean
+    type: object
+  tools.SysTables:
+    properties:
+      businessName:
+        type: string
+      className:
+        description: 类名
+        type: string
+      columns:
+        items:
+          $ref: '#/definitions/tools.SysColumns'
+        type: array
+      createBy:
+        type: string
+      createdAt:
+        type: string
+      crud:
+        type: boolean
+      dataScope:
+        type: string
+      deletedAt:
+        type: string
+      functionAuthor:
+        description: 功能作者
+        type: string
+      functionName:
+        description: 功能名称
+        type: string
+      isLogicalDelete:
+        type: string
+      logicalDelete:
+        type: boolean
+      logicalDeleteColumn:
+        type: string
+      moduleName:
+        description: 模块名
+        type: string
+      options:
+        type: string
+      packageName:
+        description: 包名
+        type: string
+      params:
+        $ref: '#/definitions/tools.Params'
+        type: object
+      pkColumn:
+        type: string
+      pkGoField:
+        type: string
+      pkJsonField:
+        type: string
+      remark:
+        type: string
+      tableComment:
+        description: 表备注
+        type: string
+      tableId:
+        description: 表编码
+        type: integer
+      tableName:
+        description: 表名称
+        type: string
+      tplCategory:
+        type: string
+      tree:
+        type: boolean
+      treeCode:
+        type: string
+      treeName:
+        type: string
+      treeParentCode:
+        type: string
+      updateBy:
+        type: string
+      updatedAt:
+        type: string
+    type: object
 info:
   contact: {}
   description: |-
@@ -476,7 +632,7 @@ info:
     name: MIT
     url: https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md
   title: go-admin API
-  version: 0.0.1
+  version: 1.0.1
 paths:
   /api/v1/config:
     put:
@@ -532,7 +688,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取配置
       tags:
       - 配置
@@ -551,7 +707,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取配置
       tags:
       - 配置
@@ -585,7 +741,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 配置列表数据
       tags:
       - 配置
@@ -648,7 +804,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Dept'
+          $ref: '#/definitions/models.SysDept'
           type: object
       responses:
         "200":
@@ -675,7 +831,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Dept'
+          $ref: '#/definitions/models.SysDept'
           type: object
       responses:
         "200":
@@ -705,7 +861,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 部门列表数据
       tags:
       - 部门
@@ -748,7 +904,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 分页部门列表数据
       tags:
       - 部门
@@ -828,7 +984,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过编码获取字典数据
       tags:
       - 字典数据
@@ -862,7 +1018,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 字典数据列表
       tags:
       - 字典数据
@@ -881,7 +1037,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过字典类型获取字典数据
       tags:
       - 字典数据
@@ -961,7 +1117,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过字典id获取字典类型
       tags:
       - 字典类型
@@ -995,7 +1151,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 字典类型列表数据
       tags:
       - 字典类型
@@ -1075,7 +1231,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过编码获取登录日志
       tags:
       - 登录日志
@@ -1109,7 +1265,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 登录日志列表
       tags:
       - 登录日志
@@ -1328,7 +1484,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 通过编码获取登录日志
       tags:
       - 登录日志
@@ -1379,7 +1535,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 登录日志列表
       tags:
       - 登录日志
@@ -1387,17 +1543,21 @@ paths:
     get:
       description: 获取JSON
       parameters:
-      - description: name
+      - description: postName
         in: query
-        name: name
+        name: postName
         type: string
-      - description: id
+      - description: postCode
         in: query
-        name: id
+        name: postCode
         type: string
-      - description: position
+      - description: postId
         in: query
-        name: position
+        name: postId
+        type: string
+      - description: status
+        in: query
+        name: status
         type: string
       responses:
         "200":
@@ -1405,10 +1565,10 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
-      summary: 职位列表数据
+      - Bearer: []
+      summary: 岗位列表数据
       tags:
-      - 职位
+      - 岗位
     post:
       consumes:
       - application/json
@@ -1428,9 +1588,9 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 添加职位
+      summary: 添加岗位
       tags:
-      - 职位
+      - 岗位
   /api/v1/post/:
     put:
       consumes:
@@ -1442,7 +1602,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Dept'
+          $ref: '#/definitions/models.Post'
           type: object
       responses:
         "200":
@@ -1451,9 +1611,9 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 修改职位
+      summary: 修改岗位
       tags:
-      - 职位
+      - 岗位
   /api/v1/post/{postId}:
     delete:
       description: 删除数据
@@ -1465,12 +1625,16 @@ paths:
         type: integer
       responses:
         "200":
-          description: '{"code": -1, "message": "删除失败"}'
+          description: '{"code": 200, "message": "删除成功"}'
           schema:
             type: string
-      summary: 删除职位
+        "500":
+          description: '{"code": 500, "message": "删除失败"}'
+          schema:
+            type: string
+      summary: 删除岗位
       tags:
-      - 职位
+      - 岗位
     get:
       description: 获取JSON
       parameters:
@@ -1485,10 +1649,10 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
-      summary: 获取字典数据
+      - Bearer: []
+      summary: 获取岗位信息
       tags:
-      - 字典数据
+      - 岗位
   /api/v1/role:
     get:
       description: 获取JSON
@@ -1594,7 +1758,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 角色列表数据
       tags:
       - 角色/Role
@@ -1667,7 +1831,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Dept'
+          $ref: '#/definitions/tools.SysTables'
           type: object
       responses:
         "200":
@@ -1710,7 +1874,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取配置
       tags:
       - 工具 - 生成表
@@ -1747,7 +1911,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取用户角色和职位
       tags:
       - 用户
@@ -1786,7 +1950,7 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
+      - Bearer: []
       summary: 获取用户
       tags:
       - 用户
@@ -1805,7 +1969,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 列表数据
+      summary: 列表用户信息数据
       tags:
       - 用户
   /api/v1/sysuser/{userId}:
@@ -1854,8 +2018,8 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       security:
-      - "": []
-      summary: 获取当前登录用户
+      - Bearer: []
+      summary: 获取个人中心用户
       tags:
       - 个人中心
   /api/v1/user/profileAvatar:
@@ -1881,11 +2045,17 @@ paths:
     post:
       consumes:
       - application/json
-      description: 获取token
+      description: |-
+        获取token
+        LoginHandler can be used by clients to get a jwt token.
+        Payload needs to be json in the form of {"username": "USERNAME", "password": "PASSWORD"}.
+        Reply will be of the form {"token": "TOKEN"}.
+        dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
+        注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
       parameters:
-      - description: Add account
+      - description: account
         in: body
-        name: username
+        name: account
         required: true
         schema:
           $ref: '#/definitions/models.Login'
@@ -1909,7 +2079,7 @@ paths:
           schema:
             type: string
       security:
-      - "": []
+      - Bearer: []
       summary: 退出登录
   /sd/cpu:
     get:

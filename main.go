@@ -5,7 +5,7 @@ import (
 )
 
 // @title go-admin API
-// @version 0.0.1
+// @version 1.0.1
 // @description 基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档
 // @description 添加qq群: 74520518 进入技术交流群 请备注，谢谢！
 // @license.name MIT

@@ -7,7 +7,6 @@ import (
 	"text/template"
 )
 
-
 func TestGoModelTemplate(t *testing.T) {
 	t1, err := template.ParseFiles("model.go.template")
 	if err != nil {

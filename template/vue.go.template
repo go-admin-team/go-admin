@@ -3,23 +3,25 @@
     <div class="app-container">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
             {{range .Columns}}
-            {{- $x := .IsQuery -}}
-            {{- if ($x) -}}
-            <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
-                {{if eq .DictType "" -}}
-                <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable size="small" @keyup.enter.native="handleQuery" />
-                {{- else -}}
-                <el-select v-model="queryParams.{{.JsonField}}" placeholder="{{$tableComment}}{{.ColumnComment}}" clearable size="small">
-                    <el-option
-                            v-for="dict in {{.JsonField}}Options"
-                            :key="dict.dictValue"
-                            :label="dict.dictLabel"
-                            :value="dict.dictValue"
-                    />
-                </el-select>
-                {{- end}}
-            </el-form-item>
-            {{end}}
+                {{- $x := .IsQuery -}}
+                {{- if ($x) -}}
+                    <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                        {{if eq .DictType "" -}}
+                            <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable
+                                      size="small" @keyup.enter.native="handleQuery"/>
+                        {{- else -}}
+                            <el-select v-model="queryParams.{{.JsonField}}"
+                                       placeholder="{{$tableComment}}{{.ColumnComment}}" clearable size="small">
+                                <el-option
+                                        v-for="dict in {{.JsonField}}Options"
+                                        :key="dict.dictValue"
+                                        :label="dict.dictLabel"
+                                        :value="dict.dictValue"
+                                />
+                            </el-select>
+                        {{- end}}
+                    </el-form-item>
+                {{end}}
             {{- end }}
             <el-form-item>
                 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -35,7 +37,8 @@
                         icon="el-icon-plus"
                         size="mini"
                         @click="handleAdd"
-                >新增</el-button>
+                >新增
+                </el-button>
             </el-col>
             <el-col :span="1.5">
                 <el-button
@@ -45,7 +48,8 @@
                         size="mini"
                         :disabled="single"
                         @click="handleUpdate"
-                >修改</el-button>
+                >修改
+                </el-button>
             </el-col>
             <el-col :span="1.5">
                 <el-button
@@ -55,27 +59,30 @@
                         size="mini"
                         :disabled="multiple"
                         @click="handleDelete"
-                >删除</el-button>
+                >删除
+                </el-button>
             </el-col>
         </el-row>
 
         <el-table v-loading="loading" :data="{{.ModuleName}}List" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" align="center" />
+            <el-table-column type="selection" width="55" align="center"/>
             {{- range .Columns -}}
-            {{- $x := .IsList -}}
-            {{- if ($x) }}
-                {{- if ne .DictType "" -}}
-                    <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :formatter="{{.JsonField}}Format" width="100">
-                        <template slot-scope="scope">
-                            {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
-                        </template>
-                    </el-table-column>
-                {{- end -}}
-                {{- if eq .DictType "" -}}
-                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :show-overflow-tooltip="true" />
-                {{- end -}}
+                {{- $x := .IsList -}}
+                {{- if ($x) }}
+                    {{- if ne .DictType "" -}}
+                        <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
+                                         :formatter="{{.JsonField}}Format" width="100">
+                            <template slot-scope="scope">
+                                {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
+                            </template>
+                        </el-table-column>
+                    {{- end -}}
+                    {{- if eq .DictType "" -}}
+                        <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
+                                         :show-overflow-tooltip="true"/>
+                    {{- end -}}
 
-            {{- end }}
+                {{- end }}
             {{- end }}
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
@@ -85,14 +92,16 @@
                             type="text"
                             icon="el-icon-edit"
                             @click="handleUpdate(scope.row)"
-                    >修改</el-button>
+                    >修改
+                    </el-button>
                     <el-button
                             v-permisaction="['{{.PackageName}}:{{.ModuleName}}:remove']"
                             size="mini"
                             type="text"
                             icon="el-icon-delete"
                             @click="handleDelete(scope.row)"
-                    >删除</el-button>
+                    >删除
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -109,35 +118,37 @@
         <el-dialog :title="title" :visible.sync="open" width="500px">
             <el-form ref="form" :model="form" :rules="rules" label-width="80px">
                 {{ range .Columns }}
-                {{- $x := .IsInsert -}}
-                {{- if ($x) -}}
-                    {{- if (.Pk) }}
-                    {{- else if eq .GoField "CreatedAt" -}}
-                    {{- else if eq .GoField "UpdatedAt" -}}
-                    {{- else if eq .GoField "DeletedAt" -}}
-                    {{- else if eq .GoField "UpdateBy" -}}
-                    {{- else if eq .GoField "CreateBy" -}}
-                    {{- else }}
-                <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}"  >
-                {{ if eq "input" .HtmlType -}}
-                    <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"  {{if eq .IsEdit "false" -}}:disabled="isEdit"  {{- end}}/>
-                {{- else if eq "select" .HtmlType -}}
-                    <el-select v-model="form.{{.JsonField}}"  {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
-                        <el-option label="demo1" value="demo1" />
-                        <el-option label="demo2" value="demo2" />
-                    </el-select>
-                {{- else if eq "radio" .HtmlType -}}
-                    <el-radio-group v-model="form.{{.JsonField}}">
-                        <el-radio
-                                v-for="dict in {{.JsonField}}Options"
-                                :key="dict.dictValue"
-                                :label="dict.dictValue"
-                        >{{"{{"}} dict.dictLabel {{"}}"}}</el-radio>
-                    </el-radio-group>
-                {{- end }}
-                </el-form-item>
+                    {{- $x := .IsInsert -}}
+                    {{- if ($x) -}}
+                        {{- if (.Pk) }}
+                        {{- else if eq .GoField "CreatedAt" -}}
+                        {{- else if eq .GoField "UpdatedAt" -}}
+                        {{- else if eq .GoField "DeletedAt" -}}
+                        {{- else if eq .GoField "UpdateBy" -}}
+                        {{- else if eq .GoField "CreateBy" -}}
+                        {{- else }}
+                            <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                                {{ if eq "input" .HtmlType -}}
+                                    <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"
+                                              {{if eq .IsEdit "false" -}}:disabled="isEdit" {{- end}}/>
+                                {{- else if eq "select" .HtmlType -}}
+                                    <el-select
+                                            v-model="form.{{.JsonField}}" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                        <el-option label="demo1" value="demo1"/>
+                                        <el-option label="demo2" value="demo2"/>
+                                    </el-select>
+                                {{- else if eq "radio" .HtmlType -}}
+                                    <el-radio-group v-model="form.{{.JsonField}}">
+                                        <el-radio
+                                                v-for="dict in {{.JsonField}}Options"
+                                                :key="dict.dictValue"
+                                                :label="dict.dictValue"
+                                        >{{"{{"}} dict.dictLabel {{"}}"}}</el-radio>
+                                    </el-radio-group>
+                                {{- end }}
+                            </el-form-item>
+                        {{- end }}
                     {{- end }}
-                {{- end }}
                 {{- end }}
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -149,7 +160,7 @@
 </template>
 
 <script>
-    import { list{{.ClassName}}, get{{.ClassName}}, del{{.ClassName}}, add{{.ClassName}}, update{{.ClassName}} } from '@/api/{{.PackageName}}'
+    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .PackageName}}'
 
     export default {
         name: 'Config',
@@ -172,7 +183,7 @@
                 isEdit: false,
                 // 类型数据字典
                 typeOptions: [],
-                {{.ModuleName}}List:[],
+                {{.ModuleName}}List: [],
                 {{range .Columns}}
                 {{- if ne .DictType "" -}}
                 {{.JsonField}}Options: [],
@@ -182,38 +193,42 @@
                 queryParams: {
                     pageIndex: 1,
                     pageSize: 10,
-                    {{ range .Columns }}
-                    {{- if (.IsQuery) -}}
-                    {{.JsonField}}:undefined,
-                    {{ end -}}
-                    {{- end }}
-                },
-                // 表单参数
-                form: {
-                },
-                // 表单校验
-                rules: {
-                    {{- range .Columns -}}
-                    {{- $x := .IsQuery -}}
-                    {{- if ($x) -}}
-                    {{.JsonField}}:
-                    [
-                        {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'}
-                    ],
-                    {{ end }}
-                    {{- end -}}
-                }
+            {{ range .Columns }}
+            {{- if (.IsQuery) -}}
+            {{.JsonField}}:
+            undefined,
+            {{ end -}}
+            {{- end }}
+        },
+            // 表单参数
+            form: {
             }
+        ,
+            // 表单校验
+            rules: {
+                {{- range .Columns -}}
+                {{- $x := .IsQuery -}}
+                {{- if ($x) -}}
+                {{.JsonField}}:
+                [
+                    {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'}
+                ],
+                {{ end }}
+                {{- end -}}
+            }
+        }
         },
         created() {
             this.getList()
             {{range .Columns}}
             {{- if ne .DictType "" -}}
+
             this.getDicts('{{.DictType}}').then(response => {
                 this.{{.JsonField}}Options = response.data
             })
+
+            {{ end -}}
             {{- end -}}
-            {{- end }}
         },
         methods: {
             /** 查询参数列表 */
@@ -247,7 +262,7 @@
                 {{- end }}
                 {{- end -}}
                 {{- end }}
-                }
+            }
                 this.resetForm('form')
             },
             {{range .Columns}}
@@ -255,7 +270,7 @@
             {{.JsonField}}Format(row) {
                 return this.selectDictLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
             },
-            {{- end -}}
+            {{ end -}}
             {{- end }}
 
             /** 搜索按钮操作 */
@@ -285,7 +300,8 @@
             /** 修改按钮操作 */
             handleUpdate(row) {
                 this.reset()
-                const {{.PkJsonField}} = row.{{.PkJsonField}} || this.ids
+                const {{.PkJsonField}} =
+                row.{{.PkJsonField}} || this.ids
                 get{{.ClassName}}({{.PkJsonField}}).then(response => {
                     this.form = response.data
                     this.open = true
@@ -294,7 +310,7 @@
                 })
             },
             /** 提交按钮 */
-            submitForm: function() {
+            submitForm: function () {
                 this.$refs['form'].validate(valid => {
                     if (valid) {
                         if (this.form.{{.PkJsonField}} !== undefined) {
@@ -328,12 +344,13 @@
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
-                }).then(function() {
+                }).then(function () {
                     return del{{.ClassName}}(Ids)
                 }).then(() => {
                     this.getList()
                     this.msgSuccess('删除成功')
-                }).catch(function() {})
+                }).catch(function () {
+                })
             }
         }
     }

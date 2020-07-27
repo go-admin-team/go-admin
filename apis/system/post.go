@@ -7,16 +7,16 @@ import (
 	"go-admin/tools/app"
 )
 
-// @Summary 职位列表数据
+// @Summary 岗位列表数据
 // @Description 获取JSON
-// @Tags 职位
+// @Tags 岗位
 // @Param postName query string false "postName"
 // @Param postCode query string false "postCode"
 // @Param postId query string false "postId"
 // @Param status query string false "status"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
-// @Security
+// @Security Bearer
 func GetPostList(c *gin.Context) {
 	var data models.Post
 	var err error
@@ -44,13 +44,13 @@ func GetPostList(c *gin.Context) {
 	app.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
-// @Summary 获取字典数据
+// @Summary 获取岗位信息
 // @Description 获取JSON
-// @Tags 字典数据
+// @Tags 岗位
 // @Param postId path int true "postId"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
-// @Security
+// @Security Bearer
 func GetPost(c *gin.Context) {
 	var Post models.Post
 	Post.PostId, _ = tools.StringToInt(c.Param("postId"))
@@ -59,9 +59,9 @@ func GetPost(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
-// @Summary 添加职位
+// @Summary 添加岗位
 // @Description 获取JSON
-// @Tags 职位
+// @Tags 岗位
 // @Accept  application/json
 // @Product application/json
 // @Param data body models.Post true "data"
@@ -79,12 +79,12 @@ func InsertPost(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
-// @Summary 修改职位
+// @Summary 修改岗位
 // @Description 获取JSON
-// @Tags 职位
+// @Tags 岗位
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Dept true "body"
+// @Param data body models.Post true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/post/ [put]
@@ -100,12 +100,12 @@ func UpdatePost(c *gin.Context) {
 	app.OK(c, result, "修改成功")
 }
 
-// @Summary 删除职位
+// @Summary 删除岗位
 // @Description 删除数据
-// @Tags 职位
+// @Tags 岗位
 // @Param id path int true "id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
 // @Router /api/v1/post/{postId} [delete]
 func DeletePost(c *gin.Context) {
 	var data models.Post
