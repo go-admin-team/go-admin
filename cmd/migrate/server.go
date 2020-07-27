@@ -2,12 +2,11 @@ package migrate
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"go-admin/database"
-	orm "go-admin/global"
+	"go-admin/global"
 	"go-admin/models"
 	"go-admin/models/gorm"
-	"go-admin/tools"
+	"go-admin/pkg/logger"
 	"go-admin/tools/config"
 
 	"github.com/spf13/cobra"
@@ -34,18 +33,17 @@ func run() {
 	usage := `start init`
 	fmt.Println(usage)
 	//1. 读取配置
-	config.ConfigSetup(configYml)
+	config.Setup(configYml)
 	//2. 设置日志
-	tools.InitLogger()
+	logger.Setup()
 	//3. 初始化数据库链接
 	database.Setup(config.DatabaseConfig.Driver)
-
 	//4. 数据库迁移
 	_ = migrateModel()
-	log.Println("数据库结构初始化成功！")
+	fmt.Println("数据库结构初始化成功！")
 	//5. 数据初始化完成
 	if err := models.InitDb(); err != nil {
-		log.Fatal("数据库基础数据初始化失败！")
+		global.Logger.Fatal("数据库基础数据初始化失败！")
 	}
 	usage = `数据库基础数据初始化成功`
 	fmt.Println(usage)
@@ -53,7 +51,7 @@ func run() {
 
 func migrateModel() error {
 	if config.DatabaseConfig.Driver == "mysql" {
-		orm.Eloquent = orm.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+		global.Eloquent = global.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
-	return gorm.AutoMigrate(orm.Eloquent)
+	return gorm.AutoMigrate(global.Eloquent)
 }

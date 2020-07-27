@@ -9,6 +9,7 @@ import (
 	"go-admin/database"
 	"go-admin/global"
 	mycasbin "go-admin/pkg/casbin"
+	"go-admin/pkg/logger"
 	"go-admin/router"
 	"go-admin/tools"
 	"go-admin/tools/config"
@@ -43,17 +44,18 @@ func init() {
 }
 
 func setup() {
+
 	//1. 读取配置
-	config.ConfigSetup(configYml)
+	config.Setup(configYml)
 	//2. 设置日志
-	tools.InitLogger()
+	logger.Setup()
 	//3. 初始化数据库链接
 	database.Setup(config.DatabaseConfig.Driver)
-
+	//4. 接口访问控制加载
 	mycasbin.Setup()
 
 	usageStr := `starting api server`
-	tools.Logger.Printf("%s\n", usageStr)
+	global.Logger.Info(usageStr)
 }
 
 func run() error {
@@ -75,20 +77,25 @@ func run() error {
 
 	go func() {
 		// 服务连接
-		if config.ApplicationConfig.IsHttps {
+		if config.SslConfig.Enable {
 			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
-				tools.Logger.Fatalf("listen: %s \r\n", err)
+				global.Logger.Fatal("listen: ", err)
 			}
 		} else {
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				tools.Logger.Fatalf("listen: %s \r\n", err)
+				global.Logger.Fatal("listen: ", err)
 			}
 		}
 	}()
 	content, _ := ioutil.ReadFile("./static/go-admin.txt")
-	fmt.Println(string(content))
-	fmt.Printf("%s Server Run http://%s:%s/ \r\n", tools.GetCurrentTimeStr(), config.ApplicationConfig.Host, config.ApplicationConfig.Port)
-	fmt.Printf("%s Swagger URL http://%s:%s/swagger/index.html \r\n", tools.GetCurrentTimeStr(), config.ApplicationConfig.Host, config.ApplicationConfig.Port)
+	fmt.Println(tools.Red(string(content)))
+	tip()
+	fmt.Println(tools.Green("Server run at:"))
+	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/ \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Println(tools.Green("Swagger run at:"))
+	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrentTimeStr())
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
@@ -99,8 +106,13 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		tools.Logger.Fatal("Server Shutdown:", err)
+		global.Logger.Fatal("Server Shutdown:", err)
 	}
-	tools.Logger.Println("Server exiting")
+	global.Logger.Println("Server exiting")
 	return nil
+}
+
+func tip() {
+	usageStr := `欢迎使用 `+ tools.Green( `go-admin ` +global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	fmt.Printf("%s \n\n", usageStr)
 }
