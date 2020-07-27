@@ -31,11 +31,13 @@ func GetPostList(c *gin.Context) {
 		pageIndex = tools.StrToInt(err, index)
 	}
 
-	data.PostCode = c.Request.FormValue("postCode")
 	id := c.Request.FormValue("postId")
 	data.PostId, _ = tools.StringToInt(id)
 
+	data.PostCode = c.Request.FormValue("postCode")
 	data.PostName = c.Request.FormValue("postName")
+	data.Status = c.Request.FormValue("status")
+
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
