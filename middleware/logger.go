@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-admin/global"
 	"go-admin/models"
@@ -39,18 +40,18 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		//global.AccessLogger.Printf(" %s %3d %13v %15s %s %s \r\n",
-		//	startTime.Format("2006-01-02 15:04:05.9999"),
-		//	statusCode,
-		//	latencyTime,
-		//	clientIP,
-		//	reqMethod,
-		//	reqUri,
-		//)
+		fmt.Printf("%s [INFO] %s %s %3d %13v %15s \r\n",
+			startTime.Format("2006-01-02 15:04:05.9999"),
+			reqMethod,
+			reqUri,
+			statusCode,
+			latencyTime,
+			clientIP,
+		)
 
-		global.AccessLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
+		global.RequestLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
 
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LoggerConfig.Enabled {
+		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime)
 		}
 	}
