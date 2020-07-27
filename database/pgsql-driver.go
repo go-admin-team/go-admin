@@ -3,9 +3,9 @@ package database
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	log "github.com/sirupsen/logrus"
 	"go-admin/global"
 	"go-admin/tools/config"
+	"log"
 )
 
 type PgSql struct {
@@ -17,7 +17,7 @@ func (e *PgSql) Setup() {
 
 	db = new(PgSql)
 	global.Source = db.GetConnect()
-	log.Info(global.Source)
+	log.Println(global.Source)
 	global.Eloquent, err = db.Open(db.GetDriver(), db.GetConnect())
 	if err != nil {
 		log.Fatalf("%s connect error %v", db.GetDriver(), err)

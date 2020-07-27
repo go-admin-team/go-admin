@@ -3,8 +3,8 @@ package database
 import (
 	_ "github.com/go-sql-driver/mysql" //加载mysql
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 	"go-admin/global"
+	"go-admin/tools"
 	"go-admin/tools/config"
 )
 
@@ -17,20 +17,19 @@ func (e *Mysql) Setup() {
 
 	db = new(Mysql)
 	global.Source = db.GetConnect()
-	log.Info(global.Source)
+	global.Logger.Info(tools.Green(global.Source))
 	global.Eloquent, err = db.Open(db.GetDriver(), db.GetConnect())
 	if err != nil {
-		log.Fatalf("%s connect error %v", db.GetDriver(), err)
+		global.Logger.Error(tools.Red(db.GetDriver()+" connect error :"), err)
 	} else {
-		log.Printf("%s connect success!", db.GetDriver())
+		global.Logger.Info(tools.Green(db.GetDriver() + " connect success !"))
 	}
 
 	if global.Eloquent.Error != nil {
-		log.Fatalf("database error %v", global.Eloquent.Error)
+		global.Logger.Error(tools.Red(" database error :"), global.Eloquent.Error)
 	}
 
-	global.Eloquent.LogMode(config.DatabaseConfig.Logger.Enabled)
-	//global.Eloquent.SetLogger(global.DBLogger)
+	global.Eloquent.LogMode(config.LoggerConfig.EnabledDB)
 }
 
 // 打开数据库连接
