@@ -11,9 +11,11 @@ var GinEngine *gin.Engine
 var CasbinEnforcer *casbin.Enforcer
 var Eloquent *gorm.DB
 
-var Source string
-var Driver string
-var DBName string
+var (
+	Source string
+	Driver string
+	DBName string
+)
 
 // go-admin Version Info
 var Version string
@@ -22,6 +24,9 @@ func init() {
 	Version = "1.0.10"
 }
 
-var Logger *glog.Logger
-var DBLogger *glog.Logger
-var AccessLogger *glog.Logger
+var (
+	Logger        *glog.Logger
+	DBLogger      *glog.Logger
+	RequestLogger *glog.Logger
+)
+
