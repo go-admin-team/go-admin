@@ -2,7 +2,7 @@ package cronjob
 
 import (
 	"github.com/robfig/cron/v3"
-	log "github.com/sirupsen/logrus"
+	"log"
 	tools2 "go-admin/tools"
 )
 

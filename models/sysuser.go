@@ -2,7 +2,7 @@ package models
 
 import (
 	"errors"
-	log "github.com/sirupsen/logrus"
+	"log"
 	orm "go-admin/global"
 	"go-admin/tools"
 	"golang.org/x/crypto/bcrypt"

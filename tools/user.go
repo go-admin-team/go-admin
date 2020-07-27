@@ -3,7 +3,7 @@ package tools
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"log"
 	jwt "go-admin/pkg/jwtauth"
 )
 
