@@ -30,7 +30,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 
 	if config2.DatabaseConfig.Driver == "mysql" {
 		table = orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
-		table = table.Where("table_schema= ? ", config2.DatabaseConfig.DBName)
+		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		if e.TableName != "" {
 			return nil, 0, errors.New("table name cannot be empty！")
@@ -57,7 +57,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 
 	if config2.DatabaseConfig.Driver == "mysql" {
 		table = orm.Eloquent.Select("*").Table("information_schema.columns")
-		table = table.Where("table_schema= ? ", config2.DatabaseConfig.DBName)
+		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		table = table.Where("TABLE_NAME = ?", e.TableName)
 	} else {

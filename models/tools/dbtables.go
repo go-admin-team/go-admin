@@ -25,8 +25,8 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 
 	if config2.DatabaseConfig.Driver == "mysql" {
 		table = orm.Eloquent.Select("*").Table("information_schema.tables")
-		table = table.Where("TABLE_NAME not in (select table_name from " + config2.DatabaseConfig.DBName + ".sys_tables) ")
-		table = table.Where("table_schema= ? ", config2.DatabaseConfig.DBName)
+		table = table.Where("TABLE_NAME not in (select table_name from " + config2.GenConfig.DBName + ".sys_tables) ")
+		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		if e.TableName != "" {
 			table = table.Where("TABLE_NAME = ?", e.TableName)
@@ -47,7 +47,7 @@ func (e *DBTables) Get() (DBTables, error) {
 	table := new(gorm.DB)
 	if config2.DatabaseConfig.Driver == "mysql" {
 		table = orm.Eloquent.Select("*").Table("information_schema.tables")
-		table = table.Where("table_schema= ? ", config2.DatabaseConfig.DBName)
+		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 		if e.TableName == "" {
 			return doc, errors.New("table name cannot be empty！")
 		}

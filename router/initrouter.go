@@ -12,7 +12,7 @@ import (
 func InitRouter() *gin.Engine {
 
 	r := gin.New()
-	if config2.ApplicationConfig.IsHttps {
+	if config2.SslConfig.Enable {
 		r.Use(handler.TlsHandler())
 	}
 	middleware.InitMiddleware(r)
@@ -24,7 +24,7 @@ func InitRouter() *gin.Engine {
 	InitSysRouter(r, authMiddleware)
 
 	// 注册业务路由
-	// TODO: 这里可存放业务路由，里边并无实际路由是有演示代码
+	// TODO: 这里可存放业务路由，里边并无实际路由只有演示代码
 	InitExamplesRouter(r, authMiddleware)
 
 	return r
