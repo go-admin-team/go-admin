@@ -8,3 +8,5 @@ vendor
 config/settings.dev.yml
 go-admin
 middleware/demo.go
+config/settings.dev.b.yml
+temp/logs
