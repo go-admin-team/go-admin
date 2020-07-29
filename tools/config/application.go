@@ -19,7 +19,7 @@ func InitApplication(cfg *viper.Viper) *Application {
 		ReadTimeout:   cfg.GetInt("readTimeout"),
 		WriterTimeout: cfg.GetInt("writerTimeout"),
 		Host:          cfg.GetString("host"),
-		Port:          portDefault(cfg),
+		Port:          cfg.GetString("port"),
 		Name:          cfg.GetString("name"),
 		JwtSecret:     cfg.GetString("jwtSecret"),
 		Mode:          cfg.GetString("mode"),
@@ -29,12 +29,3 @@ func InitApplication(cfg *viper.Viper) *Application {
 }
 
 var ApplicationConfig = new(Application)
-
-func portDefault(cfg *viper.Viper) string {
-	if cfg.GetString("port") == "" {
-		return "8000"
-	} else {
-		return cfg.GetString("port")
-	}
-}
-
