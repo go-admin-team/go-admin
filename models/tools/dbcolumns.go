@@ -32,7 +32,7 @@ type SqliteColumns struct {
 	CharacterMaximumLength string `gorm:"column:-" json:"characterMaximumLength"`
 	CharacterSetName       string `gorm:"column:-" json:"characterSetName"`
 	ColumnType             string `gorm:"column:type" json:"columnType"`
-	ColumnKey              string `gorm:"column:-" json:"columnKey"`
+	ColumnKey              string `gorm:"column:pk" json:"columnKey"`
 	Extra                  string `gorm:"column:-" json:"extra"`
 	ColumnComment          string `gorm:"column:-" json:"columnComment"`
 }

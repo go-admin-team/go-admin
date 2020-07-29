@@ -1,12 +1,13 @@
 package tools
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary 分页列表数据
@@ -154,7 +155,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 				column.JsonField += strings.ToUpper(strStart) + strend
 			}
 		}
-		if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
+		if strings.Contains(dbcolumn[i].ColumnKey, "PR") || dbcolumn[i].ColumnKey == "1" {
 			column.IsPk = "1"
 			column.Pk = true
 			data.PkColumn = dbcolumn[i].ColumnName
