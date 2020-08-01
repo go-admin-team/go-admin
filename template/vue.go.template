@@ -153,7 +153,6 @@
                                     <el-date-picker
                                             v-model="form.{{.JsonField}}"
                                             type="datetime"
-                                            value-format="yyyy-MM-dd HH:mm:ss"
                                             placeholder="选择日期">
                                     </el-date-picker>
                                 {{- else if eq "textarea" .HtmlType -}}
