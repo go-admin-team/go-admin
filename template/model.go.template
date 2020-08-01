@@ -3,7 +3,10 @@ package models
 import (
 orm "go-admin/global"
 "go-admin/tools"
-_ "time"
+{{$ii := 1}}
+{{ range .Columns }}
+    {{- if eq .GoType "time.Time" -}}{{- if eq $ii 1 -}} "time" {{$ii = 2}}{{- end}}{{- end}}
+{{- end }}
 )
 
 type {{.ClassName}} struct {
