@@ -95,11 +95,12 @@
 
 [go-admin菜单的配置说明](https://www.bilibili.com/video/BV1Wp4y1D715) [必看]
 
-[如何配置菜单信息以及接口信息](https://www.bilibili.com/video/BV1zv411B7nG/) [必看]
+[如何配置菜单信息以及接口信息](https://www.bilibili.com/video/BV1zv411B7nG) [必看]
 
-[go-admin权限配置使用说明](https://www.bilibili.com/video/BV1rt4y197d3/) [必看]
+[go-admin权限配置使用说明](https://www.bilibili.com/video/BV1rt4y197d3) [必看]
 
-[go-admin数据权限使用说明](https://www.bilibili.com/video/BV1LK4y1s71e/) [必看]
+[go-admin数据权限使用说明](https://www.bilibili.com/video/BV1LK4y1s71e) [必看]
+
 
 **如有问题请先看上述使用文档和文章，若不能满足，欢迎 issue 和 pr ，视频教程和文档持续更新中**
 
