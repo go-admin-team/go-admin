@@ -17,7 +17,8 @@ var (
 	mode      string
 	StartCmd  = &cobra.Command{
 		Use:   "init",
-		Short: "initialize the database",
+		Short: "Initialize the database",
+		Example: "go-admin init -c config/settings.yml",
 		Run: func(cmd *cobra.Command, args []string) {
 			run()
 		},
