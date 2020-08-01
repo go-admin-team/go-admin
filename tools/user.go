@@ -3,7 +3,6 @@ package tools
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
 	jwt "go-admin/pkg/jwtauth"
 )
 
@@ -21,7 +20,7 @@ func GetUserId(c *gin.Context) int {
 	if data["identity"] != nil {
 		return int((data["identity"]).(float64))
 	}
-	log.Println("****************************** 路径：" + c.Request.URL.Path + "  请求方法：" + c.Request.Method + "  说明：缺少identity")
+	fmt.Println(GetCurrentTimeStr()+" [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserId 缺少identity")
 	return 0
 }
 
@@ -30,7 +29,7 @@ func GetUserIdStr(c *gin.Context) string {
 	if data["identity"] != nil {
 		return Int64ToString(int64((data["identity"]).(float64)))
 	}
-	log.Println("****************************** 路径：" + c.Request.URL.Path + "  请求方法：" + c.Request.Method + "  缺少identity")
+	fmt.Println(GetCurrentTimeStr()+" [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserIdStr 缺少identity")
 	return ""
 }
 
@@ -39,7 +38,7 @@ func GetUserName(c *gin.Context) string {
 	if data["nice"] != nil {
 		return (data["nice"]).(string)
 	}
-	fmt.Println("****************************** 路径：" + c.Request.URL.Path + "  请求方法：" + c.Request.Method + "  缺少nice")
+	fmt.Println(GetCurrentTimeStr()+" [WARING] "+ c.Request.Method +" " + c.Request.URL.Path + " GetUserName 缺少nice")
 	return ""
 }
 
@@ -48,7 +47,7 @@ func GetRoleName(c *gin.Context) string {
 	if data["rolekey"] != nil {
 		return (data["rolekey"]).(string)
 	}
-	fmt.Println("****************************** 路径：" + c.Request.URL.Path + "  请求方法：" + c.Request.Method + "  缺少rolekey")
+	fmt.Println(GetCurrentTimeStr()+" [WARING] "+ c.Request.Method +" " + c.Request.URL.Path + " GetRoleName 缺少rolekey")
 	return ""
 }
 
@@ -58,6 +57,6 @@ func GetRoleId(c *gin.Context) int {
 		i := int((data["roleid"]).(float64))
 		return i
 	}
-	fmt.Println("****************************** 路径：" + c.Request.URL.Path + "  请求方法：" + c.Request.Method + "  缺少roleid")
+	fmt.Println(GetCurrentTimeStr()+" [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetRoleId 缺少roleid")
 	return 0
 }

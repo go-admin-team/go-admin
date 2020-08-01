@@ -25,9 +25,10 @@ var (
 	port      string
 	mode      string
 	StartCmd  = &cobra.Command{
-		Use:     "server",
-		Short:   "Start API server",
-		Example: "go-admin server config/settings.yml",
+		Use:          "server",
+		Short:        "Start API server",
+		Example:      "go-admin server -c config/settings.yml",
+		SilenceUsage: true,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			setup()
 		},
@@ -35,8 +36,11 @@ var (
 			return run()
 		},
 	}
+
+
 )
 
+var echoTimes int
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
@@ -113,6 +117,6 @@ func run() error {
 }
 
 func tip() {
-	usageStr := `欢迎使用 `+ tools.Green( `go-admin ` +global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
 	fmt.Printf("%s \n\n", usageStr)
 }

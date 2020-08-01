@@ -20,13 +20,13 @@ func (e *Mysql) Setup() {
 	global.Logger.Info(tools.Green(global.Source))
 	global.Eloquent, err = db.Open(db.GetDriver(), db.GetConnect())
 	if err != nil {
-		global.Logger.Error(tools.Red(db.GetDriver()+" connect error :"), err)
+		global.Logger.Fatal(tools.Red(db.GetDriver()+" connect error :"), err)
 	} else {
 		global.Logger.Info(tools.Green(db.GetDriver() + " connect success !"))
 	}
 
 	if global.Eloquent.Error != nil {
-		global.Logger.Error(tools.Red(" database error :"), global.Eloquent.Error)
+		global.Logger.Fatal(tools.Red(" database error :"), global.Eloquent.Error)
 	}
 
 	global.Eloquent.LogMode(config.LoggerConfig.EnabledDB)

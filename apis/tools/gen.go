@@ -60,10 +60,10 @@ func GenCode(c *gin.Context) {
 	tab, _ := table.Get()
 	ischeckrole := true
 
-	rouyerfile := "template/routercheckrole.go.template"
+	routerfile := "template/routercheckrole.go.template"
 
-	if c.Param("ischeckrole") != "" {
-		ischeckrole, err = tools2.StringToBool(c.Query("ischeckrole"))
+	if c.Request.FormValue("ischeckrole") != "" {
+		ischeckrole, err = tools2.StringToBool(c.Request.FormValue("ischeckrole"))
 		if err != nil {
 			ischeckrole = true
 		}
@@ -75,14 +75,14 @@ func GenCode(c *gin.Context) {
 	if !ischeckrole {
 		oldTest = "// {{无需认证路由自动补充在此处请勿删除}}"
 		newText = "// {{无需认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1)"
-		rouyerfile = "template/routernocheckrole.go.template"
+		routerfile = "template/routernocheckrole.go.template"
 	}
 
 	t1, err := template.ParseFiles("template/model.go.template")
 	tools2.HasError(err, "", -1)
 	t2, err := template.ParseFiles("template/api.go.template")
 	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles(rouyerfile)
+	t3, err := template.ParseFiles(routerfile)
 	tools2.HasError(err, "", -1)
 	t4, err := template.ParseFiles("template/js.go.template")
 	tools2.HasError(err, "", -1)

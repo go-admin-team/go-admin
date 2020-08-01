@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"go-admin/cmd/api"
+	"go-admin/cmd/config"
 	"go-admin/cmd/migrate"
+	"go-admin/cmd/version"
 	"go-admin/global"
 	"go-admin/tools"
 	"os"
@@ -13,9 +15,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:               "go-admin",
-	Short:             "-v",
+	Short:             "go-admin",
 	SilenceUsage:      true,
-	DisableAutoGenTag: true,
 	Long:              `go-admin`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -40,6 +41,8 @@ func tip() {
 func init() {
 	rootCmd.AddCommand(api.StartCmd)
 	rootCmd.AddCommand(migrate.StartCmd)
+	rootCmd.AddCommand(version.StartCmd)
+	rootCmd.AddCommand(config.StartCmd)
 }
 
 //Execute : apply commands
