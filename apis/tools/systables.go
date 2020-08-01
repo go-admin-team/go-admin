@@ -168,8 +168,15 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 		}
 
 		if strings.Contains(dbcolumn[i].ColumnType, "int") {
-			column.GoType = "int"
+			if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
+				column.GoType = "int"
+			} else {
+				column.GoType = "string"
+			}
 			column.HtmlType = "input"
+		} else if strings.Contains(dbcolumn[i].ColumnType, "timestamp") {
+			column.GoType = "time.Time"
+			column.HtmlType = "datetime"
 		} else {
 			column.GoType = "string"
 			column.HtmlType = "input"

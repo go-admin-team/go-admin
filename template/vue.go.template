@@ -132,10 +132,14 @@
                                     <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"
                                               {{if eq .IsEdit "false" -}}:disabled="isEdit" {{- end}}/>
                                 {{- else if eq "select" .HtmlType -}}
-                                    <el-select
-                                            v-model="form.{{.JsonField}}" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
-                                        <el-option label="demo1" value="demo1"/>
-                                        <el-option label="demo2" value="demo2"/>
+                                    <el-select v-model="form.{{.JsonField}}"
+                                               placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                        <el-option
+                                                v-for="dict in {{.JsonField}}Options"
+                                                :key="dict.dictValue"
+                                                :label="dict.dictLabel"
+                                                :value="dict.dictValue"
+                                        />
                                     </el-select>
                                 {{- else if eq "radio" .HtmlType -}}
                                     <el-radio-group v-model="form.{{.JsonField}}">
@@ -145,6 +149,20 @@
                                                 :label="dict.dictValue"
                                         >{{"{{"}} dict.dictLabel {{"}}"}}</el-radio>
                                     </el-radio-group>
+                                {{- else if eq "datetime" .HtmlType -}}
+                                    <el-date-picker
+                                            v-model="form.{{.JsonField}}"
+                                            type="datetime"
+                                            value-format="yyyy-MM-dd HH:mm:ss"
+                                            placeholder="选择日期">
+                                    </el-date-picker>
+                                {{- else if eq "textarea" .HtmlType -}}
+                                    <el-input
+                                            v-model="form.{{.JsonField}}"
+                                            type="textarea"
+                                            :rows="2"
+                                            placeholder="请输入内容">
+                                    </el-input>
                                 {{- end }}
                             </el-form-item>
                         {{- end }}
