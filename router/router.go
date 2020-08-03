@@ -25,7 +25,8 @@ func examplesNoCheckRoleRouter(r *gin.Engine) {
 	// 空接口防止v1定义无使用报错
 	v1.GET("/nilcheckrole", nil)
 
-	// {{无需认证路由自动补充在此处请勿删除}}
+	// {{无需认证路由自动补充在此处请勿删除}} 
+ registerSysJobRouter(v1) 
 }
 
 // 需要认证的路由示例
