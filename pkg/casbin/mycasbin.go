@@ -33,14 +33,14 @@ func Setup() {
 	if err != nil {
 		panic(err)
 	}
-	e, err := casbin.NewEnforcer(m, Apter)
+	e, err := casbin.NewSyncedEnforcer(m, Apter)
 	if err != nil {
 		panic(err)
 	}
 	global.CasbinEnforcer = e
 }
 
-func Casbin() (*casbin.Enforcer, error) {
+func Casbin() (*casbin.SyncedEnforcer, error) {
 	if err := global.CasbinEnforcer.LoadPolicy(); err == nil {
 		return global.CasbinEnforcer, err
 	} else {
