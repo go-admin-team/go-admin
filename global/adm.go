@@ -8,7 +8,7 @@ import (
 )
 
 var GinEngine *gin.Engine
-var CasbinEnforcer *casbin.Enforcer
+var CasbinEnforcer *casbin.SyncedEnforcer
 var Eloquent *gorm.DB
 
 var (
