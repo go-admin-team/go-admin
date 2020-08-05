@@ -21,4 +21,7 @@ type Message interface {
 	SetID(string)
 	SetStream(string)
 	SetValue(map[string]interface{})
+	GetID() string
+	GetStream() string
+	GetValue() map[string]interface{}
 }
