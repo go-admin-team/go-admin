@@ -17,8 +17,8 @@ type Adapter interface {
 	GetQueue(name string, f func(message Message) error)
 }
 
-type Message struct {
-	ID     string
-	Stream string
-	Values map[string]interface{}
+type Message interface {
+	SetID(string)
+	SetStream(string)
+	SetValue(map[string]interface{})
 }
