@@ -20,8 +20,8 @@ type Adapter interface {
 type Message interface {
 	SetID(string)
 	SetStream(string)
-	SetValue(map[string]interface{})
+	SetValues(map[string]interface{})
 	GetID() string
 	GetStream() string
-	GetValue() map[string]interface{}
+	GetValues() map[string]interface{}
 }
