@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-admin/global"
 	"go-admin/handler"
 	"go-admin/middleware"
 	_ "go-admin/pkg/jwtauth"
@@ -10,8 +11,12 @@ import (
 )
 
 func InitRouter() *gin.Engine {
-
-	r := gin.New()
+	var r *gin.Engine
+	if global.GinEngine == nil {
+		r = gin.New()
+	} else {
+		r = global.GinEngine
+	}
 	if config2.SslConfig.Enable {
 		r.Use(handler.TlsHandler())
 	}
