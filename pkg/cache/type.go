@@ -5,7 +5,7 @@ import (
 )
 
 type Adapter interface {
-	Connect()
+	Connect() error
 	Get(key string) (string, error)
 	Set(key string, val interface{}, expire int) error
 	Del(key string) error
