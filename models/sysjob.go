@@ -11,13 +11,13 @@ type SysJob struct {
 	JobGroup       string `json:"jobGroup" gorm:"type:varchar(255);"`       // 任务分组
 	CronExpression string `json:"cronExpression" gorm:"type:varchar(255);"` // cron表达式
 	InvokeTarget   string `json:"invokeTarget" gorm:"type:varchar(255);"`   // 调用目标
-	MisfirePolicy   string `json:"misfirePolicy" gorm:"type:varchar(255);"`  // 执行策略
-	Concurrent     string `json:"concurrent" gorm:"type:int(1);"`           // 是否并发
-	Status         string `json:"status" gorm:"type:int(1);"`               // 状态
+	MisfirePolicy  int    `json:"misfirePolicy" gorm:"type:varchar(255);"`  // 执行策略
+	Concurrent     int    `json:"concurrent" gorm:"type:int(1);"`           // 是否并发
+	Status         int    `json:"status" gorm:"type:int(1);"`               // 状态
+	EntryId        int    `json:"entry_id" gorm:"type:int(11);"`            // job启动时返回的id
 	CreateBy       string `json:"createBy" gorm:"type:varchar(128);"`       //
 	UpdateBy       string `json:"updateBy" gorm:"type:varchar(128);"`       //
 	DataScope      string `json:"dataScope" gorm:"-"`
-	Params         string `json:"params"  gorm:"-"`
 	BaseModel
 }
 
@@ -62,7 +62,7 @@ func (e *SysJob) Get() (SysJob, error) {
 		table = table.Where("invoke_target = ?", e.InvokeTarget)
 	}
 
-	if e.Status != "" {
+	if e.Status != -1 {
 		table = table.Where("status = ?", e.Status)
 	}
 
@@ -98,7 +98,7 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int) ([]SysJob, int, error) {
 		table = table.Where("invoke_target = ?", e.InvokeTarget)
 	}
 
-	if e.Status != "" {
+	if e.Status != -1 {
 		table = table.Where("status = ?", e.Status)
 	}
 
@@ -118,6 +118,19 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int) ([]SysJob, int, error) {
 	return doc, count, nil
 }
 
+func (e *SysJob) GetList() ([]SysJob, error) {
+	var doc []SysJob
+
+	table := orm.Eloquent.Select("*").Table(e.TableName())
+
+	table = table.Where("status = ?", 0)
+
+	if err := table.Find(&doc).Error; err != nil {
+		return nil, err
+	}
+	return doc, nil
+}
+
 // 更新SysJob
 func (e *SysJob) Update(id int) (update SysJob, err error) {
 	if err = orm.Eloquent.Table(e.TableName()).Where("job_id = ?", id).First(&update).Error; err != nil {
@@ -127,6 +140,26 @@ func (e *SysJob) Update(id int) (update SysJob, err error) {
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (e *SysJob) RemoveAllEntryID() (update SysJob, err error) {
+
+	//参数1:是要修改的数据
+	//参数2:是修改的数据
+	if err = orm.Eloquent.Table(e.TableName()).Updates(map[string]interface{}{"entry_id": 0}).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (e *SysJob) RemoveEntryID(entryID int) (update SysJob, err error) {
+
+	//参数1:是要修改的数据
+	//参数2:是修改的数据
+	if err = orm.Eloquent.Table(e.TableName()).Where("entry_id = ?", entryID).Updates(map[string]interface{}{"entry_id": 0}).Error; err != nil {
 		return
 	}
 	return

@@ -41,7 +41,7 @@ func LoggerToFile() gin.HandlerFunc {
 
 		// 日志格式
 		fmt.Printf("%s [INFO] %s %s %3d %13v %15s \r\n",
-			startTime.Format("2006-01-02 15:04:05.9999"),
+			startTime.Format("2006-01-02 15:04:05"),
 			reqMethod,
 			reqUri,
 			statusCode,

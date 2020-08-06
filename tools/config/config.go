@@ -82,8 +82,3 @@ func Setup(path string) {
 	GenConfig = InitGen(cfgGen)
 }
 
-func SetConfig(configPath string, key string, value interface{}) {
-	viper.AddConfigPath(configPath)
-	viper.Set(key, value)
-	viper.WriteConfig()
-}

@@ -13,6 +13,7 @@ import (
 	"go-admin/handler"
 	"go-admin/middleware"
 	jwt "go-admin/pkg/jwtauth"
+	"go-admin/pkg/ws"
 )
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
@@ -33,7 +34,16 @@ func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Rou
 }
 
 func sysBaseRouter(r *gin.RouterGroup) {
+
+	go ws.WebsocketManager.Start()
+	go ws.WebsocketManager.SendService()
+	go ws.WebsocketManager.SendAllService()
+
 	r.GET("/", system.HelloWorld)
+
+	r.GET("/ws", ws.WebsocketManager.WsClient)
+
+
 	r.GET("/info", handler.Ping)
 }
 
