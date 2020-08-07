@@ -24,6 +24,7 @@ const (
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/settings/serverInfo [get]
 func ServerInfo(c *gin.Context) {
+
 	osDic := make(map[string]interface{}, 0)
 	osDic["goOs"] = runtime.GOOS
 	osDic["arch"] = runtime.GOARCH
@@ -56,8 +57,7 @@ func ServerInfo(c *gin.Context) {
 	cpuDic["cpuInfo"],_ = cpu.Info()
 	percent,_ := cpu.Percent(0,false)
 	cpuDic["Percent"] = fmt.Sprintf("%.2f",percent[0])
-
-
+	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
 	app.Custum(c, gin.H{
 		"code": 200,

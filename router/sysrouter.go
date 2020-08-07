@@ -75,7 +75,6 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	registerPublicRouter(v1)
 
 	registerSysSettingRouter(v1)
-
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -258,7 +257,6 @@ func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		dept.DELETE("/:id", system.DeleteDept)
 	}
 }
-
 func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	setting := v1.Group("/setting")
 	{
