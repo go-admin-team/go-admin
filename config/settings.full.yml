@@ -1,0 +1,30 @@
+settings:
+  application:
+    enabledp: true
+    host: 0.0.0.0
+    mode: dev
+    name: testApp
+    port: 8000
+    readtimeout: 1
+    writertimeout: 2
+  database:
+    driver: mysql
+    source: root:123456@tcp(127.0.0.1:3306)/goplus?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+  gen:
+    dbname: goplus
+    frontpath: ../web/src
+  jwt:
+    secret: goplus
+    timeout: 3600
+  logger:
+    enabledbus: false
+    enableddb: false
+    enabledreq: false
+    level: all
+    path: temp/logs
+    stdout: true
+  ssl:
+    domain: localhost:8000
+    enable: false
+    key: keystring
+    pem: temp/pem.pem
