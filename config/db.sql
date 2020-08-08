@@ -453,6 +453,8 @@ INSERT INTO sys_role_menu VALUES (1, 483, 'admin', NULL, NULL);
 
 INSERT INTO sys_user VALUES (1, 'zhangwj', '13818888888', 1, NULL, '', '0', '1@qq.com', 1, 1, '1', '1', NULL, 0, '2019-11-10 14:05:55', '2020-05-03 20:45:59', NULL, 'admin', '$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2');
 INSERT INTO sys_user VALUES (2, 'zhangwj', '13211111111', 3, NULL, NULL, '0', 'q@q.com', 8, 2, '1', '1', NULL, 0, '2019-11-12 18:28:27', '2020-03-14 20:08:43', NULL, 'zhangwj', '$2a$10$CqMwHahA3cNrNv16CoSxmeD4XMPU.BiKHPEAeaG5oXMavOKrjInXi');
+
+INSERT INTO sys_setting VALUES (1, 'go-admin管理系统', 'https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png', NULL, '2020-08-05 14:27:34', '2020-08-07 10:13:31');
 COMMIT;
 
 -- 数据完成 ;
