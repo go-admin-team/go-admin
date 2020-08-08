@@ -1,10 +1,12 @@
 package monitor
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+	"go-admin/tools"
 	"go-admin/tools/app"
 	"runtime"
 )
@@ -16,6 +18,11 @@ const (
 	GB = 1024 * MB
 )
 
+// @Summary 系统信息
+// @Description 获取JSON
+// @Tags 系统信息
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/settings/serverInfo [get]
 func ServerInfo(c *gin.Context) {
 
 	osDic := make(map[string]interface{}, 0)
@@ -25,6 +32,8 @@ func ServerInfo(c *gin.Context) {
 	osDic["compiler"] = runtime.Compiler
 	osDic["version"] = runtime.Version()
 	osDic["numGoroutine"] = runtime.NumGoroutine()
+	osDic["ip"] = tools.GetLocaHonst()
+	osDic["projectDir"] = tools.GetCurrentPath()
 
 	dis, _ := disk.Usage("/")
 	diskTotalGB := int(dis.Total) / GB
@@ -45,6 +54,9 @@ func ServerInfo(c *gin.Context) {
 	memDic["usage"] = memUsedPercent
 
 	cpuDic := make(map[string]interface{}, 0)
+	cpuDic["cpuInfo"],_ = cpu.Info()
+	percent,_ := cpu.Percent(0,false)
+	cpuDic["Percent"] = fmt.Sprintf("%.2f",percent[0])
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
 	app.Custum(c, gin.H{

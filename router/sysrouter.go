@@ -6,6 +6,7 @@ import (
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	log2 "go-admin/apis/log"
 	"go-admin/apis/monitor"
+	"go-admin/apis/public"
 	"go-admin/apis/system"
 	"go-admin/apis/system/dict"
 	. "go-admin/apis/tools"
@@ -71,6 +72,9 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 
 	registerSysTableRouter(v1)
 
+	registerPublicRouter(v1)
+
+	registerSysSettingRouter(v1)
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -251,5 +255,20 @@ func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		dept.POST("", system.InsertDept)
 		dept.PUT("", system.UpdateDept)
 		dept.DELETE("/:id", system.DeleteDept)
+	}
+}
+func registerSysSettingRouter(v1 *gin.RouterGroup) {
+	setting := v1.Group("/setting")
+	{
+		setting.GET("", system.QuerySetting)
+		setting.POST("", system.CreateSetting)
+		setting.GET("/serverInfo",monitor.ServerInfo)
+	}
+}
+
+func registerPublicRouter(v1 *gin.RouterGroup) {
+	p := v1.Group("/public")
+	{
+		p.POST("/uploadFile", public.UploadFile)
 	}
 }
