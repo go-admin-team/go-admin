@@ -7,6 +7,7 @@ import (
 	log2 "go-admin/apis/log"
 	"go-admin/apis/monitor"
 	"go-admin/apis/public"
+	"go-admin/apis/sysjob"
 	"go-admin/apis/system"
 	"go-admin/apis/system/dict"
 	. "go-admin/apis/tools"
@@ -75,6 +76,8 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	registerPublicRouter(v1)
 
 	registerSysSettingRouter(v1)
+
+	registerSysJobRouter(v1)
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -98,6 +101,22 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 		}
 	}
 }
+
+func registerSysJobRouter(v1 *gin.RouterGroup) {
+
+	r := v1.Group("/sysjob")
+	{
+		r.GET("", sysjob.GetSysJobList)
+		r.GET("/:jobId", sysjob.GetSysJob)
+		r.POST("", sysjob.InsertSysJob)
+		r.PUT("", sysjob.UpdateSysJob)
+		r.DELETE("/:jobId", sysjob.DeleteSysJob)
+	}
+
+	v1.GET("/job/remove/:jobId",sysjob.RemoveJob)
+	v1.GET("/job/start/:jobId",sysjob.StartJob)
+}
+
 
 func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r.POST("/login", authMiddleware.LoginHandler)
@@ -260,7 +279,7 @@ func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	setting := v1.Group("/setting")
 	{
-		setting.GET("", system.QuerySetting)
+		setting.GET("", system.GetSetting)
 		setting.POST("", system.CreateSetting)
 		setting.GET("/serverInfo",monitor.ServerInfo)
 	}
