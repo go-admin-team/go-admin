@@ -68,6 +68,14 @@ func AutoMigrate(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+	err = db.AutoMigrate(new(models.SysJob)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysConfig)).Error
+	if err != nil {
+		return err
+	}
 
 	models.DataInit()
 	return err
