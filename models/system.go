@@ -16,7 +16,7 @@ func (SysSetting) TableName() string {
 }
 
 //查询
-func (s *SysSetting) Query() (create SysSetting, err error) {
+func (s *SysSetting) Get() (create SysSetting, err error) {
 	result := orm.Eloquent.Table("sys_setting").First(&create)
 	if result.Error != nil {
 		err = result.Error
