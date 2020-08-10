@@ -2,6 +2,8 @@ package cache
 
 import (
 	"time"
+
+	"github.com/matchstalk/utils/cache"
 )
 
 type Adapter interface {
@@ -12,9 +14,9 @@ type Adapter interface {
 	HashGet(hk, key string) (string, error)
 	HashDel(hk, key string) error
 	Increase(key string) error
+	Decrease(key string) error
 	Expire(key string, dur time.Duration) error
-	SetQueue(name string, message Message) error
-	GetQueue(name string, f func(message Message) error)
+	cache.AdapterQueue
 }
 
 type Message interface {
