@@ -15,7 +15,7 @@ import (
 var timeFormat = "2006-01-02 15:04:05"
 var retryCount = 3
 
-type Job struct {
+type JobCore struct {
 	InvokeTarget   string
 	Name           string
 	JobId          int
@@ -25,11 +25,11 @@ type Job struct {
 
 // 任务类型 http
 type HttpJob struct {
-	Job
+	JobCore
 }
 
 type ExecJob struct {
-	Job
+	JobCore
 }
 
 func (e ExecJob) Run() {
@@ -46,9 +46,9 @@ func (e ExecJob) Run() {
 
 	// 执行时间
 	latencyTime := endTime.Sub(startTime)
-	str := time.Now().Format(timeFormat) + " [INFO] Job " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
+	str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
 	ws.SendAll(str)
-	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] Job ", e, "exec success , spend :", latencyTime)
+	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
 }
 
 //http 任务接口
@@ -75,47 +75,47 @@ LOOP:
 
 	// 执行时间
 	latencyTime := endTime.Sub(startTime)
-	str := time.Now().Format(timeFormat) + " [INFO] Job " + string(h.EntryId) + "exec success , spend :" + latencyTime.String()
+	str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(h.EntryId) + "exec success , spend :" + latencyTime.String()
 	ws.SendAll(str)
-	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] Job ", h, "exec success , spend :", latencyTime)
+	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
 }
 
 // 初始化
 func Setup() {
 
-	fmt.Println(time.Now().Format(timeFormat), " [INFO] Job Starting...")
+	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
 
 	global.GADMCron = cronjob.NewWithSeconds()
 
 	sysJob := models.SysJob{}
 	jobList, err := sysJob.GetList()
 	if err != nil {
-		fmt.Println(time.Now().Format(timeFormat), " [ERROR] Job init error", err)
+		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore init error", err)
 	}
 	if len(jobList) == 0 {
-		fmt.Println(time.Now().Format(timeFormat), " [INFO] Job total:0")
+		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore total:0")
 	}
 
 	_, err = sysJob.RemoveAllEntryID()
 	if err != nil {
-		fmt.Println(time.Now().Format(timeFormat), " [ERROR] Job remove entry_id error", err)
+		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore remove entry_id error", err)
 	}
 
 	for i := 0; i < len(jobList); i++ {
 		if jobList[i].JobType == 1 {
-			j:=HttpJob{}
-			j.InvokeTarget=jobList[i].InvokeTarget
-			j.CronExpression=jobList[i].CronExpression
-			j.JobId=jobList[i].JobId
-			j.Name=jobList[i].JobName
+			j := HttpJob{}
+			j.InvokeTarget = jobList[i].InvokeTarget
+			j.CronExpression = jobList[i].CronExpression
+			j.JobId = jobList[i].JobId
+			j.Name = jobList[i].JobName
 
 			sysJob.EntryId, err = AddJob(j)
 		} else if jobList[i].JobType == 2 {
-			j:=ExecJob{}
-			j.InvokeTarget=jobList[i].InvokeTarget
-			j.CronExpression=jobList[i].CronExpression
-			j.JobId=jobList[i].JobId
-			j.Name=jobList[i].JobName
+			j := ExecJob{}
+			j.InvokeTarget = jobList[i].InvokeTarget
+			j.CronExpression = jobList[i].CronExpression
+			j.JobId = jobList[i].JobId
+			j.Name = jobList[i].JobName
 			sysJob.EntryId, err = AddJob(j)
 		}
 		_, err = sysJob.Update(jobList[i].JobId)
@@ -123,37 +123,42 @@ func Setup() {
 
 	// 其中任务
 	global.GADMCron.Start()
-	fmt.Println(time.Now().Format(timeFormat), " [INFO] Job start success.")
+	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore start success.")
 	// 关闭任务
 	defer global.GADMCron.Stop()
 	select {}
 }
 
 // 添加任务 AddJob(invokeTarget string, jobId int, jobName string, cronExpression string)
-func AddJob(job interface{}) (int, error) {
-	switch job.(type) {
-	case HttpJob:
-		op, ok := job.(HttpJob)
-		if ok {
-			return op.addJob()
-		}
-	case ExecJob:
-		op, ok := job.(ExecJob)
-		if ok {
-			return op.addJob()
-		}
-	default:
+func AddJob(job Job) (int, error) {
+	if job == nil {
 		fmt.Println("unknown")
 		return 0, nil
 	}
-	fmt.Println("job error")
-	return 0, nil
+	return job.addJob()
+	//switch job.(type) {
+	//case HttpJob:
+	//	op, ok := job.(HttpJob)
+	//	if ok {
+	//		return op.addJob()
+	//	}
+	//case ExecJob:
+	//	op, ok := job.(ExecJob)
+	//	if ok {
+	//		return op.addJob()
+	//	}
+	//default:
+	//	fmt.Println("unknown")
+	//	return 0, nil
+	//}
+	//fmt.Println("job error")
+	//return 0, nil
 }
 
 func (h HttpJob) addJob() (int, error) {
 	id, err := global.GADMCron.AddJob(h.CronExpression, h)
 	if err != nil {
-		fmt.Println(time.Now().Format(timeFormat), " [ERROR] Job AddJob error", err)
+		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
 		return 0, err
 	}
 	EntryId := int(id)
@@ -163,7 +168,7 @@ func (h HttpJob) addJob() (int, error) {
 func (h ExecJob) addJob() (int, error) {
 	id, err := global.GADMCron.AddJob(h.CronExpression, h)
 	if err != nil {
-		fmt.Println(time.Now().Format(timeFormat), " [ERROR] Job AddJob error", err)
+		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
 		return 0, err
 	}
 	EntryId := int(id)
@@ -175,7 +180,7 @@ func Remove(entryID int) chan bool {
 	ch := make(chan bool)
 	go func() {
 		global.GADMCron.Remove(cron.EntryID(entryID))
-		fmt.Println(time.Now().Format(timeFormat), " [INFO] Job Remove success ,info entryID :", entryID)
+		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Remove success ,info entryID :", entryID)
 		ch <- true
 	}()
 	return ch
