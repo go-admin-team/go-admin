@@ -7,4 +7,5 @@ var (
 	DeletedFail    = "删除失败！"
 	GetSuccess     = "查询成功！"
 	NotFound       = "未找到相关内容或者数据为空！"
+	TimeOut        = "操作超时！"
 )

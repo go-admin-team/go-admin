@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/viper"
 	"go-admin/database"
 	"go-admin/global"
+	"go-admin/jobs"
 	mycasbin "go-admin/pkg/casbin"
-	"go-admin/pkg/cronjob"
 	"go-admin/pkg/logger"
 	"go-admin/router"
 	"go-admin/tools"
@@ -76,7 +76,7 @@ func run() error {
 		Handler: r,
 	}
 	go func() {
-		cronjob.JobSetup()
+		jobs.Setup()
 	}()
 
 

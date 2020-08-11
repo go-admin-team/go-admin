@@ -2,12 +2,12 @@ package sysjob
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/global"
+	"go-admin/jobs"
 	"go-admin/models"
-	"go-admin/pkg/cronjob"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/app/msg"
+	"time"
 )
 
 func GetSysJobList(c *gin.Context) {
@@ -82,8 +82,18 @@ func RemoveJob(c *gin.Context) {
 	data.JobId, _ = tools.StringToInt(c.Param("jobId"))
 	result, err := data.Get()
 	tools.HasError(err, "", 500)
-	cronjob.Remove(global.GADMCron, result.EntryId)
-	app.OK(c, nil, msg.DeletedSuccess)
+	cn := jobs.Remove(result.EntryId)
+
+	select {
+	case res := <-cn:
+		if res {
+			_, _ = data.RemoveEntryID(result.EntryId)
+			app.OK(c, nil, msg.DeletedSuccess)
+		}
+	case <-time.After(time.Second * 1):
+		app.OK(c, nil, msg.TimeOut)
+	}
+
 }
 
 func StartJob(c *gin.Context) {
@@ -91,6 +101,14 @@ func StartJob(c *gin.Context) {
 	data.JobId, _ = tools.StringToInt(c.Param("jobId"))
 	result, err := data.Get()
 	tools.HasError(err, "", 500)
-	cronjob.AddJob(result)
+	j := jobs.ExecJob{}
+	j.InvokeTarget = result.InvokeTarget
+	j.CronExpression = result.CronExpression
+	j.JobId = result.JobId
+	j.Name = result.JobName
+	data.EntryId, err = jobs.AddJob(j)
+	tools.HasError(err, "", 500)
+	_, err = data.Update(data.JobId)
+	tools.HasError(err, "", 500)
 	app.OK(c, nil, msg.DeletedSuccess)
 }

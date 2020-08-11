@@ -24,12 +24,11 @@ var (
 var Version string
 
 func init() {
-	Version = "1.1.2"
+	Version = "1.1.3"
 }
 
 var (
 	Logger        *glog.Logger
-	JobLogger      *glog.Logger
+	JobLogger     *glog.Logger
 	RequestLogger *glog.Logger
 )
-
