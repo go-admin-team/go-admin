@@ -6,6 +6,8 @@ import (
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 	log2 "go-admin/apis/log"
 	"go-admin/apis/monitor"
+	"go-admin/apis/public"
+	"go-admin/apis/sysjob"
 	"go-admin/apis/system"
 	"go-admin/apis/system/dict"
 	. "go-admin/apis/tools"
@@ -13,6 +15,7 @@ import (
 	"go-admin/handler"
 	"go-admin/middleware"
 	jwt "go-admin/pkg/jwtauth"
+	"go-admin/pkg/ws"
 )
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
@@ -33,7 +36,16 @@ func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Rou
 }
 
 func sysBaseRouter(r *gin.RouterGroup) {
+
+	go ws.WebsocketManager.Start()
+	go ws.WebsocketManager.SendService()
+	go ws.WebsocketManager.SendAllService()
+
 	r.GET("/", system.HelloWorld)
+
+	r.GET("/ws", ws.WebsocketManager.WsClient)
+
+
 	r.GET("/info", handler.Ping)
 }
 
@@ -61,6 +73,11 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 
 	registerSysTableRouter(v1)
 
+	registerPublicRouter(v1)
+
+	registerSysSettingRouter(v1)
+
+	registerSysJobRouter(v1)
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -84,6 +101,22 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 		}
 	}
 }
+
+func registerSysJobRouter(v1 *gin.RouterGroup) {
+
+	r := v1.Group("/sysjob")
+	{
+		r.GET("", sysjob.GetSysJobList)
+		r.GET("/:jobId", sysjob.GetSysJob)
+		r.POST("", sysjob.InsertSysJob)
+		r.PUT("", sysjob.UpdateSysJob)
+		r.DELETE("/:jobId", sysjob.DeleteSysJob)
+	}
+
+	v1.GET("/job/remove/:jobId",sysjob.RemoveJob)
+	v1.GET("/job/start/:jobId",sysjob.StartJob)
+}
+
 
 func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r.POST("/login", authMiddleware.LoginHandler)
@@ -241,5 +274,20 @@ func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		dept.POST("", system.InsertDept)
 		dept.PUT("", system.UpdateDept)
 		dept.DELETE("/:id", system.DeleteDept)
+	}
+}
+func registerSysSettingRouter(v1 *gin.RouterGroup) {
+	setting := v1.Group("/setting")
+	{
+		setting.GET("", system.GetSetting)
+		setting.POST("", system.CreateSetting)
+		setting.GET("/serverInfo",monitor.ServerInfo)
+	}
+}
+
+func registerPublicRouter(v1 *gin.RouterGroup) {
+	p := v1.Group("/public")
+	{
+		p.POST("/uploadFile", public.UploadFile)
 	}
 }

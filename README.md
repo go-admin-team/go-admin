@@ -17,7 +17,7 @@
 
 
   [English](https://github.com/wenjianzhang/go-admin/blob/master/README.en.md) | 简体中文
-  
+
 
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
 
@@ -167,7 +167,20 @@ vi ./config/setting.yml
 
 ```
 
+#### 使用docker 编译启动
+
+```shell
+# 编译镜像
+docker build -t go-admin .
+
+# 启动容器，第一个go-admin是容器名字，第二个go-admin是镜像名称
+docker run --name go-admin -p 8000:8000 -d go-admin
+```
+
+
+
 #### 文档生成
+
 ```bash
 swag init  
 

@@ -10,3 +10,5 @@ go-admin
 middleware/demo.go
 config/settings.dev.b.yml
 temp/logs
+config/settings.dev.yml.log
+config/settings.b.dev.yml

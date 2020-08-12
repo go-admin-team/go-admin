@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"go-admin/database"
 	"go-admin/global"
+	"go-admin/jobs"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
 	"go-admin/router"
@@ -36,11 +37,10 @@ var (
 			return run()
 		},
 	}
-
-
 )
 
 var echoTimes int
+
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
@@ -60,24 +60,25 @@ func setup() {
 
 	usageStr := `starting api server`
 	global.Logger.Info(usageStr)
+
 }
 
 func run() error {
-	if mode != "" {
-		config.SetConfig(configYml, "settings.application.mode", mode)
-	}
 	if viper.GetString("settings.application.mode") == string(tools.ModeProd) {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := router.InitRouter()
-
 	defer global.Eloquent.Close()
 
 	srv := &http.Server{
 		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
 		Handler: r,
 	}
+	go func() {
+		jobs.Setup()
+	}()
+
 
 	go func() {
 		// 服务连接
@@ -113,6 +114,7 @@ func run() error {
 		global.Logger.Fatal("Server Shutdown:", err)
 	}
 	global.Logger.Println("Server exiting")
+
 	return nil
 }
 

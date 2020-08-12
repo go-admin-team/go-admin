@@ -26,7 +26,7 @@ func CustomError(c *gin.Context) {
 					}
 					c.Status(statusCode)
 					fmt.Println(
-						time.Now().Format("2006-01-02 15:04:05.9999"),
+						time.Now().Format("2006-01-02 15:04:05"),
 						"[ERROR]",
 						c.Request.Method,
 						c.Request.URL,

@@ -25,6 +25,8 @@ settings:
     enabledreq: false
     # 数据库日志开关 dev模式，将自动开启
     enableddb: false
+    # 自动任务日志开关 dev模式，将自动开启
+    enabledjob: false
   jwt:
     # token 密钥，生产环境时及的修改
     secret: go-admin

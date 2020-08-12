@@ -5,11 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/os/glog"
 	"github.com/jinzhu/gorm"
+	"github.com/robfig/cron/v3"
 )
 
 var GinEngine *gin.Engine
 var CasbinEnforcer *casbin.SyncedEnforcer
 var Eloquent *gorm.DB
+
+var GADMCron *cron.Cron
 
 var (
 	Source string
@@ -21,12 +24,11 @@ var (
 var Version string
 
 func init() {
-	Version = "1.1.2"
+	Version = "1.1.3"
 }
 
 var (
 	Logger        *glog.Logger
-	DBLogger      *glog.Logger
+	JobLogger     *glog.Logger
 	RequestLogger *glog.Logger
 )
-
