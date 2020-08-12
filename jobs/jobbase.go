@@ -7,13 +7,14 @@ import (
 	"go-admin/models"
 	"go-admin/pkg"
 	"go-admin/pkg/cronjob"
-	"go-admin/pkg/ws"
 	"reflect"
 	"time"
 )
 
 var timeFormat = "2006-01-02 15:04:05"
 var retryCount = 3
+
+var jobList map[string]JobsExec
 
 type JobCore struct {
 	InvokeTarget   string
@@ -32,27 +33,25 @@ type ExecJob struct {
 	JobCore
 }
 
-func (e ExecJob) Run() {
+func (e *ExecJob) Run() {
 	startTime := time.Now()
-
-	if result := callReflect(&EXEC{}, e.InvokeTarget); result != nil {
-		fmt.Printf("callReflectMethod ShowMs %s \n", result[0].String())
-	} else {
-		fmt.Println("callReflectMethod ShowMs didn't run ")
-	}
-
+	var mp = jobList
+	var obj = mp[e.InvokeTarget]
+	CallExec(obj.(JobsExec))
+	//fmt.Println("CallExec exec success")
 	// 结束时间
 	endTime := time.Now()
 
 	// 执行时间
 	latencyTime := endTime.Sub(startTime)
-	str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
-	ws.SendAll(str)
+	//TODO: 待完善部分
+	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
+	//ws.SendAll(str)
 	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
 }
 
 //http 任务接口
-func (h HttpJob) Run() {
+func (h *HttpJob) Run() {
 
 	startTime := time.Now()
 	var count = 0
@@ -75,8 +74,9 @@ LOOP:
 
 	// 执行时间
 	latencyTime := endTime.Sub(startTime)
-	str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(h.EntryId) + "exec success , spend :" + latencyTime.String()
-	ws.SendAll(str)
+	//TODO: 待完善部分
+	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(h.EntryId) + "exec success , spend :" + latencyTime.String()
+	//ws.SendAll(str)
 	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
 }
 
@@ -103,7 +103,7 @@ func Setup() {
 
 	for i := 0; i < len(jobList); i++ {
 		if jobList[i].JobType == 1 {
-			j := HttpJob{}
+			j := &HttpJob{}
 			j.InvokeTarget = jobList[i].InvokeTarget
 			j.CronExpression = jobList[i].CronExpression
 			j.JobId = jobList[i].JobId
@@ -111,7 +111,7 @@ func Setup() {
 
 			sysJob.EntryId, err = AddJob(j)
 		} else if jobList[i].JobType == 2 {
-			j := ExecJob{}
+			j := &ExecJob{}
 			j.InvokeTarget = jobList[i].InvokeTarget
 			j.CronExpression = jobList[i].CronExpression
 			j.JobId = jobList[i].JobId
@@ -136,26 +136,9 @@ func AddJob(job Job) (int, error) {
 		return 0, nil
 	}
 	return job.addJob()
-	//switch job.(type) {
-	//case HttpJob:
-	//	op, ok := job.(HttpJob)
-	//	if ok {
-	//		return op.addJob()
-	//	}
-	//case ExecJob:
-	//	op, ok := job.(ExecJob)
-	//	if ok {
-	//		return op.addJob()
-	//	}
-	//default:
-	//	fmt.Println("unknown")
-	//	return 0, nil
-	//}
-	//fmt.Println("job error")
-	//return 0, nil
 }
 
-func (h HttpJob) addJob() (int, error) {
+func (h *HttpJob) addJob() (int, error) {
 	id, err := global.GADMCron.AddJob(h.CronExpression, h)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
@@ -165,7 +148,7 @@ func (h HttpJob) addJob() (int, error) {
 	return EntryId, nil
 }
 
-func (h ExecJob) addJob() (int, error) {
+func (h *ExecJob) addJob() (int, error) {
 	id, err := global.GADMCron.AddJob(h.CronExpression, h)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
@@ -201,7 +184,9 @@ func callReflect(any interface{}, name string, args ...interface{}) []reflect.Va
 	for i, _ := range args {
 		inputs[i] = reflect.ValueOf(args[i])
 	}
-
+	val := reflect.ValueOf(any)
+	typ := reflect.Indirect(val).Type()
+	fmt.Println(typ)
 	if v := reflect.ValueOf(any).MethodByName(name); v.String() == "<invalid Value>" {
 		return nil
 	} else {

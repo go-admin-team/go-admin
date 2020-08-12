@@ -2,15 +2,20 @@ package jobs
 
 import (
 	"fmt"
-	"strconv"
 )
 
-func (t *EXEC)ExamplesWithParam(i int , s string) string{
-	fmt.Println("call method PrintInfo i", i, ",s :", s)
-	return s +strconv.Itoa(i)
+// 需要将定义的struct 添加到字典中；
+// 字典 key 可以配置到 自动任务 调用目标 中；
+func init() {
+	var mp = make(map[string]JobsExec, 10)
+	mp["ExamplesOne"] = ExamplesOne{}
+	jobList = mp
 }
 
-func (t *EXEC) ExamplesNoParam() string {
-	fmt.Println("\nshow msg input 'call reflect'")
-	return "ShowMsg"
+
+// 新添加的job 必须按照以下格式定义，并实现Exec函数
+type ExamplesOne struct {
+}
+func (t ExamplesOne) Exec() {
+	fmt.Println("call method PrintInfo ,method name : ExamplesOne")
 }
