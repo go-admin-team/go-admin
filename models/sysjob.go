@@ -63,7 +63,7 @@ func (e *SysJob) Get() (SysJob, error) {
 		table = table.Where("invoke_target = ?", e.InvokeTarget)
 	}
 
-	if e.Status != -1 {
+	if e.Status != 0 {
 		table = table.Where("status = ?", e.Status)
 	}
 
@@ -99,7 +99,7 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int) ([]SysJob, int, error) {
 		table = table.Where("invoke_target = ?", e.InvokeTarget)
 	}
 
-	if e.Status != -1 {
+	if e.Status != 0 {
 		table = table.Where("status = ?", e.Status)
 	}
 
@@ -124,7 +124,7 @@ func (e *SysJob) GetList() ([]SysJob, error) {
 
 	table := orm.Eloquent.Select("*").Table(e.TableName())
 
-	table = table.Where("status = ?", 0)
+	table = table.Where("status = ?", 2)
 
 	if err := table.Find(&doc).Error; err != nil {
 		return nil, err
