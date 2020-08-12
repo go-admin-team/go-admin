@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"fmt"
+	"time"
 )
 
 // 需要将定义的struct 添加到字典中；
@@ -12,10 +13,11 @@ func init() {
 	jobList = mp
 }
 
-
 // 新添加的job 必须按照以下格式定义，并实现Exec函数
 type ExamplesOne struct {
 }
+
 func (t ExamplesOne) Exec() {
-	fmt.Println("call method PrintInfo ,method name : ExamplesOne")
+	str := time.Now().Format(timeFormat) + " [INFO] JobCore ExamplesOne exec success"
+	fmt.Println(str)
 }

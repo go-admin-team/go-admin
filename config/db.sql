@@ -93,7 +93,7 @@ INSERT INTO sys_dict_data VALUES (6, 0, '显示', '0', 'sys_show_hide', '', '', 
 INSERT INTO sys_dict_data VALUES (7, 0, '隐藏', '1', 'sys_show_hide', '', '', '', 0, '', '1', '', '隐藏菜单', '2020-02-28 21:38:50', '2020-03-08 23:11:15', NULL);
 INSERT INTO sys_dict_data VALUES (8, 0, '是', 'Y', 'sys_yes_no', '', '', '', 0, '', '1', '', '系统默认是', '2020-02-28 21:39:40', '2020-03-08 23:11:15', NULL);
 INSERT INTO sys_dict_data VALUES (9, 0, '否', 'N', 'sys_yes_no', '', '', '', 0, '', '1', '', '系统默认否', '2020-02-28 21:40:06', '2020-03-08 23:11:15', NULL);
-INSERT INTO sys_dict_data VALUES (10, 0, '正常', '0', 'sys_job_status', '', '', '', 0, '', '1', '', '正常状态', '2020-02-28 21:41:02', '2020-03-08 23:11:15', NULL);
+INSERT INTO sys_dict_data VALUES (10, 0, '正常', '2', 'sys_job_status', '', '', '', 0, '', '1', '', '正常状态', '2020-02-28 21:41:02', '2020-03-08 23:11:15', NULL);
 INSERT INTO sys_dict_data VALUES (11, 0, '停用', '1', 'sys_job_status', '', '', '', 0, '', '1', '', '停用状态', '2020-02-28 21:41:15', '2020-03-08 23:11:15', NULL);
 INSERT INTO sys_dict_data VALUES (12, 0, '默认', 'DEFAULT', 'sys_job_group', '', '', '', 0, '', '1', '', '默认分组', '2020-02-28 21:41:48', '2020-03-08 23:11:15', NULL);
 INSERT INTO sys_dict_data VALUES (13, 0, '系统', 'SYSTEM', 'sys_job_group', '', '', '', 0, '', '1', '', '系统分组', '2020-02-28 21:42:02', '2020-03-08 23:11:15', NULL);

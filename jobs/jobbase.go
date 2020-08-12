@@ -7,7 +7,7 @@ import (
 	"go-admin/models"
 	"go-admin/pkg"
 	"go-admin/pkg/cronjob"
-	"reflect"
+	"sync"
 	"time"
 )
 
@@ -15,6 +15,7 @@ var timeFormat = "2006-01-02 15:04:05"
 var retryCount = 3
 
 var jobList map[string]JobsExec
+var lock sync.Mutex
 
 type JobCore struct {
 	InvokeTarget   string
@@ -36,7 +37,9 @@ type ExecJob struct {
 func (e *ExecJob) Run() {
 	startTime := time.Now()
 	var mp = jobList
+	lock.Lock()
 	var obj = mp[e.InvokeTarget]
+	lock.Unlock()
 	CallExec(obj.(JobsExec))
 	//fmt.Println("CallExec exec success")
 	// 结束时间
@@ -177,20 +180,4 @@ func Stop() chan bool {
 		ch <- true
 	}()
 	return ch
-}
-
-func callReflect(any interface{}, name string, args ...interface{}) []reflect.Value {
-	inputs := make([]reflect.Value, len(args))
-	for i, _ := range args {
-		inputs[i] = reflect.ValueOf(args[i])
-	}
-	val := reflect.ValueOf(any)
-	typ := reflect.Indirect(val).Type()
-	fmt.Println(typ)
-	if v := reflect.ValueOf(any).MethodByName(name); v.String() == "<invalid Value>" {
-		return nil
-	} else {
-		return v.Call(inputs)
-	}
-
 }
