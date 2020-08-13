@@ -126,7 +126,6 @@ INSERT INTO sys_dict_type VALUES (7, '通知类型', 'sys_notice_type', 0, '1', 
 INSERT INTO sys_dict_type VALUES (8, '系统状态', 'sys_common_status', 0, '1', '', '登录状态列表', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO sys_dict_type VALUES (9, '操作类型', 'sys_oper_type', 0, '1', '', '操作类型列表', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO sys_dict_type VALUES (10, '通知状态', 'sys_notice_status', 0, '1', '', '通知状态列表', '2020-04-11 15:52:48', NULL, NULL);
-INSERT INTO sys_dict_type VALUES (11, '1', '1', 1, '1', '1', '1', '2020-04-11 15:52:48', NULL, NULL);
 
 INSERT INTO sys_menu VALUES (2, 'Upms', '系统管理', 'example', '/upms', '/0/2', 'M', '无', '', 0, 1, '', 'Layout', 1, '0', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO sys_menu VALUES (3, 'Sysuser', '用户管理', 'user', 'sysuser', '/0/2/3', 'C', '无', 'system:sysuser:list', 2, NULL, NULL, '/sysuser/index', 1, '0', '1', '1', '0', '2020-04-11 15:52:48', '2020-04-12 11:10:42', NULL);
@@ -273,10 +272,10 @@ INSERT INTO sys_menu VALUES (469, 'sys_job', '修改定时任务', 'bug', '/api/
 INSERT INTO sys_menu VALUES (470, 'sys_job', '删除定时任务', 'bug', '/api/v1/sysjob/:id', '/0/63/465/470', 'A', 'DELETE', '', 465, 0, '', '', 0, '1', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
 INSERT INTO sys_menu VALUES (471, 'job_log', '日志', 'bug', 'job_log', '/0/459/471', 'C', '', '', 459, 0, '', '/sysjob/log', 0, '1', '1', '1', '1', '2020-08-05 21:24:46', '2020-08-06 00:02:20', NULL);
 INSERT INTO sys_menu VALUES (473, 'sysSetting', '系统配置', 'form', 'syssettings', '/0/60/473', 'C', '无', 'syssetting:syssetting:list', 60, 0, '', '/system/settings', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 02:17:10', NULL);
-INSERT INTO sys_menu VALUES (474, 'sys_setting', '分页获取SysSetting', 'pass', 'sys_setting', '/0/472/473/474', 'F', '无', 'syssetting:syssetting:query', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
-INSERT INTO sys_menu VALUES (475, 'sys_setting', '创建SysSetting', 'pass', 'sys_setting', '/0/472/473/475', 'F', '无', 'syssetting:syssetting:add', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
-INSERT INTO sys_menu VALUES (476, 'sys_setting', '修改SysSetting', 'pass', 'sys_setting', '/0/472/473/476', 'F', '无', 'syssetting:syssetting:edit', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
-INSERT INTO sys_menu VALUES (477, 'sys_setting', '删除SysSetting', 'pass', 'sys_setting', '/0/472/473/477', 'F', '无', 'syssetting:syssetting:remove', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
+INSERT INTO sys_menu VALUES (474, 'sys_setting', '分页获取SysSetting', 'pass', 'sys_setting', '/0/60/473/474', 'F', '无', 'syssetting:syssetting:query', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
+INSERT INTO sys_menu VALUES (475, 'sys_setting', '创建SysSetting', 'pass', 'sys_setting', '/0/60/473/475', 'F', '无', 'syssetting:syssetting:add', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
+INSERT INTO sys_menu VALUES (476, 'sys_setting', '修改SysSetting', 'pass', 'sys_setting', '/0/60/473/476', 'F', '无', 'syssetting:syssetting:edit', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
+INSERT INTO sys_menu VALUES (477, 'sys_setting', '删除SysSetting', 'pass', 'sys_setting', '/0/60/473/477', 'F', '无', 'syssetting:syssetting:remove', 473, 0, '', '', 0, '0', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
 INSERT INTO sys_menu VALUES (478, 'sys_setting', 'SysSetting', 'bug', 'sys_setting', '/0/63/478', 'M', '无', '', 63, 0, '', '', 0, '1', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
 INSERT INTO sys_menu VALUES (479, 'sys_setting', '分页获取SysSetting', 'bug', '/api/v1/syssettingList', '/0/63/478/479', 'A', 'GET', '', 478, 0, '', '', 0, '1', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
 INSERT INTO sys_menu VALUES (480, 'sys_setting', '根据id获取SysSetting', 'bug', '/api/v1/syssetting/:id', '/0/63/478/480', 'A', 'GET', '', 478, 0, '', '', 0, '1', '1', '1', '0', '2020-08-09 01:05:22', '2020-08-09 01:05:22', NULL);
@@ -451,10 +450,10 @@ INSERT INTO sys_role_menu VALUES (1, 483, 'admin', NULL, NULL);
 INSERT INTO sys_user VALUES (1, 'zhangwj', '13818888888', 1, NULL, '', '0', '1@qq.com', 1, 1, '1', '1', NULL, 0, '2019-11-10 14:05:55', '2020-05-03 20:45:59', NULL, 'admin', '$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2');
 INSERT INTO sys_user VALUES (2, 'zhangwj', '13211111111', 3, NULL, NULL, '0', 'q@q.com', 8, 2, '1', '1', NULL, 0, '2019-11-12 18:28:27', '2020-03-14 20:08:43', NULL, 'zhangwj', '$2a$10$CqMwHahA3cNrNv16CoSxmeD4XMPU.BiKHPEAeaG5oXMavOKrjInXi');
 
-INSERT INTO sys_setting VALUES (1, 'go-admin管理系统', 'https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png', NULL, '2020-08-05 14:27:34', '2020-08-07 10:13:31');
+INSERT INTO sys_setting VALUES (1, 'go-admin管理系统', 'https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png', '2020-08-05 14:27:34', '2020-08-07 10:13:31' ,NULL);
 
-INSERT INTO sys_job VALUES (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ?', 'http://localhost:8000', 1, 1, 0, '2020-08-03 14:54:03', '2020-08-11 21:48:47', NULL, '', '', 1);
-INSERT INTO sys_job VALUES (2, '函数测试', 'DEFAULT', 2, '0/5 * * * * ?', 'ExamplesNoParam', 1, 1, 0, '2020-08-11 21:41:23', '2020-08-11 21:41:31', NULL, '', '', 2);
+INSERT INTO sys_job VALUES (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ?', 'http://localhost:8000', 1, 1, 2, 0, '', '', '2020-08-03 14:54:03', '2020-08-11 21:48:47', NULL);
+INSERT INTO sys_job VALUES (2, '函数测试', 'DEFAULT', 2, '0/5 * * * * ?', 'ExamplesOne', 1, 1, 2, 0, '', '', '2020-08-11 21:41:23', '2020-08-11 21:41:31', NULL);
 COMMIT;
 
 -- 数据完成 ;
