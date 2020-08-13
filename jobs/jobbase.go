@@ -36,12 +36,8 @@ type ExecJob struct {
 
 func (e *ExecJob) Run() {
 	startTime := time.Now()
-	var mp = jobList
-	lock.Lock()
-	var obj = mp[e.InvokeTarget]
-	lock.Unlock()
+	var obj = jobList[e.InvokeTarget]
 	CallExec(obj.(JobsExec))
-	//fmt.Println("CallExec exec success")
 	// 结束时间
 	endTime := time.Now()
 

@@ -76,7 +76,9 @@ func run() error {
 		Handler: r,
 	}
 	go func() {
+		jobs.InitJob()
 		jobs.Setup()
+
 	}()
 
 
