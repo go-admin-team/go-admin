@@ -1,9 +1,6 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 	log2 "go-admin/apis/log"
 	"go-admin/apis/monitor"
 	"go-admin/apis/public"
@@ -16,6 +13,11 @@ import (
 	"go-admin/middleware"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/pkg/ws"
+	"mime"
+
+	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
@@ -50,6 +52,8 @@ func sysBaseRouter(r *gin.RouterGroup) {
 }
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
+	mime.AddExtensionType(".js", "application/javascript")
+	
 	r.Static("/static", "./static")
 	r.Static("/form-generator", "./static/form-generator")
 }
