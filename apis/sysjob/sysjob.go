@@ -101,12 +101,22 @@ func StartJob(c *gin.Context) {
 	data.JobId, _ = tools.StringToInt(c.Param("jobId"))
 	result, err := data.Get()
 	tools.HasError(err, "", 500)
-	j := &jobs.ExecJob{}
-	j.InvokeTarget = result.InvokeTarget
-	j.CronExpression = result.CronExpression
-	j.JobId = result.JobId
-	j.Name = result.JobName
-	data.EntryId, err = jobs.AddJob(j)
+	if result.JobType == 1{
+		var j = &jobs.HttpJob{}
+		j.InvokeTarget = result.InvokeTarget
+		j.CronExpression = result.CronExpression
+		j.JobId = result.JobId
+		j.Name = result.JobName
+		data.EntryId, err = jobs.AddJob(j)
+	} else {
+		var j = &jobs.ExecJob{}
+		j.InvokeTarget = result.InvokeTarget
+		j.CronExpression = result.CronExpression
+		j.JobId = result.JobId
+		j.Name = result.JobName
+		data.EntryId, err = jobs.AddJob(j)
+	}
+
 	tools.HasError(err, "", 500)
 	_, err = data.Update(data.JobId)
 	tools.HasError(err, "", 500)
