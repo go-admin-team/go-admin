@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
-	"go-admin/pkg/jwtauth"
-	jwt "go-admin/pkg/jwtauth"
+	"github.com/wenjianzhang/go-admin/pkg/jwtauth"
+	jwt "github.com/wenjianzhang/go-admin/pkg/jwtauth"
 )
 
 // 路由示例
@@ -36,4 +36,6 @@ func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddle
 	v1.GET("/checkrole", nil)
 
 	// {{认证路由自动补充在此处请勿删除}}
+	registerMessageTemplateRouter(v1, authMiddleware)
+	registerAppRouter(v1, authMiddleware)
 }

@@ -2,9 +2,9 @@ package logger
 
 import (
 	"github.com/gogf/gf/os/glog"
-	"go-admin/global"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/config"
 )
 
 var Logger *glog.Logger

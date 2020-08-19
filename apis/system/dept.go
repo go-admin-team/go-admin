@@ -3,10 +3,10 @@ package system
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go-admin/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/app/msg"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/app"
+	"github.com/wenjianzhang/go-admin/tools/app/msg"
 )
 
 // @Summary 分页部门列表数据

@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/google/uuid"
-	"go-admin/global"
-	"go-admin/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/app"
 )
 
 // @Summary 列表用户信息数据

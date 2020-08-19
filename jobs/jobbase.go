@@ -3,10 +3,10 @@ package jobs
 import (
 	"fmt"
 	"github.com/robfig/cron/v3"
-	"go-admin/global"
-	"go-admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/cronjob"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/pkg"
+	"github.com/wenjianzhang/go-admin/pkg/cronjob"
 	"sync"
 	"time"
 )

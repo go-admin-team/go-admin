@@ -2,8 +2,8 @@ package models
 
 import (
 	"errors"
-	orm "go-admin/global"
-	"go-admin/tools"
+	orm "github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools"
 	_ "time"
 )
 

@@ -6,8 +6,8 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-	"go-admin/tools"
-	"go-admin/tools/app"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/app"
 	"runtime"
 )
 
@@ -54,9 +54,9 @@ func ServerInfo(c *gin.Context) {
 	memDic["usage"] = memUsedPercent
 
 	cpuDic := make(map[string]interface{}, 0)
-	cpuDic["cpuInfo"],_ = cpu.Info()
-	percent,_ := cpu.Percent(0,false)
-	cpuDic["Percent"] = fmt.Sprintf("%.2f",percent[0])
+	cpuDic["cpuInfo"], _ = cpu.Info()
+	percent, _ := cpu.Percent(0, false)
+	cpuDic["Percent"] = fmt.Sprintf("%.2f", percent[0])
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
 	app.Custum(c, gin.H{

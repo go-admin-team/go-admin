@@ -3,9 +3,9 @@ package tools
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
-	orm "go-admin/global"
-	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	orm "github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools"
+	config2 "github.com/wenjianzhang/go-admin/tools/config"
 )
 
 type DBTables struct {

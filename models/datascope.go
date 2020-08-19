@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/config"
 )
 
 type DataPermission struct {

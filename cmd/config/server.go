@@ -3,7 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/tools/config"
 
 	"github.com/spf13/cobra"
 )

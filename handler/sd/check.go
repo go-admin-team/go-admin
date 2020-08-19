@@ -7,7 +7,7 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
-	"go-admin/tools/app"
+	"github.com/wenjianzhang/go-admin/tools/app"
 	"net/http"
 	"runtime"
 	"time"

@@ -2,8 +2,8 @@ package gorm
 
 import (
 	"github.com/jinzhu/gorm"
-	"go-admin/models"
-	"go-admin/models/tools"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/models/tools"
 )
 
 func AutoMigrate(db *gorm.DB) error {

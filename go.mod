@@ -1,4 +1,4 @@
-module go-admin
+module github.com/wenjianzhang/go-admin
 
 go 1.12
 

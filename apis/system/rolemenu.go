@@ -3,8 +3,8 @@ package system
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-admin/models"
-	"go-admin/tools/app"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/tools/app"
 	"net/http"
 )
 

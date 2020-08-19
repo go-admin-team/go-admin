@@ -1,8 +1,8 @@
 package models
 
 import (
-orm "go-admin/global"
-"go-admin/utils"
+orm "github.com/wenjianzhang/go-admin/global"
+"github.com/wenjianzhang/go-admin/utils"
 "time"
 )
 

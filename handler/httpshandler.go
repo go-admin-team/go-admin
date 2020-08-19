@@ -3,7 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/unrolled/secure"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/tools/config"
 )
 
 func TlsHandler() gin.HandlerFunc {

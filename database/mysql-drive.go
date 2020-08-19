@@ -3,9 +3,9 @@ package database
 import (
 	_ "github.com/go-sql-driver/mysql" //加载mysql
 	"github.com/jinzhu/gorm"
-	"go-admin/global"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/config"
 )
 
 type Mysql struct {

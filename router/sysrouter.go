@@ -1,18 +1,18 @@
 package router
 
 import (
-	log2 "go-admin/apis/log"
-	"go-admin/apis/monitor"
-	"go-admin/apis/public"
-	"go-admin/apis/sysjob"
-	"go-admin/apis/system"
-	"go-admin/apis/system/dict"
-	. "go-admin/apis/tools"
-	_ "go-admin/docs"
-	"go-admin/handler"
-	"go-admin/middleware"
-	jwt "go-admin/pkg/jwtauth"
-	"go-admin/pkg/ws"
+	log2 "github.com/wenjianzhang/go-admin/apis/log"
+	"github.com/wenjianzhang/go-admin/apis/monitor"
+	"github.com/wenjianzhang/go-admin/apis/public"
+	"github.com/wenjianzhang/go-admin/apis/sysjob"
+	"github.com/wenjianzhang/go-admin/apis/system"
+	"github.com/wenjianzhang/go-admin/apis/system/dict"
+	. "github.com/wenjianzhang/go-admin/apis/tools"
+	_ "github.com/wenjianzhang/go-admin/docs"
+	"github.com/wenjianzhang/go-admin/handler"
+	"github.com/wenjianzhang/go-admin/middleware"
+	jwt "github.com/wenjianzhang/go-admin/pkg/jwtauth"
+	"github.com/wenjianzhang/go-admin/pkg/ws"
 	"mime"
 
 	"github.com/gin-gonic/gin"
@@ -47,13 +47,12 @@ func sysBaseRouter(r *gin.RouterGroup) {
 
 	r.GET("/ws", ws.WebsocketManager.WsClient)
 
-
 	r.GET("/info", handler.Ping)
 }
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
 	mime.AddExtensionType(".js", "application/javascript")
-	
+
 	r.Static("/static", "./static")
 	r.Static("/form-generator", "./static/form-generator")
 }
@@ -117,10 +116,9 @@ func registerSysJobRouter(v1 *gin.RouterGroup) {
 		r.DELETE("/:jobId", sysjob.DeleteSysJob)
 	}
 
-	v1.GET("/job/remove/:jobId",sysjob.RemoveJob)
-	v1.GET("/job/start/:jobId",sysjob.StartJob)
+	v1.GET("/job/remove/:jobId", sysjob.RemoveJob)
+	v1.GET("/job/start/:jobId", sysjob.StartJob)
 }
-
 
 func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r.POST("/login", authMiddleware.LoginHandler)
@@ -285,7 +283,7 @@ func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	{
 		setting.GET("", system.GetSetting)
 		setting.POST("", system.CreateSetting)
-		setting.GET("/serverInfo",monitor.ServerInfo)
+		setting.GET("/serverInfo", monitor.ServerInfo)
 	}
 }
 

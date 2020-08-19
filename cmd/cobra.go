@@ -4,20 +4,20 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
-	"go-admin/cmd/api"
-	"go-admin/cmd/config"
-	"go-admin/cmd/migrate"
-	"go-admin/cmd/version"
-	"go-admin/global"
-	"go-admin/tools"
+	"github.com/wenjianzhang/go-admin/cmd/api"
+	"github.com/wenjianzhang/go-admin/cmd/config"
+	"github.com/wenjianzhang/go-admin/cmd/migrate"
+	"github.com/wenjianzhang/go-admin/cmd/version"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools"
 	"os"
 )
 
 var rootCmd = &cobra.Command{
-	Use:               "go-admin",
-	Short:             "go-admin",
-	SilenceUsage:      true,
-	Long:              `go-admin`,
+	Use:          "go-admin",
+	Short:        "go-admin",
+	SilenceUsage: true,
+	Long:         `go-admin`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			tip()
@@ -32,7 +32,7 @@ var rootCmd = &cobra.Command{
 }
 
 func tip() {
-	usageStr := `欢迎使用 `+ tools.Green( `go-admin ` +global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
 	usageStr1 := `也可以参考 http://doc.zhangwj.com/go-admin-site/guide/ksks.html 里边的【启动】章节`
 	fmt.Printf("%s\n", usageStr)
 	fmt.Printf("%s\n", usageStr1)

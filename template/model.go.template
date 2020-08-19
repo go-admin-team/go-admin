@@ -1,8 +1,8 @@
 package models
 
 import (
-orm "go-admin/global"
-"go-admin/tools"
+orm "github.com/wenjianzhang/go-admin/global"
+"github.com/wenjianzhang/go-admin/tools"
 {{$ii := 1}}
 {{ range .Columns }}
     {{- if eq .GoType "time.Time" -}}{{- if eq $ii 1 -}} "time" {{$ii = 2}}{{- end}}{{- end}}
@@ -22,7 +22,7 @@ type {{.ClassName}} struct {
 {{- end }}
 DataScope   string `json:"dataScope" gorm:"-"`
 Params      string `json:"params"  gorm:"-"`
-BaseModel
+tools.BaseModel
 }
 
 func ({{.ClassName}}) TableName() string {

@@ -5,8 +5,8 @@ import (
 	"github.com/casbin/casbin/v2/model"
 	gormAdapter "github.com/casbin/gorm-adapter/v2"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/wenjianzhang/go-admin/global"
 	"log"
-	"go-admin/global"
 )
 
 // Initialize the model from a string.

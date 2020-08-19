@@ -3,10 +3,10 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	mycasbin "go-admin/pkg/casbin"
-	"go-admin/pkg/jwtauth"
-	_ "go-admin/pkg/jwtauth"
-	"go-admin/tools"
+	mycasbin "github.com/wenjianzhang/go-admin/pkg/casbin"
+	"github.com/wenjianzhang/go-admin/pkg/jwtauth"
+	_ "github.com/wenjianzhang/go-admin/pkg/jwtauth"
+	"github.com/wenjianzhang/go-admin/tools"
 	"net/http"
 )
 

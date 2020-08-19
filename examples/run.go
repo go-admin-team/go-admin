@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"go-admin/global"
-	mycasbin "go-admin/pkg/casbin"
-	"go-admin/pkg/logger"
-	"go-admin/router"
+	"github.com/wenjianzhang/go-admin/global"
+	mycasbin "github.com/wenjianzhang/go-admin/pkg/casbin"
+	"github.com/wenjianzhang/go-admin/pkg/logger"
+	"github.com/wenjianzhang/go-admin/router"
 	"log"
 )
 

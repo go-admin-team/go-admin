@@ -3,10 +3,10 @@ package middleware
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-admin/global"
-	"go-admin/models"
-	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/tools"
+	config2 "github.com/wenjianzhang/go-admin/tools/config"
 	"strings"
 	"time"
 )

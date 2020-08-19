@@ -1,8 +1,8 @@
 package models
 
 import (
-	orm "go-admin/global"
-	"go-admin/tools"
+	orm "github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools"
 )
 
 type SysJob struct {

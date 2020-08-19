@@ -1,7 +1,7 @@
 package test
 
 import (
-	"go-admin/models/tools"
+	"github.com/wenjianzhang/go-admin/models/tools"
 	"os"
 	"testing"
 	"text/template"

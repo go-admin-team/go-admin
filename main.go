@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-admin/cmd"
+	"github.com/wenjianzhang/go-admin/cmd"
 )
 
 // @title go-admin API

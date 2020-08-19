@@ -1,8 +1,8 @@
 package tools
 
 import (
-	orm "go-admin/global"
-	"go-admin/models"
+	orm "github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/models"
 )
 
 type SysColumns struct {

@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	orm "go-admin/global"
+	orm "github.com/wenjianzhang/go-admin/global"
 )
 
 //sys_role_dept

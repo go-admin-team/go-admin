@@ -2,11 +2,11 @@ package sysjob
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/jobs"
-	"go-admin/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/app/msg"
+	"github.com/wenjianzhang/go-admin/jobs"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/app"
+	"github.com/wenjianzhang/go-admin/tools/app/msg"
 	"time"
 )
 

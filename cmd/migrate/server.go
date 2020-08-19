@@ -2,12 +2,12 @@ package migrate
 
 import (
 	"fmt"
-	"go-admin/database"
-	"go-admin/global"
-	"go-admin/models"
-	"go-admin/models/gorm"
-	"go-admin/pkg/logger"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/database"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/models"
+	"github.com/wenjianzhang/go-admin/models/gorm"
+	"github.com/wenjianzhang/go-admin/pkg/logger"
+	"github.com/wenjianzhang/go-admin/tools/config"
 
 	"github.com/spf13/cobra"
 )
@@ -16,8 +16,8 @@ var (
 	configYml string
 	mode      string
 	StartCmd  = &cobra.Command{
-		Use:   "init",
-		Short: "Initialize the database",
+		Use:     "init",
+		Short:   "Initialize the database",
 		Example: "go-admin init -c config/settings.yml",
 		Run: func(cmd *cobra.Command, args []string) {
 			run()

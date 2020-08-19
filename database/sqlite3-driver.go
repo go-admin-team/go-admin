@@ -5,9 +5,9 @@ package database
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools/config"
 	"log"
-	"go-admin/global"
-	"go-admin/tools/config"
 )
 
 type SqLite struct {

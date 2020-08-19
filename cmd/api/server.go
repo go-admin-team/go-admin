@@ -6,14 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go-admin/database"
-	"go-admin/global"
-	"go-admin/jobs"
-	mycasbin "go-admin/pkg/casbin"
-	"go-admin/pkg/logger"
-	"go-admin/router"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/database"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/jobs"
+	mycasbin "github.com/wenjianzhang/go-admin/pkg/casbin"
+	"github.com/wenjianzhang/go-admin/pkg/logger"
+	"github.com/wenjianzhang/go-admin/router"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/config"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -80,7 +80,6 @@ func run() error {
 		jobs.Setup()
 
 	}()
-
 
 	go func() {
 		// 服务连接

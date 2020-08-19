@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"go-admin/global"
+	"github.com/wenjianzhang/go-admin/global"
 	"io/ioutil"
 	"strings"
 )

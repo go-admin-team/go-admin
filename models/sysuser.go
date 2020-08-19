@@ -2,10 +2,10 @@ package models
 
 import (
 	"errors"
-	"log"
-	orm "go-admin/global"
-	"go-admin/tools"
+	orm "github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/tools"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"strings"
 )
 

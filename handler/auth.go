@@ -4,11 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
-	"go-admin/global"
-	"go-admin/models"
-	jwt "go-admin/pkg/jwtauth"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/wenjianzhang/go-admin/global"
+	"github.com/wenjianzhang/go-admin/models"
+	jwt "github.com/wenjianzhang/go-admin/pkg/jwtauth"
+	"github.com/wenjianzhang/go-admin/tools"
+	"github.com/wenjianzhang/go-admin/tools/config"
 	"net/http"
 )
 

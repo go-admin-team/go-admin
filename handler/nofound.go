@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	jwt "go-admin/pkg/jwtauth"
+	jwt "github.com/wenjianzhang/go-admin/pkg/jwtauth"
 	"log"
 	"net/http"
 )

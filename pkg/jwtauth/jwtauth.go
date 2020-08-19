@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	config2 "go-admin/tools/config"
+	config2 "github.com/wenjianzhang/go-admin/tools/config"
 	"io/ioutil"
 	"net/http"
 	"strings"
