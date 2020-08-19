@@ -1,7 +1,6 @@
 package monitor
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
@@ -56,7 +55,7 @@ func ServerInfo(c *gin.Context) {
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuInfo"],_ = cpu.Info()
 	percent,_ := cpu.Percent(0,false)
-	cpuDic["Percent"] = fmt.Sprintf("%.2f",percent[0])
+	cpuDic["Percent"] = tools.Round(percent[0],2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
 	app.Custum(c, gin.H{
