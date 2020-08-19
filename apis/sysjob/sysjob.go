@@ -114,6 +114,7 @@ func StartJob(c *gin.Context) {
 		j.CronExpression = result.CronExpression
 		j.JobId = result.JobId
 		j.Name = result.JobName
+		j.Args = result.Args
 		data.EntryId, err = jobs.AddJob(j)
 	}
 

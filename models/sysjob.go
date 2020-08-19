@@ -12,6 +12,7 @@ type SysJob struct {
 	JobType        int    `json:"jobType" gorm:"size:1;"`                  // 任务类型
 	CronExpression string `json:"cronExpression" gorm:"size:255;"`         // cron表达式
 	InvokeTarget   string `json:"invokeTarget" gorm:"size:255;"`           // 调用目标
+	Args           string `json:"args" gorm:"size:255;"`                   // 目标参数
 	MisfirePolicy  int    `json:"misfirePolicy" gorm:"size:255;"`          // 执行策略
 	Concurrent     int    `json:"concurrent" gorm:"size:1;"`               // 是否并发
 	Status         int    `json:"status" gorm:"size:1;"`                   // 状态

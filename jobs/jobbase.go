@@ -23,6 +23,7 @@ type JobCore struct {
 	JobId          int
 	EntryId        int
 	CronExpression string
+	Args           string
 }
 
 // 任务类型 http
@@ -41,7 +42,7 @@ func (e *ExecJob) Run() {
 		global.JobLogger.Warning(" ExecJob Run job nil", e)
 		return
 	}
-	CallExec(obj.(JobsExec))
+	CallExec(obj.(JobsExec), e.Args)
 	// 结束时间
 	endTime := time.Now()
 
@@ -119,6 +120,7 @@ func Setup() {
 			j.CronExpression = jobList[i].CronExpression
 			j.JobId = jobList[i].JobId
 			j.Name = jobList[i].JobName
+			j.Args = jobList[i].Args
 			sysJob.EntryId, err = AddJob(j)
 		}
 		_, err = sysJob.Update(jobList[i].JobId)
