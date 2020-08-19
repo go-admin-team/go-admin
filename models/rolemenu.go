@@ -139,7 +139,13 @@ func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
 }
 
 func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
-	var role SysRole
+	var (
+		role            SysRole
+		menu            []Menu
+		casbinRuleQueue []CasbinRule // casbinRule 待插入队列
+	)
+
+	// 开始事务
 	tx := orm.Eloquent.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -150,42 +156,62 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	if err := tx.Error; err != nil {
 		return false, err
 	}
+
+	// 在事务中做一些数据库操作（从这一点使用'tx'，而不是'db'）
 	if err := tx.Table("sys_role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		tx.Rollback()
 		return false, err
 	}
-	var menu []Menu
 	if err := tx.Table("sys_menu").Where("menu_id in (?)", menuId).Find(&menu).Error; err != nil {
 		tx.Rollback()
 		return false, err
 	}
 	//ORM不支持批量插入所以需要拼接 sql 串
-	sql := "INSERT INTO `sys_role_menu` (`role_id`,`menu_id`,`role_name`) VALUES "
+	sysRoleMenuSql := "INSERT INTO `sys_role_menu` (`role_id`,`menu_id`,`role_name`) VALUES "
+	casbinRuleSql := "INSERT INTO `casbin_rule`  (`p_type`,`v0`,`v1`,`v2`) VALUES "
 
-	sql2 := "INSERT INTO casbin_rule  (`p_type`,`v0`,`v1`,`v2`) VALUES "
-	for i := 0; i < len(menu); i++ {
-		if len(menu)-1 == i {
-			//最后一条数据 以分号结尾
-			sql += fmt.Sprintf("(%d,%d,'%s');", role.RoleId, menu[i].MenuId, role.RoleKey)
-			if menu[i].MenuType == "A" {
-				sql2 += fmt.Sprintf("('p','%s','%s','%s');", role.RoleKey, menu[i].Path, menu[i].Action)
-			}
+	for i, m := range menu {
+		// 拼装'role_menu'表批量插入SQL语句
+		sysRoleMenuSql += fmt.Sprintf("(%d,%d,'%s')", role.RoleId, m.MenuId, role.RoleKey)
+		if i == len(menu)-1 {
+			sysRoleMenuSql += ";" //最后一条数据 以分号结尾
 		} else {
-			sql += fmt.Sprintf("(%d,%d,'%s'),", role.RoleId, menu[i].MenuId, role.RoleKey)
-			if menu[i].MenuType == "A" {
-				sql2 += fmt.Sprintf("('p','%s','%s','%s'),", role.RoleKey, menu[i].Path, menu[i].Action)
-			}
+			sysRoleMenuSql += ","
+		}
+		if m.MenuType == "A" {
+			// 加入队列
+			casbinRuleQueue = append(casbinRuleQueue,
+				CasbinRule{
+					V0: role.RoleKey,
+					V1: m.Path,
+					V2: m.Action,
+				})
 		}
 	}
-	if err := tx.Exec(sql).Error; err != nil {
+	// 执行批量插入sys_role_menu
+	if err := tx.Exec(sysRoleMenuSql).Error; err != nil {
 		tx.Rollback()
 		return false, err
 	}
-	sql2 = sql2[0:len(sql2)-1] + ";"
-	if err := tx.Exec(sql2).Error; err != nil {
-		tx.Rollback()
-		return false, err
+
+	// 拼装'casbin_rule'批量插入SQL语句
+	// TODO: casbinRuleQueue队列不为空时才会拼装，否则直接忽略不执行'for'循环
+	for i, v := range casbinRuleQueue {
+		casbinRuleSql += fmt.Sprintf("('p','%s','%s','%s')", v.V0, v.V1, v.V2)
+		if i == len(casbinRuleQueue)-1 {
+			casbinRuleSql += ";"
+		} else {
+			casbinRuleSql += ","
+		}
 	}
+	// 执行批量插入casbin_rule
+	if len(casbinRuleQueue) > 0 {
+		if err := tx.Exec(casbinRuleSql).Error; err != nil {
+			tx.Rollback()
+			return false, err
+		}
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return false, err
 	}
