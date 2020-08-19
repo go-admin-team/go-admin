@@ -37,6 +37,10 @@ type ExecJob struct {
 func (e *ExecJob) Run() {
 	startTime := time.Now()
 	var obj = jobList[e.InvokeTarget]
+	if obj == nil {
+		global.JobLogger.Warning(" ExecJob Run job nil", e)
+		return
+	}
 	CallExec(obj.(JobsExec))
 	// 结束时间
 	endTime := time.Now()
