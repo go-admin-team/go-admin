@@ -45,9 +45,6 @@ func sysBaseRouter(r *gin.RouterGroup) {
 
 	r.GET("/", system.HelloWorld)
 
-	r.GET("/ws", ws.WebsocketManager.WsClient)
-
-
 	r.GET("/info", handler.Ping)
 }
 
@@ -126,6 +123,12 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	r.POST("/login", authMiddleware.LoginHandler)
 	// Refresh time can be longer than token timeout
 	r.GET("/refresh_token", authMiddleware.RefreshHandler)
+
+	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
+
+	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
+
+
 
 	v1 := r.Group("/api/v1")
 

@@ -2,13 +2,16 @@ package tools
 
 import (
 	"archive/zip"
+	"bufio"
 	"bytes"
+	"context"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func PathExists(path string) (bool, error) {
@@ -157,4 +160,51 @@ func (h ReplaceHelper) walkCallback(path string, f os.FileInfo, err error) error
 	ioutil.WriteFile(path, []byte(newContent), 0)
 
 	return err
+}
+
+func FileMonitoring(filePth string, hookfn func([]byte)) {
+	f, err := os.Open(filePth)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer f.Close()
+
+	rd := bufio.NewReader(f)
+	f.Seek(0, 2)
+	for {
+		line, err := rd.ReadBytes('\n')
+		// 如果是文件末尾不返回
+		if err == io.EOF {
+			time.Sleep(500 * time.Millisecond)
+			continue
+		} else if err != nil {
+			log.Fatalln(err)
+		}
+		go hookfn(line)
+	}
+}
+
+func FileMonitoringById(ctx context.Context, filePth string, id string, group string, hookfn func(context.Context, string, string, []byte)) {
+	f, err := os.Open(filePth)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer f.Close()
+
+	rd := bufio.NewReader(f)
+	f.Seek(0, 2)
+	for {
+		if ctx.Err() != nil {
+			break
+		}
+		line, err := rd.ReadBytes('\n')
+		// 如果是文件末尾不返回
+		if err == io.EOF {
+			time.Sleep(500 * time.Millisecond)
+			continue
+		} else if err != nil {
+			log.Fatalln(err)
+		}
+		go hookfn(ctx, id, group, line)
+	}
 }
