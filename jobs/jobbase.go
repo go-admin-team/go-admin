@@ -79,8 +79,7 @@ LOOP:
 	// 执行时间
 	latencyTime := endTime.Sub(startTime)
 	//TODO: 待完善部分
-	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(h.EntryId) + "exec success , spend :" + latencyTime.String()
-	//ws.SendAll(str)
+
 	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
 }
 
