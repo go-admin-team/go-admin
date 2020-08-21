@@ -2,7 +2,6 @@ package system
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
@@ -75,14 +74,17 @@ func GetRole(c *gin.Context) {
 func InsertRole(c *gin.Context) {
 	var data models.SysRole
 	data.CreateBy = tools.GetUserIdStr(c)
-	err := c.BindWith(&data, binding.JSON)
-	tools.HasError(err, "", 500)
+	err := c.Bind(&data)
+	tools.HasError(err, "数据解析失败", 500)
 	id, err := data.Insert()
+	tools.HasError(err, "", -1)
 	data.RoleId = id
-	tools.HasError(err, "", -1)
+
 	var t models.RoleMenu
-	_, err = t.Insert(id, data.MenuIds)
-	tools.HasError(err, "", -1)
+	if len(data.MenuIds)>0 {
+		_, err = t.Insert(id, data.MenuIds)
+		tools.HasError(err, "", -1)
+	}
 	app.OK(c, data, "添加成功")
 }
 
@@ -104,10 +106,11 @@ func UpdateRole(c *gin.Context) {
 	tools.HasError(err, "", -1)
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(data.RoleId)
-	tools.HasError(err, "添加失败1", -1)
-	_, err2 := t.Insert(data.RoleId, data.MenuIds)
-	tools.HasError(err2, "添加失败2", -1)
-
+	tools.HasError(err, "修改失败（delete rm）", -1)
+	if len(data.MenuIds)>0 {
+		_, err2 := t.Insert(data.RoleId, data.MenuIds)
+		tools.HasError(err2, "修改失败（insert）", -1)
+	}
 	app.OK(c, result, "修改成功")
 }
 
@@ -141,9 +144,6 @@ func DeleteRole(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup("roleId", c)
 	_, err := Role.BatchDelete(IDS)
-	tools.HasError(err, "删除失败1", -1)
-	var t models.RoleMenu
-	_, err = t.BatchDeleteRoleMenu(IDS)
 	tools.HasError(err, "删除失败1", -1)
 	app.OK(c, "", "删除成功")
 }

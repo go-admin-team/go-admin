@@ -102,6 +102,7 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
 
 }
 
+// 该方法即将弃用
 func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
 	tx := orm.Eloquent.Begin()
 	defer func() {

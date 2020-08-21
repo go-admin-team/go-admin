@@ -167,9 +167,47 @@ func (role *SysRole) Update(id int) (update SysRole, err error) {
 
 //批量删除
 func (role *SysRole) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(role.TableName()).Where("role_id in (?)", id).Delete(SysRole{}).Error; err != nil {
-		return
+	tx := orm.Eloquent.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return false, err
 	}
-	Result = true
-	return
+	// 查询角色
+	var roles []SysRole
+	if err := tx.Table("sys_role").Where("role_id in (?)", id).Find(&roles).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	// 删除角色
+	if err = tx.Table(role.TableName()).Where("role_id in (?)", id).Unscoped().Delete(&SysRole{}).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	// 删除角色菜单
+	if err := tx.Table("sys_role_menu").Where("role_id in (?)", id).Delete(&RoleMenu{}).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	// 删除casbin配置
+	for i := 0; i < len(roles); i++ {
+		if err := tx.Table("casbin_rule").Where("v0 in (?)", id).Delete(&CasbinRule{}).Error; err != nil {
+			tx.Rollback()
+			return false, err
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
