@@ -287,6 +287,42 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.SysFileDir:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/models.SysFileDir'
+        type: array
+      createBy:
+        description: 创建人
+        type: string
+      createdAt:
+        type: string
+      dataScope:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      label:
+        description: 名称
+        type: string
+      pId:
+        description: 父id
+        type: integer
+      params:
+        type: string
+      path:
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      updateBy:
+        description: 编辑人
+        type: string
+      updatedAt:
+        type: string
+    type: object
   models.SysOperLog:
     properties:
       businessType:
@@ -496,6 +532,16 @@ definitions:
         type: string
       edit:
         type: boolean
+      fkCol:
+        items:
+          $ref: '#/definitions/tools.SysColumns'
+        type: array
+      fkLableId:
+        type: integer
+      fkLableName:
+        type: string
+      fkTableName:
+        type: integer
       goField:
         type: string
       goType:
@@ -1653,6 +1699,30 @@ paths:
       summary: 获取岗位信息
       tags:
       - 岗位
+  /api/v1/public/uploadFile:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 获取JSON
+      parameters:
+      - description: type
+        in: query
+        name: type
+        required: true
+        type: string
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 上传图片
+      tags:
+      - 公共接口
   /api/v1/role:
     get:
       description: 获取JSON
@@ -1801,6 +1871,28 @@ paths:
       summary: 删除用户菜单数据
       tags:
       - 角色菜单
+  /api/v1/setting:
+    get:
+      description: 获取JSON
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 查询系统信息
+      tags:
+      - 系统信息
+  /api/v1/settings/serverInfo:
+    get:
+      description: 获取JSON
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: 系统信息
+      tags:
+      - 系统信息
   /api/v1/sys/tables/info:
     post:
       consumes:
@@ -1972,6 +2064,46 @@ paths:
       summary: 列表用户信息数据
       tags:
       - 用户
+  /api/v1/sysfiledir:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.SysFileDir'
+          type: object
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 添加SysFileDir
+      tags:
+      - SysFileDir
+  /api/v1/system/setting:
+    post:
+      description: 获取JSON
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.SysUser'
+          type: object
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 更新或提交系统信息
+      tags:
+      - 系统信息
   /api/v1/sysuser/{userId}:
     delete:
       description: 删除数据

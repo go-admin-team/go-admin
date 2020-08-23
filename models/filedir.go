@@ -7,8 +7,8 @@ import (
 )
 
 type SysFileDir struct {
-	Id        int          `json:"id" gorm:"type:int(11);primary_key"` //
-	Lable     string       `json:"lable" gorm:"type:varchar(255);"`    // 名称
+	Id        int          `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` //
+	Label     string       `json:"label" gorm:"type:varchar(255);"`    // 名称
 	PId       int          `json:"pId" gorm:"type:int(11);"`           // 父id
 	Sort      int          `json:"sort" gorm:""`                       //排序
 	Path      string       `json:"path" gorm:"size:255;"`              //
@@ -42,7 +42,7 @@ func (e *SysFileDir) Create() (SysFileDir, error) {
 		path = "/0" + path
 	}
 	var mp = map[string]string{}
-	mp["deptPath"] = path
+	mp["path"] = path
 	if err := orm.Eloquent.Table(e.TableName()).Where("id = ?", e.Id).Update(mp).Error; err != nil {
 		err := result.Error
 		return doc, err
@@ -164,7 +164,7 @@ func SysFileDirDigui(deptlist *[]SysFileDir, menu SysFileDir) SysFileDir {
 		mi := SysFileDir{}
 		mi.Id = list[j].Id
 		mi.PId = list[j].PId
-		mi.Lable = list[j].Lable
+		mi.Label = list[j].Label
 		mi.Sort = list[j].Sort
 		mi.CreatedAt = list[j].CreatedAt
 		mi.UpdatedAt = list[j].UpdatedAt

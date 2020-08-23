@@ -11,7 +11,7 @@ import (
 
 func GetSysFileDirList(c *gin.Context) {
 	var SysFileDir models.SysFileDir
-	SysFileDir.Lable = c.Request.FormValue("lable")
+	SysFileDir.Label = c.Request.FormValue("label")
 	SysFileDir.PId, _ = tools.StringToInt(c.Request.FormValue("pid"))
 	SysFileDir.Id, _ = tools.StringToInt(c.Request.FormValue("id"))
 	SysFileDir.DataScope = tools.GetUserIdStr(c)
@@ -29,6 +29,15 @@ func GetSysFileDir(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
+// @Summary 添加SysFileDir
+// @Description 获取JSON
+// @Tags SysFileDir
+// @Accept  application/json
+// @Product application/json
+// @Param data body models.SysFileDir true "data"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/sysfiledir [post]
 func InsertSysFileDir(c *gin.Context) {
 	var data models.SysFileDir
 	err := c.ShouldBindJSON(&data)
