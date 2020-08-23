@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	orm "go-admin/global"
 	"go-admin/tools"
 )
@@ -106,9 +105,9 @@ func (e *SysFileDir) Update(id int) (update SysFileDir, err error) {
 	}
 	e.Path = path
 
-	if e.Path != "" && e.Path != update.Path {
-		return update, errors.New("上级不允许修改！")
-	}
+	//if e.Path != "" && e.Path != update.Path {
+	//	return update, errors.New("上级不允许修改！")
+	//}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
