@@ -49,6 +49,15 @@ tools.HasError(err, "抱歉未找到相关信息", -1)
 app.OK(c, result, "")
 }
 
+// @Summary 添加{{.TableComment}}
+// @Description 获取JSON
+// @Tags {{.TableComment}}
+// @Accept  application/json
+// @Product application/json
+// @Param data body models.{{.ClassName}} true "data"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/{{.ModuleName}} [post]
 func Insert{{.ClassName}}(c *gin.Context) {
 var data models.{{.ClassName}}
 err := c.ShouldBindJSON(&data)
