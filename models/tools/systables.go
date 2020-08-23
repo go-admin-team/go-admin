@@ -96,6 +96,37 @@ func (e *SysTables) Get() (SysTables, error) {
 	return doc, nil
 }
 
+func (e *SysTables) GetTree() ([]SysTables, error) {
+	var doc []SysTables
+	var err error
+	table := orm.Eloquent.Select("*").Table("sys_tables")
+
+	if e.TBName != "" {
+		table = table.Where("table_name = ?", e.TBName)
+	}
+	if e.TableId != 0 {
+		table = table.Where("table_id = ?", e.TableId)
+	}
+	if e.TableComment != "" {
+		table = table.Where("table_comment = ?", e.TableComment)
+	}
+
+	if err := table.Find(&doc).Error; err != nil {
+		return doc, err
+	}
+	for i := 0; i < len(doc); i++ {
+		var col SysColumns
+		//col.FkCol = append(col.FkCol, SysColumns{ColumnId: 0, ColumnName: "请选择"})
+		col.TableId = doc[i].TableId
+		if doc[i].Columns, err = col.GetList(); err != nil {
+			return doc, err
+		}
+
+	}
+
+	return doc, nil
+}
+
 func (e *SysTables) Create() (SysTables, error) {
 	var doc SysTables
 	result := orm.Eloquent.Table("sys_tables").Create(&e)

@@ -50,7 +50,7 @@ func sysBaseRouter(r *gin.RouterGroup) {
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
 	mime.AddExtensionType(".js", "application/javascript")
-	
+
 	r.Static("/static", "./static")
 	r.Static("/form-generator", "./static/form-generator")
 }
@@ -67,6 +67,7 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/gen/preview/:tableId", Preview)
 	v1.GET("/gen/toproject/:tableId", GenCode)
 	v1.GET("/gen/todb/:tableId", GenMenuAndApi)
+	v1.GET("/gen/tabletree", GetSysTablesTree)
 	v1.GET("/menuTreeselect", system.GetMenuTreeelect)
 	v1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
@@ -79,6 +80,7 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	registerSysSettingRouter(v1)
 
 	registerSysJobRouter(v1)
+
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -88,6 +90,7 @@ func registerDBRouter(api *gin.RouterGroup) {
 		db.GET("/columns/page", GetDBColumnList)
 	}
 }
+
 
 func registerSysTableRouter(v1 *gin.RouterGroup) {
 	systables := v1.Group("/sys/tables")
@@ -114,10 +117,9 @@ func registerSysJobRouter(v1 *gin.RouterGroup) {
 		r.DELETE("/:jobId", sysjob.DeleteSysJob)
 	}
 
-	v1.GET("/job/remove/:jobId",sysjob.RemoveJob)
-	v1.GET("/job/start/:jobId",sysjob.StartJob)
+	v1.GET("/job/remove/:jobId", sysjob.RemoveJob)
+	v1.GET("/job/start/:jobId", sysjob.StartJob)
 }
-
 
 func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r.POST("/login", authMiddleware.LoginHandler)
@@ -127,8 +129,6 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
 
 	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
-
-
 
 	v1 := r.Group("/api/v1")
 
@@ -144,6 +144,7 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	registerMenuRouter(v1, authMiddleware)
 	registerLoginLogRouter(v1, authMiddleware)
 	registerOperLogRouter(v1, authMiddleware)
+
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
@@ -288,7 +289,7 @@ func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	{
 		setting.GET("", system.GetSetting)
 		setting.POST("", system.CreateSetting)
-		setting.GET("/serverInfo",monitor.ServerInfo)
+		setting.GET("/serverInfo", monitor.ServerInfo)
 	}
 }
 

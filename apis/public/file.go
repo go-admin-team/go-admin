@@ -20,9 +20,6 @@ import (
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/public/uploadFile [post]
-
-
-
 func UploadFile(c *gin.Context) {
 	tag,_ := c.GetPostForm("type")
 	urlPerfix := fmt.Sprintf("http://%s/",c.Request.Host)

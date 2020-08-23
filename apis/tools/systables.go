@@ -64,9 +64,19 @@ func GetSysTables(c *gin.Context) {
 	var res app.Response
 	res.Data = result
 	mp := make(map[string]interface{})
-	mp["rows"] = result.Columns
+	mp["list"] = result.Columns
 	mp["info"] = result
 	res.Data = mp
+	c.JSON(http.StatusOK, res.ReturnOK())
+}
+
+func GetSysTablesTree(c *gin.Context) {
+	var data tools.SysTables
+	result, err := data.GetTree()
+	tools2.HasError(err, "抱歉未找到相关信息", -1)
+
+	var res app.Response
+	res.Data = result
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
@@ -200,7 +210,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 func UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
-	tools2.HasError(err, "数据解析失败", -1)
+	tools2.HasError(err, "数据解析失败", 500)
 	data.UpdateBy = tools2.GetUserIdStr(c)
 	result, err := data.Update()
 	tools2.HasError(err, "", -1)
