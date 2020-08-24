@@ -16,11 +16,17 @@ func GetSysFileInfoList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = tools.StrToInt(err, size)
+		pageSize, err = tools.StringToInt(size)
 	}
+	tools.HasError(err, "", -1)
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = tools.StrToInt(err, index)
+		pageIndex, err = tools.StringToInt(index)
 	}
+	tools.HasError(err, "", -1)
+	if pid := c.Request.FormValue("pId"); pid != "" {
+		data.PId, err = tools.StringToInt(pid)
+	}
+	tools.HasError(err, "", -1)
 
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex)
