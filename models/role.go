@@ -199,7 +199,7 @@ func (role *SysRole) BatchDelete(id []int) (Result bool, err error) {
 
 	// 删除casbin配置
 	for i := 0; i < len(roles); i++ {
-		if err := tx.Table("casbin_rule").Where("v0 in (?)", id).Delete(&CasbinRule{}).Error; err != nil {
+		if err := tx.Table("casbin_rule").Where("v0 in (?)", roles[0].RoleKey).Delete(&CasbinRule{}).Error; err != nil {
 			tx.Rollback()
 			return false, err
 		}
