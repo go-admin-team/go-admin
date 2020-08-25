@@ -139,7 +139,7 @@ func GenMenuAndApi(c *gin.Context) {
 	table.TableId = id
 	tab, _ := table.Get()
 	Mmenu := models.Menu{}
-	Mmenu.MenuName = tab.TBName + "管理"
+	Mmenu.MenuName = tab.TBName + "Manage"
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
 	Mmenu.Path = "/" + tab.TBName
@@ -158,7 +158,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.MenuId, err = Mmenu.Create()
 
 	Cmenu := models.Menu{}
-	Cmenu.MenuName = tab.TBName + "管理"
+	Cmenu.MenuName = tab.TBName
 	Cmenu.Title = tab.TableComment
 	Cmenu.Icon = "pass"
 	Cmenu.Path = tab.TBName

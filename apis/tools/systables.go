@@ -70,6 +70,23 @@ func GetSysTables(c *gin.Context) {
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 
+func GetSysTablesInfo(c *gin.Context) {
+	var data tools.SysTables
+	if c.Request.FormValue("tableName")!="" {
+		data.TBName = c.Request.FormValue("tableName")
+	}
+	result, err := data.Get()
+	tools2.HasError(err, "抱歉未找到相关信息", -1)
+
+	var res app.Response
+	res.Data = result
+	mp := make(map[string]interface{})
+	mp["list"] = result.Columns
+	mp["info"] = result
+	res.Data = mp
+	c.JSON(http.StatusOK, res.ReturnOK())
+}
+
 func GetSysTablesTree(c *gin.Context) {
 	var data tools.SysTables
 	result, err := data.GetTree()

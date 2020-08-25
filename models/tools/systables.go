@@ -3,6 +3,7 @@ package tools
 import (
 	orm "go-admin/global"
 	"go-admin/models"
+	"strings"
 )
 
 type SysTables struct {
@@ -10,12 +11,12 @@ type SysTables struct {
 	TBName              string       `gorm:"column:table_name;size:255;" json:"tableName"` //表名称
 	TableComment        string       `gorm:"size:255;" json:"tableComment"`                //表备注
 	ClassName           string       `gorm:"size:255;" json:"className"`                   //类名
-	TplCategory         string       `gorm:"size:255;" json:"tplCategory"`
-	PackageName         string       `gorm:"size:255;" json:"packageName"` //包名
-	ModuleName          string       `gorm:"size:255;" json:"moduleName"`  //模块名
-	BusinessName        string       `gorm:"size:255;" json:"businessName"`
-	FunctionName        string       `gorm:"size:255;" json:"functionName"`   //功能名称
-	FunctionAuthor      string       `gorm:"size:255;" json:"functionAuthor"` //功能作者
+	TplCategory         string       `gorm:"size:255;" json:"tplCategory"`                 //
+	PackageName         string       `gorm:"size:255;" json:"packageName"`                 //包名
+	ModuleName          string       `gorm:"size:255;" json:"moduleName"`                  //模块名
+	BusinessName        string       `gorm:"size:255;" json:"businessName"`                //
+	FunctionName        string       `gorm:"size:255;" json:"functionName"`                //功能名称
+	FunctionAuthor      string       `gorm:"size:255;" json:"functionAuthor"`              //功能作者
 	PkColumn            string       `gorm:"size:255;" json:"pkColumn"`
 	PkGoField           string       `gorm:"size:255;" json:"pkGoField"`
 	PkJsonField         string       `gorm:"size:255;" json:"pkJsonField"`
@@ -156,6 +157,17 @@ func (e *SysTables) Update() (update SysTables, err error) {
 	}
 
 	for i := 0; i < len(e.Columns); i++ {
+		if e.Columns[i].FkTableName != "" {
+			tableNameList := strings.Split(e.Columns[i].FkTableName, "_")
+			e.Columns[i].FkTableNameClass = ""
+			e.Columns[i].FkTableNamePackage = ""
+			for a := 0; a < len(tableNameList); a++ {
+				strStart := string([]byte(tableNameList[a])[:1])
+				strEnd := string([]byte(tableNameList[a])[1:])
+				e.Columns[i].FkTableNameClass += strings.ToUpper(strStart) + strEnd
+				e.Columns[i].FkTableNamePackage += strings.ToLower(strStart) + strings.ToLower(strEnd)
+			}
+		}
 		_, _ = e.Columns[i].Update()
 	}
 	return

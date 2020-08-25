@@ -102,6 +102,7 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 			tablesinfo.PUT("", UpdateSysTable)
 			tablesinfo.DELETE("/:tableId", DeleteSysTables)
 			tablesinfo.GET("/:tableId", GetSysTables)
+			tablesinfo.GET("",GetSysTablesInfo)
 		}
 	}
 }

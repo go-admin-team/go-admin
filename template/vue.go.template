@@ -8,6 +8,17 @@
                         {{- $x := .IsQuery -}}
                         {{- if ($x) -}}
                             <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                                {{- if ne .FkTableName "" -}}
+                                <el-select v-model="form.{{.JsonField}}"
+                                           placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                    <el-option
+                                            v-for="dict in {{.JsonField}}Options"
+                                            :key="dict.key"
+                                            :label="dict.value"
+                                            :value="dict.key"
+                                    />
+                                </el-select>
+                                {{- else -}}
                                 {{if eq .DictType "" -}}
                                     <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable
                                               size="small" @keyup.enter.native="handleQuery"/>
@@ -21,6 +32,7 @@
                                                 :value="dict.dictValue"
                                         />
                                     </el-select>
+                                {{- end}}
                                 {{- end}}
                             </el-form-item>
                         {{end}}
@@ -71,6 +83,14 @@
                     {{- range .Columns -}}
                         {{- $x := .IsList -}}
                         {{- if ($x) }}
+                            {{- if ne .FkTableName "" -}}
+                            <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :formatter="{{.JsonField}}Format" width="100">
+                                <template slot-scope="scope">
+                                    {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
+                                </template>
+                            </el-table-column>
+
+                            {{- else -}}
                             {{- if ne .DictType "" -}}
                                 <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
                                                  :formatter="{{.JsonField}}Format" width="100">
@@ -78,12 +98,14 @@
                                         {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
                                     </template>
                                 </el-table-column>
+
                             {{- end -}}
                             {{- if eq .DictType "" -}}
                                 <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
                                                  :show-overflow-tooltip="true"/>
-                            {{- end -}}
 
+                            {{- end -}}
+                            {{- end -}}
                         {{- end }}
                     {{- end }}
                     <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -134,6 +156,17 @@
                                             <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"
                                                       {{if eq .IsEdit "false" -}}:disabled="isEdit" {{- end}}/>
                                         {{- else if eq "select" .HtmlType -}}
+                                            {{- if ne .FkTableName "" -}}
+                                            <el-select v-model="form.{{.JsonField}}"
+                                                       placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                                <el-option
+                                                        v-for="dict in {{.JsonField}}Options"
+                                                        :key="dict.key"
+                                                        :label="dict.value"
+                                                        :value="dict.key"
+                                                />
+                                            </el-select>
+                                            {{- else -}}
                                             <el-select v-model="form.{{.JsonField}}"
                                                        placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
                                                 <el-option
@@ -143,6 +176,7 @@
                                                         :value="dict.dictValue"
                                                 />
                                             </el-select>
+                                            {{- end -}}
                                         {{- else if eq "radio" .HtmlType -}}
                                             <el-radio-group v-model="form.{{.JsonField}}">
                                                 <el-radio
@@ -182,6 +216,12 @@
 
 <script>
     import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .PackageName}}'
+    {{range .Columns}}
+    {{- if ne .FkTableName "" -}}
+     import {list{{.FkTableNameClass}} } from '@/api/{{ .FkTableNamePackage}}'
+
+    {{ end -}}
+    {{- end -}}
 
     export default {
         name: 'Config',
@@ -210,23 +250,27 @@
                 {{.JsonField}}Options: [],
                 {{- end -}}
                 {{- end }}
+                // 关系表类型
+                {{range .Columns}}
+                {{- if ne .FkTableName "" -}}
+                {{.JsonField}}Options :[],
+                {{ end -}}
+                {{- end }}
                 // 查询参数
                 queryParams: {
                     pageIndex: 1,
                     pageSize: 10,
-            {{ range .Columns }}
-            {{- if (.IsQuery) -}}
-            {{.JsonField}}:
-            undefined,
-            {{ end -}}
-            {{- end }}
-        },
-            // 表单参数
-            form: {
-            }
-        ,
-            // 表单校验
-            rules: {
+                    {{ range .Columns }}
+                    {{- if (.IsQuery) -}}
+                    {{.JsonField}}:undefined,
+                    {{ end -}}
+                    {{- end }}
+                },
+                // 表单参数
+                form: {
+                },
+                // 表单校验
+                rules: {
                 {{- range .Columns -}}
                 {{- $x := .IsQuery -}}
                 {{- if ($x) -}}
@@ -247,6 +291,10 @@
             this.getDicts('{{.DictType}}').then(response => {
                 this.{{.JsonField}}Options = response.data
             })
+
+            {{ end -}}
+            {{- if ne .FkTableName "" -}}
+            this.get{{.FkTableNameClass}}Items()
 
             {{ end -}}
             {{- end -}}
@@ -292,8 +340,22 @@
                 return this.selectDictLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
             },
             {{ end -}}
-            {{- end }}
-
+            {{- if ne .FkTableName "" -}}
+            {{.JsonField}}Format(row) {
+                return this.selectItemsLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
+            },
+            {{ end -}}
+            {{- end -}}
+            // 关系
+            {{range .Columns}}
+            {{- if ne .FkTableName "" -}}
+            get{{.FkTableNameClass}}Items() {
+               this.getItems(list{{.FkTableNameClass}}, undefined).then(res => {
+                   this.{{.JsonField}}Options = this.setItems(res, '{{.FkLabelId}}', '{{.FkLabelName}}')
+               })
+            },
+            {{ end -}}
+            {{- end -}}
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageIndex = 1

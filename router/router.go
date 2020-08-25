@@ -38,5 +38,7 @@ func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddle
 	v1.GET("/checkrole", nil)
 
 	// {{认证路由自动补充在此处请勿删除}} 
+ registerSysContentRouter(v1,authMiddleware) 
+ registerSysCategoryRouter(v1,authMiddleware) 
 
 }
