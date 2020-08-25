@@ -80,6 +80,18 @@ func AutoMigrate(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+	err = db.AutoMigrate(new(models.SysFileDir)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysCategory)).Error
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(new(models.SysContent)).Error
+	if err != nil {
+		return err
+	}
 
 	models.DataInit()
 	return err
