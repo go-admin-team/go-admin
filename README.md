@@ -137,6 +137,25 @@ git clone https://github.com/wenjianzhang/go-admin-ui.git
 
 
 ### 启动说明
+#### 本地启动说明
+
+* 本地热启动工具 
+
+[air](https://github.com/cosmtrek/air)
+
+```bash
+
+# 进入 go-admi 后端项目
+cd ./go-admin/config
+
+cp settings.yml settings.dev.yml 
+
+cd ..
+
+air -c .air.toml
+ 
+
+```
 
 #### 服务端启动说明
 
