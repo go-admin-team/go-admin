@@ -58,6 +58,10 @@ func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int, 
 
 	table := orm.Eloquent.Select("*").Table(e.TableName())
 
+	if e.PId != 0 {
+		table = table.Where("p_id = ?", e.PId)
+	}
+
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
