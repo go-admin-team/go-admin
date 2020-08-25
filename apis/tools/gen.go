@@ -178,9 +178,9 @@ func GenMenuAndApi(c *gin.Context) {
 	Cmenu.MenuId, err = Cmenu.Create()
 
 	MList := models.Menu{}
-	MList.MenuName = tab.TBName
+	MList.MenuName = ""
 	MList.Title = "分页获取" + tab.TableComment
-	MList.Icon = "pass"
+	MList.Icon = ""
 	MList.Path = tab.TBName
 	MList.MenuType = "F"
 	MList.Action = "无"
@@ -197,9 +197,9 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.MenuId, err = MList.Create()
 
 	MCreate := models.Menu{}
-	MCreate.MenuName = tab.TBName
+	MCreate.MenuName = ""
 	MCreate.Title = "创建" + tab.TableComment
-	MCreate.Icon = "pass"
+	MCreate.Icon = ""
 	MCreate.Path = tab.TBName
 	MCreate.MenuType = "F"
 	MCreate.Action = "无"
@@ -216,9 +216,9 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.MenuId, err = MCreate.Create()
 
 	MUpdate := models.Menu{}
-	MUpdate.MenuName = tab.TBName
+	MUpdate.MenuName = ""
 	MUpdate.Title = "修改" + tab.TableComment
-	MUpdate.Icon = "pass"
+	MUpdate.Icon = ""
 	MUpdate.Path = tab.TBName
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
@@ -235,9 +235,9 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.MenuId, err = MUpdate.Create()
 
 	MDelete := models.Menu{}
-	MDelete.MenuName = tab.TBName
+	MDelete.MenuName = ""
 	MDelete.Title = "删除" + tab.TableComment
-	MDelete.Icon = "pass"
+	MDelete.Icon = ""
 	MDelete.Path = tab.TBName
 	MDelete.MenuType = "F"
 	MDelete.Action = "无"
@@ -273,7 +273,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Amenu.MenuId, err = Amenu.Create()
 
 	AList := models.Menu{}
-	AList.MenuName = tab.TBName
+	AList.MenuName = ""
 	AList.Title = "分页获取" + tab.TableComment
 	AList.Icon = "bug"
 	AList.Path = "/api/v1/" + tab.ModuleName + "List"
@@ -291,7 +291,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AList.MenuId, err = AList.Create()
 
 	AGet := models.Menu{}
-	AGet.MenuName = tab.TBName
+	AGet.MenuName = ""
 	AGet.Title = "根据id获取" + tab.TableComment
 	AGet.Icon = "bug"
 	AGet.Path = "/api/v1/" + tab.ModuleName + "/:id"
@@ -309,7 +309,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AGet.MenuId, err = AGet.Create()
 
 	ACreate := models.Menu{}
-	ACreate.MenuName = tab.TBName
+	ACreate.MenuName = ""
 	ACreate.Title = "创建" + tab.TableComment
 	ACreate.Icon = "bug"
 	ACreate.Path = "/api/v1/" + tab.ModuleName
@@ -327,7 +327,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ACreate.MenuId, err = ACreate.Create()
 
 	AUpdate := models.Menu{}
-	AUpdate.MenuName = tab.TBName
+	AUpdate.MenuName = ""
 	AUpdate.Title = "修改" + tab.TableComment
 	AUpdate.Icon = "bug"
 	AUpdate.Path = "/api/v1/" + tab.ModuleName
@@ -345,7 +345,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AUpdate.MenuId, err = AUpdate.Create()
 
 	ADelete := models.Menu{}
-	ADelete.MenuName = tab.TBName
+	ADelete.MenuName = ""
 	ADelete.Title = "删除" + tab.TableComment
 	ADelete.Icon = "bug"
 	ADelete.Path = "/api/v1/" + tab.ModuleName + "/:id"
