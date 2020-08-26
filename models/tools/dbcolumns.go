@@ -59,7 +59,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 		table = orm.Eloquent.Select("*").Table("information_schema.columns")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
-		table = table.Where("TABLE_NAME = ?", e.TableName)
+		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
 	} else {
 		tools.Assert(true, "目前只支持mysql数据库", 500)
 	}
