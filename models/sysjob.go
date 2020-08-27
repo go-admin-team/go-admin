@@ -75,34 +75,37 @@ func (e *SysJob) Get() (SysJob, error) {
 }
 
 // 获取SysJob带分页
-func (e *SysJob) GetPage(pageSize int, pageIndex int) ([]SysJob, int, error) {
+func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}) ([]SysJob, int, error) {
 	var doc []SysJob
 
+	//table := orm.Eloquent.Select("*").Table(e.TableName())
 	table := orm.Eloquent.Table(e.TableName())
 
-	if e.JobId != 0 {
-		table = table.Where("job_id = ?", e.JobId)
-	}
+	table = tools.SetQuery(table, v)
 
-	if e.JobName != "" {
-		table = table.Where("job_name like ?", "%"+e.JobName+"%")
-	}
-
-	if e.JobGroup != "" {
-		table = table.Where("job_group = ?", e.JobGroup)
-	}
-
-	if e.CronExpression != "" {
-		table = table.Where("cron_expression = ?", e.CronExpression)
-	}
-
-	if e.InvokeTarget != "" {
-		table = table.Where("invoke_target = ?", e.InvokeTarget)
-	}
-
-	if e.Status != 0 {
-		table = table.Where("status = ?", e.Status)
-	}
+	//if e.JobId != 0 {
+	//	table = table.Where("job_id = ?", e.JobId)
+	//}
+	//
+	//if e.JobName != "" {
+	//	table = table.Where("job_name like ?", "%"+e.JobName+"%")
+	//}
+	//
+	//if e.JobGroup != "" {
+	//	table = table.Where("job_group = ?", e.JobGroup)
+	//}
+	//
+	//if e.CronExpression != "" {
+	//	table = table.Where("cron_expression = ?", e.CronExpression)
+	//}
+	//
+	//if e.InvokeTarget != "" {
+	//	table = table.Where("invoke_target = ?", e.InvokeTarget)
+	//}
+	//
+	//if e.Status != 0 {
+	//	table = table.Where("status = ?", e.Status)
+	//}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
@@ -116,7 +119,6 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int) ([]SysJob, int, error) {
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 
