@@ -26,7 +26,7 @@ func (DictType) TableName() string {
 func (e *DictType) Create() (DictType, error) {
 	var doc DictType
 
-	i := 0
+	var i int64
 	orm.Eloquent.Table(e.TableName()).Where("dict_name=? or dict_type = ?", e.DictName, e.DictType).Count(&i)
 	if i > 0 {
 		return doc, errors.New("字典名称或者字典类型已经存在！")
@@ -99,13 +99,13 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 func (e *DictType) Update(id int) (update DictType, err error) {

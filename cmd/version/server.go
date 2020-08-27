@@ -27,4 +27,3 @@ func run() error {
 	fmt.Println(global.Version)
 	return nil
 }
-

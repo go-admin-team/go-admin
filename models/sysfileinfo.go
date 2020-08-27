@@ -7,15 +7,15 @@ import (
 
 type SysFileInfo struct {
 	Id        int    `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // id
-	Type      string `json:"type" gorm:"type:varchar(255);"`     // 文件类型
-	Name      string `json:"name" gorm:"type:varchar(255);"`     // 文件名称
-	Size      string `json:"size" gorm:"type:int(11);"`          // 文件大小
-	PId       int `json:"pId" gorm:"type:int(11);"`           // 目录id
-	Source    string `json:"source" gorm:"type:varchar(255);"`   // 文件源
-	Url       string `json:"url" gorm:"type:varchar(255);"`      // 文件路径
-	FullUrl   string `json:"fullUrl" gorm:"type:varchar(255);"`  // 文件全路径
-	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"` // 创建人
-	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"` // 编辑人
+	Type      string `json:"type" gorm:"type:varchar(255);"`                    // 文件类型
+	Name      string `json:"name" gorm:"type:varchar(255);"`                    // 文件名称
+	Size      string `json:"size" gorm:"type:int(11);"`                         // 文件大小
+	PId       int    `json:"pId" gorm:"type:int(11);"`                          // 目录id
+	Source    string `json:"source" gorm:"type:varchar(255);"`                  // 文件源
+	Url       string `json:"url" gorm:"type:varchar(255);"`                     // 文件路径
+	FullUrl   string `json:"fullUrl" gorm:"type:varchar(255);"`                 // 文件全路径
+	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"`                // 创建人
+	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"`                // 编辑人
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params"  gorm:"-"`
 	BaseModel
@@ -69,13 +69,13 @@ func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int, 
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 // 更新SysFileInfo

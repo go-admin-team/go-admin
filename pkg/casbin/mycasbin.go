@@ -3,10 +3,10 @@ package mycasbin
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
-	gormAdapter "github.com/casbin/gorm-adapter/v2"
+	gormAdapter "github.com/casbin/gorm-adapter/v3"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 	"go-admin/global"
+	"log"
 )
 
 // Initialize the model from a string.

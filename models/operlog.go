@@ -71,13 +71,13 @@ func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int, er
 		table = table.Where("business_type = ?", e.BusinessType)
 	}
 
-	var count int
+	var count int64
 
 	if err := table.Order("oper_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 func (e *SysOperLog) Create() (SysOperLog, error) {

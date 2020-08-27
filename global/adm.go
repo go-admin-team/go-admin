@@ -4,8 +4,8 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/os/glog"
-	"github.com/jinzhu/gorm"
 	"github.com/robfig/cron/v3"
+	"gorm.io/gorm"
 )
 
 var GinEngine *gin.Engine

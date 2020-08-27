@@ -3,9 +3,9 @@ package models
 import (
 	"errors"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"go-admin/tools"
 	"go-admin/tools/config"
+	"gorm.io/gorm"
 )
 
 type DataPermission struct {

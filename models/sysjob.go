@@ -111,13 +111,13 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int) ([]SysJob, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 func (e *SysJob) GetList() ([]SysJob, error) {
@@ -151,7 +151,7 @@ func (e *SysJob) RemoveAllEntryID() (update SysJob, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Updates(map[string]interface{}{"entry_id": 0}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where("entry_id > ?", 0).Update("entry_id", 0).Error; err != nil {
 		return
 	}
 	return

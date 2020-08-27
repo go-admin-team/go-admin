@@ -1,9 +1,9 @@
 package tools
 
 import (
+	"fmt"
 	"os"
 	"strings"
-	"fmt"
 )
 
 //获取当前路径，比如：E:/abc/data/test

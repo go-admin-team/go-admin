@@ -2,10 +2,10 @@ package tools
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
 	orm "go-admin/global"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
+	"gorm.io/gorm"
 )
 
 type DBTables struct {
@@ -21,7 +21,7 @@ type DBTables struct {
 func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error) {
 	var doc []DBTables
 	table := new(gorm.DB)
-	var count int
+	var count int64
 
 	if config2.DatabaseConfig.Driver == "mysql" {
 		table = orm.Eloquent.Select("*").Table("information_schema.tables")
@@ -39,7 +39,7 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	}
 
 	table.Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 func (e *DBTables) Get() (DBTables, error) {

@@ -56,13 +56,13 @@ func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Order("role_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 func (role *SysRole) Get() (SysRole SysRole, err error) {
@@ -110,7 +110,7 @@ func (role *SysRole) GetRoleMeunId() ([]int, error) {
 }
 
 func (role *SysRole) Insert() (id int, err error) {
-	i := 0
+	var i int64
 	orm.Eloquent.Table(role.TableName()).Where("role_name=? or role_key = ?", role.RoleName, role.RoleKey).Count(&i)
 	if i > 0 {
 		return 0, errors.New("角色名称或者角色标识已经存在！")

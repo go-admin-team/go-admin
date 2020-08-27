@@ -1,11 +1,17 @@
 package database
 
 import (
-	_ "github.com/go-sql-driver/mysql" //加载mysql
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm/schema"
+	"log"
+	"os"
+	"time"
+
 	"go-admin/global"
 	"go-admin/tools"
 	"go-admin/tools/config"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Mysql struct {
@@ -13,28 +19,36 @@ type Mysql struct {
 
 func (e *Mysql) Setup() {
 	var err error
-	var db Database
 
-	db = new(Mysql)
-	global.Source = db.GetConnect()
+	global.Source = e.GetConnect()
 	global.Logger.Info(tools.Green(global.Source))
-	global.Eloquent, err = db.Open(db.GetDriver(), db.GetConnect())
+	global.Eloquent, err = e.Open(e.GetConnect(), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+	})
 	if err != nil {
-		global.Logger.Fatal(tools.Red(db.GetDriver()+" connect error :"), err)
+		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
 	} else {
-		global.Logger.Info(tools.Green(db.GetDriver() + " connect success !"))
+		global.Logger.Info(tools.Green(e.GetDriver() + " connect success !"))
 	}
 
 	if global.Eloquent.Error != nil {
 		global.Logger.Fatal(tools.Red(" database error :"), global.Eloquent.Error)
 	}
 
-	global.Eloquent.LogMode(config.LoggerConfig.EnabledDB)
+	if config.LoggerConfig.EnabledDB {
+		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+			SlowThreshold: time.Second,
+			Colorful:      true,
+			LogLevel:      logger.Info,
+		})
+	}
 }
 
 // 打开数据库连接
-func (e *Mysql) Open(dbType string, conn string) (db *gorm.DB, err error) {
-	return gorm.Open(dbType, conn)
+func (e *Mysql) Open(conn string, cfg *gorm.Config) (db *gorm.DB, err error) {
+	return gorm.Open(mysql.Open(conn), cfg)
 }
 
 // 获取数据库连接

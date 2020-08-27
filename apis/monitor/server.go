@@ -53,9 +53,9 @@ func ServerInfo(c *gin.Context) {
 	memDic["usage"] = memUsedPercent
 
 	cpuDic := make(map[string]interface{}, 0)
-	cpuDic["cpuInfo"],_ = cpu.Info()
-	percent,_ := cpu.Percent(0,false)
-	cpuDic["Percent"] = tools.Round(percent[0],2)
+	cpuDic["cpuInfo"], _ = cpu.Info()
+	percent, _ := cpu.Percent(0, false)
+	cpuDic["Percent"] = tools.Round(percent[0], 2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
 	app.Custum(c, gin.H{

@@ -7,15 +7,15 @@ import (
 
 type SysContent struct {
 	Id        int    `json:"id" gorm:"type:int(11);primary_key;auto_increment"` // id
-	CateId    string `json:"cateId" gorm:"type:int(11);"`        // 分类id
-	Name      string `json:"name" gorm:"type:varchar(255);"`     // 名称
-	Status    string `json:"status" gorm:"type:int(1);"`         // 状态
-	Img       string `json:"img" gorm:"type:varchar(255);"`      // 图片
-	Content   string `json:"content" gorm:"type:text;"`          // 内容
-	Remark    string `json:"remark" gorm:"type:varchar(255);"`   // 备注
-	Sort      string `json:"sort" gorm:"type:int(4);"`           // 排序
-	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"` // 创建者
-	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"` // 更新者
+	CateId    string `json:"cateId" gorm:"type:int(11);"`                       // 分类id
+	Name      string `json:"name" gorm:"type:varchar(255);"`                    // 名称
+	Status    string `json:"status" gorm:"type:int(1);"`                        // 状态
+	Img       string `json:"img" gorm:"type:varchar(255);"`                     // 图片
+	Content   string `json:"content" gorm:"type:text;"`                         // 内容
+	Remark    string `json:"remark" gorm:"type:varchar(255);"`                  // 备注
+	Sort      string `json:"sort" gorm:"type:int(4);"`                          // 排序
+	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"`                // 创建者
+	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"`                // 更新者
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params"  gorm:"-"`
 	BaseModel
@@ -89,13 +89,13 @@ func (e *SysContent) GetPage(pageSize int, pageIndex int) ([]SysContent, int, er
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 // 更新SysContent

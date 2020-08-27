@@ -2,10 +2,10 @@ package models
 
 import (
 	"errors"
-	"log"
 	orm "go-admin/global"
 	"go-admin/tools"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"strings"
 )
 
@@ -220,13 +220,13 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("sys_user.deleted_at IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 //加密
@@ -251,7 +251,7 @@ func (e SysUser) Insert() (id int, err error) {
 	}
 
 	// check 用户名
-	var count int
+	var count int64
 	orm.Eloquent.Table(e.TableName()).Where("username = ?", e.Username).Count(&count)
 	if count > 0 {
 		err = errors.New("账户已存在！")

@@ -81,4 +81,3 @@ func Setup(path string) {
 	}
 	GenConfig = InitGen(cfgGen)
 }
-

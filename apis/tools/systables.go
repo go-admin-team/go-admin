@@ -72,7 +72,7 @@ func GetSysTables(c *gin.Context) {
 
 func GetSysTablesInfo(c *gin.Context) {
 	var data tools.SysTables
-	if c.Request.FormValue("tableName")!="" {
+	if c.Request.FormValue("tableName") != "" {
 		data.TBName = c.Request.FormValue("tableName")
 	}
 	result, err := data.Get()

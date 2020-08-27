@@ -91,7 +91,6 @@ func registerDBRouter(api *gin.RouterGroup) {
 	}
 }
 
-
 func registerSysTableRouter(v1 *gin.RouterGroup) {
 	systables := v1.Group("/sys/tables")
 	{
@@ -102,7 +101,7 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 			tablesinfo.PUT("", UpdateSysTable)
 			tablesinfo.DELETE("/:tableId", DeleteSysTables)
 			tablesinfo.GET("/:tableId", GetSysTables)
-			tablesinfo.GET("",GetSysTablesInfo)
+			tablesinfo.GET("", GetSysTablesInfo)
 		}
 	}
 }

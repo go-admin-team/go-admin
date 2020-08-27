@@ -1,11 +1,16 @@
 package database
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+	"log"
+	"os"
+	"time"
+
 	"go-admin/global"
 	"go-admin/tools/config"
-	"log"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type PgSql struct {
@@ -13,28 +18,36 @@ type PgSql struct {
 
 func (e *PgSql) Setup() {
 	var err error
-	var db Database
 
-	db = new(PgSql)
-	global.Source = db.GetConnect()
+	global.Source = e.GetConnect()
 	log.Println(global.Source)
-	global.Eloquent, err = db.Open(db.GetDriver(), db.GetConnect())
+	global.Eloquent, err = e.Open(e.GetDriver(), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+	})
 	if err != nil {
-		log.Fatalf("%s connect error %v", db.GetDriver(), err)
+		log.Fatalf("%s connect error %v", e.GetDriver(), err)
 	} else {
-		log.Printf("%s connect success!", db.GetDriver())
+		log.Printf("%s connect success!", e.GetDriver())
 	}
 
 	if global.Eloquent.Error != nil {
 		log.Fatalf("database error %v", global.Eloquent.Error)
 	}
 
-	global.Eloquent.LogMode(true)
+	if config.LoggerConfig.EnabledDB {
+		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+			SlowThreshold: time.Second,
+			Colorful:      true,
+			LogLevel:      logger.Info,
+		})
+	}
 }
 
 // 打开数据库连接
-func (*PgSql) Open(dbType string, conn string) (db *gorm.DB, err error) {
-	eloquent, err := gorm.Open(dbType, conn)
+func (*PgSql) Open(conn string, cfg *gorm.Config) (db *gorm.DB, err error) {
+	eloquent, err := gorm.Open(postgres.Open(conn), cfg)
 	return eloquent, err
 }
 

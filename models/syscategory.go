@@ -1,5 +1,3 @@
-
-
 package models
 
 import (
@@ -8,17 +6,16 @@ import (
 )
 
 type SysCategory struct {
-
-	Id int `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // 分类Id
-	Name string `json:"name" gorm:"type:varchar(255);"` // 名称
-	Img string `json:"img" gorm:"type:varchar(255);"` // 图片
-	Sort string `json:"sort" gorm:"type:int(4);"` // 排序
-	Status string `json:"status" gorm:"type:int(1);"` // 状态
-	Remark string `json:"remark" gorm:"type:varchar(255);"` // 备注
-	CreateBy string `json:"createBy" gorm:"type:varchar(64);"` // 创建者
-	UpdateBy string `json:"updateBy" gorm:"type:varchar(64);"` // 更新者
-	DataScope   string `json:"dataScope" gorm:"-"`
-	Params      string `json:"params"  gorm:"-"`
+	Id        int    `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // 分类Id
+	Name      string `json:"name" gorm:"type:varchar(255);"`                    // 名称
+	Img       string `json:"img" gorm:"type:varchar(255);"`                     // 图片
+	Sort      string `json:"sort" gorm:"type:int(4);"`                          // 排序
+	Status    string `json:"status" gorm:"type:int(1);"`                        // 状态
+	Remark    string `json:"remark" gorm:"type:varchar(255);"`                  // 备注
+	CreateBy  string `json:"createBy" gorm:"type:varchar(64);"`                 // 创建者
+	UpdateBy  string `json:"updateBy" gorm:"type:varchar(64);"`                 // 更新者
+	DataScope string `json:"dataScope" gorm:"-"`
+	Params    string `json:"params"  gorm:"-"`
 	BaseModel
 }
 
@@ -38,34 +35,22 @@ func (e *SysCategory) Create() (SysCategory, error) {
 	return doc, nil
 }
 
-
 // 获取SysCategory
 func (e *SysCategory) Get() (SysCategory, error) {
 	var doc SysCategory
 	table := orm.Eloquent.Table(e.TableName())
 
-
 	if e.Id != 0 {
 		table = table.Where("id = ?", e.Id)
 	}
 
-	if e.Name != ""  {
+	if e.Name != "" {
 		table = table.Where("name = ?", e.Name)
 	}
 
-
-
-
-	if e.Status != ""  {
+	if e.Status != "" {
 		table = table.Where("status = ?", e.Status)
 	}
-
-
-
-
-
-
-
 
 	if err := table.First(&doc).Error; err != nil {
 		return doc, err
@@ -79,29 +64,28 @@ func (e *SysCategory) GetPage(pageSize int, pageIndex int) ([]SysCategory, int, 
 
 	table := orm.Eloquent.Select("*").Table(e.TableName())
 
-	if e.Name != ""  {
+	if e.Name != "" {
 		table = table.Where("name = ?", e.Name)
 	}
 
-	if e.Status != ""  {
+	if e.Status != "" {
 		table = table.Where("status = ?", e.Status)
 	}
-
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table,err := dataPermission.GetDataScope(e.TableName(), table)
+	table, err := dataPermission.GetDataScope(e.TableName(), table)
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 // 更新SysCategory

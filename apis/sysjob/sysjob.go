@@ -101,7 +101,7 @@ func StartJob(c *gin.Context) {
 	data.JobId, _ = tools.StringToInt(c.Param("jobId"))
 	result, err := data.Get()
 	tools.HasError(err, "", 500)
-	if result.JobType == 1{
+	if result.JobType == 1 {
 		var j = &jobs.HttpJob{}
 		j.InvokeTarget = result.InvokeTarget
 		j.CronExpression = result.CronExpression
