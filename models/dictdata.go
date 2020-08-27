@@ -32,7 +32,7 @@ func (DictData) TableName() string {
 func (e *DictData) Create() (DictData, error) {
 	var doc DictData
 
-	i := 0
+	var i int64
 	orm.Eloquent.Table(e.TableName()).Where("dict_label=? or (dict_label=? and dict_value = ?)", e.DictLabel, e.DictValue).Count(&i)
 	if i > 0 {
 		return doc, errors.New("字典标签或者字典键值已经存在！")
@@ -111,13 +111,13 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Order("dict_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 func (e *DictData) Update(id int) (update DictData, err error) {

@@ -81,7 +81,7 @@ func InsertRole(c *gin.Context) {
 	data.RoleId = id
 
 	var t models.RoleMenu
-	if len(data.MenuIds)>0 {
+	if len(data.MenuIds) > 0 {
 		_, err = t.Insert(id, data.MenuIds)
 		tools.HasError(err, "", -1)
 	}
@@ -107,7 +107,7 @@ func UpdateRole(c *gin.Context) {
 	var t models.RoleMenu
 	_, err = t.DeleteRoleMenu(data.RoleId)
 	tools.HasError(err, "修改失败（delete rm）", -1)
-	if len(data.MenuIds)>0 {
+	if len(data.MenuIds) > 0 {
 		_, err2 := t.Insert(data.RoleId, data.MenuIds)
 		tools.HasError(err2, "修改失败（insert）", -1)
 	}

@@ -2,10 +2,10 @@ package tools
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
 	orm "go-admin/global"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
+	"gorm.io/gorm"
 )
 
 type DBColumns struct {
@@ -25,7 +25,7 @@ type DBColumns struct {
 
 func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, error) {
 	var doc []DBColumns
-	var count int
+	var count int64
 	table := new(gorm.DB)
 
 	if config2.DatabaseConfig.Driver == "mysql" {
@@ -43,7 +43,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 		return nil, 0, err
 	}
 	table.Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 
 }
 

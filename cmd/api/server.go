@@ -69,7 +69,7 @@ func run() error {
 	}
 
 	r := router.InitRouter()
-	defer global.Eloquent.Close()
+	//defer global.Eloquent.Close()
 
 	srv := &http.Server{
 		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
@@ -80,7 +80,6 @@ func run() error {
 		jobs.Setup()
 
 	}()
-
 
 	go func() {
 		// 服务连接

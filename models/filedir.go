@@ -7,12 +7,12 @@ import (
 
 type SysFileDir struct {
 	Id        int          `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` //
-	Label     string       `json:"label" gorm:"type:varchar(255);"`    // 名称
-	PId       int          `json:"pId" gorm:"type:int(11);"`           // 父id
-	Sort      int          `json:"sort" gorm:""`                       //排序
-	Path      string       `json:"path" gorm:"size:255;"`              //
-	CreateBy  string       `json:"createBy" gorm:"type:varchar(128);"` // 创建人
-	UpdateBy  string       `json:"updateBy" gorm:"type:varchar(128);"` // 编辑人
+	Label     string       `json:"label" gorm:"type:varchar(255);"`                   // 名称
+	PId       int          `json:"pId" gorm:"type:int(11);"`                          // 父id
+	Sort      int          `json:"sort" gorm:""`                                      //排序
+	Path      string       `json:"path" gorm:"size:255;"`                             //
+	CreateBy  string       `json:"createBy" gorm:"type:varchar(128);"`                // 创建人
+	UpdateBy  string       `json:"updateBy" gorm:"type:varchar(128);"`                // 编辑人
 	Children  []SysFileDir `json:"children" gorm:"-"`
 	DataScope string       `json:"dataScope" gorm:"-"`
 	Params    string       `json:"params"  gorm:"-"`
@@ -42,7 +42,7 @@ func (e *SysFileDir) Create() (SysFileDir, error) {
 	}
 	var mp = map[string]string{}
 	mp["path"] = path
-	if err := orm.Eloquent.Table(e.TableName()).Where("id = ?", e.Id).Update(mp).Error; err != nil {
+	if err := orm.Eloquent.Table(e.TableName()).Where("id = ?", e.Id).Updates(mp).Error; err != nil {
 		err := result.Error
 		return doc, err
 	}
@@ -80,13 +80,13 @@ func (e *SysFileDir) GetPage() ([]SysFileDir, int, error) {
 	//if err != nil {
 	//	return nil, 0, err
 	//}
-	var count int
+	var count int64
 
 	if err := table.Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 // 更新SysFileDir

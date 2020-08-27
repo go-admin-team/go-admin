@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"go-admin/global"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
 	"go-admin/router"
+	"gorm.io/gorm"
 	"log"
 )
 

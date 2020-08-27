@@ -1,94 +1,93 @@
 package gorm
 
 import (
-	"github.com/jinzhu/gorm"
 	"go-admin/models"
 	"go-admin/models/tools"
+	"gorm.io/gorm"
 )
 
 func AutoMigrate(db *gorm.DB) error {
-	db.SingularTable(true)
-	err := db.AutoMigrate(new(models.CasbinRule)).Error
+	err := db.AutoMigrate(new(models.CasbinRule))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysDept)).Error
+	err = db.AutoMigrate(new(models.SysDept))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysConfig)).Error
+	err = db.AutoMigrate(new(models.SysConfig))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(tools.SysTables)).Error
+	err = db.AutoMigrate(new(tools.SysTables))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(tools.SysColumns)).Error
+	err = db.AutoMigrate(new(tools.SysColumns))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.Menu)).Error
+	err = db.AutoMigrate(new(models.Menu))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.LoginLog)).Error
+	err = db.AutoMigrate(new(models.LoginLog))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysOperLog)).Error
+	err = db.AutoMigrate(new(models.SysOperLog))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.RoleMenu)).Error
+	err = db.AutoMigrate(new(models.RoleMenu))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysRoleDept)).Error
+	err = db.AutoMigrate(new(models.SysRoleDept))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysUser)).Error
+	err = db.AutoMigrate(new(models.SysUser))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysRole)).Error
+	err = db.AutoMigrate(new(models.SysRole))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.Post)).Error
+	err = db.AutoMigrate(new(models.Post))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.DictData)).Error
+	err = db.AutoMigrate(new(models.DictData))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.DictType)).Error
+	err = db.AutoMigrate(new(models.DictType))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysJob)).Error
+	err = db.AutoMigrate(new(models.SysJob))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysConfig)).Error
+	err = db.AutoMigrate(new(models.SysConfig))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysSetting)).Error
+	err = db.AutoMigrate(new(models.SysSetting))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysFileDir)).Error
+	err = db.AutoMigrate(new(models.SysFileDir))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysCategory)).Error
+	err = db.AutoMigrate(new(models.SysCategory))
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(new(models.SysContent)).Error
+	err = db.AutoMigrate(new(models.SysContent))
 	if err != nil {
 		return err
 	}
@@ -98,6 +97,5 @@ func AutoMigrate(db *gorm.DB) error {
 }
 
 func CustomMigrate(db *gorm.DB, table interface{}) error {
-	db.SingularTable(true)
-	return db.AutoMigrate(&table).Error
+	return db.AutoMigrate(&table)
 }

@@ -34,7 +34,7 @@ func (SysConfig) TableName() string {
 // Config 创建
 func (e *SysConfig) Create() (SysConfig, error) {
 	var doc SysConfig
-	i := 0
+	var i int64
 	orm.Eloquent.Table(e.TableName()).Where("config_name=? or config_key = ?", e.ConfigName, e.ConfigKey).Count(&i)
 	if i > 0 {
 		return doc, errors.New("参数名称或者参数键名已经存在！")
@@ -90,13 +90,13 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 	if err != nil {
 		return nil, 0, err
 	}
-	var count int
+	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	table.Where("`deleted_at` IS NULL").Count(&count)
-	return doc, count, nil
+	return doc, int(count), nil
 }
 
 func (e *SysConfig) Update(id int) (update SysConfig, err error) {

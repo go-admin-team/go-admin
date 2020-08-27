@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-admin/global"
 	"io/ioutil"
+	"log"
 	"strings"
 )
 
@@ -32,6 +33,7 @@ func ExecSql(filePath string) error {
 		sql := strings.Replace(sqlList[i]+";", "\n", "", 0)
 		sql = strings.TrimSpace(sql)
 		if err = global.Eloquent.Exec(sql).Error; err != nil {
+			log.Printf("error sql: %s", sql)
 			if !strings.Contains(err.Error(), "Query was empty") {
 				return err
 			}

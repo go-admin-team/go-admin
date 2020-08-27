@@ -76,7 +76,7 @@ func (c *Client) Read(cxt context.Context) {
 
 // 写信息，从 channel 变量 Send 中读取数据写入 websocket 连接
 func (c *Client) Write(cxt context.Context) {
-	defer func(cxt context.Context, ) {
+	defer func(cxt context.Context) {
 		log.Printf("client [%s] disconnect", c.Id)
 		if err := c.Socket.Close(); err != nil {
 			log.Printf("client [%s] disconnect err: %s", c.Id, err)

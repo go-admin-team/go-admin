@@ -1,10 +1,10 @@
 package database
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 type Database interface {
 	Setup()
-	Open(dbType string, conn string) (db *gorm.DB, err error)
+	Open(conn string, cfg *gorm.Config) (db *gorm.DB, err error)
 	GetConnect() string
 	GetDriver() string
 }

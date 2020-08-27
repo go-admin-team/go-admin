@@ -52,7 +52,7 @@ func (e *SysDept) Create() (SysDept, error) {
 	}
 	var mp = map[string]string{}
 	mp["deptPath"] = deptPath
-	if err := orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Update(mp).Error; err != nil {
+	if err := orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.DeptId).Updates(mp).Error; err != nil {
 		err := result.Error
 		return doc, err
 	}

@@ -23,7 +23,7 @@ func IsStringEmpty(str string) bool {
 
 func GetUUID() string {
 	u := uuid.NewV4()
-	return strings.ReplaceAll(u.String(),"-","")
+	return strings.ReplaceAll(u.String(), "-", "")
 }
 
 func PathExists(path string) bool {
@@ -75,9 +75,6 @@ func GetDirFiles(dir string) ([]string, error) {
 func GetCurrentTimeStamp() int64 {
 	return time.Now().UnixNano() / 1e6
 }
-
-
-
 
 //slice去重
 func RemoveRepByMap(slc []string) []string {

@@ -44,7 +44,7 @@ func run() {
 	fmt.Println("数据库结构初始化成功！")
 	//5. 数据初始化完成
 	if err := models.InitDb(); err != nil {
-		global.Logger.Fatal("数据库基础数据初始化失败！error: %v ", err)
+		global.Logger.Fatalf("数据库基础数据初始化失败！error: %v ", err)
 	}
 	usage = `数据库基础数据初始化成功`
 	fmt.Println(usage)

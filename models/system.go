@@ -6,8 +6,8 @@ import (
 
 type SysSetting struct {
 	SettingsId int    `json:"settings_id" gorm:"primary_key;AUTO_INCREMENT"`
-	Name   string `json:"name" gorm:"type:varchar(256);"`
-	Logo      string `json:"logo" gorm:"type:varchar(256);"`
+	Name       string `json:"name" gorm:"type:varchar(256);"`
+	Logo       string `json:"logo" gorm:"type:varchar(256);"`
 	BaseModel
 }
 
@@ -22,7 +22,7 @@ func (s *SysSetting) Get() (create SysSetting, err error) {
 		err = result.Error
 		return
 	}
-	return create,nil
+	return create, nil
 }
 
 //修改
@@ -34,6 +34,6 @@ func (s *SysSetting) Update() (update SysSetting, err error) {
 }
 
 type ResponseSystemConfig struct {
-	Name    string `json:"name" binding:"required"`    // 名称
-	Logo    string `json:"logo" binding:"required"`     // 头像
+	Name string `json:"name" binding:"required"` // 名称
+	Logo string `json:"logo" binding:"required"` // 头像
 }
