@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	
+
 	"go-admin/dto"
 	"go-admin/jobs"
 	"go-admin/models"
@@ -76,10 +76,14 @@ func UpdateSysJob(c *gin.Context) {
 
 func DeleteSysJob(c *gin.Context) {
 	var data models.SysJob
+
+	var v tools.GeneralDelDto
+	err := c.BindUri(&v)
+
 	data.UpdateBy = tools.GetUserIdStr(c)
 
-	IDS := tools.IdsStrToIdsIntGroup("jobId", c)
-	_, err := data.BatchDelete(IDS)
+	IDS := tools.IdsStrToIdsIntGroupStr(v.Id)
+	_, err = data.BatchDelete(IDS)
 	tools.HasError(err, msg.DeletedFail, 500)
 	app.OK(c, nil, msg.DeletedSuccess)
 }

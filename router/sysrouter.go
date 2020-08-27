@@ -111,10 +111,10 @@ func registerSysJobRouter(v1 *gin.RouterGroup) {
 	r := v1.Group("/sysjob")
 	{
 		r.GET("", sysjob.GetSysJobList)
-		r.GET("/:jobId", sysjob.GetSysJob)
+		r.GET("/:id", sysjob.GetSysJob)
 		r.POST("", sysjob.InsertSysJob)
 		r.PUT("", sysjob.UpdateSysJob)
-		r.DELETE("/:jobId", sysjob.DeleteSysJob)
+		r.DELETE("/:id", sysjob.DeleteSysJob)
 	}
 
 	v1.GET("/job/remove/:jobId", sysjob.RemoveJob)
