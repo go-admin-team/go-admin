@@ -2,6 +2,7 @@ package sysjob
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-admin/dto"
 	"go-admin/jobs"
 	"go-admin/models"
 	"go-admin/tools"
@@ -23,15 +24,19 @@ func GetSysJobList(c *gin.Context) {
 		pageIndex = tools.StrToInt(err, index)
 	}
 
-	data.JobId, _ = tools.StringToInt(c.Request.FormValue("jobId"))
-	data.JobName = c.Request.FormValue("jobName")
-	data.JobGroup = c.Request.FormValue("jobGroup")
-	data.CronExpression = c.Request.FormValue("cronExpression")
-	data.InvokeTarget = c.Request.FormValue("invokeTarget")
-	data.Status, _ = tools.StringToInt(c.Request.FormValue("status"))
+	var v dto.SysJobSearch
+	err = c.Bind(&v)
+	tools.HasError(err, "数据解析失败", 422)
+
+	//data.JobId, _ = tools.StringToInt(c.Request.FormValue("jobId"))
+	//data.JobName = c.Request.FormValue("jobName")
+	//data.JobGroup = c.Request.FormValue("jobGroup")
+	//data.CronExpression = c.Request.FormValue("cronExpression")
+	//data.InvokeTarget = c.Request.FormValue("invokeTarget")
+	//data.Status, _ = tools.StringToInt(c.Request.FormValue("status"))
 
 	data.DataScope = tools.GetUserIdStr(c)
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, count, err := data.GetPage(pageSize, pageIndex, v)
 	tools.HasError(err, "", -1)
 
 	app.PageOK(c, result, count, pageIndex, pageSize, "")
