@@ -78,7 +78,8 @@ func (e *SysJob) Get() (SysJob, error) {
 func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}) ([]SysJob, int, error) {
 	var doc []SysJob
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	//table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 
 	table = tools.SetQuery(table, v)
 
@@ -118,7 +119,7 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}) ([]SysJob, 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	table.Count(&count)
 	return doc, int(count), nil
 }
 

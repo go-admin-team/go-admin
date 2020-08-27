@@ -1,9 +1,9 @@
 package tools
 
 import (
-	"go-admin/pkg/search"
 	"go-admin/tools/config"
 
+	"github.com/matchstalk/utils/search"
 	"gorm.io/gorm"
 )
 
