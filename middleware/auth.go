@@ -1,10 +1,11 @@
 package middleware
 
 import (
+	"time"
+
 	"go-admin/handler"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/tools/config"
-	"time"
 )
 
 func AuthInit() (*jwt.GinJWTMiddleware, error) {

@@ -2,15 +2,16 @@ package models
 
 import (
 	"fmt"
-	"go-admin/global"
 	"io/ioutil"
 	"log"
 	"strings"
+
+	"go-admin/global"
 )
 
-func InitDb() error {
+func InitDb() (err error) {
 	filePath := "config/db.sql"
-	err := ExecSql(filePath)
+	err = ExecSql(filePath)
 	if global.Driver == "postgres" {
 		filePath = "config/pg.sql"
 		err = ExecSql(filePath)

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+
 	orm "go-admin/global"
 	"go-admin/tools"
 )
@@ -90,7 +91,7 @@ func (e *DictData) Get() ([]DictData, error) {
 func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error) {
 	var doc []DictData
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 	if e.DictCode != 0 {
 		table = table.Where("dict_code = ?", e.DictCode)
 	}
@@ -113,10 +114,10 @@ func (e *DictData) GetPage(pageSize int, pageIndex int) ([]DictData, int, error)
 	}
 	var count int64
 
-	if err := table.Order("dict_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("dict_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 

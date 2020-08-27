@@ -3,16 +3,17 @@
 package database
 
 import (
-	"gorm.io/gorm/schema"
 	"log"
 	"os"
 	"time"
 
-	"go-admin/global"
-	"go-admin/tools/config"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+
+	"go-admin/global"
+	"go-admin/tools/config"
 )
 
 type SqLite struct {

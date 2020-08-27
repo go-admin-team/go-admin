@@ -1,8 +1,9 @@
 package models
 
 import (
-	orm "go-admin/global"
 	"time"
+
+	orm "go-admin/global"
 )
 
 //sys_operlog
@@ -57,7 +58,7 @@ func (e *SysOperLog) Get() (SysOperLog, error) {
 func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int, error) {
 	var doc []SysOperLog
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 	if e.OperIp != "" {
 		table = table.Where("oper_ip = ?", e.OperIp)
 	}
@@ -73,10 +74,10 @@ func (e *SysOperLog) GetPage(pageSize int, pageIndex int) ([]SysOperLog, int, er
 
 	var count int64
 
-	if err := table.Order("oper_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("oper_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 

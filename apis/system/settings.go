@@ -3,11 +3,14 @@ package system
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
-	"strings"
+
 )
 
 // @Summary 查询系统信息

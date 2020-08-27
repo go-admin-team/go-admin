@@ -3,10 +3,11 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func StringToInt64(e string) (int64, error) {

@@ -1,8 +1,9 @@
 package models
 
 import (
-	orm "go-admin/global"
 	"time"
+
+	orm "go-admin/global"
 )
 
 type LoginLog struct {
@@ -48,7 +49,7 @@ func (e *LoginLog) Get() (LoginLog, error) {
 func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int, error) {
 	var doc []LoginLog
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 	if e.Ipaddr != "" {
 		table = table.Where("ipaddr = ?", e.Ipaddr)
 	}
@@ -61,10 +62,10 @@ func (e *LoginLog) GetPage(pageSize int, pageIndex int) ([]LoginLog, int, error)
 
 	var count int64
 
-	if err := table.Order("info_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("info_id desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 

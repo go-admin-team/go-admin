@@ -2,12 +2,13 @@ package middleware
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/jwtauth"
-	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
-	"net/http"
 )
 
 //权限检查中间件

@@ -1,17 +1,13 @@
 package database
 
 import (
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"log"
-	"os"
-	"time"
 
 	"go-admin/global"
 	"go-admin/tools"
 	"go-admin/tools/config"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type Mysql struct {
@@ -38,11 +34,11 @@ func (e *Mysql) Setup() {
 	}
 
 	if config.LoggerConfig.EnabledDB {
-		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold: time.Second,
-			Colorful:      true,
-			LogLevel:      logger.Info,
-		})
+		//global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
+		//	SlowThreshold: time.Second,
+		//	Colorful:      true,
+		//	LogLevel:      logger.Info,
+		//})
 	}
 }
 

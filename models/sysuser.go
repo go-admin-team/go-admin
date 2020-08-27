@@ -2,11 +2,13 @@ package models
 
 import (
 	"errors"
-	orm "go-admin/global"
-	"go-admin/tools"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
+
+	orm "go-admin/global"
+	"go-admin/tools"
 )
 
 // User
@@ -222,10 +224,10 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 	}
 	var count int64
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("sys_user.deleted_at IS NULL").Count(&count)
+	//table.Where("sys_user.deleted_at IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 

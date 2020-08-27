@@ -452,8 +452,8 @@ INSERT INTO sys_user VALUES (2, 'zhangwj', '13211111111', 3, NULL, NULL, '0', 'q
 
 INSERT INTO sys_setting VALUES (1, 'go-admin管理系统', 'https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png', '2020-08-05 14:27:34', '2020-08-07 10:13:31' ,NULL);
 
-INSERT INTO sys_job VALUES (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ?', 'http://localhost:8000', NULL, 1, 1, 2, 1, '', '', '2020-08-03 14:54:03', '2020-08-25 16:49:46', NULL);
-INSERT INTO sys_job VALUES (2, '函数测试', 'DEFAULT', 2, '0/5 * * * * ?', 'ExamplesOne', '参数', 1, 1, 2, 2, '', '', '2020-08-11 21:41:23', '2020-08-25 16:49:46', NULL);
+INSERT INTO sys_job VALUES (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ', 'http://localhost:8000', NULL, 1, 1, 2, 1, '', '', '2020-08-03 14:54:03', '2020-08-25 16:49:46', NULL);
+INSERT INTO sys_job VALUES (2, '函数测试', 'DEFAULT', 2, '0/5 * * * * ', 'ExamplesOne', '参数', 1, 1, 2, 2, '', '', '2020-08-11 21:41:23', '2020-08-25 16:49:46', NULL);
 COMMIT;
 
 -- 数据完成 ;

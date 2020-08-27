@@ -1,12 +1,12 @@
 package mycasbin
 
 import (
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
-	gormAdapter "github.com/casbin/gorm-adapter/v3"
-	_ "github.com/go-sql-driver/mysql"
-	"go-admin/global"
 	"log"
+
+	"github.com/casbin/casbin/v2"
+	_ "github.com/go-sql-driver/mysql"
+
+	"go-admin/global"
 )
 
 // Initialize the model from a string.
@@ -25,19 +25,19 @@ m = r.sub == p.sub && (keyMatch2(r.obj, p.obj) || keyMatch(r.obj, p.obj)) && (r.
 `
 
 func Setup() {
-	Apter, err := gormAdapter.NewAdapterByDB(global.Eloquent)
-	if err != nil {
-		panic(err)
-	}
-	m, err := model.NewModelFromString(text)
-	if err != nil {
-		panic(err)
-	}
-	e, err := casbin.NewSyncedEnforcer(m, Apter)
-	if err != nil {
-		panic(err)
-	}
-	global.CasbinEnforcer = e
+	//Apter, err := gormAdapter.NewAdapterByDB(global.Eloquent)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//m, err := model.NewModelFromString(text)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//e, err := casbin.NewSyncedEnforcer(m, Apter)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//global.CasbinEnforcer = e
 }
 
 func Casbin() (*casbin.SyncedEnforcer, error) {

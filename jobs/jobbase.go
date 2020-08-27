@@ -2,13 +2,15 @@ package jobs
 
 import (
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/robfig/cron/v3"
+
 	"go-admin/global"
 	"go-admin/models"
 	"go-admin/pkg"
 	"go-admin/pkg/cronjob"
-	"sync"
-	"time"
 )
 
 var timeFormat = "2006-01-02 15:04:05"

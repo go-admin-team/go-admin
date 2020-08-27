@@ -2,10 +2,12 @@ package tools
 
 import (
 	"errors"
+
+	"gorm.io/gorm"
+
 	orm "go-admin/global"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
-	"gorm.io/gorm"
 )
 
 type DBColumns struct {
@@ -29,7 +31,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 	table := new(gorm.DB)
 
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
+		table = orm.Eloquent.Table("information_schema.`COLUMNS`")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		if e.TableName != "" {
@@ -39,10 +41,10 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Count(&count)
+	//table.Count(&count)
 	return doc, int(count), nil
 
 }
@@ -56,7 +58,7 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 	}
 
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Select("*").Table("information_schema.columns")
+		table = orm.Eloquent.Table("information_schema.columns")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")

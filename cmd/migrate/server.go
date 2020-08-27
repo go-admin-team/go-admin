@@ -2,14 +2,15 @@ package migrate
 
 import (
 	"fmt"
+
+	"github.com/spf13/cobra"
+
 	"go-admin/database"
 	"go-admin/global"
 	"go-admin/models"
 	"go-admin/models/gorm"
 	"go-admin/pkg/logger"
 	"go-admin/tools/config"
-
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -52,7 +53,9 @@ func run() {
 
 func migrateModel() error {
 	if config.DatabaseConfig.Driver == "mysql" {
-		global.Eloquent = global.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+		global.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
 	}
-	return gorm.AutoMigrate(global.Eloquent)
+	err := gorm.AutoMigrate(global.Eloquent)
+	//gorm.InitData(global.Eloquent)
+	return err
 }

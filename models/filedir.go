@@ -71,7 +71,7 @@ func (e *SysFileDir) Get() (SysFileDir, error) {
 func (e *SysFileDir) GetPage() ([]SysFileDir, int, error) {
 	var doc []SysFileDir
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	//dataPermission := new(DataPermission)

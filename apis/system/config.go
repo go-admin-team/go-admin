@@ -1,13 +1,15 @@
 package system
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/app/msg"
-	"net/http"
 )
 
 // @Summary 配置列表数据

@@ -83,7 +83,7 @@ func (e *Post) GetList() ([]Post, error) {
 func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 	var doc []Post
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 	if e.PostId != 0 {
 		table = table.Where("post_id = ?", e.PostId)
 	}
@@ -106,10 +106,10 @@ func (e *Post) GetPage(pageSize int, pageIndex int) ([]Post, int, error) {
 	}
 	var count int64
 
-	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 

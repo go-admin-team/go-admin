@@ -2,6 +2,9 @@ package models
 
 import (
 	"errors"
+
+	"gorm.io/gorm"
+
 	orm "go-admin/global"
 	"go-admin/tools"
 )
@@ -83,13 +86,14 @@ func (e *DictType) GetList() ([]DictType, error) {
 
 func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error) {
 	var doc []DictType
+	var db *gorm.DB
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 	if e.DictId != 0 {
-		table = table.Where("dict_id = ?", e.DictId)
+		db = db.Where("dict_id = ?", e.DictId)
 	}
 	if e.DictName != "" {
-		table = table.Where("dict_name = ?", e.DictName)
+		db = db.Where("dict_name = ?", e.DictName)
 	}
 
 	// 数据权限控制
@@ -101,10 +105,10 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 	}
 	var count int64
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Count(&count)
 	return doc, int(count), nil
 }
 

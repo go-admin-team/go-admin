@@ -2,13 +2,16 @@ package middleware
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
+
 	"go-admin/global"
 	"go-admin/models"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
-	"strings"
-	"time"
+
 )
 
 // 日志记录到文件

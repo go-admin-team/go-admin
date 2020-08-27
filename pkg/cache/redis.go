@@ -1,10 +1,11 @@
 package cache
 
 import (
+	"time"
+
 	"github.com/go-redis/redis/v7"
 	"github.com/matchstalk/redisqueue"
 	"github.com/matchstalk/utils/cache"
-	"time"
 )
 
 var RedisAdapter Adapter

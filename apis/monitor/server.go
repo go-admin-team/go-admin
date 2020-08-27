@@ -1,13 +1,15 @@
 package monitor
 
 import (
+	"runtime"
+
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+
 	"go-admin/tools"
 	"go-admin/tools/app"
-	"runtime"
 )
 
 const (

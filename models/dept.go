@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	_ "time"
+
 	orm "go-admin/global"
 	"go-admin/tools"
-	_ "time"
 )
 
 type SysDept struct {
@@ -101,7 +102,7 @@ func (e *SysDept) GetList() ([]SysDept, error) {
 func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
 	var doc []SysDept
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 	if e.DeptId != 0 {
 		table = table.Where("dept_id = ?", e.DeptId)
 	}

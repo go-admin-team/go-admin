@@ -3,9 +3,16 @@ package api
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
 	"go-admin/database"
 	"go-admin/global"
 	"go-admin/jobs"
@@ -14,11 +21,6 @@ import (
 	"go-admin/router"
 	"go-admin/tools"
 	"go-admin/tools/config"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
 )
 
 var (

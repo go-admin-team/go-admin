@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
+	_ "time"
+
 	orm "go-admin/global"
 	"go-admin/tools"
-	_ "time"
 )
 
 type SysConfig struct {
@@ -71,7 +72,7 @@ func (e *SysConfig) Get() (SysConfig, error) {
 func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, error) {
 	var doc []SysConfig
 
-	table := orm.Eloquent.Select("*").Table(e.TableName())
+	table := orm.Eloquent.Table(e.TableName())
 
 	if e.ConfigName != "" {
 		table = table.Where("config_name = ?", e.ConfigName)
@@ -92,10 +93,10 @@ func (e *SysConfig) GetPage(pageSize int, pageIndex int) ([]SysConfig, int, erro
 	}
 	var count int64
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 

@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/pkg/errors"
+
 	orm "go-admin/global"
 	"go-admin/tools"
 )
@@ -35,7 +36,7 @@ type MenuIdList struct {
 func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error) {
 	var doc []SysRole
 
-	table := orm.Eloquent.Select("*").Table("sys_role")
+	table := orm.Eloquent.Table("sys_role")
 	if role.RoleId != 0 {
 		table = table.Where("role_id = ?", role.RoleId)
 	}
@@ -58,10 +59,10 @@ func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error
 	}
 	var count int64
 
-	if err := table.Order("role_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Order("role_sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 

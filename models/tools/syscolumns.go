@@ -54,7 +54,7 @@ func (SysColumns) TableName() string {
 func (e *SysColumns) GetList() ([]SysColumns, error) {
 	var doc []SysColumns
 
-	table := orm.Eloquent.Select("*").Table("sys_columns")
+	table := orm.Eloquent.Table("sys_columns")
 
 	table = table.Where("table_id = ?", e.TableId)
 

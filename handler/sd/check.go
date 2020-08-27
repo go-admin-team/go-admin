@@ -2,15 +2,17 @@ package sd
 
 import (
 	"fmt"
+	"net/http"
+	"runtime"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
+
 	"go-admin/tools/app"
-	"net/http"
-	"runtime"
-	"time"
 )
 
 const (

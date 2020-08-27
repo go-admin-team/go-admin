@@ -1,9 +1,10 @@
 package tools
 
 import (
+	"strings"
+
 	orm "go-admin/global"
 	"go-admin/models"
-	"strings"
 )
 
 type SysTables struct {
@@ -52,7 +53,7 @@ type Params struct {
 func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, error) {
 	var doc []SysTables
 
-	table := orm.Eloquent.Select("*").Table("sys_tables")
+	table := orm.Eloquent.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -63,17 +64,17 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, erro
 
 	var count int64
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	table.Where("`deleted_at` IS NULL").Count(&count)
+	//table.Where("`deleted_at` IS NULL").Count(&count)
 	return doc, int(count), nil
 }
 
 func (e *SysTables) Get() (SysTables, error) {
 	var doc SysTables
 	var err error
-	table := orm.Eloquent.Select("*").Table("sys_tables")
+	table := orm.Eloquent.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -100,7 +101,7 @@ func (e *SysTables) Get() (SysTables, error) {
 func (e *SysTables) GetTree() ([]SysTables, error) {
 	var doc []SysTables
 	var err error
-	table := orm.Eloquent.Select("*").Table("sys_tables")
+	table := orm.Eloquent.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)

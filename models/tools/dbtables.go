@@ -2,10 +2,12 @@ package tools
 
 import (
 	"errors"
+
+	"gorm.io/gorm"
+
 	orm "go-admin/global"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
-	"gorm.io/gorm"
 )
 
 type DBTables struct {
@@ -24,21 +26,21 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 	var count int64
 
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Select("*").Table("information_schema.tables")
+		table = orm.Eloquent.Table("information_schema.tables")
 		table = table.Where("TABLE_NAME not in (select table_name from " + config2.GenConfig.DBName + ".sys_tables) ")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		if e.TableName != "" {
 			table = table.Where("TABLE_NAME = ?", e.TableName)
 		}
-		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 			return nil, 0, err
 		}
 	} else {
 		tools.Assert(true, "目前只支持mysql数据库", 500)
 	}
 
-	table.Count(&count)
+	//table.Count(&count)
 	return doc, int(count), nil
 }
 
@@ -46,7 +48,7 @@ func (e *DBTables) Get() (DBTables, error) {
 	var doc DBTables
 	table := new(gorm.DB)
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Select("*").Table("information_schema.tables")
+		table = orm.Eloquent.Table("information_schema.tables")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 		if e.TableName == "" {
 			return doc, errors.New("table name cannot be empty！")

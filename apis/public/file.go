@@ -4,11 +4,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io/ioutil"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+
 	"go-admin/pkg/utils"
 	"go-admin/tools/app"
-	"io/ioutil"
 )
 
 // @Summary 上传图片

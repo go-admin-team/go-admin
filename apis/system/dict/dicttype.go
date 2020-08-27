@@ -1,12 +1,14 @@
 package dict
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
-	"net/http"
 )
 
 // @Summary 字典类型列表数据
@@ -17,7 +19,7 @@ import (
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.PageResponse "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/list [get]
 // @Security Bearer
 func GetDictTypeList(c *gin.Context) {
@@ -42,14 +44,11 @@ func GetDictTypeList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
-
-	var res app.Response
-	res.Data = mp
+	var res app.PageResponse
+	res.Data.List = result
+	res.Data.Count = count
+	res.Data.PageIndex = pageIndex
+	res.Data.PageSize = pageSize
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 

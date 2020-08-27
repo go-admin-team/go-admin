@@ -1,8 +1,9 @@
 package tools
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"strconv"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // 不建议使用的方法（即将过时）

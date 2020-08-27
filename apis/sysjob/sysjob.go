@@ -1,13 +1,15 @@
 package sysjob
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
+
 	"go-admin/jobs"
 	"go-admin/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/app/msg"
-	"time"
 )
 
 func GetSysJobList(c *gin.Context) {

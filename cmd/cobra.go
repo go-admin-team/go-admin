@@ -3,14 +3,16 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
+
 	"go-admin/cmd/api"
 	"go-admin/cmd/config"
 	"go-admin/cmd/migrate"
 	"go-admin/cmd/version"
 	"go-admin/global"
 	"go-admin/tools"
-	"os"
 )
 
 var rootCmd = &cobra.Command{

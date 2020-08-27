@@ -69,7 +69,7 @@ return doc, nil
 func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}}, int, error) {
 var doc []{{.ClassName}}
 
-table := orm.Eloquent.Select("*").Table(e.TableName())
+table := orm.Eloquent.Table(e.TableName())
 {{ range .Columns }}
     {{- if .IsQuery }}
         if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
@@ -87,10 +87,9 @@ return nil, 0, err
 }
 var count int
 
-if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 return nil, 0, err
 }
-table.Where("`deleted_at` IS NULL").Count(&count)
 return doc, count, nil
 }
 

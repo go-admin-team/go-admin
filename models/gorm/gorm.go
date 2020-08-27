@@ -1,93 +1,34 @@
 package gorm
 
 import (
+	"gorm.io/gorm"
+
 	"go-admin/models"
 	"go-admin/models/tools"
-	"gorm.io/gorm"
 )
 
-func AutoMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(new(models.CasbinRule))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysDept))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysConfig))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(tools.SysTables))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(tools.SysColumns))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.Menu))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.LoginLog))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysOperLog))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.RoleMenu))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysRoleDept))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysUser))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysRole))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.Post))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.DictData))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.DictType))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysJob))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysConfig))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysSetting))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysFileDir))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysCategory))
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(new(models.SysContent))
+func AutoMigrate(db *gorm.DB) (err error) {
+	err = db.AutoMigrate(new(models.CasbinRule),
+		new(models.SysDept),
+		new(models.SysConfig),
+		new(tools.SysTables),
+		new(tools.SysColumns),
+		new(models.Menu),
+		new(models.LoginLog),
+		new(models.SysOperLog),
+		new(models.RoleMenu),
+		new(models.SysRoleDept),
+		new(models.SysUser),
+		new(models.SysRole),
+		new(models.Post),
+		new(models.DictData),
+		new(models.DictType),
+		new(models.SysJob),
+		new(models.SysConfig),
+		new(models.SysSetting),
+		new(models.SysFileDir),
+		new(models.SysCategory),
+		new(models.SysContent))
 	if err != nil {
 		return err
 	}

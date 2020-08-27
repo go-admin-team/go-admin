@@ -1,8 +1,9 @@
 package tools
 
 import (
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 //获取URL中批量id并解析

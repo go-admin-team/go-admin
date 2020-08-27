@@ -52,7 +52,7 @@ return doc, nil
 func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}}, int32, error) {
 var doc []{{.ClassName}}
 
-table := orm.Eloquent.Select("*").Table("{{.TableName}}")
+table := orm.Eloquent.Table("{{.TableName}}")
 {{ range .Columns -}}
     {{$z := .IsQuery}}
     {{- if ($z) -}}if e.{{.GoField}} !=  "" {
@@ -70,10 +70,9 @@ return nil, 0, err
 }
 var count int32
 table = table.Offset((pageIndex - 1) * pageSize).Limit(pageSize)
-if err := table.Find(&doc).Error; err != nil {
+if err := table.Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 return nil, 0, err
 }
-table.Count(&count)
 return doc, count, nil
 }
 

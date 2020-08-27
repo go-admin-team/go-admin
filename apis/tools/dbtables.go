@@ -1,12 +1,14 @@
 package tools
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	"go-admin/models/tools"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
-	"net/http"
 )
 
 // @Summary 分页列表数据 / page list data

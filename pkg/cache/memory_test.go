@@ -2,9 +2,10 @@ package cache
 
 import (
 	"fmt"
-	"github.com/matchstalk/utils/cache"
 	"testing"
 	"time"
+
+	"github.com/matchstalk/utils/cache"
 )
 
 func TestInitMemory(t *testing.T) {
