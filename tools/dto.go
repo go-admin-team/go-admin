@@ -14,35 +14,47 @@ type GeneralGetDto struct {
 	Id string `uri:"id" json:"id" validate:"required"`
 }
 
-func SetQuery(db *gorm.DB, q interface{}) *gorm.DB {
-	condition := &search.GormCondition{
-		GormPublic: search.GormPublic{},
-		Join:       make([]*search.GormJoin, 0),
-	}
-	search.ResolveSearchQuery(config.DatabaseConfig.Driver, q, condition)
-	for _, join := range condition.Join {
-		if join == nil {
-			continue
+func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		condition := &search.GormCondition{
+			GormPublic: search.GormPublic{},
+			Join:       make([]*search.GormJoin, 0),
 		}
-		db = db.Joins(join.JoinOn)
-		for k, v := range join.Where {
+		search.ResolveSearchQuery(config.DatabaseConfig.Driver, q, condition)
+		for _, join := range condition.Join {
+			if join == nil {
+				continue
+			}
+			db = db.Joins(join.JoinOn)
+			for k, v := range join.Where {
+				db = db.Where(k, v...)
+			}
+			for k, v := range join.Or {
+				db = db.Or(k, v...)
+			}
+			for _, o := range join.Order {
+				db = db.Order(o)
+			}
+		}
+		for k, v := range condition.Where {
 			db = db.Where(k, v...)
 		}
-		for k, v := range join.Or {
+		for k, v := range condition.Or {
 			db = db.Or(k, v...)
 		}
-		for _, o := range join.Order {
+		for _, o := range condition.Order {
 			db = db.Order(o)
 		}
+		return db
 	}
-	for k, v := range condition.Where {
-		db = db.Where(k, v...)
+}
+
+func Paginate(pageSize, pageIndex int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		offset := (pageIndex - 1) * pageSize
+		if offset < 0 {
+			offset = 0
+		}
+		return db.Offset(offset).Limit(pageSize)
 	}
-	for k, v := range condition.Or {
-		db = db.Or(k, v...)
-	}
-	for _, o := range condition.Order {
-		db = db.Order(o)
-	}
-	return db
 }
