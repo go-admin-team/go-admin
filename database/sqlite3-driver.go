@@ -1,4 +1,4 @@
-// build sqlite3
+// +build sqlite3
 
 package database
 

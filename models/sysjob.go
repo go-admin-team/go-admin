@@ -78,8 +78,7 @@ func (e *SysJob) Get() (SysJob, error) {
 func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}) ([]SysJob, int, error) {
 	var doc []SysJob
 
-	table := orm.Eloquent.Table(e.TableName())
-	table = tools.SetQuery(table, v)
+	table := orm.Eloquent.Table(e.TableName()).Scopes(tools.MakeCondition(v))
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	dataPermission := new(DataPermission)
@@ -90,7 +89,7 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}) ([]SysJob, 
 	}
 	var count int64
 
-	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+	if err := table.Scopes(tools.Paginate(pageSize, pageIndex)).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
 	return doc, int(count), nil
