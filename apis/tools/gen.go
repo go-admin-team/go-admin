@@ -289,7 +289,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AList.MenuName = ""
 	AList.Title = "分页获取" + tab.TableComment
 	AList.Icon = "bug"
-	AList.Path = "/api/v1/" + tab.ModuleName + "List"
+	AList.Path = "/api/v1/" + tab.ModuleName
 	AList.MenuType = "A"
 	AList.Action = "GET"
 	AList.ParentId = Amenu.MenuId
@@ -343,7 +343,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AUpdate.MenuName = ""
 	AUpdate.Title = "修改" + tab.TableComment
 	AUpdate.Icon = "bug"
-	AUpdate.Path = "/api/v1/" + tab.ModuleName
+	AUpdate.Path = "/api/v1/" + tab.ModuleName + "/:id"
 	AUpdate.MenuType = "A"
 	AUpdate.Action = "PUT"
 	AUpdate.ParentId = Amenu.MenuId
