@@ -28,50 +28,13 @@ func (SysJob) TableName() string {
 }
 
 // 创建SysJob
-func (e *SysJob) Create() (SysJob, error) {
-	var doc SysJob
-	result := orm.Eloquent.Table(e.TableName()).Create(&e)
-	if result.Error != nil {
-		err := result.Error
-		return doc, err
-	}
-	doc = *e
-	return doc, nil
+func (e *SysJob) Create() (err error) {
+	return orm.Eloquent.Table(e.TableName()).Create(e).Error
 }
 
 // 获取SysJob
-func (e *SysJob) Get() (SysJob, error) {
-	var doc SysJob
-	table := orm.Eloquent.Table(e.TableName())
-
-	if e.JobId != 0 {
-		table = table.Where("job_id = ?", e.JobId)
-	}
-
-	if e.JobName != "" {
-		table = table.Where("job_name like ?", "%"+e.JobName+"%")
-	}
-
-	if e.JobGroup != "" {
-		table = table.Where("job_group = ?", e.JobGroup)
-	}
-
-	if e.CronExpression != "" {
-		table = table.Where("cron_expression = ?", e.CronExpression)
-	}
-
-	if e.InvokeTarget != "" {
-		table = table.Where("invoke_target = ?", e.InvokeTarget)
-	}
-
-	if e.Status != 0 {
-		table = table.Where("status = ?", e.Status)
-	}
-
-	if err := table.First(&doc).Error; err != nil {
-		return doc, err
-	}
-	return doc, nil
+func (e *SysJob) Get(id interface{}) (err error) {
+	return orm.Eloquent.Table(e.TableName()).First(e, id).Error
 }
 
 // 获取SysJob带分页
@@ -109,17 +72,9 @@ func (e *SysJob) GetList() ([]SysJob, error) {
 }
 
 // 更新SysJob
-func (e *SysJob) Update(id int) (update SysJob, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("job_id = ?", id).First(&update).Error; err != nil {
-		return
-	}
-
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-		return
-	}
-	return
+func (e *SysJob) Update(id interface{}) (rowsAffected int64, err error) {
+	result := orm.Eloquent.Table(e.TableName()).Where(id).Updates(&e)
+	return result.RowsAffected, result.Error
 }
 
 func (e *SysJob) RemoveAllEntryID() (update SysJob, err error) {
@@ -144,7 +99,7 @@ func (e *SysJob) RemoveEntryID(entryID int) (update SysJob, err error) {
 
 // 删除SysJob
 func (e *SysJob) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("job_id = ?", id).Delete(&SysJob{}).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Where(id).Delete(&SysJob{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -153,10 +108,6 @@ func (e *SysJob) Delete(id int) (success bool, err error) {
 }
 
 //批量删除
-func (e *SysJob) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("job_id in (?)", id).Delete(&SysJob{}).Error; err != nil {
-		return
-	}
-	Result = true
-	return
+func (e *SysJob) BatchDelete(id []int) error {
+	return orm.Eloquent.Table(e.TableName()).Where(id).Delete(&SysJob{}).Error
 }
