@@ -34,6 +34,7 @@ func IndexAction(m model.ActiveRecord, d dto.Dtor) gin.HandlerFunc {
 			err = req.Validate()
 			tools.HasError(err, "参数验证失败", 422)
 			p, err := newDataPermission(db, tools.GetUserId(c))
+			tools.HasError(err, "权限范围鉴定错误", 500)
 			err = db.WithContext(c).Model(object).
 				Scopes(
 					tools.MakeCondition(req.GetNeedSearch()),
