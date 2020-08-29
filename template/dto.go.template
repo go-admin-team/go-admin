@@ -1,0 +1,12 @@
+package dto
+
+type {{.ClassName}}Search struct {
+    {{ $tablename := .TBName -}}
+    {{ range .Columns -}}
+    {{$z := .IsQuery}}
+    {{- if ($z) -}}
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}" gorm:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}"` // {{.ColumnComment}}
+
+    {{end -}}
+    {{- end }}
+}

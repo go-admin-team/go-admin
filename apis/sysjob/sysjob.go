@@ -30,13 +30,6 @@ func GetSysJobList(c *gin.Context) {
 	err = c.Bind(&v)
 	tools.HasError(err, "数据解析失败", 422)
 
-	//data.JobId, _ = tools.StringToInt(c.Request.FormValue("jobId"))
-	//data.JobName = c.Request.FormValue("jobName")
-	//data.JobGroup = c.Request.FormValue("jobGroup")
-	//data.CronExpression = c.Request.FormValue("cronExpression")
-	//data.InvokeTarget = c.Request.FormValue("invokeTarget")
-	//data.Status, _ = tools.StringToInt(c.Request.FormValue("status"))
-
 	data.DataScope = tools.GetUserIdStr(c)
 	result, count, err := data.GetPage(pageSize, pageIndex, v)
 	tools.HasError(err, "", -1)
@@ -46,7 +39,10 @@ func GetSysJobList(c *gin.Context) {
 
 func GetSysJob(c *gin.Context) {
 	var data models.SysJob
-	data.JobId, _ = tools.StringToInt(c.Param("jobId"))
+	var v tools.GeneralGetDto
+	err := c.BindUri(&v)
+	tools.HasError(err, "", 500)
+	data.JobId, _ = tools.StringToInt(v.Id)
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
@@ -79,9 +75,8 @@ func DeleteSysJob(c *gin.Context) {
 
 	var v tools.GeneralDelDto
 	err := c.BindUri(&v)
-
+	tools.HasError(err, "", 500)
 	data.UpdateBy = tools.GetUserIdStr(c)
-
 	IDS := tools.IdsStrToIdsIntGroupStr(v.Id)
 	_, err = data.BatchDelete(IDS)
 	tools.HasError(err, msg.DeletedFail, 500)
@@ -90,7 +85,10 @@ func DeleteSysJob(c *gin.Context) {
 
 func RemoveJob(c *gin.Context) {
 	var data models.SysJob
-	data.JobId, _ = tools.StringToInt(c.Param("jobId"))
+	var v tools.GeneralDelDto
+	err := c.BindUri(&v)
+	tools.HasError(err, "", 500)
+	data.JobId, _ = tools.StringToInt(v.Id)
 	result, err := data.Get()
 	tools.HasError(err, "", 500)
 	cn := jobs.Remove(result.EntryId)
@@ -109,7 +107,10 @@ func RemoveJob(c *gin.Context) {
 
 func StartJob(c *gin.Context) {
 	var data models.SysJob
-	data.JobId, _ = tools.StringToInt(c.Param("jobId"))
+	var v tools.GeneralGetDto
+	err := c.BindUri(&v)
+	tools.HasError(err, "", 500)
+	data.JobId, _ = tools.StringToInt(v.Id)
 	result, err := data.Get()
 	tools.HasError(err, "", 500)
 	if result.JobType == 1 {

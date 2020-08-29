@@ -30,6 +30,8 @@ func Preview(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	t5, err := template.ParseFiles("template/router.go.template")
 	tools2.HasError(err, "", -1)
+	t6, err := template.ParseFiles("template/dto.go.template")
+	tools2.HasError(err, "", -1)
 	tab, _ := table.Get()
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -41,6 +43,8 @@ func Preview(c *gin.Context) {
 	err = t4.Execute(&b4, tab)
 	var b5 bytes.Buffer
 	err = t5.Execute(&b5, tab)
+	var b6 bytes.Buffer
+	err = t6.Execute(&b6, tab)
 
 	mp := make(map[string]interface{})
 	mp["template/model.go.template"] = b1.String()
@@ -48,6 +52,7 @@ func Preview(c *gin.Context) {
 	mp["template/js.go.template"] = b3.String()
 	mp["template/vue.go.template"] = b4.String()
 	mp["template/router.go.template"] = b5.String()
+	mp["template/dto.go.template"] = b6.String()
 	var res app.Response
 	res.Data = mp
 
@@ -90,10 +95,13 @@ func GenCode(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	t5, err := template.ParseFiles("template/vue.go.template")
 	tools2.HasError(err, "", -1)
+	t6, err := template.ParseFiles("template/dto.go.template")
+	tools2.HasError(err, "", -1)
 
 	_ = tools2.PathCreate("./apis/" + tab.ModuleName + "/")
 	_ = tools2.PathCreate("./models/")
 	_ = tools2.PathCreate("./router/")
+	_ = tools2.PathCreate("./dto/")
 	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
 	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName)
 
@@ -107,11 +115,14 @@ func GenCode(c *gin.Context) {
 	err = t4.Execute(&b4, tab)
 	var b5 bytes.Buffer
 	err = t5.Execute(&b5, tab)
+	var b6 bytes.Buffer
+	err = t6.Execute(&b6, tab)
 	tools2.FileCreate(b1, "./models/"+tab.PackageName+".go")
 	tools2.FileCreate(b2, "./apis/"+tab.ModuleName+"/"+tab.PackageName+".go")
 	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
 	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
 	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
+	tools2.FileCreate(b5, "./dto/"+tab.PackageName+".go")
 
 	helper := tools2.ReplaceHelper{
 		Root:    "./router/router.go",
