@@ -7,6 +7,11 @@ import (
 	jwt "go-admin/pkg/jwtauth"
 )
 
+var (
+	routerNoCheckRole = make([]func(*gin.RouterGroup), 0)
+	routerCheckRole   = make([]func(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware), 0)
+)
+
 // 路由示例
 func InitExamplesRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Engine {
 
@@ -25,6 +30,10 @@ func examplesNoCheckRoleRouter(r *gin.Engine) {
 	// 空接口防止v1定义无使用报错
 	v1.GET("/nilcheckrole", nil)
 
+	for _, f := range routerNoCheckRole {
+		f(v1)
+	}
+
 	// {{无需认证路由自动补充在此处请勿删除}}
 	registerSysFileInfoRouter(v1)
 	registerSysFileDirRouter(v1)
@@ -36,6 +45,10 @@ func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddle
 	v1 := r.Group("/api/v1")
 	// 空接口防止v1定义无使用报错
 	v1.GET("/checkrole", nil)
+
+	for _, f := range routerCheckRole {
+		f(v1, authMiddleware)
+	}
 
 	// {{认证路由自动补充在此处请勿删除}}
 	registerSysContentRouter(v1, authMiddleware)
