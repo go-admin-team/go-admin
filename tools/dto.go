@@ -34,7 +34,7 @@ func (g GeneralDelDto) GetIds() []string {
 }
 
 type GeneralGetDto struct {
-	Id string `uri:"id" json:"id" validate:"required"`
+	Id int `uri:"id" json:"id" validate:"required"`
 }
 
 func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {

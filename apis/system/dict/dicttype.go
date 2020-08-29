@@ -44,12 +44,7 @@ func GetDictTypeList(c *gin.Context) {
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	tools.HasError(err, "", -1)
 
-	var res app.PageResponse
-	res.Data.List = result
-	res.Data.Count = count
-	res.Data.PageIndex = pageIndex
-	res.Data.PageSize = pageSize
-	c.JSON(http.StatusOK, res.ReturnOK())
+	app.PageOK(c,result,count,pageIndex,pageSize,"")
 }
 
 // @Summary 通过字典id获取字典类型

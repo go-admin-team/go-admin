@@ -57,15 +57,17 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}, list interf
 	table := orm.Eloquent.Table(e.TableName()).Scopes(tools.MakeCondition(v))
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table, err := dataPermission.GetDataScope(e.TableName(), table)
-	if err != nil {
-		return 0, err
-	}
+	//dataPermission := new(DataPermission)
+	userid, _ := tools.StringToInt(e.DataScope)
+	//dataPermission.UserId = userid
+	//table, err := dataPermission.GetDataScope(e.TableName(), table)
+	//if err != nil {
+	//	return 0, err
+	//}
+
 	var count int64
 
-	if err := table.Scopes(tools.Paginate(pageSize, pageIndex)).Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+	if err := table.Scopes(DataScopes(e.TableName(),userid),tools.Paginate(pageSize, pageIndex)).Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return int(count), nil
@@ -81,9 +83,6 @@ func (e *SysJob) Update(id interface{}) (err error) {
 }
 
 func (e *SysJob) RemoveAllEntryID() (update SysJob, err error) {
-
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Where("entry_id > ?", 0).Update("entry_id", 0).Error; err != nil {
 		return
 	}
@@ -91,9 +90,6 @@ func (e *SysJob) RemoveAllEntryID() (update SysJob, err error) {
 }
 
 func (e *SysJob) RemoveEntryID(entryID int) (update SysJob, err error) {
-
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Where("entry_id = ?", entryID).Updates(map[string]interface{}{"entry_id": 0}).Error; err != nil {
 		return
 	}

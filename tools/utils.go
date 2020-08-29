@@ -1,6 +1,8 @@
 package tools
 
 import (
+	"log"
+	"runtime"
 	"strconv"
 
 	"golang.org/x/crypto/bcrypt"
@@ -50,6 +52,8 @@ func HasError(err error, msg string, code ...int) {
 		if msg == "" {
 			msg = err.Error()
 		}
+		_, file, line, _ := runtime.Caller(1)
+		log.Printf("%s:%v",file, line)
 		panic("CustomError#" + strconv.Itoa(statusCode) + "#" + msg)
 	}
 }
