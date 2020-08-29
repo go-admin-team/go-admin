@@ -175,11 +175,19 @@ func (e *SysTables) Update() (update SysTables, err error) {
 }
 
 func (e *SysTables) Delete() (success bool, err error) {
-	if err = orm.Eloquent.Table("sys_tables").Delete(SysTables{}, "table_id = ?", e.TableId).Error; err != nil {
+	tx := orm.Eloquent.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+	if err = tx.Table("sys_tables").Delete(SysTables{}, "table_id = ?", e.TableId).Error; err != nil {
 		success = false
 		return
 	}
-	if err = orm.Eloquent.Table("sys_columns").Delete(SysColumns{}, "table_id = ?", e.TableId).Error; err != nil {
+	if err = tx.Table("sys_columns").Delete(SysColumns{}, "table_id = ?", e.TableId).Error; err != nil {
 		success = false
 		return
 	}
