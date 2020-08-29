@@ -1,6 +1,7 @@
 package router
 
 import (
+	"go-admin/apis/actions"
 	log2 "go-admin/apis/log"
 	"go-admin/apis/monitor"
 	"go-admin/apis/public"
@@ -9,8 +10,10 @@ import (
 	"go-admin/apis/system/dict"
 	. "go-admin/apis/tools"
 	_ "go-admin/docs"
+	"go-admin/dto"
 	"go-admin/handler"
 	"go-admin/middleware"
+	"go-admin/models"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/pkg/ws"
 	"mime"
@@ -110,11 +113,18 @@ func registerSysJobRouter(v1 *gin.RouterGroup) {
 
 	r := v1.Group("/sysjob")
 	{
-		r.GET("", sysjob.GetSysJobList)
-		r.GET("/:id", sysjob.GetSysJob)
-		r.POST("", sysjob.InsertSysJob)
-		r.PUT("", sysjob.UpdateSysJob)
-		r.DELETE("/:id", sysjob.DeleteSysJob)
+		//r.GET("", sysjob.GetSysJobList)
+		//r.GET("/:id", sysjob.GetSysJob)
+		//r.POST("", sysjob.InsertSysJob)
+		//r.PUT("", sysjob.UpdateSysJob)
+		//r.DELETE("/:id", sysjob.DeleteSysJob)
+
+		sysJob := &models.SysJob{}
+		r.GET("", actions.IndexAction(sysJob, new(dto.SysJobSearch)))
+		r.GET("/:id", actions.ViewAction(sysJob))
+		r.POST("", actions.CreateAction(sysJob))
+		r.PUT("", actions.UpdateAction(sysJob))
+		r.DELETE("/:id", actions.DeleteAction(sysJob))
 	}
 
 	v1.GET("/job/remove/:jobId", sysjob.RemoveJob)

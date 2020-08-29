@@ -3,6 +3,7 @@ package models
 import (
 	orm "go-admin/global"
 	"go-admin/tools"
+	"go-admin/tools/model"
 )
 
 type SysJob struct {
@@ -25,6 +26,20 @@ type SysJob struct {
 
 func (SysJob) TableName() string {
 	return "sys_job"
+}
+
+func (e *SysJob) Generate() model.ActiveRecord {
+	o := *e
+	return &o
+}
+
+func (e *SysJob) GenerateList() interface{} {
+	list := make([]SysJob, 0)
+	return &list
+}
+
+func (e *SysJob) GetId() interface{} {
+	return e.JobId
 }
 
 // 创建SysJob

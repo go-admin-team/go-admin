@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/pkg/errors"
+	"gorm.io/gorm"
 
 	orm "go-admin/global"
 	"go-admin/tools"
@@ -31,6 +32,10 @@ func (SysRole) TableName() string {
 
 type MenuIdList struct {
 	MenuId int `json:"menuId"`
+}
+
+func (role *SysRole) GetById(tx *gorm.DB, id interface{}) error {
+	return tx.First(role, id).Error
 }
 
 func (role *SysRole) GetPage(pageSize int, pageIndex int) ([]SysRole, int, error) {
