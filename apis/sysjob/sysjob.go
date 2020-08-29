@@ -43,7 +43,7 @@ func GetSysJob(c *gin.Context) {
 	var v tools.GeneralGetDto
 	err := c.BindUri(&v)
 	tools.HasError(err, "", 500)
-	data.JobId, _ = tools.StringToInt(v.Id)
+	data.JobId = v.Id
 	err = data.Get(data.JobId)
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 
@@ -111,7 +111,7 @@ func StartJob(c *gin.Context) {
 	var v tools.GeneralGetDto
 	err := c.BindUri(&v)
 	tools.HasError(err, "", 500)
-	data.JobId, _ = tools.StringToInt(v.Id)
+	data.JobId = v.Id
 	err = data.Get(data.JobId)
 	tools.HasError(err, "", 500)
 	if data.JobType == 1 {
