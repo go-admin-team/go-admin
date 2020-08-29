@@ -80,43 +80,43 @@ func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int, v interface{}) ([]
     if err != nil {
         return nil, 0, err
     }
-    var count int
+    var count int64
 
     if err := table.Scopes(tools.Paginate(pageSize, pageIndex)).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
         return nil, 0, err
     }
-    return doc, count, nil
+    return doc, int(count), nil
 }
 
 // 更新{{.ClassName}}
 func (e *{{.ClassName}}) Update(id int) (update {{.ClassName}}, err error) {
-if err = orm.Eloquent.Table(e.TableName()).Where("{{.PkColumn}} = ?", id).First(&update).Error; err != nil {
-return
-}
+    if err = orm.Eloquent.Table(e.TableName()).Where("{{.PkColumn}} = ?", id).First(&update).Error; err != nil {
+        return
+    }
 
-//参数1:是要修改的数据
-//参数2:是修改的数据
-if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-return
-}
-return
+    //参数1:是要修改的数据
+    //参数2:是修改的数据
+    if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+        return
+    }
+    return
 }
 
 // 删除{{.ClassName}}
 func (e *{{.ClassName}}) Delete(id int) (success bool, err error) {
-if err = orm.Eloquent.Table(e.TableName()).Where("{{.PkColumn}} = ?", id).Delete(&{{.ClassName}}{}).Error; err != nil {
-success = false
-return
-}
-success = true
-return
+    if err = orm.Eloquent.Table(e.TableName()).Where("{{.PkColumn}} = ?", id).Delete(&{{.ClassName}}{}).Error; err != nil {
+        success = false
+        return
+    }
+    success = true
+    return
 }
 
 //批量删除
 func (e *{{.ClassName}}) BatchDelete(id []int) (Result bool, err error) {
-if err = orm.Eloquent.Table(e.TableName()).Where("{{.PkColumn}} in (?)", id).Delete(&{{.ClassName}}{}).Error; err != nil {
-return
-}
-Result = true
-return
+    if err = orm.Eloquent.Table(e.TableName()).Where("{{.PkColumn}} in (?)", id).Delete(&{{.ClassName}}{}).Error; err != nil {
+        return
+    }
+    Result = true
+    return
 }

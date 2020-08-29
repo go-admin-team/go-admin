@@ -64,7 +64,7 @@ func Insert{{.ClassName}}(c *gin.Context) {
 
 func Update{{.ClassName}}(c *gin.Context) {
     var data models.{{.ClassName}}
-    err := c.BindWith(&data, binding.JSON)
+    err := c.ShouldBindJSON(&data)
     tools.HasError(err, "数据解析失败", -1)
     data.UpdateBy = tools.GetUserIdStr(c)
     result, err := data.Update(data.{{.PkGoField}})

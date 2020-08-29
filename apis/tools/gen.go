@@ -122,7 +122,7 @@ func GenCode(c *gin.Context) {
 	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
 	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
 	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
-	tools2.FileCreate(b5, "./dto/"+tab.PackageName+".go")
+	tools2.FileCreate(b6, "./dto/"+tab.PackageName+".go")
 
 	helper := tools2.ReplaceHelper{
 		Root:    "./router/router.go",
