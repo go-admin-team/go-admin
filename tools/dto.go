@@ -3,7 +3,7 @@ package tools
 import (
 	"go-admin/tools/config"
 
-	"github.com/matchstalk/utils/search"
+	"github.com/matchstalk/go-admin-core/search"
 	"gorm.io/gorm"
 )
 
