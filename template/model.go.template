@@ -1,96 +1,91 @@
 package models
 
 import (
-orm "go-admin/global"
-"go-admin/tools"
-{{$ii := 1}}
-{{ range .Columns }}
-    {{- if eq .GoType "time.Time" -}}{{- if eq $ii 1 -}} "time" {{$ii = 2}}{{- end}}{{- end}}
-{{- end }}
+    orm "go-admin/global"
+    "go-admin/tools"
+    {{ range .Columns }}
+    {{- if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoType "time.Time" -}}"time"{{- end}}
+    {{- end }}
 )
 
 type {{.ClassName}} struct {
-{{ range .Columns -}}
+    {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-        {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
     {{- else }}
-        {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};"` // {{.ColumnComment}}{{end -}}
-{{- end }}
-DataScope   string `json:"dataScope" gorm:"-"`
-Params      string `json:"params"  gorm:"-"`
-BaseModel
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};"` // {{.ColumnComment}}{{end -}}
+    {{- end }}
+    DataScope   string `json:"dataScope" gorm:"-"`
+    Params      string `json:"params"  gorm:"-"`
+    BaseModel
 }
 
 func ({{.ClassName}}) TableName() string {
-return "{{.TBName}}"
+    return "{{.TBName}}"
 }
 
 // 创建{{.ClassName}}
 func (e *{{.ClassName}}) Create() ({{.ClassName}}, error) {
-var doc {{.ClassName}}
-result := orm.Eloquent.Table(e.TableName()).Create(&e)
-if result.Error != nil {
-err := result.Error
-return doc, err
-}
-doc = *e
-return doc, nil
+    var doc {{.ClassName}}
+    result := orm.Eloquent.Table(e.TableName()).Create(&e)
+    if result.Error != nil {
+        err := result.Error
+        return doc, err
+    }
+    doc = *e
+    return doc, nil
 }
 
 
 // 获取{{.ClassName}}
 func (e *{{.ClassName}}) Get() ({{.ClassName}}, error) {
-var doc {{.ClassName}}
-table := orm.Eloquent.Table(e.TableName())
-{{ range .Columns }}
+    var doc {{.ClassName}}
+    table := orm.Eloquent.Table(e.TableName())
+    {{ range .Columns }}
     {{$x := .Pk}}
     {{- if ($x) }}
-        if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
+    if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
         table = table.Where("{{.ColumnName}}{{if eq .QueryType "EQ"}} = {{else if eq .QueryType "NE"}} != {{else if eq .QueryType "GT"}} >  {{else if eq .QueryType "GTE"}} >=  {{else if eq .QueryType "LT"}} < {{else if eq .QueryType "LTE"}} <= {{else if eq .QueryType "LIKE"}} like {{end}}?", {{ if eq .QueryType "LIKE"}}"%"+e.{{.GoField}}+"%"{{else}}e.{{.GoField}}{{end}})
-        }
+    }
     {{- else if .IsQuery }}
-        if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
+    if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
         table = table.Where("{{.ColumnName}}{{if eq .QueryType "EQ"}} = {{else if eq .QueryType "NE"}} != {{else if eq .QueryType "GT"}} >  {{else if eq .QueryType "GTE"}} >=  {{else if eq .QueryType "LT"}} < {{else if eq .QueryType "LTE"}} <= {{else if eq .QueryType "LIKE"}} like {{end}}?", {{ if eq .QueryType "LIKE"}}"%"+e.{{.GoField}}+"%"{{else}}e.{{.GoField}}{{end}})
-        }
+    }
     {{ end -}}
-{{- end }}
+    {{- end }}
 
-if err := table.First(&doc).Error; err != nil {
-return doc, err
-}
-return doc, nil
+    if err := table.First(&doc).Error; err != nil {
+        return doc, err
+    }
+    return doc, nil
 }
 
 // 获取{{.ClassName}}带分页
-func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int) ([]{{.ClassName}}, int, error) {
-var doc []{{.ClassName}}
+func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int, v interface{}) ([]{{.ClassName}}, int, error) {
+    var doc []{{.ClassName}}
 
-table := orm.Eloquent.Table(e.TableName())
-{{ range .Columns }}
-    {{- if .IsQuery }}
-        if e.{{.GoField}} != {{if eq .GoType "string" -}} "" {{ else if eq .GoType "int" -}} 0 {{- end}} {
-        table = table.Where("{{.ColumnName}}{{if eq .QueryType "EQ"}} = {{else if eq .QueryType "NE"}} != {{else if eq .QueryType "GT"}} >  {{else if eq .QueryType "GTE"}} >=  {{else if eq .QueryType "LT"}} < {{else if eq .QueryType "LTE"}} <= {{else if eq .QueryType "LIKE"}} like {{end}}?", {{ if eq .QueryType "LIKE"}}"%"+e.{{.GoField}}+"%"{{else}}e.{{.GoField}}{{end}})
-        }
-    {{ end -}}
-{{- end }}
+    table := orm.Eloquent.Table(e.TableName()).Scopes(tools.MakeCondition(v))
 
-// 数据权限控制(如果不需要数据权限请将此处去掉)
-dataPermission := new(DataPermission)
-dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-table,err := dataPermission.GetDataScope(e.TableName(), table)
-if err != nil {
-return nil, 0, err
-}
-var count int
+    // 数据权限控制(如果不需要数据权限请将此处去掉)
+    dataPermission := new(DataPermission)
+    dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+    table,err := dataPermission.GetDataScope(e.TableName(), table)
+    if err != nil {
+        return nil, 0, err
+    }
+    var count int
 
-if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-return nil, 0, err
-}
-return doc, count, nil
+    if err := table.Scopes(tools.Paginate(pageSize, pageIndex)).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+        return nil, 0, err
+    }
+    return doc, count, nil
 }
 
 // 更新{{.ClassName}}

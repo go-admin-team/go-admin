@@ -105,7 +105,7 @@ func GetDictDataByDictType(c *gin.Context) {
 // @Security Bearer
 func InsertDictData(c *gin.Context) {
 	var data models.DictData
-	err := c.BindWith(&data, binding.JSON)
+	err := c.ShouldBindJSON(&data)
 	data.CreateBy = tools.GetUserIdStr(c)
 	tools.HasError(err, "", 500)
 	result, err := data.Create()
