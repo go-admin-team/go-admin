@@ -93,7 +93,8 @@ func Setup() {
 	global.GADMCron = cronjob.NewWithSeconds()
 
 	sysJob := models.SysJob{}
-	jobList, err := sysJob.GetList()
+	jobList := make([]models.SysJob, 0)
+	err := sysJob.GetList(&jobList)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore init error", err)
 	}
@@ -124,7 +125,7 @@ func Setup() {
 			j.Args = jobList[i].Args
 			sysJob.EntryId, err = AddJob(j)
 		}
-		_, err = sysJob.Update(jobList[i].JobId)
+		err = sysJob.Update(jobList[i].JobId)
 	}
 
 	// 其中任务

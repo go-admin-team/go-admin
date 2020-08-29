@@ -31,10 +31,11 @@ func GetSysJobList(c *gin.Context) {
 	tools.HasError(err, "数据解析失败", 422)
 
 	data.DataScope = tools.GetUserIdStr(c)
-	result, count, err := data.GetPage(pageSize, pageIndex, v)
+	list := make([]models.SysJob, 0)
+	count, err := data.GetPage(pageSize, pageIndex, v, &list)
 	tools.HasError(err, "", -1)
 
-	app.PageOK(c, result, count, pageIndex, pageSize, "")
+	app.PageOK(c, list, count, pageIndex, pageSize, "")
 }
 
 func GetSysJob(c *gin.Context) {
@@ -64,7 +65,7 @@ func UpdateSysJob(c *gin.Context) {
 	err := c.ShouldBindJSON(&data)
 	tools.HasError(err, "数据解析失败", -1)
 	data.UpdateBy = tools.GetUserIdStr(c)
-	_, err = data.Update(data.JobId)
+	err = data.Update(data.JobId)
 	tools.HasError(err, "", -1)
 
 	app.OK(c, data, "")
@@ -131,7 +132,7 @@ func StartJob(c *gin.Context) {
 	}
 
 	tools.HasError(err, "", 500)
-	_, err = data.Update(data.JobId)
+	err = data.Update(data.JobId)
 	tools.HasError(err, "", 500)
 	app.OK(c, nil, msg.DeletedSuccess)
 }

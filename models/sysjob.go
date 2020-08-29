@@ -38,9 +38,7 @@ func (e *SysJob) Get(id interface{}) (err error) {
 }
 
 // 获取SysJob带分页
-func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}) ([]SysJob, int, error) {
-	var doc []SysJob
-
+func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}, list interface{}) (int, error) {
 	table := orm.Eloquent.Table(e.TableName()).Scopes(tools.MakeCondition(v))
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
@@ -48,33 +46,23 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}) ([]SysJob, 
 	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
 	table, err := dataPermission.GetDataScope(e.TableName(), table)
 	if err != nil {
-		return nil, 0, err
+		return 0, err
 	}
 	var count int64
 
-	if err := table.Scopes(tools.Paginate(pageSize, pageIndex)).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-		return nil, 0, err
+	if err := table.Scopes(tools.Paginate(pageSize, pageIndex)).Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+		return 0, err
 	}
-	return doc, int(count), nil
+	return int(count), nil
 }
 
-func (e *SysJob) GetList() ([]SysJob, error) {
-	var doc []SysJob
-
-	table := orm.Eloquent.Table(e.TableName())
-
-	table = table.Where("status = ?", 2)
-
-	if err := table.Find(&doc).Error; err != nil {
-		return nil, err
-	}
-	return doc, nil
+func (e *SysJob) GetList(list interface{}) (err error) {
+	return orm.Eloquent.Table(e.TableName()).Where("status = ?", 2).Find(list).Error
 }
 
 // 更新SysJob
-func (e *SysJob) Update(id interface{}) (rowsAffected int64, err error) {
-	result := orm.Eloquent.Table(e.TableName()).Where(id).Updates(&e)
-	return result.RowsAffected, result.Error
+func (e *SysJob) Update(id interface{}) (err error) {
+	return orm.Eloquent.Table(e.TableName()).Where(id).Updates(&e).Error
 }
 
 func (e *SysJob) RemoveAllEntryID() (update SysJob, err error) {
