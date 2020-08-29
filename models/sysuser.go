@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"gorm.io/gorm"
 	"log"
 	"strings"
 
@@ -224,7 +225,7 @@ func (e *SysUser) GetPage(pageSize int, pageIndex int) ([]SysUserPage, int, erro
 
 	var count int64
 
-	if err := table.Scopes(DataScopes(e.TableName(),userid)).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+	if err := table.Scopes(DataScopes(e.TableName(), userid)).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
 	//table.Where("sys_user.deleted_at IS NULL").Count(&count)
@@ -315,4 +316,8 @@ func (e *SysUser) SetPwd(pwd SysUserPwd) (Result bool, err error) {
 	_, err = e.Update(e.UserId)
 	tools.HasError(err, "更新密码失败(代码202)", 500)
 	return
+}
+
+func (e *SysUser) GetByUserId(tx *gorm.DB, id interface{}) error {
+	return tx.First(e, id).Error
 }

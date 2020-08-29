@@ -33,9 +33,13 @@ func IndexAction(m model.ActiveRecord, d dto.Dtor) gin.HandlerFunc {
 			tools.HasError(err, "参数验证失败", 422)
 			err = req.Validate()
 			tools.HasError(err, "参数验证失败", 422)
+			p, err := newDataPermission(db, tools.GetUserId(c))
 			err = db.WithContext(c).Model(object).
-				Scopes(tools.MakeCondition(req.GetNeedSearch())).
-				Scopes(tools.Paginate(req.GetPageSize(), req.GetPageIndex())).
+				Scopes(
+					tools.MakeCondition(req.GetNeedSearch()),
+					tools.Paginate(req.GetPageSize(), req.GetPageIndex()),
+					Permission(object.TableName(), p),
+				).
 				Find(list).Limit(-1).Offset(-1).
 				Count(&count).Error
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
