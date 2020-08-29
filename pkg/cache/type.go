@@ -3,7 +3,7 @@ package cache
 import (
 	"time"
 
-	"github.com/matchstalk/utils/cache"
+	"github.com/matchstalk/go-admin-core/cache"
 )
 
 type Adapter interface {
