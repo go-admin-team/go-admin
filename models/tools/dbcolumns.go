@@ -29,10 +29,10 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 	table := new(gorm.DB)
 
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Select("*").Table("information_schema.`COLUMNS`")
+		table = orm.Eloquent.Select("*").Table("information_schema.COLUMNS")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
-		if e.TableName != "" {
+		if e.TableName == "" {
 			return nil, 0, errors.New("table name cannot be empty！")
 		}
 
