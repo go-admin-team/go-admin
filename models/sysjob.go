@@ -33,20 +33,15 @@ func (e *SysJob) Generate() model.ActiveRecord {
 	return &o
 }
 
-func (e *SysJob) GenerateList() interface{} {
-	list := make([]SysJob, 0)
-	return &list
-}
-
 func (e *SysJob) GetId() interface{} {
 	return e.JobId
 }
 
-func (e *SysJob) SetCreateBy(createBy string){
+func (e *SysJob) SetCreateBy(createBy string) {
 	e.CreateBy = createBy
 }
 
-func (e *SysJob) SetUpdateBy(updateBy string){
+func (e *SysJob) SetUpdateBy(updateBy string) {
 	e.UpdateBy = updateBy
 }
 

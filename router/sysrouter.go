@@ -112,7 +112,10 @@ func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		sysJob := &models.SysJob{}
-		r.GET("", actions.IndexAction(sysJob, new(dto.SysJobSearch)))
+		r.GET("", actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {
+			list := make([]models.SysJob, 0)
+			return &list
+		}))
 		r.GET("/:id", actions.ViewAction(sysJob))
 		r.POST("", actions.CreateAction(sysJob))
 		r.PUT("", actions.UpdateAction(sysJob))

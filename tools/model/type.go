@@ -8,5 +8,4 @@ type ActiveRecord interface {
 	SetUpdateBy(updateBy string)
 	Generate() ActiveRecord
 	GetId() interface{}
-	GenerateList() interface{}
 }

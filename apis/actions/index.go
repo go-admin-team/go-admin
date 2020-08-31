@@ -2,9 +2,8 @@ package actions
 
 import (
 	"errors"
-	"go-admin/dto"
-
 	"github.com/gin-gonic/gin"
+	"go-admin/dto"
 	"gorm.io/gorm"
 
 	"go-admin/tools"
@@ -13,8 +12,9 @@ import (
 )
 
 // IndexAction 通用查询动作
-func IndexAction(m model.ActiveRecord, d dto.Dtor) gin.HandlerFunc {
+func IndexAction(m model.ActiveRecord, d dto.Dtor, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		list := f()
 		object := m.Generate()
 		req := d.Generate()
 		var err error
@@ -23,7 +23,6 @@ func IndexAction(m model.ActiveRecord, d dto.Dtor) gin.HandlerFunc {
 			err = errors.New("db connect not exist")
 			tools.HasError(err, "", 500)
 		}
-		list := object.GenerateList()
 		var count int64
 		switch idb.(type) {
 		case *gorm.DB:
