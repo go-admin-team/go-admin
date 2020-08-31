@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"github.com/google/uuid"
 	"go-admin/tools/config"
 
 	"github.com/matchstalk/go-admin-core/search"
@@ -9,26 +8,29 @@ import (
 )
 
 type GeneralDelDto struct {
-	Id  string   `uri:"id" json:"id" validate:"required"`
-	Ids []string `json:"ids"`
+	Id  int   `uri:"id" json:"id" validate:"required"`
+	Ids []int `json:"ids"`
 }
 
-func (g GeneralDelDto) GetIds() []string {
-	ids := make([]string, 0)
+func (g GeneralDelDto) GetIds() []int {
+	ids := make([]int, 0)
+	if g.Id != 0 {
+		ids = append(ids, g.Id)
+	}
 	if len(g.Ids) > 0 {
 		for _, id := range g.Ids {
-			if len(id) > 0 {
+			if id > 0 {
 				ids = append(ids, id)
 			}
 		}
 	} else {
-		if len(g.Id) > 0 {
+		if g.Id > 0 {
 			ids = append(ids, g.Id)
 		}
 	}
 	if len(ids) <= 0 {
 		//方式全部删除
-		ids = append(ids, uuid.New().String())
+		ids = append(ids, 0)
 	}
 	return ids
 }

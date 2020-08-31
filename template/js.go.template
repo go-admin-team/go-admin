@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询{{.ClassName}}列表
 export function list{{.ClassName}}(query) {
 return request({
-url: '/api/v1/{{.ModuleName}}List',
+url: '/api/v1/{{.ModuleName}}',
 method: 'get',
 params: query
 })

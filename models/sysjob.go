@@ -42,6 +42,14 @@ func (e *SysJob) GetId() interface{} {
 	return e.JobId
 }
 
+func (e *SysJob) SetCreateBy(createBy string){
+	e.CreateBy = createBy
+}
+
+func (e *SysJob) SetUpdateBy(updateBy string){
+	e.UpdateBy = updateBy
+}
+
 // 创建SysJob
 func (e *SysJob) Create() (err error) {
 	return orm.Eloquent.Table(e.TableName()).Create(e).Error
@@ -59,15 +67,10 @@ func (e *SysJob) GetPage(pageSize int, pageIndex int, v interface{}, list interf
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
 	//dataPermission := new(DataPermission)
 	userid, _ := tools.StringToInt(e.DataScope)
-	//dataPermission.UserId = userid
-	//table, err := dataPermission.GetDataScope(e.TableName(), table)
-	//if err != nil {
-	//	return 0, err
-	//}
 
 	var count int64
 
-	if err := table.Scopes(DataScopes(e.TableName(),userid),tools.Paginate(pageSize, pageIndex)).Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+	if err := table.Scopes(DataScopes(e.TableName(), userid), tools.Paginate(pageSize, pageIndex)).Find(list).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return int(count), nil

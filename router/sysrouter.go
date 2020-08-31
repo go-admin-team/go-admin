@@ -82,8 +82,6 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 
 	registerSysSettingRouter(v1)
 
-	registerSysJobRouter(v1)
-
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -109,16 +107,10 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func registerSysJobRouter(v1 *gin.RouterGroup) {
+func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 
-	r := v1.Group("/sysjob")
+	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		//r.GET("", sysjob.GetSysJobList)
-		//r.GET("/:id", sysjob.GetSysJob)
-		//r.POST("", sysjob.InsertSysJob)
-		//r.PUT("", sysjob.UpdateSysJob)
-		//r.DELETE("/:id", sysjob.DeleteSysJob)
-
 		sysJob := &models.SysJob{}
 		r.GET("", actions.IndexAction(sysJob, new(dto.SysJobSearch)))
 		r.GET("/:id", actions.ViewAction(sysJob))
@@ -154,7 +146,7 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	registerMenuRouter(v1, authMiddleware)
 	registerLoginLogRouter(v1, authMiddleware)
 	registerOperLogRouter(v1, authMiddleware)
-
+	registerSysJobRouter(v1, authMiddleware)
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {

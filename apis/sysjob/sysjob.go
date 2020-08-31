@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"go-admin/dto"
 	"go-admin/jobs"
 	"go-admin/models"
 	"go-admin/tools"
@@ -13,83 +12,12 @@ import (
 	"go-admin/tools/app/msg"
 )
 
-func GetSysJobList(c *gin.Context) {
-	var data models.SysJob
-	var err error
-	var pageSize = 10
-	var pageIndex = 1
-
-	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools.StringToInt(size)
-	}
-	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools.StringToInt(index)
-	}
-
-	var v dto.SysJobSearch
-	err = c.Bind(&v)
-	tools.HasError(err, "数据解析失败", 422)
-
-	data.DataScope = tools.GetUserIdStr(c)
-	list := make([]models.SysJob, 0)
-	count, err := data.GetPage(pageSize, pageIndex, v, &list)
-	tools.HasError(err, "", -1)
-
-	app.PageOK(c, list, count, pageIndex, pageSize, "")
-}
-
-func GetSysJob(c *gin.Context) {
-	var data models.SysJob
-	var v tools.GeneralGetDto
-	err := c.BindUri(&v)
-	tools.HasError(err, "", 500)
-	data.JobId = v.Id
-	err = data.Get(data.JobId)
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-
-	app.OK(c, data, "")
-}
-
-func InsertSysJob(c *gin.Context) {
-	var data models.SysJob
-	err := c.ShouldBindJSON(&data)
-	data.CreateBy = tools.GetUserIdStr(c)
-	tools.HasError(err, "", 500)
-	err = data.Create()
-	tools.HasError(err, "", -1)
-	app.OK(c, data, "")
-}
-
-func UpdateSysJob(c *gin.Context) {
-	var data models.SysJob
-	err := c.ShouldBindJSON(&data)
-	tools.HasError(err, "数据解析失败", -1)
-	data.UpdateBy = tools.GetUserIdStr(c)
-	err = data.Update(data.JobId)
-	tools.HasError(err, "", -1)
-
-	app.OK(c, data, "")
-}
-
-func DeleteSysJob(c *gin.Context) {
-	var data models.SysJob
-
-	var v tools.GeneralDelDto
-	err := c.BindUri(&v)
-	tools.HasError(err, "", 500)
-	data.UpdateBy = tools.GetUserIdStr(c)
-	IDS := tools.IdsStrToIdsIntGroupStr(v.Id)
-	err = data.BatchDelete(IDS)
-	tools.HasError(err, msg.DeletedFail, 500)
-	app.OK(c, nil, msg.DeletedSuccess)
-}
-
 func RemoveJob(c *gin.Context) {
 	var data models.SysJob
 	var v tools.GeneralDelDto
 	err := c.BindUri(&v)
 	tools.HasError(err, "", 500)
-	data.JobId, _ = tools.StringToInt(v.Id)
+	data.JobId = v.Id
 	err = data.Get(data.JobId)
 	tools.HasError(err, "", 500)
 	cn := jobs.Remove(data.EntryId)

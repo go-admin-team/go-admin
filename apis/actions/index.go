@@ -33,8 +33,11 @@ func IndexAction(m model.ActiveRecord, d dto.Dtor) gin.HandlerFunc {
 			tools.HasError(err, "参数验证失败", 422)
 			err = req.Validate()
 			tools.HasError(err, "参数验证失败", 422)
-			p, err := newDataPermission(db, tools.GetUserId(c))
-			tools.HasError(err, "权限范围鉴定错误", 500)
+			var p = new(dataPermission)
+			if userId := tools.GetUserIdStr(c); userId != "" {
+				p, err = newDataPermission(db, userId)
+				tools.HasError(err, "权限范围鉴定错误", 500)
+			}
 			err = db.WithContext(c).Model(object).
 				Scopes(
 					tools.MakeCondition(req.GetNeedSearch()),

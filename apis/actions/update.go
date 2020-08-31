@@ -14,6 +14,7 @@ import (
 // UpdateAction 通用更新动作
 func UpdateAction(m model.ActiveRecord) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		m.SetUpdateBy(tools.GetUserIdStr(c))
 		object := m.Generate()
 		var err error
 		idb, exist := c.Get("db")

@@ -14,6 +14,7 @@ import (
 // CreateAction 通用新增动作
 func CreateAction(m model.ActiveRecord) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		m.SetCreateBy(tools.GetUserIdStr(c))
 		object := m.Generate()
 		var err error
 		idb, exist := c.Get("db")

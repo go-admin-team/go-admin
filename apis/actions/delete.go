@@ -14,6 +14,7 @@ import (
 // DeleteAction 通用删除动作
 func DeleteAction(m model.ActiveRecord) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		m.SetUpdateBy(tools.GetUserIdStr(c))
 		object := m.Generate()
 		var err error
 		idb, exist := c.Get("db")
