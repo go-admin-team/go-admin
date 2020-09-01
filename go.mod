@@ -22,15 +22,15 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/satori/go.uuid v1.2.0
+	github.com/shamsher31/goimgext v1.0.0 // indirect
+	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shirou/gopsutil v2.20.7+incompatible
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7
 	github.com/unrolled/secure v1.0.8
-	go.uber.org/multierr v1.5.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	gopkg.in/ffmt.v1 v1.5.6
 	gorm.io/driver/mysql v0.3.2
 	gorm.io/driver/postgres v0.2.9
 	gorm.io/driver/sqlite v1.0.9
