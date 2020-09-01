@@ -2,19 +2,20 @@ package actions
 
 import (
 	"errors"
-	"go-admin/dto"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"go-admin/service/dto"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/model"
 )
 
 // IndexAction 通用查询动作
-func IndexAction(m model.ActiveRecord, d dto.Dtor) gin.HandlerFunc {
+func IndexAction(m model.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		list := f()
 		object := m.Generate()
 		req := d.Generate()
 		var err error
@@ -23,15 +24,14 @@ func IndexAction(m model.ActiveRecord, d dto.Dtor) gin.HandlerFunc {
 			err = errors.New("db connect not exist")
 			tools.HasError(err, "", 500)
 		}
-		list := object.GenerateList()
 		var count int64
 		switch idb.(type) {
 		case *gorm.DB:
-			//新增操作
+			//查询列表
 			db := idb.(*gorm.DB)
 			err = c.Bind(req)
 			tools.HasError(err, "参数验证失败", 422)
-			err = req.Validate()
+			err = req.Bind(c)
 			tools.HasError(err, "参数验证失败", 422)
 			var p = new(dataPermission)
 			if userId := tools.GetUserIdStr(c); userId != "" {

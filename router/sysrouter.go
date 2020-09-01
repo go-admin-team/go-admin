@@ -10,12 +10,12 @@ import (
 	"go-admin/apis/system/dict"
 	. "go-admin/apis/tools"
 	_ "go-admin/docs"
-	"go-admin/dto"
 	"go-admin/handler"
 	"go-admin/middleware"
 	"go-admin/models"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/pkg/ws"
+	"go-admin/service/dto"
 	"mime"
 
 	"github.com/gin-gonic/gin"
@@ -112,11 +112,14 @@ func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		sysJob := &models.SysJob{}
-		r.GET("", actions.IndexAction(sysJob, new(dto.SysJobSearch)))
-		r.GET("/:id", actions.ViewAction(sysJob))
-		r.POST("", actions.CreateAction(sysJob))
-		r.PUT("", actions.UpdateAction(sysJob))
-		r.DELETE("/:id", actions.DeleteAction(sysJob))
+		r.GET("", actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {
+			list := make([]models.SysJob, 0)
+			return &list
+		}))
+		r.GET("/:id", actions.ViewAction(new(dto.SysJobById)))
+		r.POST("", actions.CreateAction(new(dto.SysJobControl)))
+		r.PUT("", actions.UpdateAction(new(dto.SysJobControl)))
+		r.DELETE("/:id", actions.DeleteAction(new(dto.SysJobById)))
 	}
 
 	v1.GET("/job/remove/:jobId", sysjob.RemoveJob)
