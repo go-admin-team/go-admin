@@ -6,14 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"go-admin/dto"
+	"go-admin/service/dto"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/model"
 )
 
 // IndexAction 通用查询动作
-func IndexAction(m model.ActiveRecord, d dto.Dtor, f func() interface{}) gin.HandlerFunc {
+func IndexAction(m model.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		list := f()
 		object := m.Generate()
@@ -27,11 +27,11 @@ func IndexAction(m model.ActiveRecord, d dto.Dtor, f func() interface{}) gin.Han
 		var count int64
 		switch idb.(type) {
 		case *gorm.DB:
-			//新增操作
+			//查询列表
 			db := idb.(*gorm.DB)
 			err = c.Bind(req)
 			tools.HasError(err, "参数验证失败", 422)
-			err = req.Validate()
+			err = req.Bind(c)
 			tools.HasError(err, "参数验证失败", 422)
 			var p = new(dataPermission)
 			if userId := tools.GetUserIdStr(c); userId != "" {
