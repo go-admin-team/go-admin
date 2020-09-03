@@ -38,7 +38,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 
 			db = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
-			).Updates(object)
+			).Where(req.GetId()).Updates(object)
 			tools.HasError(db.Error, "更新失败", 500)
 			if db.RowsAffected == 0 {
 				err = errors.New("无权更新该数据")

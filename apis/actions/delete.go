@@ -39,7 +39,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 
 			db = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
-			).Delete(object)
+			).Where(req.GetId()).Delete(object)
 			tools.HasError(db.Error, "删除失败", 500)
 			if db.RowsAffected == 0 {
 				err = errors.New("无权删除该数据")

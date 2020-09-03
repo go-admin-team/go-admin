@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-admin/models"
 	"go-admin/tools/model"
+	"net/http"
 )
 
 type SysJobSearch struct {
@@ -76,11 +77,25 @@ func (s *SysJobControl) GenerateM() (model.ActiveRecord, error) {
 	}, nil
 }
 
+func (s *SysJobControl) GetId() interface{} {
+	return s.JobId
+}
+
 type SysJobById struct {
-	Id int `uri:"id" validate:"required"`
+	Id  int   `uri:"id" validate:"required"`
+	Ids []int `json:"ids"`
 }
 
 func (s *SysJobById) Bind(ctx *gin.Context) error {
+	if ctx.Request.Method == http.MethodDelete {
+		err := ctx.Bind(s)
+		if err != nil {
+			return err
+		}
+		if len(s.Ids) > 0 {
+			return nil
+		}
+	}
 	return ctx.BindUri(s)
 }
 
@@ -90,7 +105,12 @@ func (s *SysJobById) Generate() Control {
 }
 
 func (s *SysJobById) GenerateM() (model.ActiveRecord, error) {
-	return &models.SysJob{
-		JobId: s.Id,
-	}, nil
+	return &models.SysJob{}, nil
+}
+
+func (s *SysJobById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		return s.Ids
+	}
+	return s.Id
 }

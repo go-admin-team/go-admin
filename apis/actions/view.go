@@ -37,7 +37,7 @@ func ViewAction(control dto.Control) gin.HandlerFunc {
 
 			err = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
-			).First(object).Error
+			).Where(req.GetId()).First(object).Error
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				tools.HasError(err, "查看失败", 404)
 			}
