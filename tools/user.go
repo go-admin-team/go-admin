@@ -17,6 +17,15 @@ func ExtractClaims(c *gin.Context) jwt.MapClaims {
 	return claims.(jwt.MapClaims)
 }
 
+func GetUserIdUint(c *gin.Context) uint {
+	data := ExtractClaims(c)
+	if data["identity"] != nil {
+		return uint((data["identity"]).(float64))
+	}
+	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserId 缺少identity")
+	return 0
+}
+
 func GetUserId(c *gin.Context) int {
 	data := ExtractClaims(c)
 	if data["identity"] != nil {

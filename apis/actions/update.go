@@ -31,7 +31,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			var object model.ActiveRecord
 			object, err = req.GenerateM()
 			tools.HasError(err, "参数验证失败", 422)
-			object.SetUpdateBy(tools.GetUserIdStr(c))
+			object.SetUpdateBy(tools.GetUserIdUint(c))
 
 			//数据权限检查
 			p := getPermissionFromContext(c)

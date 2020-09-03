@@ -4,6 +4,7 @@ import (
 	orm "go-admin/global"
 	"go-admin/tools"
 	"go-admin/tools/model"
+	"strconv"
 )
 
 type SysJob struct {
@@ -37,12 +38,12 @@ func (e *SysJob) GetId() interface{} {
 	return e.JobId
 }
 
-func (e *SysJob) SetCreateBy(createBy string) {
-	e.CreateBy = createBy
+func (e *SysJob) SetCreateBy(createBy uint) {
+	e.CreateBy = strconv.Itoa(int(createBy))
 }
 
-func (e *SysJob) SetUpdateBy(updateBy string) {
-	e.UpdateBy = updateBy
+func (e *SysJob) SetUpdateBy(updateBy uint) {
+	e.UpdateBy = strconv.Itoa(int(updateBy))
 }
 
 // 创建SysJob

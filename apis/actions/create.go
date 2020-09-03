@@ -31,7 +31,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			var object model.ActiveRecord
 			object, err = req.GenerateM()
 			tools.HasError(err, "模型生成失败", 422)
-			object.SetCreateBy(tools.GetUserIdStr(c))
+			object.SetCreateBy(tools.GetUserIdUint(c))
 			err = db.WithContext(c).Create(object).Error
 			tools.HasError(err, "创建失败", 500)
 			app.OK(c, object.GetId(), "创建成功")

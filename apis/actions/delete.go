@@ -32,7 +32,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			object, err = req.GenerateM()
 			tools.HasError(err, "模型生成失败", 500)
 
-			object.SetUpdateBy(tools.GetUserIdStr(c))
+			object.SetUpdateBy(tools.GetUserIdUint(c))
 
 			//数据权限检查
 			p := getPermissionFromContext(c)
