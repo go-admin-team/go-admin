@@ -9,12 +9,21 @@ import (
 )
 
 func ExtractClaims(c *gin.Context) jwt.MapClaims {
-	claims, exists := c.Get("JWT_PAYLOAD")
+	claims, exists := c.Get(jwt.JwtPayloadKey)
 	if !exists {
 		return make(jwt.MapClaims)
 	}
 
 	return claims.(jwt.MapClaims)
+}
+
+func GetUserIdUint(c *gin.Context) uint {
+	data := ExtractClaims(c)
+	if data["identity"] != nil {
+		return uint((data["identity"]).(float64))
+	}
+	fmt.Println(GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " GetUserId 缺少identity")
+	return 0
 }
 
 func GetUserId(c *gin.Context) int {

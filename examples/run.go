@@ -7,10 +7,10 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"go-admin/global"
+	"go-admin/app/admin/router"
+	"go-admin/common/global"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
-	"go-admin/router"
 )
 
 func main() {
