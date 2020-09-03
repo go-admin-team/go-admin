@@ -145,6 +145,6 @@ func DeleteRole(c *gin.Context) {
 
 	IDS := tools.IdsStrToIdsIntGroup("roleId", c)
 	_, err := Role.BatchDelete(IDS)
-	tools.HasError(err, "删除失败1", -1)
+	tools.HasError(err, "删除失败", -1)
 	app.OK(c, "", "删除成功")
 }

@@ -191,6 +191,16 @@ func (role *SysRole) BatchDelete(id []int) (Result bool, err error) {
 		return false, err
 	}
 
+	var count int64
+	if err := tx.Table("sys_user").Where("role_id in (?)", id).Count(&count).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+	if count > 0 {
+		tx.Rollback()
+		return false, errors.New("存在绑定用户，请解绑后重试")
+	}
+
 	// 删除角色
 	if err = tx.Table(role.TableName()).Where("role_id in (?)", id).Unscoped().Delete(&SysRole{}).Error; err != nil {
 		tx.Rollback()
