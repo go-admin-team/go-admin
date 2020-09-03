@@ -32,13 +32,11 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			object, err = req.GenerateM()
 			tools.HasError(err, "模型生成失败", 500)
 
-			//数据权限检查
 			object.SetUpdateBy(tools.GetUserIdStr(c))
-			var p = new(dataPermission)
-			if userId := tools.GetUserIdStr(c); userId != "" {
-				p, err = newDataPermission(db, userId)
-				tools.HasError(err, "权限范围鉴定错误", 500)
-			}
+
+			//数据权限检查
+			p := getPermissionFromContext(c)
+
 			db = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
 			).Delete(object)

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"go-admin/models"
 	"go-admin/tools/config"
 
@@ -15,6 +16,31 @@ type dataPermission struct {
 	UserId    int
 	DeptId    int
 	RoleId    int
+}
+
+func PermissionAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var err error
+		idb, exist := c.Get("db")
+		if !exist {
+			err = errors.New("db connect not exist")
+			tools.HasError(err, "", 500)
+		}
+		switch idb.(type) {
+		case *gorm.DB:
+			db := idb.(*gorm.DB)
+			var p = new(dataPermission)
+			if userId := tools.GetUserIdStr(c); userId != "" {
+				p, err = newDataPermission(db, userId)
+				tools.HasError(err, "权限范围鉴定错误", 500)
+			}
+			c.Set(PermissionKey, p)
+		default:
+			err = errors.New("db connect not exist")
+			tools.HasError(err, "", 500)
+		}
+		c.Next()
+	}
 }
 
 func newDataPermission(tx *gorm.DB, userId interface{}) (*dataPermission, error) {
@@ -58,4 +84,15 @@ func Permission(tableName string, p *dataPermission) func(db *gorm.DB) *gorm.DB 
 			return db
 		}
 	}
+}
+
+func getPermissionFromContext(c *gin.Context) *dataPermission {
+	p := new(dataPermission)
+	if pm, ok := c.Get(PermissionKey); ok {
+		switch pm.(type) {
+		case *dataPermission:
+			p = pm.(*dataPermission)
+		}
+	}
+	return p
 }

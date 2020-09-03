@@ -34,11 +34,8 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			object.SetUpdateBy(tools.GetUserIdStr(c))
 
 			//数据权限检查
-			var p = new(dataPermission)
-			if userId := tools.GetUserIdStr(c); userId != "" {
-				p, err = newDataPermission(db, userId)
-				tools.HasError(err, "权限范围鉴定错误", 500)
-			}
+			p := getPermissionFromContext(c)
+
 			db = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
 			).Updates(object)

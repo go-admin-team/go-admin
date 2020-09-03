@@ -31,11 +31,10 @@ func ViewAction(control dto.Control) gin.HandlerFunc {
 			var object model.ActiveRecord
 			object, err = req.GenerateM()
 			tools.HasError(err, "模型生成失败", 500)
-			var p = new(dataPermission)
-			if userId := tools.GetUserIdStr(c); userId != "" {
-				p, err = newDataPermission(db, userId)
-				tools.HasError(err, "权限范围鉴定错误", 500)
-			}
+
+			//数据权限检查
+			p := getPermissionFromContext(c)
+
 			err = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
 			).First(object).Error
