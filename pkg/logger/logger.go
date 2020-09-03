@@ -2,7 +2,7 @@ package logger
 
 import (
 	"github.com/gogf/gf/os/glog"
-	"go-admin/global"
+	"go-admin/common/global"
 	"go-admin/tools"
 	"go-admin/tools/config"
 )

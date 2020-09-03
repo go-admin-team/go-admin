@@ -13,12 +13,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"go-admin/database"
-	"go-admin/global"
-	"go-admin/jobs"
+	"go-admin/app/admin/router"
+	"go-admin/app/jobs"
+	"go-admin/common/database"
+	"go-admin/common/global"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
-	"go-admin/router"
 	"go-admin/tools"
 	"go-admin/tools/config"
 )

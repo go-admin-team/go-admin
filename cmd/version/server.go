@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"go-admin/global"
+	"go-admin/common/global"
 )
 
 var (

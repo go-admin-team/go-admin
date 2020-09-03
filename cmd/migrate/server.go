@@ -5,10 +5,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"go-admin/database"
-	"go-admin/global"
-	"go-admin/models"
-	"go-admin/models/gorm"
+	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/gorm"
+	"go-admin/common/database"
+	"go-admin/common/global"
 	"go-admin/pkg/logger"
 	"go-admin/tools/config"
 )

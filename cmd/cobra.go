@@ -11,7 +11,7 @@ import (
 	"go-admin/cmd/config"
 	"go-admin/cmd/migrate"
 	"go-admin/cmd/version"
-	"go-admin/global"
+	"go-admin/common/global"
 	"go-admin/tools"
 )
 
