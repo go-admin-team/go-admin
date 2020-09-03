@@ -32,13 +32,26 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			object, err = req.GenerateM()
 			tools.HasError(err, "参数验证失败", 422)
 			object.SetUpdateBy(tools.GetUserIdStr(c))
-			err = db.WithContext(c).Updates(object).Error
-			tools.HasError(err, "更新失败", 500)
+
+			//数据权限检查
+			var p = new(dataPermission)
+			if userId := tools.GetUserIdStr(c); userId != "" {
+				p, err = newDataPermission(db, userId)
+				tools.HasError(err, "权限范围鉴定错误", 500)
+			}
+			db = db.WithContext(c).Scopes(
+				Permission(object.TableName(), p),
+			).Updates(object)
+			tools.HasError(db.Error, "更新失败", 500)
+			if db.RowsAffected == 0 {
+				err = errors.New("无权更新该数据")
+				tools.HasError(err, "", 403)
+			}
 			app.OK(c, object.GetId(), "更新成功")
+			c.Next()
 		default:
 			err = errors.New("db connect not exist")
 			tools.HasError(err, "", 500)
 		}
-		c.Next()
 	}
 }

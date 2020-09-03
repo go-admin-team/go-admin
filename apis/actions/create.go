@@ -35,10 +35,10 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			err = db.WithContext(c).Create(object).Error
 			tools.HasError(err, "创建失败", 500)
 			app.OK(c, object.GetId(), "创建成功")
+			c.Next()
 		default:
 			err = errors.New("db connect not exist")
 			tools.HasError(err, "", 500)
 		}
-		c.Next()
 	}
 }

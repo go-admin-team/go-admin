@@ -49,11 +49,11 @@ func IndexAction(m model.ActiveRecord, d dto.Index, f func() interface{}) gin.Ha
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				tools.HasError(err, "查询失败", 500)
 			}
+			app.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+			c.Next()
 		default:
 			err = errors.New("db connect not exist")
 			tools.HasError(err, "", 500)
 		}
-		app.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
-		c.Next()
 	}
 }

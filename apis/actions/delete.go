@@ -31,14 +31,27 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			var object model.ActiveRecord
 			object, err = req.GenerateM()
 			tools.HasError(err, "模型生成失败", 500)
+
+			//数据权限检查
 			object.SetUpdateBy(tools.GetUserIdStr(c))
-			err = db.WithContext(c).Delete(object).Error
-			tools.HasError(err, "更新失败", 500)
-			app.OK(c, object.GetId(), "更新成功")
+			var p = new(dataPermission)
+			if userId := tools.GetUserIdStr(c); userId != "" {
+				p, err = newDataPermission(db, userId)
+				tools.HasError(err, "权限范围鉴定错误", 500)
+			}
+			db = db.WithContext(c).Scopes(
+				Permission(object.TableName(), p),
+			).Delete(object)
+			tools.HasError(db.Error, "删除失败", 500)
+			if db.RowsAffected == 0 {
+				err = errors.New("无权删除该数据")
+				tools.HasError(err, "", 403)
+			}
+			app.OK(c, object.GetId(), "删除成功")
+			c.Next()
 		default:
 			err = errors.New("db connect not exist")
 			tools.HasError(err, "", 500)
 		}
-		c.Next()
 	}
 }

@@ -14,7 +14,7 @@ import (
 //权限检查中间件
 func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		data, _ := c.Get("JWT_PAYLOAD")
+		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
 		e, err := mycasbin.Casbin()
 		tools.HasError(err, "", 500)
