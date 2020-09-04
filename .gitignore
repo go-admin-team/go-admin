@@ -12,3 +12,4 @@ config/settings.dev.b.yml
 temp/logs
 config/settings.dev.yml.log
 config/settings.b.dev.yml
+cmd/migrate/migration/version-local/*
