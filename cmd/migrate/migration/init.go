@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"sort"
+	"sync"
 )
 
 var Migrate = &Migration{
@@ -13,6 +14,7 @@ var Migrate = &Migration{
 type Migration struct {
 	db      *gorm.DB
 	version map[string]func(db *gorm.DB, version string) error
+	mutex   sync.Mutex
 }
 
 func (e *Migration) GetDb() *gorm.DB {
@@ -24,6 +26,8 @@ func (e *Migration) SetDb(db *gorm.DB) {
 }
 
 func (e *Migration) SetVersion(k string, f func(db *gorm.DB, version string) error) {
+	e.mutex.Lock()
+	defer e.mutex.Unlock()
 	e.version[k] = f
 }
 
