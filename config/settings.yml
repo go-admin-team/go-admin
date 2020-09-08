@@ -28,7 +28,7 @@ settings:
     # 自动任务日志开关 dev模式，将自动开启
     enabledjob: false
   jwt:
-    # token 密钥，生产环境时及的修改
+    # token 密钥，生产环境时记得修改
     secret: go-admin
     # token 过期时间 单位：秒
     timeout: 3600
