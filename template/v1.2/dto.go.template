@@ -1,0 +1,117 @@
+package dto
+
+import (
+	"github.com/gin-gonic/gin"
+	"go-admin/app/admin/models"
+	"go-admin/common/dto"
+	models2 "go-admin/common/models"
+	"net/http"
+)
+
+type {{.ClassName}}Search struct {
+	Pagination     `search:"-"`
+    {{ $tablename := .TBName -}}
+    {{ range .Columns -}}
+    {{$z := .IsQuery}}
+    {{- if ($z) -}}
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}"` // {{.ColumnComment}}
+
+    {{end -}}
+    {{- end }}
+}
+
+func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
+	return *m
+}
+
+func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
+	return ctx.Bind(m)
+}
+
+func (m *{{.ClassName}}Search) Generate() dto.Index {
+	o := *m
+	return &o
+}
+
+func (m *{{.ClassName}}Search) GetPageIndex() int {
+	return m.PageIndex
+}
+
+func (m *{{.ClassName}}Search) GetPageSize() int {
+	return m.PageSize
+}
+
+type {{.ClassName}}Control struct {
+    {{ range .Columns -}}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}""` // {{.ColumnComment}}
+    {{- else if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else }}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}""` // {{.ColumnComment}}{{end -}}
+    {{- end }}
+}
+
+func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
+	return ctx.Bind(s)
+}
+
+func (s *{{.ClassName}}Control) Generate() dto.Control {
+	cp := *s
+	return &cp
+}
+
+func (s *{{.ClassName}}Control) GenerateM() (models2.ActiveRecord, error) {
+	return &models.{{.ClassName}}{
+	{{ range .Columns -}}
+        {{$x := .Pk}}
+        {{- if ($x) }}
+        {{.GoField}}: s.{{.GoField}},
+        {{- else if eq .GoField "CreatedAt" -}}
+        {{- else if eq .GoField "UpdatedAt" -}}
+        {{- else if eq .GoField "DeletedAt" -}}
+        {{- else }}
+        {{.GoField}}:  s.{{.GoField}},
+        {{- end }}
+	}, nil
+}
+
+func (s *{{.ClassName}}Control) GetId() interface{} {
+	return s.{{.PkColumn}}
+}
+
+type {{.ClassName}}ById struct {
+	Id  int   `uri:"id" validate:"required"`
+	Ids []int `json:"ids"`
+}
+
+func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
+	if ctx.Request.Method == http.MethodDelete {
+		err := ctx.Bind(s)
+		if err != nil {
+			return err
+		}
+		if len(s.Ids) > 0 {
+			return nil
+		}
+	}
+	return ctx.BindUri(s)
+}
+
+func (s *{{.ClassName}}ById) Generate() dto.Control {
+	cp := *s
+	return &cp
+}
+
+func (s *{{.ClassName}}ById) GenerateM() (models2.ActiveRecord, error) {
+	return &models.{{.ClassName}}{}, nil
+}
+
+func (s *{{.ClassName}}ById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		return s.Ids
+	}
+	return s.Id
+}

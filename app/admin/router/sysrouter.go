@@ -6,15 +6,11 @@ import (
 	log2 "go-admin/app/admin/apis/log"
 	"go-admin/app/admin/apis/monitor"
 	"go-admin/app/admin/apis/public"
-	"go-admin/app/admin/apis/sysjob"
 	"go-admin/app/admin/apis/system"
 	"go-admin/app/admin/apis/system/dict"
 	. "go-admin/app/admin/apis/tools"
 	"go-admin/app/admin/middleware"
 	"go-admin/app/admin/middleware/handler"
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/dto"
-	"go-admin/common/actions"
 	_ "go-admin/docs"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/pkg/ws"
@@ -108,25 +104,6 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-
-	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
-	{
-		sysJob := &models.SysJob{}
-		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {
-			list := make([]models.SysJob, 0)
-			return &list
-		}))
-		r.GET("/:id", actions.PermissionAction(), actions.ViewAction(new(dto.SysJobById)))
-		r.POST("", actions.CreateAction(new(dto.SysJobControl)))
-		r.PUT("", actions.PermissionAction(), actions.UpdateAction(new(dto.SysJobControl)))
-		r.DELETE("/:id", actions.PermissionAction(), actions.DeleteAction(new(dto.SysJobById)))
-	}
-
-	v1.GET("/job/remove/:jobId", sysjob.RemoveJob)
-	v1.GET("/job/start/:jobId", sysjob.StartJob)
-}
-
 func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r.POST("/login", authMiddleware.LoginHandler)
 	// Refresh time can be longer than token timeout
@@ -150,7 +127,6 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	registerMenuRouter(v1, authMiddleware)
 	registerLoginLogRouter(v1, authMiddleware)
 	registerOperLogRouter(v1, authMiddleware)
-	registerSysJobRouter(v1, authMiddleware)
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {

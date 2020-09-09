@@ -5,11 +5,14 @@ import (
 	"go-admin/app/admin/middleware"
 	"go-admin/app/admin/middleware/handler"
 	"go-admin/common/global"
+	jwt "go-admin/pkg/jwtauth"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
 	"gorm.io/gorm"
 )
+
+var authMiddleware = new(jwt.GinJWTMiddleware)
 
 func InitRouter() *gin.Engine {
 	var r *gin.Engine
@@ -24,7 +27,8 @@ func InitRouter() *gin.Engine {
 	r.Use(middleware.WithContextDb(map[string]*gorm.DB{"*": global.Eloquent}))
 	middleware.InitMiddleware(r)
 	// the jwt middleware
-	authMiddleware, err := middleware.AuthInit()
+	var err error
+	authMiddleware, err = middleware.AuthInit()
 	tools.HasError(err, "JWT Init Error", 500)
 
 	// 注册系统路由

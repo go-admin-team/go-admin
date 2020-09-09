@@ -28,6 +28,9 @@ type SysTables struct {
 	Tree                bool         `gorm:"size:1;" json:"tree"`
 	Crud                bool         `gorm:"size:1;" json:"crud"`
 	Remark              string       `gorm:"size:255;" json:"remark"`
+	IsDataScope         bool         `gorm:"size:1;" json:"isDataScope"`
+	IsActions           bool         `gorm:"size:1;" json:"isActions"`
+	IsAuth              bool         `gorm:"size:1;" json:"isAuth"`
 	IsLogicalDelete     string       `gorm:"size:1;" json:"isLogicalDelete"`
 	LogicalDelete       bool         `gorm:"size:1;" json:"logicalDelete"`
 	LogicalDeleteColumn string       `gorm:"size:128;" json:"logicalDeleteColumn"`

@@ -65,21 +65,14 @@ func GenCode(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	table.TableId = id
 	tab, _ := table.Get()
-	ischeckrole := true
 
 	routerfile := "template/routercheckrole.go.template"
 
-	if c.Request.FormValue("ischeckrole") != "" {
-		ischeckrole, err = tools2.StringToBool(c.Request.FormValue("ischeckrole"))
-		if err != nil {
-			ischeckrole = true
-		}
-	}
 
 	oldTest := "// {{认证路由自动补充在此处请勿删除}}"
 	newText := "// {{认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1,authMiddleware)"
 
-	if !ischeckrole {
+	if !tab.IsAuth {
 		oldTest = "// {{无需认证路由自动补充在此处请勿删除}}"
 		newText = "// {{无需认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1)"
 		routerfile = "template/routernocheckrole.go.template"
@@ -139,6 +132,64 @@ func GenCode(c *gin.Context) {
 	} else {
 		global.Logger.Print("done!")
 	}
+
+	app.OK(c, "", "Code generated successfully！")
+}
+
+
+func GenCodeV2(c *gin.Context) {
+	table := tools.SysTables{}
+	id, err := tools2.StringToInt(c.Param("tableId"))
+	tools2.HasError(err, "", -1)
+	table.TableId = id
+	tab, _ := table.Get()
+
+	routerfile := "template/v1.2/routercheckrole.go.template"
+
+
+	if !tab.IsAuth {
+		routerfile = "template/v1.2/routernocheckrole.go.template"
+	}
+
+	t1, err := template.ParseFiles("template/v1.2/model.go.template")
+	tools2.HasError(err, "", -1)
+	t2, err := template.ParseFiles("template/api.go.template")
+	tools2.HasError(err, "", -1)
+	t3, err := template.ParseFiles(routerfile)
+	tools2.HasError(err, "", -1)
+	t4, err := template.ParseFiles("template/js.go.template")
+	tools2.HasError(err, "", -1)
+	t5, err := template.ParseFiles("template/vue.go.template")
+	tools2.HasError(err, "", -1)
+	t6, err := template.ParseFiles("template/v1.2/dto.go.template")
+	tools2.HasError(err, "", -1)
+
+	_ = tools2.PathCreate("./app/admin/apis/" + tab.ModuleName + "/")
+	_ = tools2.PathCreate("./app/admin/models/")
+	_ = tools2.PathCreate("./app/admin/router/")
+	_ = tools2.PathCreate("./app/admin/dto/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName)
+
+	var b1 bytes.Buffer
+	err = t1.Execute(&b1, tab)
+	var b2 bytes.Buffer
+	err = t2.Execute(&b2, tab)
+	var b3 bytes.Buffer
+	err = t3.Execute(&b3, tab)
+	var b4 bytes.Buffer
+	err = t4.Execute(&b4, tab)
+	var b5 bytes.Buffer
+	err = t5.Execute(&b5, tab)
+	var b6 bytes.Buffer
+	err = t6.Execute(&b6, tab)
+	tools2.FileCreate(b1, "./app/admin/models/"+tab.PackageName+".go")
+	tools2.FileCreate(b2, "./app/admin/apis/"+tab.ModuleName+"/"+tab.PackageName+".go")
+	tools2.FileCreate(b3, "./app/admin/router/"+tab.PackageName+".go")
+	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
+	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
+	tools2.FileCreate(b6, "./app/admin/service/dto/"+tab.PackageName+".go")
+
 
 	app.OK(c, "", "Code generated successfully！")
 }

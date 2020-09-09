@@ -1,0 +1,23 @@
+package router
+
+import (
+    "github.com/gin-gonic/gin"
+
+    "go-admin/apis/{{.ModuleName}}"
+)
+
+// 无需认证的路由代码
+func register{{.ClassName}}Router(v1 *gin.RouterGroup) {
+    r := v1.Group("/{{.ModuleName}}")
+        {
+            model := &models.{{.ClassName}}{}
+            r.GET("", actions.IndexAction(model, new(dto.{{.ClassName}}Search), func() interface{} {
+                list := make([]models.{{.ClassName}}, 0)
+                return &list
+            }))
+            r.GET("/:id", actions.ViewAction(new(dto.{{.ClassName}}ById)))
+            r.POST("", actions.CreateAction(new(dto.{{.ClassName}}Control)))
+            r.PUT("", actions.UpdateAction(new(dto.{{.ClassName}}Control)))
+            r.DELETE("/:id", actions.DeleteAction(new(dto.{{.ClassName}}ById)))
+        }
+}
