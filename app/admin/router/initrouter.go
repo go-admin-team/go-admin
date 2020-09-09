@@ -8,20 +8,13 @@ import (
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
-	"gorm.io/gorm"
 )
 
-func InitRouter() *gin.Engine {
-	var r *gin.Engine
-	if global.GinEngine == nil {
-		r = gin.New()
-	} else {
-		r = global.GinEngine
-	}
+func InitRouter(r *gin.Engine) *gin.Engine {
 	if config2.SslConfig.Enable {
 		r.Use(handler.TlsHandler())
 	}
-	r.Use(middleware.WithContextDb(map[string]*gorm.DB{"*": global.Eloquent}))
+	r.Use(middleware.WithContextDb(middleware.GetGormFromConfig(global.Cfg)))
 	middleware.InitMiddleware(r)
 	// the jwt middleware
 	authMiddleware, err := middleware.AuthInit()

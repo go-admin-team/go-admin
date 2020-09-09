@@ -5,8 +5,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/os/glog"
 	"github.com/robfig/cron/v3"
+	"go-admin/common/config"
 	"gorm.io/gorm"
 )
+
+const (
+	// go-admin Version Info
+	Version = "1.2.0"
+)
+
+var Cfg config.Conf = config.DefaultConfig()
 
 var GinEngine *gin.Engine
 var CasbinEnforcer *casbin.SyncedEnforcer
@@ -19,13 +27,6 @@ var (
 	Driver string
 	DBName string
 )
-
-// go-admin Version Info
-var Version string
-
-func init() {
-	Version = "1.2.0"
-}
 
 var (
 	Logger        *glog.Logger
