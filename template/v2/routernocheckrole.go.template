@@ -3,7 +3,10 @@ package router
 import (
     "github.com/gin-gonic/gin"
 
-    "go-admin/apis/{{.ModuleName}}"
+    "go-admin/app/admin/middleware"
+    "go-admin/app/admin/models"
+    "go-admin/app/admin/service/dto"
+    "go-admin/common/actions"
 )
 
 // 无需认证的路由代码
@@ -17,7 +20,7 @@ func register{{.ClassName}}Router(v1 *gin.RouterGroup) {
             }))
             r.GET("/:id", actions.ViewAction(new(dto.{{.ClassName}}ById)))
             r.POST("", actions.CreateAction(new(dto.{{.ClassName}}Control)))
-            r.PUT("", actions.UpdateAction(new(dto.{{.ClassName}}Control)))
+            r.PUT("/:id", actions.UpdateAction(new(dto.{{.ClassName}}Control)))
             r.DELETE("/:id", actions.DeleteAction(new(dto.{{.ClassName}}ById)))
         }
 }

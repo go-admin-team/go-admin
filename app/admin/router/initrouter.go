@@ -5,7 +5,6 @@ import (
 	"go-admin/app/admin/middleware"
 	"go-admin/app/admin/middleware/handler"
 	"go-admin/common/global"
-	jwt "go-admin/pkg/jwtauth"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
 	config2 "go-admin/tools/config"
@@ -19,7 +18,7 @@ func InitRouter(r *gin.Engine) *gin.Engine {
 	middleware.InitMiddleware(r)
 	// the jwt middleware
 	var err error
-	authMiddleware, err = middleware.AuthInit()
+	authMiddleware, err := middleware.AuthInit()
 	tools.HasError(err, "JWT Init Error", 500)
 
 	// 注册系统路由

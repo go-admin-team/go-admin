@@ -30,17 +30,18 @@ data: data
 // 修改{{.ClassName}}
 export function update{{.ClassName}}(data) {
 return request({
-url: '/api/v1/{{.ModuleName}}',
+url: '/api/v1/{{.ModuleName}}/'+data.{{.PkJsonField}},
 method: 'put',
 data: data
 })
 }
 
 // 删除{{.ClassName}}
-export function del{{.ClassName}}({{.PkJsonField}}) {
+export function del{{.ClassName}}({{.PkJsonField}},data) {
 return request({
 url: '/api/v1/{{.ModuleName}}/' + {{.PkJsonField}},
-method: 'delete'
+method: 'delete',
+data: data
 })
 }
 

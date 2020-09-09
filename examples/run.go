@@ -7,7 +7,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/router"
 	"go-admin/common/global"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
@@ -22,6 +21,6 @@ func main() {
 	mycasbin.Setup()
 	logger.Setup()
 	global.GinEngine = gin.Default()
-	router.InitRouter()
+	//router.InitRouter()
 	log.Fatal(global.GinEngine.Run(":8000"))
 }

@@ -5,18 +5,17 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	models2 "go-admin/common/models"
-	"net/http"
 )
 
 type {{.ClassName}}Search struct {
-	Pagination     `search:"-"`
+	dto.Pagination     `search:"-"`
     {{ $tablename := .TBName -}}
     {{ range .Columns -}}
     {{$z := .IsQuery}}
     {{- if ($z) -}}
     {{.GoField}} {{.GoType}} `form:"{{.JsonField}}" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}"` // {{.ColumnComment}}
 
-    {{end -}}
+    {{ end -}}
     {{- end }}
 }
 
@@ -75,29 +74,16 @@ func (s *{{.ClassName}}Control) GenerateM() (models2.ActiveRecord, error) {
         {{- else }}
         {{.GoField}}:  s.{{.GoField}},
         {{- end }}
+        {{- end }}
 	}, nil
 }
 
 func (s *{{.ClassName}}Control) GetId() interface{} {
-	return s.{{.PkColumn}}
+	return s.{{.PkGoField}}
 }
 
 type {{.ClassName}}ById struct {
-	Id  int   `uri:"id" validate:"required"`
-	Ids []int `json:"ids"`
-}
-
-func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
-	if ctx.Request.Method == http.MethodDelete {
-		err := ctx.Bind(s)
-		if err != nil {
-			return err
-		}
-		if len(s.Ids) > 0 {
-			return nil
-		}
-	}
-	return ctx.BindUri(s)
+	dto.ObjectById
 }
 
 func (s *{{.ClassName}}ById) Generate() dto.Control {
@@ -107,11 +93,4 @@ func (s *{{.ClassName}}ById) Generate() dto.Control {
 
 func (s *{{.ClassName}}ById) GenerateM() (models2.ActiveRecord, error) {
 	return &models.{{.ClassName}}{}, nil
-}
-
-func (s *{{.ClassName}}ById) GetId() interface{} {
-	if len(s.Ids) > 0 {
-		return s.Ids
-	}
-	return s.Id
 }

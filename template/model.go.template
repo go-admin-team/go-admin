@@ -1,8 +1,13 @@
 package models
 
 import (
-    orm "go-admin/global"
-    "go-admin/tools"
+    "strconv"
+
+	"go-admin/common/dto"
+	orm "go-admin/common/global"
+	"go-admin/common/models"
+	"go-admin/tools"
+
     {{ range .Columns }}
     {{- if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}

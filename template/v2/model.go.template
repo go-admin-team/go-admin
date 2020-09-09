@@ -1,14 +1,17 @@
 package models
 
 import (
+    "strconv"
+    {{- if eq .IsActions true -}}
+    {{- else }}
 	"go-admin/common/dto"
-	orm "go-admin/common/global"
-	"go-admin/common/models"
 	"go-admin/tools"
-	"strconv"
+	orm "go-admin/common/global"
+	{{ end }}
+	"go-admin/common/models"
 )
 
-type SysJob struct {
+type {{.ClassName}} struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
@@ -34,7 +37,7 @@ func (e *{{.ClassName}}) Generate() models.ActiveRecord {
 }
 
 func (e *{{.ClassName}}) GetId() interface{} {
-	return e.{{.PkColumn}}
+	return e.{{.PkGoField}}
 }
 
 func (e *{{.ClassName}}) SetCreateBy(createBy uint) {

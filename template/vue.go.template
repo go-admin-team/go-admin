@@ -215,7 +215,7 @@
 </template>
 
 <script>
-    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .PackageName}}'
+    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .BusinessName}}'
     {{range .Columns}}
     {{- if ne .FkTableName "" -}}
      import {list{{.FkTableNameClass}} } from '@/api/{{ .FkTableNamePackage}}'
@@ -428,7 +428,11 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(function () {
-                    return del{{.ClassName}}(Ids)
+                    if (Ids.length > 1) {
+                      return del{{.ClassName}}(Ids.shift(), { 'ids': Ids })
+                    } else {
+                      return del{{.ClassName}}(Ids, { 'ids': [] })
+                    }
                 }).then(() => {
                     this.getList()
                     this.msgSuccess('删除成功')

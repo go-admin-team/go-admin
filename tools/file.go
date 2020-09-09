@@ -34,7 +34,10 @@ func FileCreate(content bytes.Buffer, name string) {
 	if err != nil {
 		log.Println(err)
 	}
-	file.WriteString(content.String())
+	_, err = file.WriteString(content.String())
+	if err != nil {
+		log.Println(err)
+	}
 	//for i := 0; i < len(content); i++ {
 	//	//写入byte的slice数据
 	//	file.Write(content)
