@@ -5,6 +5,7 @@ import (
 	dto2 "go-admin/common/dto"
 	"go-admin/common/models"
 	"go-admin/tools/app"
+	"gopkg.in/ffmt.v1"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -35,6 +36,7 @@ func ViewAction(control dto2.Control) gin.HandlerFunc {
 			//数据权限检查
 			p := getPermissionFromContext(c)
 
+			ffmt.P(object)
 			err = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
 			).Where(req.GetId()).First(object).Error

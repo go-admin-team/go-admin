@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-admin/tools/config"
-
 	"gorm.io/gorm"
 
 	"go-admin/tools"
@@ -62,7 +61,7 @@ func newDataPermission(tx *gorm.DB, userId interface{}) (*dataPermission, error)
 		Select("sys_user.user_id", "sys_role.role_id", "sys_user.dept_id", "sys_role.data_scope").
 		Joins("left join sys_role on sys_role.role_id = sys_user.role_id").
 		Where("sys_user.user_id = ?", userId).
-		Scan(&p).Error
+		Scan(p).Error
 	if err != nil {
 		err = errors.New("获取用户数据出错 msg:" + err.Error())
 		return nil, err

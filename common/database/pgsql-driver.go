@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"log"
 	"os"
 	"time"
@@ -10,8 +11,10 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
+	"go-admin/common/config"
 	"go-admin/common/global"
-	"go-admin/tools/config"
+	"go-admin/tools"
+	toolsConfig "go-admin/tools/config"
 )
 
 type PgSql struct {
@@ -22,7 +25,15 @@ func (e *PgSql) Setup() {
 
 	global.Source = e.GetConnect()
 	log.Println(global.Source)
-	global.Eloquent, err = e.Open(e.GetDriver(), &gorm.Config{
+	db, err := sql.Open("postgresql", global.Source)
+	if err != nil {
+		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
+	}
+	global.Cfg.SetDb(&config.DBConfig{
+		Driver: "mysql",
+		DB:     db,
+	})
+	global.Eloquent, err = e.Open(db, &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
@@ -37,7 +48,7 @@ func (e *PgSql) Setup() {
 		log.Fatalf("database error %v", global.Eloquent.Error)
 	}
 
-	if config.LoggerConfig.EnabledDB {
+	if toolsConfig.LoggerConfig.EnabledDB {
 		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 			SlowThreshold: time.Second,
 			Colorful:      true,
@@ -47,15 +58,14 @@ func (e *PgSql) Setup() {
 }
 
 // 打开数据库连接
-func (*PgSql) Open(conn string, cfg *gorm.Config) (db *gorm.DB, err error) {
-	eloquent, err := gorm.Open(postgres.Open(conn), cfg)
-	return eloquent, err
+func (e *PgSql) Open(db *sql.DB, cfg *gorm.Config) (*gorm.DB, error) {
+	return gorm.Open(postgres.New(postgres.Config{Conn: db}), cfg)
 }
 
 func (e *PgSql) GetConnect() string {
-	return config.DatabaseConfig.Source
+	return toolsConfig.DatabaseConfig.Source
 }
 
 func (e *PgSql) GetDriver() string {
-	return config.DatabaseConfig.Driver
+	return toolsConfig.DatabaseConfig.Driver
 }

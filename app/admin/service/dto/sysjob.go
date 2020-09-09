@@ -5,11 +5,10 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	models2 "go-admin/common/models"
-	"net/http"
 )
 
 type SysJobSearch struct {
-	Pagination     `search:"-"`
+	dto.Pagination `search:"-"`
 	JobId          int    `form:"jobId" search:"type:exact;column:job_id;table:sys_job"`
 	JobName        string `form:"jobName" search:"type:icontains;column:job_name;table:sys_job"`
 	JobGroup       string `form:"jobGroup" search:"type:exact;column:job_group;table:sys_job"`
@@ -83,21 +82,7 @@ func (s *SysJobControl) GetId() interface{} {
 }
 
 type SysJobById struct {
-	Id  int   `uri:"id" validate:"required"`
-	Ids []int `json:"ids"`
-}
-
-func (s *SysJobById) Bind(ctx *gin.Context) error {
-	if ctx.Request.Method == http.MethodDelete {
-		err := ctx.Bind(s)
-		if err != nil {
-			return err
-		}
-		if len(s.Ids) > 0 {
-			return nil
-		}
-	}
-	return ctx.BindUri(s)
+	dto.ObjectById
 }
 
 func (s *SysJobById) Generate() dto.Control {
@@ -107,11 +92,4 @@ func (s *SysJobById) Generate() dto.Control {
 
 func (s *SysJobById) GenerateM() (models2.ActiveRecord, error) {
 	return &models.SysJob{}, nil
-}
-
-func (s *SysJobById) GetId() interface{} {
-	if len(s.Ids) > 0 {
-		return s.Ids
-	}
-	return s.Id
 }

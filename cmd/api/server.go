@@ -69,13 +69,26 @@ func run() error {
 	if viper.GetString("settings.application.mode") == string(tools.ModeProd) {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	engine := global.Cfg.GetEngine()
+	if engine == nil {
+		engine = gin.New()
+	}
 
-	r := router.InitRouter()
+	var r *gin.Engine
+	switch engine.(type) {
+	case *gin.Engine:
+		r = engine.(*gin.Engine)
+	default:
+		panic("not support this engine")
+	}
+
+	r = router.InitRouter(r)
 	//defer global.Eloquent.Close()
+	global.Cfg.SetEngine(r)
 
 	srv := &http.Server{
 		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
-		Handler: r,
+		Handler: global.Cfg.GetEngine(),
 	}
 	go func() {
 		jobs.InitJob()
