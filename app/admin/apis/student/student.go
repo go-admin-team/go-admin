@@ -1,4 +1,4 @@
-package {{.ModuleName}}
+package student
 
 import (
     "github.com/gin-gonic/gin"
@@ -10,8 +10,8 @@ import (
     "go-admin/tools/app/msg"
 )
 
-func Get{{.ClassName}}List(c *gin.Context) {
-    var data models.{{.ClassName}}
+func GetStudentList(c *gin.Context) {
+    var data models.Student
     var err error
     var pageSize = 10
     var pageIndex = 1
@@ -23,7 +23,7 @@ func Get{{.ClassName}}List(c *gin.Context) {
         pageIndex, err = tools.StringToInt(index)
     }
 
-    var v dto.{{.ClassName}}Search
+    var v dto.StudentSearch
     err = c.Bind(&v)
     tools.HasError(err, "数据解析失败", 422)
 
@@ -34,26 +34,26 @@ func Get{{.ClassName}}List(c *gin.Context) {
     app.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
-func Get{{.ClassName}}(c *gin.Context) {
-    var data models.{{.ClassName}}
-    data.{{.PkGoField}}, _ = tools.StringToInt(c.Param("{{.PkJsonField}}"))
+func GetStudent(c *gin.Context) {
+    var data models.Student
+    data.Id, _ = tools.StringToInt(c.Param("id"))
     result, err := data.Get()
     tools.HasError(err, "抱歉未找到相关信息", -1)
 
     app.OK(c, result, "")
 }
 
-// @Summary 添加{{.TableComment}}
+// @Summary 添加Student
 // @Description 获取JSON
-// @Tags {{.TableComment}}
+// @Tags Student
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.{{.ClassName}} true "data"
+// @Param data body models.Student true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/{{.ModuleName}} [post]
-func Insert{{.ClassName}}(c *gin.Context) {
-    var data models.{{.ClassName}}
+// @Router /api/v1/student [post]
+func InsertStudent(c *gin.Context) {
+    var data models.Student
     err := c.ShouldBindJSON(&data)
     data.CreateBy = tools.GetUserIdStr(c)
     tools.HasError(err, "", 500)
@@ -62,22 +62,22 @@ func Insert{{.ClassName}}(c *gin.Context) {
     app.OK(c, result, "")
 }
 
-func Update{{.ClassName}}(c *gin.Context) {
-    var data models.{{.ClassName}}
+func UpdateStudent(c *gin.Context) {
+    var data models.Student
     err := c.ShouldBindJSON(&data)
     tools.HasError(err, "数据解析失败", -1)
     data.UpdateBy = tools.GetUserIdStr(c)
-    result, err := data.Update(data.{{.PkGoField}})
+    result, err := data.Update(data.Id)
     tools.HasError(err, "", -1)
 
     app.OK(c, result, "")
 }
 
-func Delete{{.ClassName}}(c *gin.Context) {
-    var data models.{{.ClassName}}
+func DeleteStudent(c *gin.Context) {
+    var data models.Student
     data.UpdateBy = tools.GetUserIdStr(c)
 
-    IDS := tools.IdsStrToIdsIntGroup("{{.PkJsonField}}", c)
+    IDS := tools.IdsStrToIdsIntGroup("id", c)
     _, err := data.BatchDelete(IDS)
     tools.HasError(err, msg.DeletedFail, 500)
     app.OK(c, nil, msg.DeletedSuccess)

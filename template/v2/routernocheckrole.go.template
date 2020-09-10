@@ -9,6 +9,10 @@ import (
     "go-admin/common/actions"
 )
 
+func init()  {
+	routerNoCheckRole = append(routerNoCheckRole, register{{.ClassName}}Router)
+}
+
 // 无需认证的路由代码
 func register{{.ClassName}}Router(v1 *gin.RouterGroup) {
     r := v1.Group("/{{.ModuleName}}")
@@ -21,6 +25,6 @@ func register{{.ClassName}}Router(v1 *gin.RouterGroup) {
             r.GET("/:id", actions.ViewAction(new(dto.{{.ClassName}}ById)))
             r.POST("", actions.CreateAction(new(dto.{{.ClassName}}Control)))
             r.PUT("/:id", actions.UpdateAction(new(dto.{{.ClassName}}Control)))
-            r.DELETE("/:id", actions.DeleteAction(new(dto.{{.ClassName}}ById)))
+            r.DELETE("", actions.DeleteAction(new(dto.{{.ClassName}}ById)))
         }
 }

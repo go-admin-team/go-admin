@@ -428,11 +428,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(function () {
-                    if (Ids.length > 1) {
-                      return del{{.ClassName}}(Ids.shift(), { 'ids': Ids })
-                    } else {
-                      return del{{.ClassName}}(Ids, { 'ids': [] })
-                    }
+                      return del{{.ClassName}}( { 'ids': Ids })
                 }).then(() => {
                     this.getList()
                     this.msgSuccess('删除成功')

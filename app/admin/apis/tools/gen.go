@@ -71,7 +71,7 @@ func GenCode(c *gin.Context) {
 	oldTest := "// {{认证路由自动补充在此处请勿删除}}"
 	newText := "// {{认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1,authMiddleware)"
 
-	if !tab.IsAuth {
+	if tab.IsAuth == 2 {
 		oldTest = "// {{无需认证路由自动补充在此处请勿删除}}"
 		newText = "// {{无需认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1)"
 		routerfile = "template/routernocheckrole.go.template"
@@ -142,7 +142,7 @@ func GenCodeV2(c *gin.Context) {
 	table.TableId = id
 	tab, _ := table.Get()
 
-	if tab.IsActions {
+	if tab.IsActions == 1 {
 		ActionsGen(tab)
 	} else {
 		NOActionsGen(tab)
@@ -154,7 +154,7 @@ func GenCodeV2(c *gin.Context) {
 func NOActionsGen(tab tools.SysTables) {
 	routerfile := "template/routercheckrole.go.template"
 
-	if !tab.IsAuth {
+	if tab.IsAuth == 2 {
 		routerfile = "template/routernocheckrole.go.template"
 	}
 
@@ -171,7 +171,7 @@ func NOActionsGen(tab tools.SysTables) {
 	t6, err := template.ParseFiles("template/v2/dto.go.template")
 	tools2.HasError(err, "", -1)
 
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName + "/")
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
 	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
 	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
 	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
@@ -202,7 +202,7 @@ func NOActionsGen(tab tools.SysTables) {
 func ActionsGen(tab tools.SysTables) {
 	routerfile := "template/v2/routercheckrole.go.template"
 
-	if !tab.IsAuth {
+	if tab.IsAuth == 2 {
 		routerfile = "template/v2/routernocheckrole.go.template"
 	}
 
@@ -464,7 +464,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ADelete.MenuName = ""
 	ADelete.Title = "删除" + tab.TableComment
 	ADelete.Icon = "bug"
-	ADelete.Path = "/api/v1/" + tab.ModuleName + "/:id"
+	ADelete.Path = "/api/v1/" + tab.ModuleName
 	ADelete.MenuType = "A"
 	ADelete.Action = "DELETE"
 	ADelete.ParentId = Amenu.MenuId

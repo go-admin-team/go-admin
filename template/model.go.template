@@ -3,10 +3,10 @@ package models
 import (
     "strconv"
 
-	"go-admin/common/dto"
-	orm "go-admin/common/global"
-	"go-admin/common/models"
-	"go-admin/tools"
+    "go-admin/common/dto"
+    orm "go-admin/common/global"
+    "go-admin/common/models"
+    "go-admin/tools"
 
     {{ range .Columns }}
     {{- if eq .GoField "CreatedAt" -}}
@@ -34,6 +34,24 @@ type {{.ClassName}} struct {
 
 func ({{.ClassName}}) TableName() string {
     return "{{.TBName}}"
+}
+
+
+func (e *{{.ClassName}}) Generate() models.ActiveRecord {
+	o := *e
+	return &o
+}
+
+func (e *{{.ClassName}}) GetId() interface{} {
+	return e.{{.PkGoField}}
+}
+
+func (e *{{.ClassName}}) SetCreateBy(createBy uint) {
+	e.CreateBy = strconv.Itoa(int(createBy))
+}
+
+func (e *{{.ClassName}}) SetUpdateBy(updateBy uint) {
+	e.UpdateBy = strconv.Itoa(int(updateBy))
 }
 
 // 创建{{.ClassName}}
@@ -76,7 +94,7 @@ func (e *{{.ClassName}}) Get() ({{.ClassName}}, error) {
 func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int, v interface{}) ([]{{.ClassName}}, int, error) {
     var doc []{{.ClassName}}
 
-    table := orm.Eloquent.Table(e.TableName()).Scopes(tools.MakeCondition(v))
+    table := orm.Eloquent.Table(e.TableName()).Scopes(dto.MakeCondition(v))
 
     // 数据权限控制(如果不需要数据权限请将此处去掉)
     dataPermission := new(DataPermission)
@@ -87,7 +105,7 @@ func (e *{{.ClassName}}) GetPage(pageSize int, pageIndex int, v interface{}) ([]
     }
     var count int64
 
-    if err := table.Scopes(tools.Paginate(pageSize, pageIndex)).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+    if err := table.Scopes(dto.Paginate(pageSize, pageIndex)).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
         return nil, 0, err
     }
     return doc, int(count), nil

@@ -37,9 +37,9 @@ data: data
 }
 
 // 删除{{.ClassName}}
-export function del{{.ClassName}}({{.PkJsonField}},data) {
+export function del{{.ClassName}}(data) {
 return request({
-url: '/api/v1/{{.ModuleName}}/' + {{.PkJsonField}},
+url: '/api/v1/{{.ModuleName}}',
 method: 'delete',
 data: data
 })

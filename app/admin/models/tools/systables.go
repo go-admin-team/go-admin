@@ -28,9 +28,9 @@ type SysTables struct {
 	Tree                bool         `gorm:"size:1;" json:"tree"`
 	Crud                bool         `gorm:"size:1;" json:"crud"`
 	Remark              string       `gorm:"size:255;" json:"remark"`
-	IsDataScope         bool         `gorm:"size:1;" json:"isDataScope"`
-	IsActions           bool         `gorm:"size:1;" json:"isActions"`
-	IsAuth              bool         `gorm:"size:1;" json:"isAuth"`
+	IsDataScope         int         `gorm:"size:1;" json:"isDataScope"`
+	IsActions           int         `gorm:"size:1;" json:"isActions"`
+	IsAuth              int         `gorm:"size:1;" json:"isAuth"`
 	IsLogicalDelete     string       `gorm:"size:1;" json:"isLogicalDelete"`
 	LogicalDelete       bool         `gorm:"size:1;" json:"logicalDelete"`
 	LogicalDeleteColumn string       `gorm:"size:128;" json:"logicalDeleteColumn"`
@@ -150,13 +150,13 @@ func (e *SysTables) Create() (SysTables, error) {
 }
 
 func (e *SysTables) Update() (update SysTables, err error) {
-	if err = orm.Eloquent.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
-		return
-	}
+	//if err = orm.Eloquent.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
+	//	return
+	//}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_tables").Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
 

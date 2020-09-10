@@ -3,10 +3,14 @@ package router
 import (
     "github.com/gin-gonic/gin"
 
-    "go-admin/middleware"
-    "go-admin/apis/{{.ModuleName}}"
+    "go-admin/app/admin/apis/{{.ModuleName}}"
+    "go-admin/app/admin/middleware"
     jwt "go-admin/pkg/jwtauth"
 )
+
+func init()  {
+	routerCheckRole = append(routerCheckRole, register{{.ClassName}}Router)
+}
 
 // 需认证的路由代码
 func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
@@ -15,7 +19,7 @@ func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJW
         r.GET("/:{{.PkJsonField}}", {{.ModuleName}}.Get{{.ClassName}})
         r.POST("", {{.ModuleName}}.Insert{{.ClassName}})
         r.PUT("/:{{.PkJsonField}}", {{.ModuleName}}.Update{{.ClassName}})
-        r.DELETE("/:{{.PkJsonField}}", {{.ModuleName}}.Delete{{.ClassName}})
-        l.GET("",{{.ModuleName}}.Get{{.ClassName}}List)
+        r.DELETE("", {{.ModuleName}}.Delete{{.ClassName}})
+        r.GET("",{{.ModuleName}}.Get{{.ClassName}}List)
     }
 }
