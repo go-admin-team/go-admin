@@ -22,6 +22,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/satori/go.uuid v1.2.0
+	github.com/shamsher31/goimgext v1.0.0 // indirect
+	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shirou/gopsutil v2.20.7+incompatible
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1

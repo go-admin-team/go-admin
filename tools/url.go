@@ -11,6 +11,16 @@ func IdsStrToIdsIntGroup(key string, c *gin.Context) []int {
 	return IdsStrToIdsIntGroupStr(c.Param(key))
 }
 
+type Ids struct {
+	Ids []int
+}
+
+func GetDeleteIds(c *gin.Context) []int {
+	var ids = new(Ids)
+	c.Bind(ids)
+	return ids.Ids
+}
+
 func IdsStrToIdsIntGroupStr(keys string) []int {
 	IDS := make([]int, 0)
 	ids := strings.Split(keys, ",")

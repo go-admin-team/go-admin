@@ -27,7 +27,7 @@ m = r.sub == p.sub && (keyMatch2(r.obj, p.obj) || keyMatch(r.obj, p.obj)) && (r.
 `
 
 func Setup() {
-	Apter, err := gormAdapter.NewAdapterByDB(global.Eloquent)
+	Apter, err := gormAdapter.NewAdapterByDBUsePrefix(global.Eloquent,"sys_")
 	if err != nil {
 		panic(err)
 	}

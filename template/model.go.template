@@ -20,12 +20,12 @@ type {{.ClassName}} struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key;AUTO_INCREMENT;comment:{{.ColumnComment}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};"` // {{.ColumnComment}}{{end -}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{.ColumnComment}}"` // {{.ColumnComment}}{{end -}}
     {{- end }}
     DataScope   string `json:"dataScope" gorm:"-"`
     Params      string `json:"params"  gorm:"-"`

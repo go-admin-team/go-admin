@@ -77,7 +77,7 @@ func Delete{{.ClassName}}(c *gin.Context) {
     var data models.{{.ClassName}}
     data.UpdateBy = tools.GetUserIdStr(c)
 
-    IDS := tools.IdsStrToIdsIntGroup("{{.PkJsonField}}", c)
+    IDS := tools.GetDeleteIds(c)
     _, err := data.BatchDelete(IDS)
     tools.HasError(err, msg.DeletedFail, 500)
     app.OK(c, nil, msg.DeletedSuccess)

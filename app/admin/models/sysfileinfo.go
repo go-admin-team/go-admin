@@ -2,7 +2,6 @@ package models
 
 import (
 	orm "go-admin/common/global"
-	"go-admin/tools"
 )
 
 type SysFileInfo struct {
@@ -63,12 +62,12 @@ func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int, 
 	}
 
 	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	dataPermission := new(DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	table, err := dataPermission.GetDataScope(e.TableName(), table)
-	if err != nil {
-		return nil, 0, err
-	}
+	//dataPermission := new(DataPermission)
+	//dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	//table, err := dataPermission.GetDataScope(e.TableName(), table)
+	//if err != nil {
+	//	return nil, 0, err
+	//}
 	var count int64
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {

@@ -211,3 +211,13 @@ func FileMonitoringById(ctx context.Context, filePth string, id string, group st
 		go hookfn(ctx, id, group, line)
 	}
 }
+
+// 获取文件大小
+func GetFileSize(filename string) int64 {
+	var result int64
+	filepath.Walk(filename, func(path string, f os.FileInfo, err error) error {
+		result = f.Size()
+		return nil
+	})
+	return result
+}

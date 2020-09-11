@@ -185,6 +185,12 @@
                                                         :label="dict.dictValue"
                                                 >{{"{{"}} dict.dictLabel {{"}}"}}</el-radio>
                                             </el-radio-group>
+                                        {{- else if eq "file" .HtmlType -}}
+                                            <el-input
+                                                v-model="form.{{.JsonField}}"
+                                                placeholder="图片"
+                                            />
+                                            <el-button type="primary" @click="fileShow{{.GoField}}">选择文件</el-button>
                                         {{- else if eq "datetime" .HtmlType -}}
                                             <el-date-picker
                                                     v-model="form.{{.JsonField}}"
@@ -209,6 +215,7 @@
                         <el-button @click="cancel">取 消</el-button>
                     </div>
                 </el-dialog>
+                <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
             </el-card>
         </template>
     </BasicLayout>
@@ -223,8 +230,13 @@
     {{ end -}}
     {{- end -}}
 
+    import FileChoose from '@/components/FileChoose'
+
     export default {
-        name: 'Config',
+        name: '{{.ClassName}}',
+        components: {
+            FileChoose
+        },
         data() {
             return {
                 // 遮罩层
@@ -242,6 +254,8 @@
                 // 是否显示弹出层
                 open: false,
                 isEdit: false,
+                fileOpen: false,
+                fileIndex: undefined,
                 // 类型数据字典
                 typeOptions: [],
                 {{.ModuleName}}List: [],
@@ -334,6 +348,12 @@
             }
                 this.resetForm('form')
             },
+            getImgList: function() {
+              this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
+            },
+            fileClose: function() {
+              this.fileOpen = false
+            },
             {{range .Columns}}
             {{- if ne .DictType "" -}}
             {{.JsonField}}Format(row) {
@@ -353,6 +373,15 @@
                this.getItems(list{{.FkTableNameClass}}, undefined).then(res => {
                    this.{{.JsonField}}Options = this.setItems(res, '{{.FkLabelId}}', '{{.FkLabelName}}')
                })
+            },
+            {{ end -}}
+            {{- end -}}
+            // 文件
+            {{range .Columns}}
+            {{- if ne .HtmlType "file" -}}
+            fileShow{{.GoField}}: function() {
+              this.fileOpen = true
+              this.fileIndex = '{{.JsonField}}'
             },
             {{ end -}}
             {{- end -}}
@@ -422,7 +451,10 @@
             },
             /** 删除按钮操作 */
             handleDelete(row) {
-                const Ids = row.{{.PkJsonField}} || this.ids
+                var Ids = row.{{.PkJsonField}} || this.ids
+                  if (this.ids.length === 0) {
+                    Ids = [Ids]
+                  }
                 this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',

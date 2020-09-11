@@ -14,11 +14,11 @@ import (
 
 var (
 	configYml string
-	mode      string
+	exec      bool
 	StartCmd  = &cobra.Command{
-		Use:     "init",
+		Use:     "migrate",
 		Short:   "Initialize the database",
-		Example: "go-admin init -c config/settings.yml",
+		Example: "go-admin migrate -c config/settings.yml",
 		Run: func(cmd *cobra.Command, args []string) {
 			run()
 		},
@@ -27,7 +27,7 @@ var (
 
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
-	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
+	//StartCmd.PersistentFlags().BoolVarP(&exec, "exec", "e", false, "exec script")
 }
 
 func run() {

@@ -12,5 +12,5 @@ type CasbinRule struct {
 }
 
 func (CasbinRule) TableName() string {
-	return "casbin_rule"
+	return "sys_casbin_rule"
 }
