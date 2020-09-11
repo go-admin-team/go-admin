@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -9,17 +10,17 @@ import (
 	"go-admin/common/global"
 )
 
-func InitDb() (err error) {
+func InitDb(db *gorm.DB) (err error) {
 	filePath := "config/db.sql"
-	err = ExecSql(filePath)
+	err = ExecSql(db,filePath)
 	if global.Driver == "postgres" {
 		filePath = "config/pg.sql"
-		err = ExecSql(filePath)
+		err = ExecSql(db,filePath)
 	}
 	return err
 }
 
-func ExecSql(filePath string) error {
+func ExecSql(db *gorm.DB,filePath string) error {
 	sql, err := Ioutil(filePath)
 	if err != nil {
 		fmt.Println("数据库基础数据初始化脚本读取失败！原因:", err.Error())
@@ -33,7 +34,7 @@ func ExecSql(filePath string) error {
 		}
 		sql := strings.Replace(sqlList[i]+";", "\n", "", 0)
 		sql = strings.TrimSpace(sql)
-		if err = global.Eloquent.Exec(sql).Error; err != nil {
+		if err = db.Exec(sql).Error; err != nil {
 			log.Printf("error sql: %s", sql)
 			if !strings.Contains(err.Error(), "Query was empty") {
 				return err

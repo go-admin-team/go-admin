@@ -18,7 +18,7 @@ func init() {
 }
 
 func _1599190683659Tables(db *gorm.DB, version string) error {
-	err := db.Migrator().AutoMigrate(
+	err := db.Debug().Migrator().AutoMigrate(
 		new(models.CasbinRule),
 		new(models.SysDept),
 		new(models.SysConfig),

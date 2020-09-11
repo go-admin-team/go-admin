@@ -13,10 +13,10 @@ func init() {
 	_, fileName, _, _ := runtime.Caller(0)
 	fileName = filepath.Base(fileName)
 	fileName = fileName[:len(fileName)-3]
-	migration.Migrate.SetVersion(fileName, _1599190683660Test)
+	migration.Migrate.SetVersion(fileName, _1599190683680Test)
 }
 
-func _1599190683660Test(db *gorm.DB, version string) error {
+func _1599190683680Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		var err error
 
@@ -48,7 +48,7 @@ func _1599190683660Test(db *gorm.DB, version string) error {
 			{MenuId: 521, MenuName: "", Title: "删除内容管理", Icon: "bug", Path: "/api/v1/syscontent/:id", Paths: "/0/63/516/521", MenuType: "A", Action: "DELETE", Permission: "", ParentId: 516, NoCache: true, Breadcrumb: "", Component: "", Sort: 0, Visible: "1", CreateBy: "1", UpdateBy: "1", IsFrame: "0"},
 		}
 
-		err = db.Create(list).Error
+		err = tx.Create(list).Error
 		if err != nil {
 			return err
 		}
