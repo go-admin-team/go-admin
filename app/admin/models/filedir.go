@@ -3,9 +3,11 @@ package models
 import (
 	orm "go-admin/common/global"
 	"go-admin/tools"
+	"gorm.io/gorm"
 )
 
 type SysFileDir struct {
+	gorm.Model
 	Id        int          `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` //
 	Label     string       `json:"label" gorm:"type:varchar(255);"`                   // 名称
 	PId       int          `json:"pId" gorm:"type:int(11);"`                          // 父id
@@ -16,7 +18,6 @@ type SysFileDir struct {
 	Children  []SysFileDir `json:"children" gorm:"-"`
 	DataScope string       `json:"dataScope" gorm:"-"`
 	Params    string       `json:"params"  gorm:"-"`
-	BaseModel
 }
 
 func (SysFileDir) TableName() string {
