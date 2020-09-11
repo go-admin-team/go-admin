@@ -15,7 +15,7 @@ require (
 	github.com/gogf/gf v1.13.4
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.2
-	github.com/matchstalk/go-admin-core v1.0.2
+	github.com/matchstalk/go-admin-core v1.2.0
 	github.com/matchstalk/redisqueue v1.0.3
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2
