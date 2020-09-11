@@ -18,35 +18,33 @@ func init() {
 }
 
 func _1599190683659Tables(db *gorm.DB, version string) error {
-	return db.Transaction(func(tx *gorm.DB) error {
-		//
-		err := tx.Migrator().AutoMigrate(
-			new(models.CasbinRule),
-			new(models.SysDept),
-			new(models.SysConfig),
-			new(tools.SysTables),
-			new(tools.SysColumns),
-			new(models.Menu),
-			new(models.LoginLog),
-			new(models.SysOperLog),
-			new(models.RoleMenu),
-			new(models.SysRoleDept),
-			new(models.SysUser),
-			new(models.SysRole),
-			new(models.Post),
-			new(models.DictData),
-			new(models.DictType),
-			new(models.SysJob),
-			new(models.SysConfig),
-			new(models.SysSetting),
-			new(models.SysFileDir),
-			new(models.SysCategory),
-			new(models.SysContent))
-		if err != nil {
-			return err
-		}
-		return tx.Create(&common.Migration{
-			Version: version,
-		}).Error
-	})
+	err := db.Migrator().AutoMigrate(
+		new(models.CasbinRule),
+		new(models.SysDept),
+		new(models.SysConfig),
+		new(tools.SysTables),
+		new(tools.SysColumns),
+		new(models.Menu),
+		new(models.LoginLog),
+		new(models.SysOperLog),
+		new(models.RoleMenu),
+		new(models.SysRoleDept),
+		new(models.SysUser),
+		new(models.SysRole),
+		new(models.Post),
+		new(models.DictData),
+		new(models.DictType),
+		new(models.SysJob),
+		new(models.SysConfig),
+		new(models.SysSetting),
+		new(models.SysFileDir),
+		new(models.SysCategory),
+		new(models.SysContent),
+	)
+	if err != nil {
+		return err
+	}
+	return db.Create(&common.Migration{
+		Version: version,
+	}).Error
 }
