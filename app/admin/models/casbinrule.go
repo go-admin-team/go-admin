@@ -1,6 +1,6 @@
 package models
 
-//casbin_rule
+//sys_casbin_rule
 type CasbinRule struct {
 	PType string `json:"p_type" gorm:"size:100;"`
 	V0    string `json:"v0" gorm:"size:100;"`

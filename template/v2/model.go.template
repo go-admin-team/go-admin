@@ -2,8 +2,8 @@ package models
 
 import (
     "strconv"
-    {{- if eq .IsActions true -}}
-    {{- else }}
+    {{- if eq .IsActions 2 -}}
+
 	"go-admin/common/dto"
 	"go-admin/tools"
 	orm "go-admin/common/global"
@@ -15,12 +15,12 @@ type {{.ClassName}} struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key;AUTO_INCREMENT;comment:{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key;AUTO_INCREMENT;"`
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{.ColumnComment}}"` // {{.ColumnComment}}{{end -}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{- if eq .ColumnComment "" -}}{{.GoField}}{{- else -}}{{.ColumnComment}}{{end -}}"` // {{end -}}
     {{- end }}
     DataScope   string `json:"dataScope" gorm:"-"`
     Params      string `json:"params"  gorm:"-"`

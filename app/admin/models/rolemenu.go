@@ -90,7 +90,7 @@ func (rm *RoleMenu) DeleteRoleMenu(roleId int) (bool, error) {
 		tx.Rollback()
 		return false, err
 	}
-	sql3 := "delete from casbin_rule where v0= '" + role.RoleKey + "';"
+	sql3 := "delete from sys_casbin_rule where v0= '" + role.RoleKey + "';"
 	if err := tx.Exec(sql3).Error; err != nil {
 		tx.Rollback()
 		return false, err
@@ -127,7 +127,7 @@ func (rm *RoleMenu) BatchDeleteRoleMenu(roleIds []int) (bool, error) {
 	}
 	sql := ""
 	for i := 0; i < len(role); i++ {
-		sql += "delete from casbin_rule where v0= '" + role[i].RoleName + "';"
+		sql += "delete from sys_casbin_rule where v0= '" + role[i].RoleName + "';"
 	}
 	if err := tx.Exec(sql).Error; err != nil {
 		tx.Rollback()
@@ -170,7 +170,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 	}
 	//ORM不支持批量插入所以需要拼接 sql 串
 	sysRoleMenuSql := "INSERT INTO `sys_role_menu` (`role_id`,`menu_id`,`role_name`) VALUES "
-	casbinRuleSql := "INSERT INTO `casbin_rule`  (`p_type`,`v0`,`v1`,`v2`) VALUES "
+	casbinRuleSql := "INSERT INTO `sys_casbin_rule`  (`p_type`,`v0`,`v1`,`v2`) VALUES "
 
 	for i, m := range menu {
 		// 拼装'role_menu'表批量插入SQL语句
@@ -196,7 +196,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 		return false, err
 	}
 
-	// 拼装'casbin_rule'批量插入SQL语句
+	// 拼装'sys_casbin_rule'批量插入SQL语句
 	// TODO: casbinRuleQueue队列不为空时才会拼装，否则直接忽略不执行'for'循环
 	for i, v := range casbinRuleQueue {
 		casbinRuleSql += fmt.Sprintf("('p','%s','%s','%s')", v.V0, v.V1, v.V2)
@@ -206,7 +206,7 @@ func (rm *RoleMenu) Insert(roleId int, menuId []int) (bool, error) {
 			casbinRuleSql += ","
 		}
 	}
-	// 执行批量插入casbin_rule
+	// 执行批量插入sys_casbin_rule
 	if len(casbinRuleQueue) > 0 {
 		if err := tx.Exec(casbinRuleSql).Error; err != nil {
 			tx.Rollback()
