@@ -141,9 +141,10 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 		strStart := string([]byte(tablenamelist[i])[:1])
 		strend := string([]byte(tablenamelist[i])[1:])
 		data.ClassName += strings.ToUpper(strStart) + strend
-		data.PackageName += strings.ToLower(strStart) + strings.ToLower(strend)
+		//data.PackageName += strings.ToLower(strStart) + strings.ToLower(strend)
 		data.ModuleName += strings.ToLower(strStart) + strings.ToLower(strend)
 	}
+	data.PackageName = "admin"
 	data.TplCategory = "crud"
 	data.Crud = true
 
@@ -159,6 +160,9 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	data.IsLogicalDelete = "1"
 	data.LogicalDelete = true
 	data.LogicalDeleteColumn = "is_del"
+	data.IsActions = 1
+	data.IsDataScope = 1
+	data.IsAuth = 1
 
 	data.FunctionAuthor = "wenjianzhang"
 	for i := 0; i < len(dbcolumn); i++ {

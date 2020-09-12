@@ -30,6 +30,6 @@ func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 		r.DELETE("/:id", actions.PermissionAction(), actions.DeleteAction(new(dto.SysJobById)))
 	}
 
-	v1.GET("/job/remove/:jobId", sysjob.RemoveJob)
-	v1.GET("/job/start/:jobId", sysjob.StartJob)
+	v1.GET("/job/remove/:id", sysjob.RemoveJob)
+	v1.GET("/job/start/:id", sysjob.StartJob)
 }
