@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
-	models2 "go-admin/common/models"
+	common "go-admin/common/models"
 )
 
 type {{.ClassName}}Search struct {
@@ -44,12 +44,18 @@ type {{.ClassName}}Control struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}""` // {{.ColumnComment}}
+    {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoField "CreateBy" -}}
+    
+    {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
+    {{- else if eq .GoField "UpdateBy" -}}
+
+    {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}""` // {{.ColumnComment}}{{end -}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}"` // {{.ColumnComment}}{{end -}}
     {{- end }}
 }
 
@@ -62,15 +68,21 @@ func (s *{{.ClassName}}Control) Generate() dto.Control {
 	return &cp
 }
 
-func (s *{{.ClassName}}Control) GenerateM() (models2.ActiveRecord, error) {
+func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
 	return &models.{{.ClassName}}{
 	{{ range .Columns -}}
         {{$x := .Pk}}
         {{- if ($x) }}
-        {{.GoField}}: s.{{.GoField}},
+        Model:     gorm.Model{ID: s.Id},
         {{- else if eq .GoField "CreatedAt" -}}
         {{- else if eq .GoField "UpdatedAt" -}}
         {{- else if eq .GoField "DeletedAt" -}}
+        {{- else if eq .GoField "CreateBy" -}}
+         ControlBy: common.ControlBy{
+           CreateBy:  s.CreateBy,
+           UpdateBy:  s.UpdateBy,
+          },
+         {{- else if eq .GoField "UpdateBy" -}}
         {{- else }}
         {{.GoField}}:  s.{{.GoField}},
         {{- end }}
@@ -91,6 +103,6 @@ func (s *{{.ClassName}}ById) Generate() dto.Control {
 	return &cp
 }
 
-func (s *{{.ClassName}}ById) GenerateM() (models2.ActiveRecord, error) {
+func (s *{{.ClassName}}ById) GenerateM() (common.ActiveRecord, error) {
 	return &models.{{.ClassName}}{}, nil
 }
