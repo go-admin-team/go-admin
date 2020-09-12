@@ -63,7 +63,7 @@ INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/logout', 'POST', NULL
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/user/avatar', 'POST', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/user/pwd', 'PUT', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/dict/typeoptionselect', 'GET', NULL, NULL, NULL);
-INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjobList', 'GET', NULL, NULL, NULL);
+INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob', 'GET', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob/:id', 'GET', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob', 'POST', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob', 'PUT', NULL, NULL, NULL);
@@ -265,7 +265,7 @@ INSERT INTO sys_menu VALUES (462, 'sys_job', '创建定时任务', 'pass', 'sys_
 INSERT INTO sys_menu VALUES (463, 'sys_job', '修改定时任务', 'pass', 'sys_job', '/0/459/460/463', 'F', '无', 'sysjob:sysjob:edit', 460, 0, '', '', 0, '0', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
 INSERT INTO sys_menu VALUES (464, 'sys_job', '删除定时任务', 'pass', 'sys_job', '/0/459/460/464', 'F', '无', 'sysjob:sysjob:remove', 460, 0, '', '', 0, '0', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
 INSERT INTO sys_menu VALUES (465, 'sys_job', '定时任务', 'bug', 'sys_job', '/0/63/465', 'M', '无', '', 63, 0, '', '', 0, '1', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
-INSERT INTO sys_menu VALUES (466, 'sys_job', '分页获取定时任务', 'bug', '/api/v1/sysjobList', '/0/63/465/466', 'A', 'GET', '', 465, 0, '', '', 0, '1', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
+INSERT INTO sys_menu VALUES (466, 'sys_job', '分页获取定时任务', 'bug', '/api/v1/sysjob', '/0/63/465/466', 'A', 'GET', '', 465, 0, '', '', 0, '1', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
 INSERT INTO sys_menu VALUES (467, 'sys_job', '根据id获取定时任务', 'bug', '/api/v1/sysjob/:id', '/0/63/465/467', 'A', 'GET', '', 465, 0, '', '', 0, '1', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
 INSERT INTO sys_menu VALUES (468, 'sys_job', '创建定时任务', 'bug', '/api/v1/sysjob', '/0/63/465/468', 'A', 'POST', '', 465, 0, '', '', 0, '1', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
 INSERT INTO sys_menu VALUES (469, 'sys_job', '修改定时任务', 'bug', '/api/v1/sysjob', '/0/63/465/469', 'A', 'PUT', '', 465, 0, '', '', 0, '1', '1', '1', '0', '2020-08-03 09:17:37', '2020-08-03 09:17:37', NULL);
