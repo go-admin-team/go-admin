@@ -2,16 +2,17 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"go-admin/app/admin/middleware"
 	"go-admin/app/admin/middleware/handler"
 	"go-admin/common/global"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	"go-admin/tools/config"
 )
 
 func InitRouter(r *gin.Engine) *gin.Engine {
-	if config2.SslConfig.Enable {
+	if config.SslConfig.Enable {
 		r.Use(handler.TlsHandler())
 	}
 	r.Use(middleware.WithContextDb(middleware.GetGormFromConfig(global.Cfg)))
