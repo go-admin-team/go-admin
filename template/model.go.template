@@ -17,19 +17,22 @@ import (
 )
 
 type {{.ClassName}} struct {
+    gorm.Model
+    models.ControlBy
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};primary_key;AUTO_INCREMENT;"` // {{.ColumnComment}}
+
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoField "CreateBy" -}}
+    {{- else if eq .GoField "UpdateBy" -}}
     {{- else }}
     {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{- if eq .ColumnComment "" -}}{{.GoField}}{{- else -}}{{.ColumnComment}}{{end -}}"` {{end -}}
     {{- end }}
     DataScope   string `json:"dataScope" gorm:"-"`
     Params      string `json:"params"  gorm:"-"`
-    BaseModel
 }
 
 func ({{.ClassName}}) TableName() string {
