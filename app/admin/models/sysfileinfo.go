@@ -5,7 +5,7 @@ import (
 )
 
 type SysFileInfo struct {
-	Id        int    `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` // id
+	Id        int    `json:"id" gorm:"type:int(11);primary_key;auto_increment;"` // id
 	Type      string `json:"type" gorm:"type:varchar(255);"`                    // 文件类型
 	Name      string `json:"name" gorm:"type:varchar(255);"`                    // 文件名称
 	Size      string `json:"size" gorm:"type:int(11);"`                         // 文件大小

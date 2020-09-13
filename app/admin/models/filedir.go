@@ -8,7 +8,7 @@ import (
 
 type SysFileDir struct {
 	gorm.Model
-	Id        int          `json:"id" gorm:"type:int(11);primary_key;AUTO_INCREMENT"` //
+	Id        int          `json:"id" gorm:"type:int(11);primary_key;auto_increment;"` //
 	Label     string       `json:"label" gorm:"type:varchar(255);"`                   // 名称
 	PId       int          `json:"pId" gorm:"type:int(11);"`                          // 父id
 	Sort      int          `json:"sort" gorm:""`                                      //排序

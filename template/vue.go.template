@@ -378,7 +378,7 @@
             {{- end -}}
             // 文件
             {{range .Columns}}
-            {{- if ne .HtmlType "file" -}}
+            {{- if eq .HtmlType "file" -}}
             fileShow{{.GoField}}: function() {
               this.fileOpen = true
               this.fileIndex = '{{.JsonField}}'

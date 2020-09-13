@@ -45,7 +45,7 @@ type MenuLable struct {
 }
 
 type Menus struct {
-	MenuId     int    `json:"menuId" gorm:"column:menu_id;primary_key"`
+	MenuId     int    `json:"menuId" gorm:"column:menu_id;primary_key;"`
 	MenuName   string `json:"menuName" gorm:"column:menu_name"`
 	Title      string `json:"title" gorm:"column:title"`
 	Icon       string `json:"icon" gorm:"column:icon"`
