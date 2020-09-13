@@ -2,6 +2,8 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
@@ -48,14 +50,16 @@ type {{.ClassName}}Control struct {
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
-    {{- else if eq .GoField "CreateBy" -}}
-    
+    {{- else if eq .GoField "CreateBy" }}
+
     {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
-    {{- else if eq .GoField "UpdateBy" -}}
+    {{- else if eq .GoField "UpdateBy" }}
 
     {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}"` // {{.ColumnComment}}{{end -}}
+
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}"` // {{.ColumnComment}}
+    {{end -}}
     {{- end }}
 }
 
@@ -73,7 +77,7 @@ func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
 	{{ range .Columns -}}
         {{$x := .Pk}}
         {{- if ($x) }}
-        Model:     gorm.Model{ID: s.Id},
+        Model:     gorm.Model{ID: s.ID},
         {{- else if eq .GoField "CreatedAt" -}}
         {{- else if eq .GoField "UpdatedAt" -}}
         {{- else if eq .GoField "DeletedAt" -}}
@@ -82,7 +86,8 @@ func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
            CreateBy:  s.CreateBy,
            UpdateBy:  s.UpdateBy,
           },
-         {{- else if eq .GoField "UpdateBy" -}}
+
+        {{- else if eq .GoField "UpdateBy" -}}
         {{- else }}
         {{.GoField}}:  s.{{.GoField}},
         {{- end }}

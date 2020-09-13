@@ -1,7 +1,8 @@
 package models
 
 import (
-    "strconv"
+    "gorm.io/gorm"
+
     {{- if eq .IsActions 2 -}}
 
 	"go-admin/common/dto"
@@ -44,9 +45,9 @@ func (e *{{.ClassName}}) GetId() interface{} {
 }
 
 func (e *{{.ClassName}}) SetCreateBy(createBy uint) {
-	e.CreateBy = strconv.Itoa(int(createBy))
+	e.CreateBy = createBy
 }
 
 func (e *{{.ClassName}}) SetUpdateBy(updateBy uint) {
-	e.UpdateBy = strconv.Itoa(int(updateBy))
+	e.UpdateBy = updateBy
 }
