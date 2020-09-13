@@ -58,4 +58,10 @@ func run() {
 	}
 	fmt.Println("logger:", string(loggerConfig))
 
+	ldapConfig, errs := json.MarshalIndent(config.LdapConfig, "", "   ") //转换成JSON返回的是byte[]
+	if errs != nil {
+		fmt.Println(errs.Error())
+	}
+	fmt.Println("ldap:", string(ldapConfig))
+
 }

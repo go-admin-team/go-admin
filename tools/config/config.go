@@ -27,6 +27,9 @@ var cfgSsl *viper.Viper
 // 代码生成配置项 非必须
 var cfgGen *viper.Viper
 
+// Ldap配置项 非必须
+var cfgLdap *viper.Viper
+
 //载入配置文件
 func Setup(path string) {
 	viper.SetConfigFile(path)
@@ -80,5 +83,10 @@ func Setup(path string) {
 		panic("No found settings.gen")
 	}
 	GenConfig = InitGen(cfgGen)
-}
 
+	cfgLdap = viper.Sub("settings.ldap")
+	if cfgLdap == nil {
+		panic("No found settings.ldap")
+	}
+	LdapConfig = InitLdap(cfgLdap)
+}

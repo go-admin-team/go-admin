@@ -53,4 +53,16 @@ settings:
     dbname: dbname
     # 代码生成是使用前端代码存放位置，需要指定到src文件夹，相对路径
     frontpath: ../go-admin-ui/src
->>>>>>> c396f318ef0649f7231b8ee7b2a70d26159c19c2
+  ldap:
+    enabled: true
+    server: ldap://127.0.0.1:389
+    bind_dn: uid=goadmin,ou=group,dc=test,dc=com
+    bind_password: password
+    search_base_dns: ou=users,dc=test,dc=com
+    search_filter: (uid=%s)
+    attribute_username: uid
+    attribute_nickname: cn
+    attribute_email: email
+    attribute_role_id: 2
+    attribute_dept_id: 1
+    attribute_status: 0
