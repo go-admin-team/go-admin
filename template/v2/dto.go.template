@@ -5,6 +5,7 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
+	"gorm.io/gorm"
 )
 
 type {{.ClassName}}Search struct {
@@ -13,7 +14,7 @@ type {{.ClassName}}Search struct {
     {{ range .Columns -}}
     {{$z := .IsQuery}}
     {{- if ($z) -}}
-    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
 
     {{ end -}}
     {{- end }}
@@ -44,18 +45,18 @@ type {{.ClassName}}Control struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
+    {{.GoField}} uint `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
     {{- else if eq .GoField "CreateBy" -}}
-    
-    {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
+
+    {{.GoField}} uint `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
     {{- else if eq .GoField "UpdateBy" -}}
 
-    {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
+    {{.GoField}} uint `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}"` // {{.ColumnComment}}{{end -}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"` {{end -}}
     {{- end }}
 }
 

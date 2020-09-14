@@ -1,7 +1,6 @@
 package models
 
 import (
-    "strconv"
     {{- if eq .IsActions 2 -}}
 
 	"go-admin/common/dto"
@@ -9,6 +8,7 @@ import (
 	orm "go-admin/common/global"
 	{{ end }}
 	"go-admin/common/models"
+	"gorm.io/gorm"
 )
 
 type {{.ClassName}} struct {
@@ -40,13 +40,13 @@ func (e *{{.ClassName}}) Generate() models.ActiveRecord {
 }
 
 func (e *{{.ClassName}}) GetId() interface{} {
-	return e.{{.PkGoField}}
+	return e.ID
 }
 
 func (e *{{.ClassName}}) SetCreateBy(createBy uint) {
-	e.CreateBy = strconv.Itoa(int(createBy))
+	e.CreateBy = createBy
 }
 
 func (e *{{.ClassName}}) SetUpdateBy(updateBy uint) {
-	e.UpdateBy = strconv.Itoa(int(updateBy))
+	e.UpdateBy = updateBy
 }
