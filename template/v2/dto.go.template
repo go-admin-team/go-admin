@@ -50,21 +50,12 @@ type {{.ClassName}}Control struct {
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
-    {{- else if eq .GoField "CreateBy" }}
-
-    {{.GoField}} uint `json:"{{.JsonField}}"` // {{.ColumnComment}}
-    {{- else if eq .GoField "UpdateBy" }}
-    {{- else if eq .GoField "CreateBy" -}}
-
-    {{.GoField}} uint `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
-    {{- else if eq .GoField "UpdateBy" -}}
 
     {{.GoField}} uint `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
     {{- else }}
 
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
     {{end -}}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"` {{end -}}
     {{- end }}
 }
 

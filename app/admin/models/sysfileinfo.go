@@ -5,16 +5,16 @@ import (
 )
 
 type SysFileInfo struct {
-	Id        int    `json:"id" gorm:"type:int(11);primary_key;auto_increment;"` // id
-	Type      string `json:"type" gorm:"type:varchar(255);"`                    // 文件类型
-	Name      string `json:"name" gorm:"type:varchar(255);"`                    // 文件名称
-	Size      string `json:"size" gorm:"type:int(11);"`                         // 文件大小
-	PId       int    `json:"pId" gorm:"type:int(11);"`                          // 目录id
-	Source    string `json:"source" gorm:"type:varchar(255);"`                  // 文件源
-	Url       string `json:"url" gorm:"type:varchar(255);"`                     // 文件路径
-	FullUrl   string `json:"fullUrl" gorm:"type:varchar(255);"`                 // 文件全路径
-	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"`                // 创建人
-	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"`                // 编辑人
+	Id        int    `json:"id"`                                 // id
+	Type      string `json:"type" gorm:"type:varchar(255);"`     // 文件类型
+	Name      string `json:"name" gorm:"type:varchar(255);"`     // 文件名称
+	Size      string `json:"size" gorm:"type:int(11);"`          // 文件大小
+	PId       int    `json:"pId" gorm:"type:int(11);"`           // 目录id
+	Source    string `json:"source" gorm:"type:varchar(255);"`   // 文件源
+	Url       string `json:"url" gorm:"type:varchar(255);"`      // 文件路径
+	FullUrl   string `json:"fullUrl" gorm:"type:varchar(255);"`  // 文件全路径
+	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"` // 创建人
+	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"` // 编辑人
 	DataScope string `json:"dataScope" gorm:"-"`
 	Params    string `json:"params"  gorm:"-"`
 	BaseModel

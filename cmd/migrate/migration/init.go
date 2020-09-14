@@ -1,19 +1,23 @@
 package migration
 
 import (
+	"fmt"
+	"github.com/spf13/cast"
 	"gorm.io/gorm"
 	"log"
+	"path/filepath"
 	"sort"
+	"strconv"
 	"sync"
 )
 
 var Migrate = &Migration{
-	version: make(map[string]func(db *gorm.DB, version string) error),
+	version: make(map[int]func(db *gorm.DB, version string) error),
 }
 
 type Migration struct {
 	db      *gorm.DB
-	version map[string]func(db *gorm.DB, version string) error
+	version map[int]func(db *gorm.DB, version string) error
 	mutex   sync.Mutex
 }
 
@@ -25,22 +29,22 @@ func (e *Migration) SetDb(db *gorm.DB) {
 	e.db = db
 }
 
-func (e *Migration) SetVersion(k string, f func(db *gorm.DB, version string) error) {
+func (e *Migration) SetVersion(k int, f func(db *gorm.DB, version string) error) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
 	e.version[k] = f
 }
 
 func (e *Migration) Migrate() {
-	versions := make([]string, 0)
+	versions := make([]int, 0)
 	for k := range e.version {
 		versions = append(versions, k)
 	}
-	sort.StringsAreSorted(versions)
-	log.Println(versions)
+	sort.IntsAreSorted(versions)
 	var err error
 	var count int64
 	for _, v := range versions {
+		fmt.Println(v)
 		err = e.db.Debug().Table("sys_migration").Where("version = ?", v).Count(&count).Error
 		if err != nil {
 			log.Fatalln(err)
@@ -50,9 +54,14 @@ func (e *Migration) Migrate() {
 			count = 0
 			continue
 		}
-		err = (e.version[v])(e.db.Debug(), v)
+		err = (e.version[v])(e.db.Debug(), strconv.Itoa(v))
 		if err != nil {
 			log.Fatalln(err)
 		}
 	}
+}
+
+func GetFilename(s string) int {
+	s = filepath.Base(s)
+	return cast.ToInt(s[:13])
 }

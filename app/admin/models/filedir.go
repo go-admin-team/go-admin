@@ -3,21 +3,20 @@ package models
 import (
 	orm "go-admin/common/global"
 	"go-admin/tools"
-	"gorm.io/gorm"
 )
 
 type SysFileDir struct {
-	gorm.Model
-	Id        int          `json:"id" gorm:"type:int(11);primary_key;auto_increment;"` //
-	Label     string       `json:"label" gorm:"type:varchar(255);"`                   // 名称
-	PId       int          `json:"pId" gorm:"type:int(11);"`                          // 父id
-	Sort      int          `json:"sort" gorm:""`                                      //排序
-	Path      string       `json:"path" gorm:"size:255;"`                             //
-	CreateBy  string       `json:"createBy" gorm:"type:varchar(128);"`                // 创建人
-	UpdateBy  string       `json:"updateBy" gorm:"type:varchar(128);"`                // 编辑人
+	Id        int          `json:"id"`
+	Label     string       `json:"label" gorm:"type:varchar(255);"`    // 名称
+	PId       int          `json:"pId" gorm:"type:int(11);"`           // 父id
+	Sort      int          `json:"sort" gorm:""`                       //排序
+	Path      string       `json:"path" gorm:"size:255;"`              //
+	CreateBy  string       `json:"createBy" gorm:"type:varchar(128);"` // 创建人
+	UpdateBy  string       `json:"updateBy" gorm:"type:varchar(128);"` // 编辑人
 	Children  []SysFileDir `json:"children" gorm:"-"`
 	DataScope string       `json:"dataScope" gorm:"-"`
 	Params    string       `json:"params"  gorm:"-"`
+	BaseModel
 }
 
 func (SysFileDir) TableName() string {

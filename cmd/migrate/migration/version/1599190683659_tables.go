@@ -1,20 +1,19 @@
 package version
 
 import (
+	"runtime"
+
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
 	"go-admin/cmd/migrate/migration"
 	common "go-admin/common/models"
-	"gorm.io/gorm"
-	"path/filepath"
-	"runtime"
 )
 
 func init() {
 	_, fileName, _, _ := runtime.Caller(0)
-	fileName = filepath.Base(fileName)
-	fileName = fileName[:len(fileName)-3]
-	migration.Migrate.SetVersion(fileName, _1599190683659Tables)
+	migration.Migrate.SetVersion(migration.GetFilename(fileName), _1599190683659Tables)
 }
 
 func _1599190683659Tables(db *gorm.DB, version string) error {

@@ -25,6 +25,7 @@ require (
 	github.com/shamsher31/goimgext v1.0.0 // indirect
 	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shirou/gopsutil v2.20.7+incompatible
+	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
 	github.com/swaggo/gin-swagger v1.2.0

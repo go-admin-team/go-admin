@@ -1,19 +1,18 @@
 package version
 
 import (
+	"runtime"
+
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
 	"go-admin/cmd/migrate/migration"
 	common "go-admin/common/models"
-	"gorm.io/gorm"
-	"path/filepath"
-	"runtime"
 )
 
 func init() {
 	_, fileName, _, _ := runtime.Caller(0)
-	fileName = filepath.Base(fileName)
-	fileName = fileName[:len(fileName)-3]
-	migration.Migrate.SetVersion(fileName, _1599190683680Test)
+	migration.Migrate.SetVersion(migration.GetFilename(fileName), _1599190683680Test)
 }
 
 func _1599190683680Test(db *gorm.DB, version string) error {
@@ -22,7 +21,7 @@ func _1599190683680Test(db *gorm.DB, version string) error {
 
 		list := []models.Menu{
 			{MenuId: 496, MenuName: "Sources", Title: "资源管理", Icon: "network", Path: "/sources", Paths: "/0/496", MenuType: "M", Action: "无", Permission: "", ParentId: 0, NoCache: true, Breadcrumb: "", Component: "Layout", Sort: 3, Visible: "0", CreateBy: "1", UpdateBy: "1", IsFrame: "1"},
-			{MenuId: 497, MenuName: "File", Title: "文件管理", Icon: "documentation", Path: "filemanage", Paths: "/0/496/497", MenuType: "C", Action: "", Permission: "", ParentId: 496, NoCache: true, Breadcrumb: "", Component: "/filemanage/index", Sort: 0, Visible: "0", CreateBy: "1", UpdateBy: "1", IsFrame: "1"},
+			{MenuId: 497, MenuName: "File", Title: "文件管理", Icon: "documentation", Path: "file-manage", Paths: "/0/496/497", MenuType: "C", Action: "", Permission: "", ParentId: 496, NoCache: true, Breadcrumb: "", Component: "/fileManage/index", Sort: 0, Visible: "0", CreateBy: "1", UpdateBy: "1", IsFrame: "1"},
 			{MenuId: 498, MenuName: "", Title: "内容管理", Icon: "pass", Path: "/content", Paths: "/0/498", MenuType: "M", Action: "无", Permission: "", ParentId: 0, NoCache: true, Breadcrumb: "", Component: "Layout", Sort: 4, Visible: "0", CreateBy: "1", UpdateBy: "1", IsFrame: "1"},
 			{MenuId: 499, MenuName: "SysCategory", Title: "分类", Icon: "pass", Path: "syscategory", Paths: "/0/498/499", MenuType: "C", Action: "无", Permission: "syscategory:syscategory:list", ParentId: 498, NoCache: true, Breadcrumb: "", Component: "/syscategory/index", Sort: 0, Visible: "0", CreateBy: "1", UpdateBy: "1", IsFrame: "0"},
 			{MenuId: 500, MenuName: "", Title: "分页获取分类", Icon: "pass", Path: "", Paths: "/0/498/499/500", MenuType: "F", Action: "无", Permission: "syscategory:syscategory:query", ParentId: 499, NoCache: true, Breadcrumb: "", Component: "", Sort: 0, Visible: "0", CreateBy: "1", UpdateBy: "1", IsFrame: "0"},
