@@ -7,7 +7,7 @@ import (
 )
 
 type LoginLog struct {
-	InfoId        int       `json:"infoId" gorm:"primary_key;AUTO_INCREMENT"` //主键
+	InfoId        int       `json:"infoId" gorm:"primary_key;auto_increment;"` //主键
 	Username      string    `json:"username" gorm:"size:128;"`                //用户名
 	Status        string    `json:"status" gorm:"size:4;"`                    //状态
 	Ipaddr        string    `json:"ipaddr" gorm:"size:255;"`                  //ip地址

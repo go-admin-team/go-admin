@@ -1,6 +1,8 @@
 package models
 
 import (
+    "gorm.io/gorm"
+
     {{- if eq .IsActions 2 -}}
 
 	"go-admin/common/dto"
@@ -8,7 +10,6 @@ import (
 	orm "go-admin/common/global"
 	{{ end }}
 	"go-admin/common/models"
-	"gorm.io/gorm"
 )
 
 type {{.ClassName}} struct {
@@ -40,7 +41,7 @@ func (e *{{.ClassName}}) Generate() models.ActiveRecord {
 }
 
 func (e *{{.ClassName}}) GetId() interface{} {
-	return e.ID
+	return e.{{.PkGoField}}
 }
 
 func (e *{{.ClassName}}) SetCreateBy(createBy uint) {

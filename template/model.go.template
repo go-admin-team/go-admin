@@ -1,7 +1,7 @@
 package models
 
 import (
-    "strconv"
+    "gorm.io/gorm"
 
     "go-admin/common/dto"
     orm "go-admin/common/global"
@@ -29,7 +29,8 @@ type {{.ClassName}} struct {
     {{- else if eq .GoField "CreateBy" -}}
     {{- else if eq .GoField "UpdateBy" -}}
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{- if eq .ColumnComment "" -}}{{.GoField}}{{- else -}}{{.ColumnComment}}{{end -}}"` {{end -}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{- if eq .ColumnComment "" -}}{{.GoField}}{{- else -}}{{.ColumnComment}}{{end -}}"`
+    {{end -}}
     {{- end }}
     DataScope   string `json:"dataScope" gorm:"-"`
     Params      string `json:"params"  gorm:"-"`
@@ -50,11 +51,11 @@ func (e *{{.ClassName}}) GetId() interface{} {
 }
 
 func (e *{{.ClassName}}) SetCreateBy(createBy uint) {
-	e.CreateBy = strconv.Itoa(int(createBy))
+	e.CreateBy = createBy
 }
 
 func (e *{{.ClassName}}) SetUpdateBy(updateBy uint) {
-	e.UpdateBy = strconv.Itoa(int(updateBy))
+	e.UpdateBy = updateBy
 }
 
 // 创建{{.ClassName}}
