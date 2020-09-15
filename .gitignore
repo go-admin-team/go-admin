@@ -1,4 +1,5 @@
 .idea
+.vscode
 static/uploadfile
 main.exe
 go-admin
@@ -8,7 +9,8 @@ vendor
 config/settings.dev.yml
 go-admin
 common/middleware/demo.go
-config/settings.dev.b.yml
+config/settings.dev.*.yml
+config/settings.dev.*.yml.log
 temp/logs
 config/settings.dev.yml.log
 config/settings.b.dev.yml
