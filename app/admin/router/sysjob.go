@@ -10,7 +10,7 @@ import (
 	jwt "go-admin/pkg/jwtauth"
 )
 
-func init()  {
+func init() {
 	routerCheckRole = append(routerCheckRole, registerSysJobRouter)
 }
 
@@ -29,7 +29,8 @@ func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 		r.PUT("", actions.PermissionAction(), actions.UpdateAction(new(dto.SysJobControl)))
 		r.DELETE("/:id", actions.PermissionAction(), actions.DeleteAction(new(dto.SysJobById)))
 	}
+	sysJob := &sysjob.SysJob{}
 
-	v1.GET("/job/remove/:id", sysjob.RemoveJob)
-	v1.GET("/job/start/:id", sysjob.StartJob)
+	v1.GET("/job/remove/:id", sysJob.RemoveJobForService)
+	v1.GET("/job/start/:id", sysJob.StartJobForService)
 }

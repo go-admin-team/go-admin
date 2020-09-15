@@ -1,7 +1,10 @@
 package sysjob
 
 import (
+	"go-admin/app/admin/service"
+	"go-admin/common/apis"
 	"go-admin/common/dto"
+	"gorm.io/gorm"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +15,50 @@ import (
 	"go-admin/tools/app"
 	"go-admin/tools/app/msg"
 )
+
+type SysJob struct {
+	apis.Api
+}
+
+// RemoveJobForService 调用service实现
+func (e *SysJob) RemoveJobForService(c *gin.Context) {
+	db, err := e.GetOrm(c)
+	if err != nil {
+		app.Error(c, 500, err, "")
+	}
+	var v dto.GeneralDelDto
+	err = c.BindUri(&v)
+	if err != nil {
+		app.Error(c, 422, err, "参数验证失败")
+	}
+	s := service.SysJob{}
+	s.Orm = db
+	err = s.RemoveJob(&v)
+	if err != nil {
+		app.Error(c, 500, err, "")
+	}
+	app.OK(c, nil, s.Msg)
+}
+
+// StartJobForService 启动job service实现
+func (e *SysJob) StartJobForService(c *gin.Context) {
+	db, err := e.GetOrm(c)
+	if err != nil {
+		app.Error(c, 500, err, "")
+	}
+	var v dto.GeneralGetDto
+	err = c.BindUri(&v)
+	if err != nil {
+		app.Error(c, 422, err, "参数验证失败")
+	}
+	s := service.SysJob{}
+	s.Orm = db
+	err = s.StartJob(&v)
+	if err != nil {
+		app.Error(c, 500, err, "")
+	}
+	app.OK(c, nil, s.Msg)
+}
 
 func RemoveJob(c *gin.Context) {
 	var data models.SysJob
@@ -33,6 +80,34 @@ func RemoveJob(c *gin.Context) {
 		app.OK(c, nil, msg.TimeOut)
 	}
 
+}
+
+// StartJobForService 启动job service实现
+func StartJobForService(c *gin.Context) {
+	var err error
+	idb, exist := c.Get("db")
+	if !exist {
+		app.Error(c, 500, nil, "db connect not exist")
+	}
+	switch idb.(type) {
+	case *gorm.DB:
+		//新增操作
+		db := idb.(*gorm.DB)
+		var v dto.GeneralGetDto
+		err = c.BindUri(&v)
+		if err != nil {
+			app.Error(c, 422, err, "参数验证失败")
+		}
+		s := service.SysJob{}
+		s.Orm = db
+		err = s.StartJob(&v)
+		if err != nil {
+			app.Error(c, 500, err, "")
+		}
+		app.OK(c, nil, s.Msg)
+	default:
+		app.Error(c, 500, nil, "db connect not exist")
+	}
 }
 
 func StartJob(c *gin.Context) {
