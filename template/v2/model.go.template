@@ -27,8 +27,6 @@ type {{.ClassName}} struct {
     {{- else }}
     {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{- if eq .ColumnComment "" -}}{{.GoField}}{{- else -}}{{.ColumnComment}}{{end -}}"` // {{end -}}
     {{- end }}
-    DataScope   string `json:"dataScope" gorm:"-"`
-    Params      string `json:"params"  gorm:"-"`
 }
 
 func ({{.ClassName}}) TableName() string {

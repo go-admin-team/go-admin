@@ -82,7 +82,7 @@
                     <el-table-column type="selection" width="55" align="center"/>
                     {{- range .Columns -}}
                         {{- $x := .IsList -}}
-                        {{- if ($x) }}
+                        {{- if (eq $x "1") }}
                             {{- if ne .FkTableName "" -}}
                             <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :formatter="{{.JsonField}}Format" width="100">
                                 <template slot-scope="scope">
