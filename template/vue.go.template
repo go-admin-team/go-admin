@@ -143,7 +143,7 @@
                     <el-form ref="form" :model="form" :rules="rules" label-width="80px">
                         {{ range .Columns }}
                             {{- $x := .IsInsert -}}
-                            {{- if ($x) -}}
+                            {{- if (eq $x "1") -}}
                                 {{- if (.Pk) }}
                                 {{- else if eq .GoField "CreatedAt" -}}
                                 {{- else if eq .GoField "UpdatedAt" -}}

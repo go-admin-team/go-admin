@@ -28,9 +28,9 @@ type SysTables struct {
 	Tree                bool         `gorm:"size:1;" json:"tree"`
 	Crud                bool         `gorm:"size:1;" json:"crud"`
 	Remark              string       `gorm:"size:255;" json:"remark"`
-	IsDataScope         int         `gorm:"size:1;" json:"isDataScope"`
-	IsActions           int         `gorm:"size:1;" json:"isActions"`
-	IsAuth              int         `gorm:"size:1;" json:"isAuth"`
+	IsDataScope         int          `gorm:"size:1;" json:"isDataScope"`
+	IsActions           int          `gorm:"size:1;" json:"isActions"`
+	IsAuth              int          `gorm:"size:1;" json:"isAuth"`
 	IsLogicalDelete     string       `gorm:"size:1;" json:"isLogicalDelete"`
 	LogicalDelete       bool         `gorm:"size:1;" json:"logicalDelete"`
 	LogicalDeleteColumn string       `gorm:"size:128;" json:"logicalDeleteColumn"`
@@ -160,16 +160,40 @@ func (e *SysTables) Update() (update SysTables, err error) {
 		return
 	}
 
+	tableNames := make([]string, 0)
+	for i := range e.Columns {
+		if e.Columns[i].FkTableName != "" {
+			tableNames = append(tableNames, e.Columns[i].FkTableName)
+		}
+	}
+
+	tables := make([]SysTables, 0)
+	tableMap := make(map[string]*SysTables)
+	if len(tableNames) > 0 {
+		if err = orm.Eloquent.Table("sys_tables").Where("table_name in (?)", tableNames).Find(&tables).Error; err != nil {
+			return
+		}
+		for i := range tables {
+			tableMap[tables[i].TBName] = &tables[i]
+		}
+	}
+
 	for i := 0; i < len(e.Columns); i++ {
 		if e.Columns[i].FkTableName != "" {
-			tableNameList := strings.Split(e.Columns[i].FkTableName, "_")
-			e.Columns[i].FkTableNameClass = ""
-			e.Columns[i].FkTableNamePackage = ""
-			for a := 0; a < len(tableNameList); a++ {
-				strStart := string([]byte(tableNameList[a])[:1])
-				strEnd := string([]byte(tableNameList[a])[1:])
-				e.Columns[i].FkTableNameClass += strings.ToUpper(strStart) + strEnd
-				e.Columns[i].FkTableNamePackage += strings.ToLower(strStart) + strings.ToLower(strEnd)
+			t, ok := tableMap[e.Columns[i].FkTableName]
+			if ok {
+				e.Columns[i].FkTableNameClass = t.ClassName
+				e.Columns[i].FkTableNamePackage = t.ModuleName
+			} else {
+				tableNameList := strings.Split(e.Columns[i].FkTableName, "_")
+				e.Columns[i].FkTableNameClass = ""
+				e.Columns[i].FkTableNamePackage = ""
+				for a := 0; a < len(tableNameList); a++ {
+					strStart := string([]byte(tableNameList[a])[:1])
+					strEnd := string([]byte(tableNameList[a])[1:])
+					e.Columns[i].FkTableNameClass += strings.ToUpper(strStart) + strEnd
+					e.Columns[i].FkTableNamePackage += strings.ToLower(strStart) + strings.ToLower(strEnd)
+				}
 			}
 		}
 		_, _ = e.Columns[i].Update()

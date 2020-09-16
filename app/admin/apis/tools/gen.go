@@ -141,6 +141,13 @@ func GenCodeV2(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	table.TableId = id
 	tab, _ := table.Get()
+	//for i := range tab.Columns {
+	//	if tab.Columns[i].IsInsert == "1" {
+	//		tab.Columns[i].IsInsert = "true"
+	//		continue
+	//	}
+	//	tab.Columns[i].IsInsert = "false"
+	//}
 
 	if tab.IsActions == 1 {
 		ActionsGen(tab)
