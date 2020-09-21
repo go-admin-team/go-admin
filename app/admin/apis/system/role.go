@@ -2,6 +2,7 @@ package system
 
 import (
 	"github.com/gin-gonic/gin"
+	mycasbin "go-admin/pkg/casbin"
 
 	"go-admin/app/admin/models"
 	"go-admin/tools"
@@ -86,6 +87,10 @@ func InsertRole(c *gin.Context) {
 		_, err = t.Insert(id, data.MenuIds)
 		tools.HasError(err, "", -1)
 	}
+
+	_, err = mycasbin.LoadPolicy()
+	tools.HasError(err, "", -1)
+
 	app.OK(c, data, "添加成功")
 }
 
@@ -112,6 +117,10 @@ func UpdateRole(c *gin.Context) {
 		_, err2 := t.Insert(data.RoleId, data.MenuIds)
 		tools.HasError(err2, "修改失败（insert）", -1)
 	}
+
+	_, err = mycasbin.LoadPolicy()
+	tools.HasError(err, "", -1)
+
 	app.OK(c, result, "修改成功")
 }
 
@@ -146,5 +155,9 @@ func DeleteRole(c *gin.Context) {
 	IDS := tools.IdsStrToIdsIntGroup("roleId", c)
 	_, err := Role.BatchDelete(IDS)
 	tools.HasError(err, "删除失败", -1)
+
+	_, err = mycasbin.LoadPolicy()
+	tools.HasError(err, "", -1)
+
 	app.OK(c, "", "删除成功")
 }

@@ -16,8 +16,7 @@ func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e, err := mycasbin.Casbin()
-		tools.HasError(err, "", 500)
+		e := mycasbin.Casbin()
 		//检查权限
 		res, err := e.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
 		tools.HasError(err, "", 500)
