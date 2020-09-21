@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"go-admin/app/admin/router"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -13,7 +14,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
@@ -41,7 +41,7 @@ var (
 	}
 )
 
-var echoTimes int
+var AppRouters = make([]func(), 0)
 
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
@@ -74,17 +74,10 @@ func run() error {
 		engine = gin.New()
 	}
 
-	var r *gin.Engine
-	switch engine.(type) {
-	case *gin.Engine:
-		r = engine.(*gin.Engine)
-	default:
-		panic("not support this engine")
+	AppRouters = append(AppRouters, router.InitRouter)
+	for _, f := range AppRouters {
+		f()
 	}
-
-	r = router.InitRouter(r)
-	//defer global.Eloquent.Close()
-	global.Cfg.SetEngine(r)
 
 	srv := &http.Server{
 		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,

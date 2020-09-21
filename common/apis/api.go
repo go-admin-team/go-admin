@@ -12,9 +12,13 @@ import (
 type Api struct {
 }
 
-// GetOrm 获取orm连接
 func (e *Api) GetOrm(c *gin.Context) (*gorm.DB, error) {
-	msgID := e.GenerateMsgIDFromContext(c)
+	return GetOrm(c)
+}
+
+// GetOrm 获取orm连接
+func GetOrm(c *gin.Context) (*gorm.DB, error) {
+	msgID := GenerateMsgIDFromContext(c)
 	idb, exist := c.Get("db")
 	if !exist {
 		return nil, errors.New(fmt.Sprintf("msgID[%s], db connect not exist", msgID))
@@ -29,7 +33,7 @@ func (e *Api) GetOrm(c *gin.Context) (*gorm.DB, error) {
 }
 
 // GenerateMsgIDFromContext 生成msgID
-func (e *Api) GenerateMsgIDFromContext(c *gin.Context) string {
+func GenerateMsgIDFromContext(c *gin.Context) string {
 	var msgID string
 	data, ok := c.Get("msgID")
 	if !ok {

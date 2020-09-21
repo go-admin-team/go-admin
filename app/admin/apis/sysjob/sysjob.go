@@ -22,7 +22,7 @@ type SysJob struct {
 
 // RemoveJobForService 调用service实现
 func (e *SysJob) RemoveJobForService(c *gin.Context) {
-	msgID := e.GenerateMsgIDFromContext(c)
+	msgID := apis.GenerateMsgIDFromContext(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
 		log.Errorf("msgID[%s] error:%#v", msgID, err)
@@ -49,7 +49,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 
 // StartJobForService 启动job service实现
 func (e *SysJob) StartJobForService(c *gin.Context) {
-	msgID := e.GenerateMsgIDFromContext(c)
+	msgID := apis.GenerateMsgIDFromContext(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
 		log.Errorf("msgID[%s] error:%#v", msgID, err)
