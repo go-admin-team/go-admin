@@ -1,16 +1,16 @@
 package sysjob
 
 import (
-	"go-admin/app/admin/service"
-	"go-admin/common/apis"
-	"go-admin/common/dto"
-	"gorm.io/gorm"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service"
 	"go-admin/app/jobs"
+	"go-admin/common/apis"
+	"go-admin/common/dto"
+	"go-admin/common/log"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/app/msg"
@@ -22,40 +22,54 @@ type SysJob struct {
 
 // RemoveJobForService 调用service实现
 func (e *SysJob) RemoveJobForService(c *gin.Context) {
+	msgID := e.GenerateMsgIDFromContext(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
+		log.Errorf("msgID[%s] error:%#v", msgID, err)
 		app.Error(c, 500, err, "")
+		return
 	}
 	var v dto.GeneralDelDto
 	err = c.BindUri(&v)
 	if err != nil {
+		log.Errorf("msgID[%s] 参数验证错误, error:%#v", msgID, err)
 		app.Error(c, 422, err, "参数验证失败")
+		return
 	}
 	s := service.SysJob{}
+	s.MsgID = msgID
 	s.Orm = db
 	err = s.RemoveJob(&v)
 	if err != nil {
 		app.Error(c, 500, err, "")
+		return
 	}
 	app.OK(c, nil, s.Msg)
 }
 
 // StartJobForService 启动job service实现
 func (e *SysJob) StartJobForService(c *gin.Context) {
+	msgID := e.GenerateMsgIDFromContext(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
+		log.Errorf("msgID[%s] error:%#v", msgID, err)
 		app.Error(c, 500, err, "")
+		return
 	}
 	var v dto.GeneralGetDto
 	err = c.BindUri(&v)
 	if err != nil {
+		log.Errorf("msgID[%s] 参数验证错误, error:%#v", msgID, err)
 		app.Error(c, 422, err, "参数验证失败")
+		return
 	}
 	s := service.SysJob{}
 	s.Orm = db
+	s.MsgID = msgID
 	err = s.StartJob(&v)
 	if err != nil {
 		app.Error(c, 500, err, "")
+		return
 	}
 	app.OK(c, nil, s.Msg)
 }
@@ -80,34 +94,6 @@ func RemoveJob(c *gin.Context) {
 		app.OK(c, nil, msg.TimeOut)
 	}
 
-}
-
-// StartJobForService 启动job service实现
-func StartJobForService(c *gin.Context) {
-	var err error
-	idb, exist := c.Get("db")
-	if !exist {
-		app.Error(c, 500, nil, "db connect not exist")
-	}
-	switch idb.(type) {
-	case *gorm.DB:
-		//新增操作
-		db := idb.(*gorm.DB)
-		var v dto.GeneralGetDto
-		err = c.BindUri(&v)
-		if err != nil {
-			app.Error(c, 422, err, "参数验证失败")
-		}
-		s := service.SysJob{}
-		s.Orm = db
-		err = s.StartJob(&v)
-		if err != nil {
-			app.Error(c, 500, err, "")
-		}
-		app.OK(c, nil, s.Msg)
-	default:
-		app.Error(c, 500, nil, "db connect not exist")
-	}
 }
 
 func StartJob(c *gin.Context) {
