@@ -29,8 +29,6 @@ func IndexAction(m models.ActiveRecord, d dto2.Index, f func() interface{}) gin.
 		case *gorm.DB:
 			//查询列表
 			db := idb.(*gorm.DB)
-			err = c.Bind(req)
-			tools.HasError(err, "参数验证失败", 422)
 			err = req.Bind(c)
 			tools.HasError(err, "参数验证失败", 422)
 

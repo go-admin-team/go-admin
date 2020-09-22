@@ -41,11 +41,3 @@ func (e *{{.ClassName}}) Generate() models.ActiveRecord {
 func (e *{{.ClassName}}) GetId() interface{} {
 	return e.{{.PkGoField}}
 }
-
-func (e *{{.ClassName}}) SetCreateBy(createBy uint) {
-	e.CreateBy = createBy
-}
-
-func (e *{{.ClassName}}) SetUpdateBy(updateBy uint) {
-	e.UpdateBy = updateBy
-}

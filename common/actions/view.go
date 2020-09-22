@@ -2,19 +2,18 @@ package actions
 
 import (
 	"errors"
-	dto2 "go-admin/common/dto"
-	"go-admin/common/models"
-	"go-admin/tools/app"
-	"gopkg.in/ffmt.v1"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"go-admin/common/dto"
+	"go-admin/common/models"
 	"go-admin/tools"
+	"go-admin/tools/app"
 )
 
 // ViewAction 通用详情动作
-func ViewAction(control dto2.Control) gin.HandlerFunc {
+func ViewAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
 		idb, exist := c.Get("db")
@@ -36,7 +35,6 @@ func ViewAction(control dto2.Control) gin.HandlerFunc {
 			//数据权限检查
 			p := getPermissionFromContext(c)
 
-			ffmt.P(object)
 			err = db.WithContext(c).Scopes(
 				Permission(object.TableName(), p),
 			).Where(req.GetId()).First(object).Error

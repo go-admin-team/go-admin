@@ -34,14 +34,6 @@ func (m *{{.ClassName}}Search) Generate() dto.Index {
 	return &o
 }
 
-func (m *{{.ClassName}}Search) GetPageIndex() int {
-	return m.PageIndex
-}
-
-func (m *{{.ClassName}}Search) GetPageSize() int {
-	return m.PageSize
-}
-
 type {{.ClassName}}Control struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
