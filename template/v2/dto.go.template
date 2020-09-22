@@ -6,6 +6,7 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
+	"go-admin/common/log"
 	common "go-admin/common/models"
 )
 
@@ -26,7 +27,11 @@ func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
 }
 
 func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
-	return ctx.Bind(m)
+    err := ctx.Bind(m)
+    if err != nil {
+    	log.Errorf("MsgID[%s] Bind error: %#v", err)
+    }
+    return err
 }
 
 func (m *{{.ClassName}}Search) Generate() dto.Index {
@@ -53,10 +58,16 @@ type {{.ClassName}}Control struct {
 }
 
 func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
-    if err := ctx.BindUri(s); err != nil {
+    err := ctx.BindUri(s)
+    if err != nil {
+        log.Errorf("MsgID[%s] Bind error: %#v", err)
         return err
     }
-	return ctx.Bind(s)
+    err := ctx.Bind(m)
+    if err != nil {
+        log.Errorf("MsgID[%s] Bind error: %#v", err)
+    }
+    return err
 }
 
 func (s *{{.ClassName}}Control) Generate() dto.Control {

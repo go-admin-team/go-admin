@@ -451,7 +451,7 @@
             },
             /** 删除按钮操作 */
             handleDelete(row) {
-                var Ids = row.{{.PkJsonField}} || this.ids
+                var Ids = (row.{{.PkJsonField}} && [row.{{.PkJsonField}}]) || this.ids
                   if (this.ids.length === 0) {
                     Ids = [Ids]
                   }

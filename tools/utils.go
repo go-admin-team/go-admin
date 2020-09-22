@@ -5,6 +5,9 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/spf13/cast"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -56,4 +59,17 @@ func HasError(err error, msg string, code ...int) {
 		log.Printf("%s:%v error: %#v", file, line, err)
 		panic("CustomError#" + strconv.Itoa(statusCode) + "#" + msg)
 	}
+}
+
+// GenerateMsgIDFromContext 生成msgID
+func GenerateMsgIDFromContext(c *gin.Context) string {
+	var msgID string
+	data, ok := c.Get("msgID")
+	if !ok {
+		msgID = uuid.New().String()
+		c.Set("msgID", msgID)
+		return msgID
+	}
+	msgID = cast.ToString(data)
+	return msgID
 }

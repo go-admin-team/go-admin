@@ -1,43 +1,49 @@
 package actions
 
 import (
-	"errors"
-	"github.com/gin-gonic/gin"
-	dto2 "go-admin/common/dto"
-	"go-admin/common/models"
-	"gorm.io/gorm"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
+
+	"go-admin/common/apis"
+	"go-admin/common/dto"
+	"go-admin/common/log"
+	"go-admin/common/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
 )
 
 // CreateAction 通用新增动作
-func CreateAction(control dto2.Control) gin.HandlerFunc {
+func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		db, err := apis.GetOrm(c)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		msgID := tools.GenerateMsgIDFromContext(c)
+		//新增操作
 		req := control.Generate()
-		var err error
-		idb, exist := c.Get("db")
-		if !exist {
-			err = errors.New("db connect not exist")
-			tools.HasError(err, "", 500)
+		err = req.Bind(c)
+		if err != nil {
+			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			return
 		}
-		switch idb.(type) {
-		case *gorm.DB:
-			//新增操作
-			db := idb.(*gorm.DB)
-			err = req.Bind(c)
-			tools.HasError(err, "参数验证失败", 422)
-			var object models.ActiveRecord
-			object, err = req.GenerateM()
-			tools.HasError(err, "模型生成失败", 422)
-			object.SetCreateBy(tools.GetUserIdUint(c))
-			err = db.WithContext(c).Create(object).Error
-			tools.HasError(err, "创建失败", 500)
-			app.OK(c, object.GetId(), "创建成功")
-			c.Next()
-		default:
-			err = errors.New("db connect not exist")
-			tools.HasError(err, "", 500)
+		var object models.ActiveRecord
+		object, err = req.GenerateM()
+		if err != nil {
+			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			return
 		}
+		object.SetCreateBy(tools.GetUserIdUint(c))
+		err = db.WithContext(c).Create(object).Error
+		if err != nil {
+			log.Errorf("MsgID[%s] Create error: %#v", msgID, err)
+			app.Error(c, http.StatusInternalServerError, err, "创建失败")
+			return
+		}
+		app.OK(c, object.GetId(), "创建成功")
+		c.Next()
 	}
 }

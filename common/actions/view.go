@@ -2,51 +2,60 @@ package actions
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"go-admin/common/apis"
 	"go-admin/common/dto"
+	"go-admin/common/log"
 	"go-admin/common/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
 )
 
 // ViewAction 通用详情动作
-func ViewAction(control dto.Control) gin.HandlerFunc {
+func ViewAction(control dto.Control, params ...interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var err error
-		idb, exist := c.Get("db")
-		if !exist {
-			err = errors.New("db connect not exist")
-			tools.HasError(err, "", 500)
+		db, err := apis.GetOrm(c)
+		if err != nil {
+			log.Error(err)
+			return
 		}
-		switch idb.(type) {
-		case *gorm.DB:
-			//查看详情
-			db := idb.(*gorm.DB)
-			req := control.Generate()
-			err = req.Bind(c)
-			tools.HasError(err, "参数验证失败", 422)
-			var object models.ActiveRecord
-			object, err = req.GenerateM()
-			tools.HasError(err, "模型生成失败", 500)
 
-			//数据权限检查
-			p := getPermissionFromContext(c)
-
-			err = db.WithContext(c).Scopes(
-				Permission(object.TableName(), p),
-			).Where(req.GetId()).First(object).Error
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				tools.HasError(err, "查看失败", 404)
-			}
-			tools.HasError(err, "查看失败", 500)
-			app.OK(c, object, "查看成功")
-			c.Next()
-		default:
-			err = errors.New("db connect not exist")
-			tools.HasError(err, "", 500)
+		msgID := tools.GenerateMsgIDFromContext(c)
+		//查看详情
+		req := control.Generate()
+		err = req.Bind(c)
+		if err != nil {
+			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			return
 		}
+		var object models.ActiveRecord
+		object, err = req.GenerateM()
+		if err != nil {
+			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			return
+		}
+
+		//数据权限检查
+		p := getPermissionFromContext(c)
+
+		err = db.WithContext(c).Scopes(
+			Permission(object.TableName(), p),
+		).Where(req.GetId()).First(object).Error
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			app.Error(c, http.StatusNotFound, nil, "查看对象不存在或无权查看")
+			return
+		}
+		if err != nil {
+			log.Errorf("MsgID[%s] Create error: %#v", msgID, err)
+			app.Error(c, http.StatusInternalServerError, err, "查看失败")
+			return
+		}
+		app.OK(c, object, "查看成功")
+		c.Next()
 	}
 }

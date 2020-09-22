@@ -4,15 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"go-admin/tools"
 )
 
 // 失败数据处理
 func Error(c *gin.Context, code int, err error, msg string) {
 	var res Response
-	res.Msg = err.Error()
+	if err != nil {
+		res.Msg = err.Error()
+	}
 	if msg != "" {
 		res.Msg = msg
 	}
+	res.RequestId = tools.GenerateMsgIDFromContext(c)
 	c.JSON(http.StatusOK, res.ReturnError(code))
 }
 
@@ -23,6 +28,7 @@ func OK(c *gin.Context, data interface{}, msg string) {
 	if msg != "" {
 		res.Msg = msg
 	}
+	res.RequestId = tools.GenerateMsgIDFromContext(c)
 	c.JSON(http.StatusOK, res.ReturnOK())
 }
 

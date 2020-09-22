@@ -2,12 +2,16 @@ package actions
 
 import (
 	"errors"
-	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"go-admin/tools/config"
 	"gorm.io/gorm"
 
+	"go-admin/common/apis"
+	"go-admin/common/log"
 	"go-admin/tools"
+	"go-admin/tools/app"
+	"go-admin/tools/config"
 )
 
 type dataPermission struct {
@@ -19,36 +23,24 @@ type dataPermission struct {
 
 func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var err error
-		idb, exist := c.Get("db")
-		if !exist {
-			err = errors.New("db connect not exist")
-			tools.HasError(err, "", 500)
-		}
-		switch idb.(type) {
-		case *gorm.DB:
-			db := idb.(*gorm.DB)
-			var p = new(dataPermission)
-			if userId := tools.GetUserIdStr(c); userId != "" {
-				p, err = newDataPermission(db, userId)
-				if err != nil {
-					c.JSON(500, gin.H{
-						"code": 500,
-						"msg":  fmt.Sprintf("权限范围鉴定错误, error:%v", err),
-					})
-					c.Abort()
-					return
-				}
-			}
-			c.Set(PermissionKey, p)
-		default:
-			c.JSON(500, gin.H{
-				"code": 500,
-				"msg":  "db connect not exist",
-			})
-			c.Abort()
+		db, err := apis.GetOrm(c)
+		if err != nil {
+			log.Error(err)
 			return
 		}
+
+		msgID := tools.GenerateMsgIDFromContext(c)
+		var p = new(dataPermission)
+		if userId := tools.GetUserIdStr(c); userId != "" {
+			p, err = newDataPermission(db, userId)
+			if err != nil {
+				log.Errorf("MsgID[%s] PermissionAction error: %#v", msgID, err)
+				app.Error(c, http.StatusInternalServerError, err, "权限范围鉴定错误")
+				c.Abort()
+				return
+			}
+		}
+		c.Set(PermissionKey, p)
 		c.Next()
 	}
 }

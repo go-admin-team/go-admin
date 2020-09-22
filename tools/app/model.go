@@ -6,7 +6,8 @@ type Response struct {
 	// 数据集
 	Data interface{} `json:"data"`
 	// 消息
-	Msg string `json:"msg"`
+	Msg       string `json:"msg"`
+	RequestId string `json:"requestId"`
 }
 
 type Page struct {

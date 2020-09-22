@@ -1,53 +1,59 @@
 package actions
 
 import (
-	"errors"
-	"github.com/gin-gonic/gin"
-	dto2 "go-admin/common/dto"
-	"go-admin/common/models"
-	"gorm.io/gorm"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
+
+	"go-admin/common/apis"
+	"go-admin/common/dto"
+	"go-admin/common/log"
+	"go-admin/common/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
 )
 
 // UpdateAction 通用更新动作
-func UpdateAction(control dto2.Control) gin.HandlerFunc {
+func UpdateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		db, err := apis.GetOrm(c)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		msgID := tools.GenerateMsgIDFromContext(c)
 		req := control.Generate()
-		var err error
-		idb, exist := c.Get("db")
-		if !exist {
-			err = errors.New("db connect not exist")
-			tools.HasError(err, "", 500)
+		//更新操作
+		err = req.Bind(c)
+		if err != nil {
+			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			return
 		}
-		switch idb.(type) {
-		case *gorm.DB:
-			//更新操作
-			db := idb.(*gorm.DB)
-			err = req.Bind(c)
-			tools.HasError(err, "参数验证失败", 422)
-			var object models.ActiveRecord
-			object, err = req.GenerateM()
-			tools.HasError(err, "参数验证失败", 422)
-			object.SetUpdateBy(tools.GetUserIdUint(c))
-
-			//数据权限检查
-			p := getPermissionFromContext(c)
-
-			db = db.WithContext(c).Scopes(
-				Permission(object.TableName(), p),
-			).Where(req.GetId()).Updates(object)
-			tools.HasError(db.Error, "更新失败", 500)
-			if db.RowsAffected == 0 {
-				err = errors.New("无权更新该数据")
-				tools.HasError(err, "", 403)
-			}
-			app.OK(c, object.GetId(), "更新成功")
-			c.Next()
-		default:
-			err = errors.New("db connect not exist")
-			tools.HasError(err, "", 500)
+		var object models.ActiveRecord
+		object, err = req.GenerateM()
+		if err != nil {
+			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			return
 		}
+		object.SetUpdateBy(tools.GetUserIdUint(c))
+
+		//数据权限检查
+		p := getPermissionFromContext(c)
+
+		db = db.WithContext(c).Scopes(
+			Permission(object.TableName(), p),
+		).Where(req.GetId()).Updates(object)
+		if db.Error != nil {
+			log.Errorf("MsgID[%s] Update error: %#v", msgID, err)
+			app.Error(c, http.StatusInternalServerError, err, "更新失败")
+			return
+		}
+		if db.RowsAffected == 0 {
+			app.Error(c, http.StatusForbidden, nil, "无权更新该数据")
+			return
+		}
+		app.OK(c, object.GetId(), "更新成功")
+		c.Next()
 	}
 }

@@ -5,7 +5,8 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
-	models2 "go-admin/common/models"
+	"go-admin/common/log"
+	common "go-admin/common/models"
 )
 
 type SysJobSearch struct {
@@ -23,20 +24,16 @@ func (m *SysJobSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysJobSearch) Bind(ctx *gin.Context) error {
-	return ctx.Bind(m)
+	err := ctx.Bind(m)
+	if err != nil {
+		log.Errorf("MsgID[%s] Bind error: %#v", err)
+	}
+	return err
 }
 
 func (m *SysJobSearch) Generate() dto.Index {
 	o := *m
 	return &o
-}
-
-func (m *SysJobSearch) GetPageIndex() int {
-	return m.PageIndex
-}
-
-func (m *SysJobSearch) GetPageSize() int {
-	return m.PageSize
 }
 
 type SysJobControl struct {
@@ -62,7 +59,7 @@ func (s *SysJobControl) Generate() dto.Control {
 	return &cp
 }
 
-func (s *SysJobControl) GenerateM() (models2.ActiveRecord, error) {
+func (s *SysJobControl) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysJob{
 		JobId:          s.JobId,
 		JobName:        s.JobName,
@@ -91,6 +88,6 @@ func (s *SysJobById) Generate() dto.Control {
 	return &cp
 }
 
-func (s *SysJobById) GenerateM() (models2.ActiveRecord, error) {
+func (s *SysJobById) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysJob{}, nil
 }
