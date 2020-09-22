@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"go-admin/common/apis"
 	"go-admin/common/dto"
 	"go-admin/common/log"
 	"go-admin/common/models"
@@ -16,7 +15,7 @@ import (
 // UpdateAction 通用更新动作
 func UpdateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := apis.GetOrm(c)
+		db, err := tools.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
@@ -45,7 +44,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
-			log.Errorf("MsgID[%s] Update error: %#v", msgID, err)
+			log.Errorf("MsgID[%s] Update error: %s", msgID, err)
 			app.Error(c, http.StatusInternalServerError, err, "更新失败")
 			return
 		}

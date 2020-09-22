@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"go-admin/common/apis"
 	"go-admin/common/log"
 	"go-admin/tools"
 	"go-admin/tools/app"
@@ -23,7 +22,7 @@ type dataPermission struct {
 
 func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := apis.GetOrm(c)
+		db, err := tools.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
@@ -34,7 +33,7 @@ func PermissionAction() gin.HandlerFunc {
 		if userId := tools.GetUserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
-				log.Errorf("MsgID[%s] PermissionAction error: %#v", msgID, err)
+				log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
 				app.Error(c, http.StatusInternalServerError, err, "权限范围鉴定错误")
 				c.Abort()
 				return

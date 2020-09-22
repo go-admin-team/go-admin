@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"go-admin/common/apis"
 	"go-admin/common/dto"
 	"go-admin/common/log"
 	"go-admin/common/models"
@@ -16,7 +15,7 @@ import (
 // DeleteAction 通用删除动作
 func DeleteAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := apis.GetOrm(c)
+		db, err := tools.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
@@ -27,7 +26,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		req := control.Generate()
 		err = req.Bind(c)
 		if err != nil {
-			log.Errorf("MsgID[%s] Bind error: %#v", msgID, err)
+			log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
 			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 			return
 		}
@@ -47,7 +46,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Delete(object)
 		if db.Error != nil {
-			log.Errorf("MsgID[%s] Delete error: %#v", msgID, err)
+			log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
 			app.Error(c, http.StatusInternalServerError, err, "删除失败")
 			return
 		}
