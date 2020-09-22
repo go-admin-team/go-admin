@@ -27,7 +27,7 @@ func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 		r.GET("/:id", actions.PermissionAction(), actions.ViewAction(new(dto.SysJobById)))
 		r.POST("", actions.CreateAction(new(dto.SysJobControl)))
 		r.PUT("", actions.PermissionAction(), actions.UpdateAction(new(dto.SysJobControl)))
-		r.DELETE("/:id", actions.PermissionAction(), actions.DeleteAction(new(dto.SysJobById)))
+		r.DELETE("", actions.PermissionAction(), actions.DeleteAction(new(dto.SysJobById)))
 	}
 	sysJob := &sysjob.SysJob{}
 

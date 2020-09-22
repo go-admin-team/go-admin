@@ -67,7 +67,7 @@ INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob', 'GET', NULL,
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob/:id', 'GET', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob', 'POST', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob', 'PUT', NULL, NULL, NULL);
-INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob/:id', 'DELETE', NULL, NULL, NULL);
+INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/sysjob', 'DELETE', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/syssettingList', 'GET', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/syssetting/:id', 'GET', NULL, NULL, NULL);
 INSERT INTO sys_casbin_rule VALUES ('p', 'admin', '/api/v1/syssetting', 'POST', NULL, NULL, NULL);
