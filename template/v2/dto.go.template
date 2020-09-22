@@ -63,7 +63,7 @@ func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
         log.Errorf("MsgID[%s] Bind error: %#v", err)
         return err
     }
-    err := ctx.Bind(m)
+    err = ctx.Bind(s)
     if err != nil {
         log.Errorf("MsgID[%s] Bind error: %#v", err)
     }
