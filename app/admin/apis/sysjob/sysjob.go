@@ -25,14 +25,14 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 	msgID := tools.GenerateMsgIDFromContext(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("msgID[%s] error:%#v", msgID, err)
+		log.Errorf("msgID[%s] error:%s", msgID, err)
 		app.Error(c, 500, err, "")
 		return
 	}
 	var v dto.GeneralDelDto
 	err = c.BindUri(&v)
 	if err != nil {
-		log.Errorf("msgID[%s] 参数验证错误, error:%#v", msgID, err)
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
 		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
@@ -52,14 +52,14 @@ func (e *SysJob) StartJobForService(c *gin.Context) {
 	msgID := tools.GenerateMsgIDFromContext(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("msgID[%s] error:%#v", msgID, err)
+		log.Errorf("msgID[%s] error:%s", msgID, err)
 		app.Error(c, 500, err, "")
 		return
 	}
 	var v dto.GeneralGetDto
 	err = c.BindUri(&v)
 	if err != nil {
-		log.Errorf("msgID[%s] 参数验证错误, error:%#v", msgID, err)
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
 		app.Error(c, 422, err, "参数验证失败")
 		return
 	}

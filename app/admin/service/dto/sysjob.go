@@ -26,7 +26,7 @@ func (m *SysJobSearch) GetNeedSearch() interface{} {
 func (m *SysJobSearch) Bind(ctx *gin.Context) error {
 	err := ctx.Bind(m)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %#v", err)
+		log.Errorf("MsgID[%s] Bind error: %s", err)
 	}
 	return err
 }
@@ -90,4 +90,18 @@ func (s *SysJobById) Generate() dto.Control {
 
 func (s *SysJobById) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysJob{}, nil
+}
+
+type SysJobItem struct {
+	JobId          int    `json:"jobId"`
+	JobName        string `json:"jobName" validate:"required"` // 名称
+	JobGroup       string `json:"jobGroup"`                    // 任务分组
+	JobType        int    `json:"jobType"`                     // 任务类型
+	CronExpression string `json:"cronExpression"`              // cron表达式
+	InvokeTarget   string `json:"invokeTarget"`                // 调用目标
+	Args           string `json:"args"`                        // 目标参数
+	MisfirePolicy  int    `json:"misfirePolicy"`               // 执行策略
+	Concurrent     int    `json:"concurrent"`                  // 是否并发
+	Status         int    `json:"status"`                      // 状态
+	EntryId        int    `json:"entryId"`                     // job启动时返回的id
 }

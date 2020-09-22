@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"go-admin/common/apis"
 	"go-admin/common/dto"
 	"go-admin/common/log"
 	"go-admin/common/models"
@@ -16,9 +15,9 @@ import (
 )
 
 // ViewAction 通用详情动作
-func ViewAction(control dto.Control, params ...interface{}) gin.HandlerFunc {
+func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := apis.GetOrm(c)
+		db, err := tools.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
@@ -39,23 +38,30 @@ func ViewAction(control dto.Control, params ...interface{}) gin.HandlerFunc {
 			return
 		}
 
+		var rsp interface{}
+		if f != nil {
+			rsp = f()
+		} else {
+			rsp, _ = req.GenerateM()
+		}
+
 		//数据权限检查
 		p := getPermissionFromContext(c)
 
-		err = db.WithContext(c).Scopes(
+		err = db.Model(object).WithContext(c).Scopes(
 			Permission(object.TableName(), p),
-		).Where(req.GetId()).First(object).Error
+		).Where(req.GetId()).First(rsp).Error
 
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 			app.Error(c, http.StatusNotFound, nil, "查看对象不存在或无权查看")
 			return
 		}
 		if err != nil {
-			log.Errorf("MsgID[%s] Create error: %#v", msgID, err)
+			log.Errorf("MsgID[%s] View error: %s", msgID, err)
 			app.Error(c, http.StatusInternalServerError, err, "查看失败")
 			return
 		}
-		app.OK(c, object, "查看成功")
+		app.OK(c, rsp, "查看成功")
 		c.Next()
 	}
 }

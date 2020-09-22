@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"go-admin/common/apis"
 	"go-admin/common/dto"
 	"go-admin/common/log"
 	"go-admin/common/models"
@@ -18,7 +17,7 @@ import (
 // IndexAction 通用查询动作
 func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := apis.GetOrm(c)
+		db, err := tools.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
@@ -49,7 +48,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			Find(list).Limit(-1).Offset(-1).
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Errorf("MsgID[%s] Index error: %#v", msgID, err)
+			log.Errorf("MsgID[%s] Index error: %s", msgID, err)
 			app.Error(c, http.StatusInternalServerError, err, "查询失败")
 			return
 		}
