@@ -27,7 +27,7 @@ func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
 }
 
 func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
-    err := ctx.Bind(m)
+    err := ctx.ShouldBind(m)
     if err != nil {
     	log.Errorf("MsgID[%s] Bind error: %#v", err)
     }
@@ -58,12 +58,12 @@ type {{.ClassName}}Control struct {
 }
 
 func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
-    err := ctx.BindUri(s)
+    err := ctx.ShouldBindUri(s)
     if err != nil {
         log.Errorf("MsgID[%s] Bind error: %#v", err)
         return err
     }
-    err = ctx.Bind(s)
+    err = ctx.ShouldBind(s)
     if err != nil {
         log.Errorf("MsgID[%s] Bind error: %#v", err)
     }

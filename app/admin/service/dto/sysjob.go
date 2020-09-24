@@ -24,7 +24,7 @@ func (m *SysJobSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysJobSearch) Bind(ctx *gin.Context) error {
-	err := ctx.Bind(m)
+	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Errorf("MsgID[%s] Bind error: %s", err)
 	}
@@ -51,7 +51,7 @@ type SysJobControl struct {
 }
 
 func (s *SysJobControl) Bind(ctx *gin.Context) error {
-	return ctx.Bind(s)
+	return ctx.ShouldBind(s)
 }
 
 func (s *SysJobControl) Generate() dto.Control {
