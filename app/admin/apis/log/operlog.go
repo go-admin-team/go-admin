@@ -30,12 +30,12 @@ func GetOperLogList(c *gin.Context) {
 
 	size := c.Request.FormValue("pageSize")
 	if size != "" {
-		pageSize = tools.StrToInt(err, size)
+		pageSize, err = tools.StringToInt(size)
 	}
 
 	index := c.Request.FormValue("pageIndex")
 	if index != "" {
-		pageIndex = tools.StrToInt(err, index)
+		pageIndex, err = tools.StringToInt(index)
 	}
 
 	data.OperName = c.Request.FormValue("operName")

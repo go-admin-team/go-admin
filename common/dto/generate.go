@@ -27,13 +27,6 @@ func (s *ObjectById) Bind(ctx *gin.Context) error {
 func (s *ObjectById) GetId() interface{} {
 	if len(s.Ids) > 0 {
 		return s.Ids
-		//ids := make([]int64, 0)
-		//var i int64
-		//for _, id := range s.Ids {
-		//	i, _ = id.Int64()
-		//	ids = append(ids, i)
-		//}
-		//return ids
 	}
 	return s.Id
 }

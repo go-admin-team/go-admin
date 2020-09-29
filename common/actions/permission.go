@@ -13,7 +13,7 @@ import (
 	"go-admin/tools/config"
 )
 
-type dataPermission struct {
+type DataPermission struct {
 	DataScope string
 	UserId    int
 	DeptId    int
@@ -29,7 +29,7 @@ func PermissionAction() gin.HandlerFunc {
 		}
 
 		msgID := tools.GenerateMsgIDFromContext(c)
-		var p = new(dataPermission)
+		var p = new(DataPermission)
 		if userId := tools.GetUserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
@@ -44,9 +44,9 @@ func PermissionAction() gin.HandlerFunc {
 	}
 }
 
-func newDataPermission(tx *gorm.DB, userId interface{}) (*dataPermission, error) {
+func newDataPermission(tx *gorm.DB, userId interface{}) (*DataPermission, error) {
 	var err error
-	p := &dataPermission{}
+	p := &DataPermission{}
 
 	err = tx.Table("sys_user").
 		Select("sys_user.user_id", "sys_role.role_id", "sys_user.dept_id", "sys_role.data_scope").
@@ -60,7 +60,7 @@ func newDataPermission(tx *gorm.DB, userId interface{}) (*dataPermission, error)
 	return p, nil
 }
 
-func Permission(tableName string, p *dataPermission) func(db *gorm.DB) *gorm.DB {
+func Permission(tableName string, p *DataPermission) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if !config.ApplicationConfig.EnableDP {
 			return db
@@ -80,13 +80,18 @@ func Permission(tableName string, p *dataPermission) func(db *gorm.DB) *gorm.DB 
 	}
 }
 
-func getPermissionFromContext(c *gin.Context) *dataPermission {
-	p := new(dataPermission)
+func getPermissionFromContext(c *gin.Context) *DataPermission {
+	p := new(DataPermission)
 	if pm, ok := c.Get(PermissionKey); ok {
 		switch pm.(type) {
-		case *dataPermission:
-			p = pm.(*dataPermission)
+		case *DataPermission:
+			p = pm.(*DataPermission)
 		}
 	}
 	return p
+}
+
+// PermissionForNoAction 提供非action写法数据范围约束
+func GetPermissionFromContext(c *gin.Context) *DataPermission {
+	return getPermissionFromContext(c)
 }

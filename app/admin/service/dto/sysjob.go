@@ -37,7 +37,7 @@ func (m *SysJobSearch) Generate() dto.Index {
 }
 
 type SysJobControl struct {
-	JobId          int    `json:"jobId"`
+	JobId          uint    `json:"jobId"`
 	JobName        string `json:"jobName" validate:"required"` // 名称
 	JobGroup       string `json:"jobGroup"`                    // 任务分组
 	JobType        int    `json:"jobType"`                     // 任务类型
@@ -93,7 +93,7 @@ func (s *SysJobById) GenerateM() (common.ActiveRecord, error) {
 }
 
 type SysJobItem struct {
-	JobId          int    `json:"jobId"`
+	JobId          uint    `json:"jobId"`
 	JobName        string `json:"jobName" validate:"required"` // 名称
 	JobGroup       string `json:"jobGroup"`                    // 任务分组
 	JobType        int    `json:"jobType"`                     // 任务类型

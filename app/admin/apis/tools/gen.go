@@ -151,6 +151,120 @@ func GenCodeV2(c *gin.Context) {
 	app.OK(c, "", "Code generated successfully！")
 }
 
+func GenCodeV3(c *gin.Context) {
+	table := tools.SysTables{}
+	id, err := tools2.StringToInt(c.Param("tableId"))
+	tools2.HasError(err, "", -1)
+	table.TableId = id
+	tab, _ := table.Get()
+
+	if tab.IsActions == 1 {
+		ActionsGenV3(tab)
+	} else {
+		NOActionsGenV3(tab)
+	}
+
+	app.OK(c, "", "Code generated successfully！")
+}
+
+func NOActionsGenV3(tab tools.SysTables) {
+
+	basePath := "template/v3/"
+	routerFile := basePath + "no_actions/router_check_role.go.template"
+
+	if tab.IsAuth == 2 {
+		routerFile = basePath + "no_actions/router_no_check_role.go.template"
+	}
+
+	t1, err := template.ParseFiles(basePath + "model.go.template")
+	tools2.HasError(err, "", -1)
+	t2, err := template.ParseFiles(basePath + "no_actions/apis.go.template")
+	tools2.HasError(err, "", -1)
+	t3, err := template.ParseFiles(routerFile)
+	tools2.HasError(err, "", -1)
+	t4, err := template.ParseFiles(basePath + "js.go.template")
+	tools2.HasError(err, "", -1)
+	t5, err := template.ParseFiles(basePath + "vue.go.template")
+	tools2.HasError(err, "", -1)
+	t6, err := template.ParseFiles(basePath + "dto.go.template")
+	tools2.HasError(err, "", -1)
+	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
+	tools2.HasError(err, "", -1)
+
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+
+	var b1 bytes.Buffer
+	err = t1.Execute(&b1, tab)
+	var b2 bytes.Buffer
+	err = t2.Execute(&b2, tab)
+	var b3 bytes.Buffer
+	err = t3.Execute(&b3, tab)
+	var b4 bytes.Buffer
+	err = t4.Execute(&b4, tab)
+	var b5 bytes.Buffer
+	err = t5.Execute(&b5, tab)
+	var b6 bytes.Buffer
+	err = t6.Execute(&b6, tab)
+	var b7 bytes.Buffer
+	err = t7.Execute(&b7, tab)
+	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
+	tools2.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
+	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
+	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
+	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
+	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+	tools2.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
+
+}
+
+func ActionsGenV3(tab tools.SysTables) {
+	basePath := "template/v3/"
+	routerFile := basePath + "actions/router_check_role.go.template"
+
+	if tab.IsAuth == 2 {
+		routerFile = basePath + "actions/router_no_check_role.go.template"
+	}
+
+	t1, err := template.ParseFiles(basePath + "model.go.template")
+	tools2.HasError(err, "", -1)
+	t3, err := template.ParseFiles(routerFile)
+	tools2.HasError(err, "", -1)
+	t4, err := template.ParseFiles(basePath + "js.go.template")
+	tools2.HasError(err, "", -1)
+	t5, err := template.ParseFiles(basePath + "vue.go.template")
+	tools2.HasError(err, "", -1)
+	t6, err := template.ParseFiles(basePath + "dto.go.template")
+	tools2.HasError(err, "", -1)
+
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
+	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+
+	var b1 bytes.Buffer
+	err = t1.Execute(&b1, tab)
+	var b3 bytes.Buffer
+	err = t3.Execute(&b3, tab)
+	var b4 bytes.Buffer
+	err = t4.Execute(&b4, tab)
+	var b5 bytes.Buffer
+	err = t5.Execute(&b5, tab)
+	var b6 bytes.Buffer
+	err = t6.Execute(&b6, tab)
+
+	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
+	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
+	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
+	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
+	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+}
+
 func NOActionsGen(tab tools.SysTables) {
 	routerfile := "template/routercheckrole.go.template"
 

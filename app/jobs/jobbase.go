@@ -22,7 +22,7 @@ var lock sync.Mutex
 type JobCore struct {
 	InvokeTarget   string
 	Name           string
-	JobId          int
+	JobId          uint
 	EntryId        int
 	CronExpression string
 	Args           string

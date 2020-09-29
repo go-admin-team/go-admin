@@ -25,11 +25,11 @@ func GetDBColumnList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = tools2.StrToInt(err, size)
+		pageSize, err = tools2.StringToInt(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = tools2.StrToInt(err, index)
+		pageIndex, err = tools2.StringToInt(index)
 	}
 
 	data.TableName = c.Request.FormValue("tableName")

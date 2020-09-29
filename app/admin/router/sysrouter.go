@@ -25,15 +25,12 @@ func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.Rou
 	sysBaseRouter(g)
 	// 静态文件
 	sysStaticFileRouter(g)
-
 	// swagger；注意：生产环境可以注释掉
 	sysSwaggerRouter(g)
-
 	// 无需认证
 	sysNoCheckRoleRouter(g)
 	// 需要认证
 	sysCheckRoleRouterInit(g, authMiddleware)
-
 	return g
 }
 
@@ -44,13 +41,11 @@ func sysBaseRouter(r *gin.RouterGroup) {
 	go ws.WebsocketManager.SendAllService()
 
 	r.GET("/", system.HelloWorld)
-
 	r.GET("/info", handler.Ping)
 }
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
 	mime.AddExtensionType(".js", "application/javascript")
-
 	r.Static("/static", "./static")
 	r.Static("/form-generator", "./static/form-generator")
 }
@@ -65,7 +60,7 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/monitor/server", monitor.ServerInfo)
 	v1.GET("/getCaptcha", system.GenerateCaptchaHandler)
 	v1.GET("/gen/preview/:tableId", Preview)
-	v1.GET("/gen/toproject/:tableId", GenCodeV2)
+	v1.GET("/gen/toproject/:tableId", GenCodeV3)
 	v1.GET("/gen/todb/:tableId", GenMenuAndApi)
 	v1.GET("/gen/tabletree", GetSysTablesTree)
 	v1.GET("/menuTreeselect", system.GetMenuTreeelect)

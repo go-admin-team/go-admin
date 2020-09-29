@@ -38,7 +38,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		object.SetUpdateBy(tools.GetUserIdUint(c))
 
 		//数据权限检查
-		p := getPermissionFromContext(c)
+		p := GetPermissionFromContext(c)
 
 		db = db.WithContext(c).Scopes(
 			Permission(object.TableName(), p),

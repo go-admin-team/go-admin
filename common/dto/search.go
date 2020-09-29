@@ -8,12 +8,12 @@ import (
 )
 
 type GeneralDelDto struct {
-	Id  int   `uri:"id" json:"id" validate:"required"`
-	Ids []int `json:"ids"`
+	Id  uint   `uri:"id" json:"id" validate:"required"`
+	Ids []uint `json:"ids"`
 }
 
-func (g GeneralDelDto) GetIds() []int {
-	ids := make([]int, 0)
+func (g GeneralDelDto) GetIds() []uint {
+	ids := make([]uint, 0)
 	if g.Id != 0 {
 		ids = append(ids, g.Id)
 	}
@@ -36,7 +36,7 @@ func (g GeneralDelDto) GetIds() []int {
 }
 
 type GeneralGetDto struct {
-	Id int `uri:"id" json:"id" validate:"required"`
+	Id uint `uri:"id" json:"id" validate:"required"`
 }
 
 func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {

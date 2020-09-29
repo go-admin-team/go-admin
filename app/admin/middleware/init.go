@@ -15,6 +15,4 @@ func InitMiddleware(r *gin.Engine) {
 	r.Use(Options)
 	// Secure is a middleware function that appends security
 	r.Use(Secure)
-	// Set X-Request-Id header
-	r.Use(RequestId())
 }

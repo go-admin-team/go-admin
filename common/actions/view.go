@@ -46,7 +46,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 		}
 
 		//数据权限检查
-		p := getPermissionFromContext(c)
+		p := GetPermissionFromContext(c)
 
 		err = db.Model(object).WithContext(c).Scopes(
 			Permission(object.TableName(), p),

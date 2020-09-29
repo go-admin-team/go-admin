@@ -30,11 +30,11 @@ func GetConfigList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize = tools.StrToInt(err, size)
+		pageSize, err = tools.StringToInt(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex = tools.StrToInt(err, index)
+		pageIndex, err = tools.StringToInt(index)
 	}
 
 	data.ConfigKey = c.Request.FormValue("configKey")
