@@ -273,7 +273,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list6 := []models.SysRole{
-			{1, "系统管理员", "0", "admin", 1, "", "1", "", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, nil, nil, nil},
+			{1, "系统管理员", "0", "admin", 1, "", "1", "", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
 		}
 
 		list7 := []models.DictType{
@@ -332,8 +332,8 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list11 := []models.SysJob{
-			{1, "接口测试", "DEFAULT", 1, "0/5 * * * * ", "http://localhost:8000", "", 1, 1, 2, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
-			{2, "函数测试", "DEFAULT", 2, "0/5 * * * * ", "ExamplesOne", "参数", 1, 1, 2, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
+			{1, "接口测试", "DEFAULT", 1, "0/5 * * * * ", "http://localhost:8000", "", 1, 1, 1, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
+			{2, "函数测试", "DEFAULT", 2, "0/5 * * * * ", "ExamplesOne", "参数", 1, 1, 1, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
 		}
 
 		err := tx.Create(list1).Error
