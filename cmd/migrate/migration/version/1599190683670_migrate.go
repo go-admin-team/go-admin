@@ -327,6 +327,15 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{DictCode: 31, DictSort: 0, DictLabel: "获取验证码", DictValue: "12", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "0", Default: "", CreateBy: "1", UpdateBy: "1", Remark: "获取验证码", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
+		list10 := []models.SysSetting{
+			{1, "go-admin管理系统", "https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+		}
+
+		list11 := []models.SysJob{
+			{1, "接口测试", "DEFAULT", 1, "0/5 * * * * ", "http://localhost:8000", "", 1, 1, 2, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
+			{2, "函数测试", "DEFAULT", 2, "0/5 * * * * ", "ExamplesOne", "参数", 1, 1, 2, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
+		}
+
 		err := tx.Create(list1).Error
 		if err != nil {
 			return err
@@ -367,6 +376,16 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		err = tx.Create(list9).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Create(list10).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Create(list11).Error
 		if err != nil {
 			return err
 		}

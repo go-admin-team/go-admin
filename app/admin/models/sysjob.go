@@ -22,8 +22,9 @@ type SysJob struct {
 	EntryId        int    `json:"entry_id" gorm:"size:11;"`                // job启动时返回的id
 	CreateBy       string `json:"createBy" gorm:"size:128;"`               //
 	UpdateBy       string `json:"updateBy" gorm:"size:128;"`               //
-	DataScope      string `json:"dataScope" gorm:"-"`
 	BaseModel
+
+	DataScope      string `json:"dataScope" gorm:"-"`
 }
 
 func (SysJob) TableName() string {
