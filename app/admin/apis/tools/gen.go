@@ -9,7 +9,6 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
-	"go-admin/common/global"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
@@ -20,17 +19,17 @@ func Preview(c *gin.Context) {
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
-	t1, err := template.ParseFiles("template/model.go.template")
+	t1, err := template.ParseFiles("template/v3/model.go.template")
 	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/api.go.template")
+	t2, err := template.ParseFiles("template/v3/no_actions/api.go.template")
 	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles("template/js.go.template")
+	t3, err := template.ParseFiles("template/v3/js.go.template")
 	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/vue.go.template")
+	t4, err := template.ParseFiles("template/v3/vue.go.template")
 	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/router.go.template")
+	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
 	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v2/dto.go.template")
+	t6, err := template.ParseFiles("template/v3/no_actions/dto.go.template")
 	tools2.HasError(err, "", -1)
 	tab, _ := table.Get()
 	var b1 bytes.Buffer
@@ -57,98 +56,6 @@ func Preview(c *gin.Context) {
 	res.Data = mp
 
 	c.JSON(http.StatusOK, res.ReturnOK())
-}
-
-func GenCode(c *gin.Context) {
-	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
-	table.TableId = id
-	tab, _ := table.Get()
-
-	routerfile := "template/routercheckrole.go.template"
-
-	oldTest := "// {{认证路由自动补充在此处请勿删除}}"
-	newText := "// {{认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1,authMiddleware)"
-
-	if tab.IsAuth == 2 {
-		oldTest = "// {{无需认证路由自动补充在此处请勿删除}}"
-		newText = "// {{无需认证路由自动补充在此处请勿删除}} \r\n register" + tab.ClassName + "Router(v1)"
-		routerfile = "template/routernocheckrole.go.template"
-	}
-
-	t1, err := template.ParseFiles("template/model.go.template")
-	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/api.go.template")
-	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles(routerfile)
-	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/js.go.template")
-	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/vue.go.template")
-	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v2/dto.go.template")
-	tools2.HasError(err, "", -1)
-
-	_ = tools2.PathCreate("./apis/" + tab.ModuleName + "/")
-	_ = tools2.PathCreate("./models/")
-	_ = tools2.PathCreate("./router/")
-	_ = tools2.PathCreate("./dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName)
-
-	var b1 bytes.Buffer
-	err = t1.Execute(&b1, tab)
-	var b2 bytes.Buffer
-	err = t2.Execute(&b2, tab)
-	var b3 bytes.Buffer
-	err = t3.Execute(&b3, tab)
-	var b4 bytes.Buffer
-	err = t4.Execute(&b4, tab)
-	var b5 bytes.Buffer
-	err = t5.Execute(&b5, tab)
-	var b6 bytes.Buffer
-	err = t6.Execute(&b6, tab)
-	tools2.FileCreate(b1, "./models/"+tab.PackageName+".go")
-	tools2.FileCreate(b2, "./apis/"+tab.ModuleName+"/"+tab.PackageName+".go")
-	tools2.FileCreate(b3, "./router/"+tab.PackageName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/index.vue")
-	tools2.FileCreate(b6, "./dto/"+tab.PackageName+".go")
-
-	helper := tools2.ReplaceHelper{
-		Root:    "./router/router.go",
-		OldText: oldTest,
-		NewText: newText,
-	}
-	if helper.OldText == helper.NewText {
-		global.Logger.Println("error !! the NewText isEqual the OldText")
-		return
-	}
-	if err := helper.DoWrok(); err != nil {
-		global.Logger.Print("error:", err.Error())
-
-	} else {
-		global.Logger.Print("done!")
-	}
-
-	app.OK(c, "", "Code generated successfully！")
-}
-
-func GenCodeV2(c *gin.Context) {
-	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
-	table.TableId = id
-	tab, _ := table.Get()
-
-	if tab.IsActions == 1 {
-		ActionsGen(tab)
-	} else {
-		NOActionsGen(tab)
-	}
-
-	app.OK(c, "", "Code generated successfully！")
 }
 
 func GenCodeV3(c *gin.Context) {
@@ -259,101 +166,6 @@ func ActionsGenV3(tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 
 	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
-}
-
-func NOActionsGen(tab tools.SysTables) {
-	routerfile := "template/routercheckrole.go.template"
-
-	if tab.IsAuth == 2 {
-		routerfile = "template/routernocheckrole.go.template"
-	}
-
-	t1, err := template.ParseFiles("template/model.go.template")
-	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/api.go.template")
-	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles(routerfile)
-	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/js.go.template")
-	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/vue.go.template")
-	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v2/dto.go.template")
-	tools2.HasError(err, "", -1)
-
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
-
-	var b1 bytes.Buffer
-	err = t1.Execute(&b1, tab)
-	var b2 bytes.Buffer
-	err = t2.Execute(&b2, tab)
-	var b3 bytes.Buffer
-	err = t3.Execute(&b3, tab)
-	var b4 bytes.Buffer
-	err = t4.Execute(&b4, tab)
-	var b5 bytes.Buffer
-	err = t5.Execute(&b5, tab)
-	var b6 bytes.Buffer
-	err = t6.Execute(&b6, tab)
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
-
-}
-
-func ActionsGen(tab tools.SysTables) {
-	routerfile := "template/v2/routercheckrole.go.template"
-
-	if tab.IsAuth == 2 {
-		routerfile = "template/v2/routernocheckrole.go.template"
-	}
-
-	t1, err := template.ParseFiles("template/v2/model.go.template")
-	tools2.HasError(err, "", -1)
-	//t2, err := template.ParseFiles("template/v2/router.go.template")
-	//tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles(routerfile)
-	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/js.go.template")
-	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/vue.go.template")
-	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v2/dto.go.template")
-	tools2.HasError(err, "", -1)
-
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
-
-	var b1 bytes.Buffer
-	err = t1.Execute(&b1, tab)
-	//var b2 bytes.Buffer
-	//err = t2.Execute(&b2, tab)
-	var b3 bytes.Buffer
-	err = t3.Execute(&b3, tab)
-	var b4 bytes.Buffer
-	err = t4.Execute(&b4, tab)
-	var b5 bytes.Buffer
-	err = t5.Execute(&b5, tab)
-	var b6 bytes.Buffer
-	err = t6.Execute(&b6, tab)
-
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	//tools2.FileCreate(b2, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
 	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
 	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
 	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
