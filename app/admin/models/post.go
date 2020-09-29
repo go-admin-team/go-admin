@@ -14,9 +14,10 @@ type Post struct {
 	Remark    string `gorm:"size:255;" json:"remark"`                  //描述
 	CreateBy  string `gorm:"size:128;" json:"createBy"`
 	UpdateBy  string `gorm:"size:128;" json:"updateBy"`
+	BaseModel
+
 	DataScope string `gorm:"-" json:"dataScope"`
 	Params    string `gorm:"-" json:"params"`
-	BaseModel
 }
 
 func (Post) TableName() string {

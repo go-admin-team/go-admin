@@ -20,10 +20,11 @@ type SysRole struct {
 	Remark    string `json:"remark" gorm:"size:255;"`                  //备注
 	Admin     bool   `json:"admin" gorm:"size:4;"`
 	DataScope string `json:"dataScope" gorm:"size:128;"`
+	BaseModel
+
 	Params    string `json:"params" gorm:"-"`
 	MenuIds   []int  `json:"menuIds" gorm:"-"`
 	DeptIds   []int  `json:"deptIds" gorm:"-"`
-	BaseModel
 }
 
 func (SysRole) TableName() string {

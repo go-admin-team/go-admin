@@ -56,16 +56,16 @@ type SysUserB struct {
 	UpdateBy  string `gorm:"size:128" json:"updateBy"` //
 	Remark    string `gorm:"size:255" json:"remark"`   //备注
 	Status    string `gorm:"size:4;" json:"status"`
+	BaseModel
+
 	DataScope string `gorm:"-" json:"dataScope"`
 	Params    string `gorm:"-" json:"params"`
-
-	BaseModel
 }
 
 type SysUser struct {
 	SysUserId
-	SysUserB
 	LoginM
+	SysUserB
 }
 
 func (SysUser) TableName() string {

@@ -17,9 +17,10 @@ type SysConfig struct {
 	Remark      string `json:"remark" gorm:"size:128;"`                     //备注
 	CreateBy    string `json:"createBy" gorm:"size:128;"`
 	UpdateBy    string `json:"updateBy" gorm:"size:128;"`
+	BaseModel
+
 	DataScope   string `json:"dataScope" gorm:"-"`
 	Params      string `json:"params"  gorm:"-"`
-	BaseModel
 }
 
 func (SysConfig) TableName() string {

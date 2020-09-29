@@ -20,10 +20,11 @@ type SysDept struct {
 	Status    string    `json:"status" gorm:"size:4;"`                     //状态
 	CreateBy  string    `json:"createBy" gorm:"size:64;"`
 	UpdateBy  string    `json:"updateBy" gorm:"size:64;"`
+	BaseModel
+
 	DataScope string    `json:"dataScope" gorm:"-"`
 	Params    string    `json:"params" gorm:"-"`
 	Children  []SysDept `json:"children" gorm:"-"`
-	BaseModel
 }
 
 func (SysDept) TableName() string {
