@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 	"go-admin/common/log"
@@ -22,7 +21,7 @@ func (e *{{.ClassName}}) Get{{.ClassName}}Page(c cDto.Index, p *actions.DataPerm
 	var data models.{{.ClassName}}
 	msgID := e.MsgID
 
-	err = e.Orm.Table(data.TableName()).
+	err = e.Orm.Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
@@ -38,17 +37,16 @@ func (e *{{.ClassName}}) Get{{.ClassName}}Page(c cDto.Index, p *actions.DataPerm
 }
 
 // Get{{.ClassName}} 获取{{.ClassName}}对象
-func (e *{{.ClassName}}) Get{{.ClassName}}(c *dto.{{.ClassName}}Search, p *actions.DataPermission, model *common.ActiveRecord) error {
+func (e *{{.ClassName}}) Get{{.ClassName}}(d cDto.Control, p *actions.DataPermission, model *models.{{.ClassName}}) error {
 	var err error
 	var data models.{{.ClassName}}
 	msgID := e.MsgID
 
-	db := e.Orm.Table(data.TableName()).
+	db := e.Orm.Model(&data).
 		Scopes(
-			cDto.MakeCondition(c.GetNeedSearch()),
 			actions.Permission(data.TableName(), p),
 		).
-		First(model)
+		First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
@@ -68,7 +66,7 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(model common.ActiveRecord) error {
 	var data models.{{.ClassName}}
 	msgID := e.MsgID
 
-	err = e.Orm.Table(data.TableName()).
+	err = e.Orm.Model(&data).
 		Create(model).Error
 	if err != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
@@ -83,7 +81,7 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c common.ActiveRecord, p *actions.
 	var data models.{{.ClassName}}
 	msgID := e.MsgID
 
-	db := e.Orm.Table(data.TableName()).
+	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Where(c.GetId()).Updates(c)
@@ -104,7 +102,7 @@ func (e *{{.ClassName}}) Remove{{.ClassName}}(d cDto.Control, c common.ActiveRec
 	var data models.{{.ClassName}}
 	msgID := e.MsgID
 
-	db := e.Orm.Table(data.TableName()).
+	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Where(d.GetId()).Delete(c)

@@ -20,6 +20,6 @@ func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJW
 		r.GET("/:id", api.Get{{.ClassName}})
 		r.POST("", api.Insert{{.ClassName}})
 		r.PUT("/:id", api.Update{{.ClassName}})
-		r.DELETE("/:id", api.Delete{{.ClassName}})
+		r.DELETE("", api.Delete{{.ClassName}})
 	}
 }

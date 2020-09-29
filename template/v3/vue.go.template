@@ -452,9 +452,7 @@
             /** 删除按钮操作 */
             handleDelete(row) {
                 var Ids = (row.{{.PkJsonField}} && [row.{{.PkJsonField}}]) || this.ids
-                  if (this.ids.length === 0) {
-                    Ids = [Ids]
-                  }
+
                 this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',

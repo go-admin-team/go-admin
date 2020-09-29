@@ -21,7 +21,7 @@ func (e *Scol) GetScolPage(c cDto.Index, p *actions.DataPermission, list *[]mode
 	var data models.Scol
 	msgID := e.MsgID
 
-	err = e.Orm.Table(data.TableName()).
+	err = e.Orm.Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
@@ -37,17 +37,17 @@ func (e *Scol) GetScolPage(c cDto.Index, p *actions.DataPermission, list *[]mode
 }
 
 // GetScol 获取Scol对象
-func (e *Scol) GetScol(c cDto.Control, p *actions.DataPermission, m *common.ActiveRecord) error {
+func (e *Scol) GetScol(d cDto.Control, p *actions.DataPermission, model *models.Scol) error {
 	var err error
 	var data models.Scol
 	msgID := e.MsgID
 
-	db := e.Orm.Table(data.TableName()).
+	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(c.GetId()).First(m)
+		).
+		First(model, d.GetId())
 	err = db.Error
-
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
@@ -66,7 +66,7 @@ func (e *Scol) InsertScol(model common.ActiveRecord) error {
 	var data models.Scol
 	msgID := e.MsgID
 
-	err = e.Orm.Table(data.TableName()).
+	err = e.Orm.Model(&data).
 		Create(model).Error
 	if err != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
@@ -81,7 +81,7 @@ func (e *Scol) UpdateScol(c common.ActiveRecord, p *actions.DataPermission) erro
 	var data models.Scol
 	msgID := e.MsgID
 
-	db := e.Orm.Table(data.TableName()).
+	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Where(c.GetId()).Updates(c)
@@ -102,7 +102,7 @@ func (e *Scol) RemoveScol(d cDto.Control, c common.ActiveRecord, p *actions.Data
 	var data models.Scol
 	msgID := e.MsgID
 
-	db := e.Orm.Table(data.TableName()).
+	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Where(d.GetId()).Delete(c)

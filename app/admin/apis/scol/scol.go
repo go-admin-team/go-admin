@@ -56,7 +56,6 @@ func (e *Scol) GetScolList(c *gin.Context) {
 func (e *Scol) GetScol(c *gin.Context) {
 	control := new(dto.ScolById)
 	db, err := tools.GetOrm(c)
-
 	if err != nil {
 		log.Error(err)
 		return
@@ -70,12 +69,7 @@ func (e *Scol) GetScol(c *gin.Context) {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = control.GenerateM()
-	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
+	var object models.Scol
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -201,7 +195,6 @@ func (e *Scol) DeleteScol(c *gin.Context) {
 	serviceScol := service.Scol{}
 	serviceScol.Orm = db
 	serviceScol.MsgID = msgID
-
 	err = serviceScol.RemoveScol(req, object, p)
 	if err != nil {
 		log.Error(err)

@@ -55,9 +55,7 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 
 func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 	control := new(dto.{{.ClassName}}ById)
-	d := new(dto.{{.ClassName}}Search)
 	db, err := tools.GetOrm(c)
-
 	if err != nil {
 		log.Error(err)
 		return
@@ -71,12 +69,7 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
-	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
+	var object models.{{.ClassName}}
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -84,7 +77,7 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.MsgID = msgID
 	service{{.ClassName}}.Orm = db
-	err = service{{.ClassName}}.Get{{.ClassName}}(d, p, &object)
+	err = service{{.ClassName}}.Get{{.ClassName}}(req, p, &object)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
