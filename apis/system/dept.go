@@ -124,7 +124,7 @@ func GetDeptTreeRoleselect(c *gin.Context) {
 		menuIds, err = SysRole.GetRoleDeptId()
 		tools.HasError(err, "抱歉未找到相关信息", -1)
 	}
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code":        200,
 		"depts":       result,
 		"checkedKeys": menuIds,

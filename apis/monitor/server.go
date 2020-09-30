@@ -59,7 +59,7 @@ func ServerInfo(c *gin.Context) {
 	cpuDic["Percent"] = fmt.Sprintf("%.2f",percent[0])
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code": 200,
 		"os":   osDic,
 		"mem":  memDic,

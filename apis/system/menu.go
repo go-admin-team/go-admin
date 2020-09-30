@@ -57,7 +57,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 		menuIds, err = SysRole.GetRoleMeunId()
 		tools.HasError(err, "抱歉未找到相关信息", -1)
 	}
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code":        200,
 		"menus":       result,
 		"checkedKeys": menuIds,

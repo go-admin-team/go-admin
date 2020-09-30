@@ -74,7 +74,7 @@ func DiskCheck(c *gin.Context) {
 // @BasePath
 func OSCheck(c *gin.Context) {
 	status := http.StatusOK
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code":         200,
 		"status":       status,
 		"goOs":         runtime.GOOS,
@@ -117,7 +117,7 @@ func CPUCheck(c *gin.Context) {
 		status = http.StatusTooManyRequests
 		text = "WARNING"
 	}
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code":   200,
 		"msg":    text,
 		"status": status,
@@ -153,7 +153,7 @@ func RAMCheck(c *gin.Context) {
 		text = "WARNING"
 	}
 
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code":        200,
 		"msg":         text,
 		"status":      status,

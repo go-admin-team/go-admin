@@ -73,7 +73,7 @@ func GetSysUser(c *gin.Context) {
 
 	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
@@ -112,7 +112,7 @@ func GetSysUserProfile(c *gin.Context) {
 	roleIds := make([]int, 0)
 	roleIds = append(roleIds, result.RoleId)
 
-	app.Custum(c, gin.H{
+	app.Custom(c, gin.H{
 		"code":    200,
 		"data":    result,
 		"postIds": postIds,
