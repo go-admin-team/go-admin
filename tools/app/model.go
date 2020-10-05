@@ -6,7 +6,8 @@ type Response struct {
 	// 数据集
 	Data interface{} `json:"data"`
 	// 消息
-	Msg string `json:"msg"`
+	Msg       string `json:"msg"`
+	RequestId string `json:"requestId"`
 }
 
 type Page struct {
@@ -16,15 +17,6 @@ type Page struct {
 	PageSize  int         `json:"pageSize"`
 }
 
-type PageResponse struct {
-	// 代码
-	Code int `json:"code" example:"200"`
-	// 数据集
-	Data Page `json:"data"`
-	// 消息
-	Msg string `json:"msg"`
-}
-
 func (res *Response) ReturnOK() *Response {
 	res.Code = 200
 	return res
@@ -32,10 +24,5 @@ func (res *Response) ReturnOK() *Response {
 
 func (res *Response) ReturnError(code int) *Response {
 	res.Code = code
-	return res
-}
-
-func (res *PageResponse) ReturnOK() *PageResponse {
-	res.Code = 200
 	return res
 }

@@ -1,10 +1,12 @@
 package ws
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	uuid "github.com/satori/go.uuid"
+	"go-admin/tools"
+	"go-admin/tools/app"
 	"log"
 	"net/http"
 	"sync"
@@ -24,14 +26,17 @@ type Manager struct {
 
 // Client 单个 websocket 信息
 type Client struct {
-	Id, Group string
-	Socket    *websocket.Conn
-	Message   chan []byte
+	Id, Group  string
+	Context    context.Context
+	CancelFunc context.CancelFunc
+	Socket     *websocket.Conn
+	Message    chan []byte
 }
 
 // messageData 单个发送数据信息
 type MessageData struct {
 	Id, Group string
+	Context   context.Context
 	Message   []byte
 }
 
@@ -47,16 +52,19 @@ type BroadCastMessageData struct {
 }
 
 // 读信息，从 websocket 连接直接读取数据
-func (c *Client) Read() {
-	defer func() {
+func (c *Client) Read(cxt context.Context) {
+	defer func(cxt context.Context) {
 		WebsocketManager.UnRegister <- c
 		log.Printf("client [%s] disconnect", c.Id)
 		if err := c.Socket.Close(); err != nil {
 			log.Printf("client [%s] disconnect err: %s", c.Id, err)
 		}
-	}()
+	}(cxt)
 
 	for {
+		if cxt.Err() != nil {
+			break
+		}
 		messageType, message, err := c.Socket.ReadMessage()
 		if err != nil || messageType == websocket.CloseMessage {
 			break
@@ -67,15 +75,18 @@ func (c *Client) Read() {
 }
 
 // 写信息，从 channel 变量 Send 中读取数据写入 websocket 连接
-func (c *Client) Write() {
-	defer func() {
+func (c *Client) Write(cxt context.Context) {
+	defer func(cxt context.Context) {
 		log.Printf("client [%s] disconnect", c.Id)
 		if err := c.Socket.Close(); err != nil {
 			log.Printf("client [%s] disconnect err: %s", c.Id, err)
 		}
-	}()
+	}(cxt)
 
 	for {
+		if cxt.Err() != nil {
+			break
+		}
 		select {
 		case message, ok := <-c.Message:
 			if !ok {
@@ -87,6 +98,8 @@ func (c *Client) Write() {
 			if err != nil {
 				log.Printf("client [%s] writemessage err: %s", c.Id, err)
 			}
+		case _ = <-c.Context.Done():
+			break
 		}
 	}
 }
@@ -114,16 +127,17 @@ func (manager *Manager) Start() {
 		case client := <-manager.UnRegister:
 			log.Printf("unregister client [%s] from group [%s]", client.Id, client.Group)
 			manager.Lock.Lock()
-			if _, ok := manager.Group[client.Group]; ok {
-				if _, ok := manager.Group[client.Group][client.Id]; ok {
-					close(client.Message)
-					delete(manager.Group[client.Group], client.Id)
+			if mGroup, ok := manager.Group[client.Group]; ok {
+				if mClient, ok := mGroup[client.Id]; ok {
+					close(mClient.Message)
+					delete(mGroup, client.Id)
 					manager.clientCount -= 1
-					if len(manager.Group[client.Group]) == 0 {
+					if len(mGroup) == 0 {
 						//log.Printf("delete empty group [%s]", client.Group)
 						delete(manager.Group, client.Group)
 						manager.groupCount -= 1
 					}
+					mClient.CancelFunc()
 				}
 			}
 			manager.Lock.Unlock()
@@ -183,9 +197,10 @@ func (manager *Manager) SendAllService() {
 }
 
 // 向指定的 client 发送数据
-func (manager *Manager) Send(id string, group string, message []byte) {
+func (manager *Manager) Send(cxt context.Context, id string, group string, message []byte) {
 	data := &MessageData{
 		Id:      id,
+		Context: cxt,
 		Group:   group,
 		Message: message,
 	}
@@ -255,57 +270,67 @@ var WebsocketManager = Manager{
 }
 
 // gin 处理 websocket handler
-func (manager *Manager) WsClient(ctx *gin.Context) {
+func (manager *Manager) WsClient(c *gin.Context) {
+
+	ctx, cancel := context.WithCancel(context.Background())
+
 	upGrader := websocket.Upgrader{
 		// cross origin domain
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
 		// 处理 Sec-WebSocket-Protocol Header
-		Subprotocols: []string{ctx.GetHeader("Sec-WebSocket-Protocol")},
+		Subprotocols: []string{c.GetHeader("Sec-WebSocket-Protocol")},
 	}
 
-	conn, err := upGrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("websocket connect error: %s", ctx.Param("channel"))
+		log.Printf("websocket connect error: %s", c.Param("channel"))
 		return
 	}
 
-	fmt.Println("token: ",ctx.Query("token"))
+	fmt.Println("token: ", c.Query("token"))
 
 	client := &Client{
-		Id:      uuid.NewV4().String(),
-		Group:   ctx.Param("channel"),
-		Socket:  conn,
-		Message: make(chan []byte, 1024),
+		Id:         c.Param("id"),
+		Group:      c.Param("channel"),
+		Context:    ctx,
+		CancelFunc: cancel,
+		Socket:     conn,
+		Message:    make(chan []byte, 1024),
 	}
 
 	manager.RegisterClient(client)
-	//go client.Read()
-	go client.Write()
+	go client.Read(ctx)
+	go client.Write(ctx)
 	time.Sleep(time.Second * 15)
-	// 测试单个 client 发送数据
-	//manager.Send(client.Id, client.Group, []byte("Send message ----"+time.Now().Format("2006-01-02 15:04:05")))
+
+	tools.FileMonitoringById(ctx, "temp/logs/job/db-20200820.log", c.Param("id"), c.Param("channel"), SendOne)
 }
 
-// 测试组广播
-func TestSendGroup() {
-	for {
-		time.Sleep(time.Second * 20)
-		WebsocketManager.SendGroup("leffss", []byte("SendGroup message ----"+time.Now().Format("2006-01-02 15:04:05")))
-	}
+func (manager *Manager) UnWsClient(c *gin.Context) {
+	id := c.Param("id")
+	group := c.Param("channel")
+	WsLogout(id, group)
+	app.OK(c, "ws close success", "success")
 }
 
-// 测试广播
-func TestSendAll() {
-	for {
-		time.Sleep(time.Second * 25)
-		WebsocketManager.SendAll([]byte("SendAll message ----" + time.Now().Format("2006-01-02 15:04:05")))
-		fmt.Println(WebsocketManager.Info())
-	}
+func SendGroup(msg []byte) {
+	WebsocketManager.SendGroup("leffss", []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
+	fmt.Println(WebsocketManager.Info())
 }
 
-func SendAll(msg string) {
-	WebsocketManager.SendAll([]byte("{\"code\":200,\"data\":"+msg+"}"))
+func SendAll(msg []byte) {
+	WebsocketManager.SendAll([]byte("{\"code\":200,\"data\":" + string(msg) + "}"))
+	fmt.Println(WebsocketManager.Info())
+}
+
+func SendOne(ctx context.Context, id string, group string, msg []byte) {
+	WebsocketManager.Send(ctx, id, group, []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
+	fmt.Println(WebsocketManager.Info())
+}
+
+func WsLogout(id string, group string) {
+	WebsocketManager.UnRegisterClient(&Client{Id: id, Group: group})
 	fmt.Println(WebsocketManager.Info())
 }

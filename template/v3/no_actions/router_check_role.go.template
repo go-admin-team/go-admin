@@ -1,0 +1,25 @@
+package router
+
+import (
+	"github.com/gin-gonic/gin"
+	"go-admin/app/admin/apis/{{.ModuleName}}"
+	"go-admin/app/admin/middleware"
+	jwt "go-admin/pkg/jwtauth"
+)
+
+func init() {
+	routerCheckRole = append(routerCheckRole, register{{.ClassName}}Router)
+}
+
+// 需认证的路由代码
+func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	api := &{{.ModuleName}}.{{.ClassName}}{}
+	r := v1.Group("/{{.ModuleName}}").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		r.GET("", api.Get{{.ClassName}}List)
+		r.GET("/:id", api.Get{{.ClassName}})
+		r.POST("", api.Insert{{.ClassName}})
+		r.PUT("/:id", api.Update{{.ClassName}})
+		r.DELETE("", api.Delete{{.ClassName}})
+	}
+}

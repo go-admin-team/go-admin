@@ -3,22 +3,24 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"go-admin/database"
-	"go-admin/global"
-	"go-admin/jobs"
-	mycasbin "go-admin/pkg/casbin"
-	"go-admin/pkg/logger"
-	"go-admin/router"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"go-admin/app/admin/router"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"go-admin/app/jobs"
+	"go-admin/common/database"
+	"go-admin/common/global"
+	mycasbin "go-admin/pkg/casbin"
+	"go-admin/pkg/logger"
+	"go-admin/tools"
+	"go-admin/tools/config"
 )
 
 var (
@@ -39,12 +41,15 @@ var (
 	}
 )
 
-var echoTimes int
+var AppRouters = make([]func(), 0)
 
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
+
+	//注册路由 fixme 其他应用的路由，在本目录新建文件放在init方法
+	AppRouters = append(AppRouters, router.InitRouter)
 }
 
 func setup() {
@@ -67,20 +72,24 @@ func run() error {
 	if viper.GetString("settings.application.mode") == string(tools.ModeProd) {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	engine := global.Cfg.GetEngine()
+	if engine == nil {
+		engine = gin.New()
+	}
 
-	r := router.InitRouter()
-	defer global.Eloquent.Close()
+	for _, f := range AppRouters {
+		f()
+	}
 
 	srv := &http.Server{
 		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
-		Handler: r,
+		Handler: global.Cfg.GetEngine(),
 	}
 	go func() {
 		jobs.InitJob()
 		jobs.Setup()
 
 	}()
-
 
 	go func() {
 		// 服务连接

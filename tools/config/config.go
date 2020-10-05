@@ -2,11 +2,12 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 // 数据库配置项
@@ -81,4 +82,3 @@ func Setup(path string) {
 	}
 	GenConfig = InitGen(cfgGen)
 }
-

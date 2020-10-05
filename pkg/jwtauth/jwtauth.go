@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const JwtPayloadKey = "JWT_PAYLOAD"
+
 type MapClaims map[string]interface{}
 
 // GinJWTMiddleware provides a Json-Web-Token authentication implementation. On failure, a 401 HTTP response
@@ -400,7 +402,7 @@ func (mw *GinJWTMiddleware) middlewareImpl(c *gin.Context) {
 		return
 	}
 
-	c.Set("JWT_PAYLOAD", claims)
+	c.Set(JwtPayloadKey, claims)
 	identity := mw.IdentityHandler(c)
 
 	if identity != nil {
@@ -716,7 +718,7 @@ func (mw *GinJWTMiddleware) unauthorized(c *gin.Context, code int, message strin
 
 // ExtractClaims help to extract the JWT claims
 func ExtractClaims(c *gin.Context) MapClaims {
-	claims, exists := c.Get("JWT_PAYLOAD")
+	claims, exists := c.Get(JwtPayloadKey)
 	if !exists {
 		return make(MapClaims)
 	}

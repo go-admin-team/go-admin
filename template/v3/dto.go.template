@@ -1,0 +1,116 @@
+package dto
+
+import (
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
+	"go-admin/app/admin/models"
+	"go-admin/common/dto"
+	"go-admin/common/log"
+	common "go-admin/common/models"
+	"go-admin/tools"
+)
+
+type {{.ClassName}}Search struct {
+	dto.Pagination     `search:"-"`
+    {{ $tablename := .TBName -}}
+    {{ range .Columns -}}
+    {{$z := .IsQuery}}
+    {{- if ($z) -}}
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
+
+    {{ end -}}
+    {{- end }}
+}
+
+func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
+	return *m
+}
+
+func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
+    msgID := tools.GenerateMsgIDFromContext(ctx)
+    err := ctx.ShouldBind(m)
+    if err != nil {
+    	log.Debugf("MsgID[%s] ShouldBind error: %s", msgID, err.Error())
+    }
+    return err
+}
+
+func (m *{{.ClassName}}Search) Generate() dto.Index {
+	o := *m
+	return &o
+}
+
+type {{.ClassName}}Control struct {
+    {{ range .Columns -}}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+    {{.GoField}} uint `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{- else if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoField "CreateBy" -}}
+    {{- else if eq .GoField "UpdateBy" -}}
+
+    {{- else }}
+
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
+    {{end -}}
+    {{- end }}
+}
+
+func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
+    msgID := tools.GenerateMsgIDFromContext(ctx)
+    err := ctx.ShouldBindUri(s)
+    if err != nil {
+        log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+        return err
+    }
+    err = ctx.ShouldBind(s)
+    if err != nil {
+        log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+    }
+    return err
+}
+
+func (s *{{.ClassName}}Control) Generate() dto.Control {
+	cp := *s
+	return &cp
+}
+
+func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
+	return &models.{{.ClassName}}{
+	{{ range .Columns -}}
+        {{$x := .Pk}}
+        {{- if ($x) }}
+        Model:     gorm.Model{ID: s.ID},
+        {{- else if eq .GoField "CreatedAt" -}}
+        {{- else if eq .GoField "UpdatedAt" -}}
+        {{- else if eq .GoField "DeletedAt" -}}
+        {{- else if eq .GoField "CreateBy" -}}
+
+
+        {{- else if eq .GoField "UpdateBy" -}}
+        {{- else }}
+        {{.GoField}}:  s.{{.GoField}},
+        {{- end }}
+        {{- end }}
+	}, nil
+}
+
+func (s *{{.ClassName}}Control) GetId() interface{} {
+	return s.{{.PkGoField}}
+}
+
+type {{.ClassName}}ById struct {
+	dto.ObjectById
+}
+
+func (s *{{.ClassName}}ById) Generate() dto.Control {
+	cp := *s
+	return &cp
+}
+
+func (s *{{.ClassName}}ById) GenerateM() (common.ActiveRecord, error) {
+	return &models.{{.ClassName}}{}, nil
+}

@@ -1,12 +1,14 @@
 package mycasbin
 
 import (
+	"log"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
-	gormAdapter "github.com/casbin/gorm-adapter/v2"
+	gormAdapter "github.com/casbin/gorm-adapter/v3"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
-	"go-admin/global"
+
+	"go-admin/common/global"
 )
 
 // Initialize the model from a string.
@@ -25,7 +27,7 @@ m = r.sub == p.sub && (keyMatch2(r.obj, p.obj) || keyMatch(r.obj, p.obj)) && (r.
 `
 
 func Setup() {
-	Apter, err := gormAdapter.NewAdapterByDB(global.Eloquent)
+	Apter, err := gormAdapter.NewAdapterByDBUsePrefix(global.Eloquent, "sys_")
 	if err != nil {
 		panic(err)
 	}
@@ -37,10 +39,18 @@ func Setup() {
 	if err != nil {
 		panic(err)
 	}
+	err = e.LoadPolicy()
+	if err != nil {
+		panic(err)
+	}
 	global.CasbinEnforcer = e
 }
 
-func Casbin() (*casbin.SyncedEnforcer, error) {
+func Casbin() *casbin.SyncedEnforcer {
+	return global.CasbinEnforcer
+}
+
+func LoadPolicy() (*casbin.SyncedEnforcer, error) {
 	if err := global.CasbinEnforcer.LoadPolicy(); err == nil {
 		return global.CasbinEnforcer, err
 	} else {

@@ -2,9 +2,10 @@ package cache
 
 import (
 	"fmt"
-	"github.com/matchstalk/utils/cache"
 	"testing"
 	"time"
+
+	"github.com/matchstalk/go-admin-core/cache"
 )
 
 func TestInitMemory(t *testing.T) {
