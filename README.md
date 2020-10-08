@@ -16,7 +16,7 @@
 </p>
 
 
-  [English](https://github.com/wenjianzhang/go-admin/blob/master/README.en.md) | 简体中文
+  [English](https://github.com/go-admin-team/go-admin/blob/master/README.en.md) | 简体中文
 
 
 ##### 基于Gin + Vue + Element UI的前后端分离权限管理系统 
@@ -27,7 +27,7 @@
 
 [在线文档国内](http://mydearzwj.gitee.io/go-admin-site/)
 
-[前端项目](https://github.com/wenjianzhang/go-admin-ui)
+[前端项目](https://github.com/go-admin-team/go-admin-ui)
 
 [视频教程](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
@@ -128,10 +128,10 @@ cd goadmin
 
 ```bash
 # 获取后端代码
-git clone https://github.com/wenjianzhang/go-admin.git
+git clone https://github.com/go-admin-team/go-admin.git
 
 # 获取前端代码
-git clone https://github.com/wenjianzhang/go-admin-ui.git
+git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ```
 
@@ -258,7 +258,7 @@ zhuqiyun LLL狐 星星之火 cjj770 Sam 唐*i 晓聪 aLong *渊 海马 魏镇坪
 
 ## 🔑 License
 
-[MIT](https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md)
+[MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
 Copyright (c) 2020 wenjianzhang
 
