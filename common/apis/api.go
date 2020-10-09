@@ -27,7 +27,7 @@ func (e *Api) Error(c *gin.Context, code int, err error, msg string) {
 		res.Msg = msg
 	}
 	res.RequestId = tools.GenerateMsgIDFromContext(c)
-	c.JSON(http.StatusOK, res.ReturnError(code))
+	c.AbortWithStatusJSON(http.StatusOK, res.ReturnError(code))
 }
 
 // OK 通常成功数据处理
@@ -38,7 +38,7 @@ func (e *Api) OK(c *gin.Context, data interface{}, msg string) {
 		res.Msg = msg
 	}
 	res.RequestId = tools.GenerateMsgIDFromContext(c)
-	c.JSON(http.StatusOK, res.ReturnOK())
+	c.AbortWithStatusJSON(http.StatusOK, res.ReturnOK())
 }
 
 // PageOK 分页数据处理
@@ -53,5 +53,5 @@ func (e *Api) PageOK(c *gin.Context, result interface{}, count int, pageIndex in
 
 // Custom 兼容函数
 func (e *Api) Custom(c *gin.Context, data gin.H) {
-	c.JSON(http.StatusOK, data)
+	c.AbortWithStatusJSON(http.StatusOK, data)
 }
