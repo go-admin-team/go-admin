@@ -21,7 +21,7 @@ func Preview(c *gin.Context) {
 	table.TableId = id
 	t1, err := template.ParseFiles("template/v3/model.go.template")
 	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/v3/no_actions/api.go.template")
+	t2, err := template.ParseFiles("template/v3/no_actions/apis.go.template")
 	tools2.HasError(err, "", -1)
 	t3, err := template.ParseFiles("template/v3/js.go.template")
 	tools2.HasError(err, "", -1)
@@ -29,7 +29,7 @@ func Preview(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
 	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v3/no_actions/dto.go.template")
+	t6, err := template.ParseFiles("template/v3/dto.go.template")
 	tools2.HasError(err, "", -1)
 	tab, _ := table.Get()
 	var b1 bytes.Buffer
