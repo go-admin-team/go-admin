@@ -159,11 +159,11 @@ vi ./config/setting.yml
 #### 初始化数据库，以及服务启动
 ```
 # 首次配置需要初始化数据库资源信息
-./go-admin migrate -c config/settings.yml -m dev
+./go-admin migrate -c config/settings.yml
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin server -c config/settings.yml -p 8000 -m dev
+./go-admin server -c config/settings.yml -p 8000
 
 ```
 
