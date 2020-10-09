@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"log"
-	"os"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -13,6 +12,7 @@ import (
 
 	"go-admin/common/config"
 	"go-admin/common/global"
+	goAdminLogger "go-admin/logger"
 	"go-admin/tools"
 	toolsConfig "go-admin/tools/config"
 )
@@ -47,11 +47,14 @@ func (e *Mysql) Setup() {
 	}
 
 	if toolsConfig.LoggerConfig.EnabledDB {
-		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold: time.Second,
-			Colorful:      true,
-			LogLevel:      logger.Info,
-		})
+		global.Eloquent.Logger = logger.New(
+			log.New(goAdminLogger.DefaultLogger.Options().Out, "\r\n", log.LstdFlags),
+			logger.Config{
+				SlowThreshold: time.Second,
+				Colorful:      true,
+				LogLevel: logger.LogLevel(
+					goAdminLogger.DefaultLogger.Options().Level.LevelForGorm()),
+			})
 	}
 }
 
