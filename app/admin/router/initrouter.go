@@ -1,15 +1,18 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
+	"os"
+
 	"go-admin/app/admin/middleware"
 	"go-admin/app/admin/middleware/handler"
 	"go-admin/common/global"
 	"go-admin/common/log"
+	common "go-admin/common/middleware"
 	_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
 	"go-admin/tools/config"
-	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() {
@@ -30,6 +33,8 @@ func InitRouter() {
 		r.Use(handler.TlsHandler())
 	}
 	r.Use(middleware.WithContextDb(middleware.GetGormFromConfig(global.Cfg)))
+
+	r.Use(common.Sentinel())
 	middleware.InitMiddleware(r)
 	// the jwt middleware
 	var err error
