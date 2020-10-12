@@ -41,6 +41,20 @@ func (l Level) String() string {
 	return ""
 }
 
+// LevelForGorm 转换成gorm日志级别
+func (l Level) LevelForGorm() int {
+	switch l {
+	case FatalLevel, ErrorLevel:
+		return 2
+	case WarnLevel:
+		return 3
+	case InfoLevel, DebugLevel, TraceLevel:
+		return 4
+	default:
+		return 1
+	}
+}
+
 // Enabled returns true if the given level is at or above this level.
 func (l Level) Enabled(lvl Level) bool {
 	return lvl >= l
