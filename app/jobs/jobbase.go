@@ -44,7 +44,11 @@ func (e *ExecJob) Run() {
 		global.JobLogger.Warning(" ExecJob Run job nil", e)
 		return
 	}
-	CallExec(obj.(JobsExec), e.Args)
+	err := CallExec(obj.(JobsExec), e.Args)
+	if err != nil {
+		// 如果失败暂停一段时间重试
+		fmt.Println(time.Now().Format(timeFormat), " [ERROR] mission failed! ", err)
+	}
 	// 结束时间
 	endTime := time.Now()
 
@@ -54,6 +58,7 @@ func (e *ExecJob) Run() {
 	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
 	//ws.SendAll(str)
 	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
+	return
 }
 
 //http 任务接口
@@ -61,19 +66,21 @@ func (h *HttpJob) Run() {
 
 	startTime := time.Now()
 	var count = 0
+	var err error
+	var str string
 	/* 循环 */
 LOOP:
 	if count < retryCount {
 		/* 跳过迭代 */
-		str, err := pkg.Get(h.InvokeTarget)
+		str, err = pkg.Get(h.InvokeTarget)
 		if err != nil {
 			// 如果失败暂停一段时间重试
 			fmt.Println(time.Now().Format(timeFormat), " [ERROR] mission failed! ", err)
-			fmt.Printf(time.Now().Format(timeFormat)+" [INFO] Retry after the task fails %d seconds! %s \n", time.Duration(count)*time.Second, str)
-			time.Sleep(time.Duration(count) * time.Second)
+			fmt.Printf(time.Now().Format(timeFormat)+" [INFO] Retry after the task fails %d seconds! %s \n", (count+1)*5, str)
+			time.Sleep(time.Duration(count+1) * 5 * time.Second)
+			count = count + 1
 			goto LOOP
 		}
-		count = count + 1
 	}
 	// 结束时间
 	endTime := time.Now()
@@ -83,6 +90,7 @@ LOOP:
 	//TODO: 待完善部分
 
 	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
+	return
 }
 
 // 初始化
