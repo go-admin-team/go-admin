@@ -3,13 +3,12 @@ module go-admin
 go 1.14
 
 require (
-	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/alibaba/sentinel-golang v0.6.1
 	github.com/casbin/casbin/v2 v2.11.2
 	github.com/casbin/gorm-adapter/v3 v3.0.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gogf/gf v1.13.4
@@ -31,9 +30,7 @@ require (
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7
 	github.com/unrolled/secure v1.0.8
-	go.uber.org/multierr v1.5.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	gopkg.in/ffmt.v1 v1.5.6
 	gorm.io/driver/mysql v0.3.2
 	gorm.io/driver/postgres v0.2.9
 	gorm.io/driver/sqlite v1.0.9
