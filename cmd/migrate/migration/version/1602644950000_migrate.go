@@ -20,6 +20,20 @@ func _1602644950000Test(db *gorm.DB, version string) error {
 		if err != nil {
 			return err
 		}
+		list2 := []models.CasbinRule{
+			{PType: "p", V0: "admin", V1: "/api/v1/config", V2: "GET"},
+		}
+		err = tx.Create(list2).Error
+		if err != nil {
+			return err
+		}
+
+		menu := models.Menu{MenuId: 86, Path: "/api/v1/config"}
+		err = tx.Model(&menu).Where("menu_id = ?", 86).Update("Path", "/api/v1/config").Error
+		if err != nil {
+			return err
+		}
+
 		return db.Create(&common.Migration{
 			Version: version,
 		}).Error
