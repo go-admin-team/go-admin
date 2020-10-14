@@ -67,13 +67,9 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
 	registerDBRouter(v1)
-
 	registerSysTableRouter(v1)
-
 	registerPublicRouter(v1)
-
 	registerSysSettingRouter(v1)
-
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -103,11 +99,8 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	r.POST("/login", authMiddleware.LoginHandler)
 	// Refresh time can be longer than token timeout
 	r.GET("/refresh_token", authMiddleware.RefreshHandler)
-
 	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
-
 	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
-
 	v1 := r.Group("/api/v1")
 
 	registerPageRouter(v1, authMiddleware)
@@ -116,7 +109,6 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	registerDictRouter(v1, authMiddleware)
 	registerSysUserRouter(v1, authMiddleware)
 	registerRoleRouter(v1, authMiddleware)
-	registerConfigRouter(v1, authMiddleware)
 	registerUserCenterRouter(v1, authMiddleware)
 	registerPostRouter(v1, authMiddleware)
 	registerMenuRouter(v1, authMiddleware)
@@ -137,7 +129,6 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		v1auth.GET("/menuids", system.GetMenuIDS)
 
 		v1auth.GET("/operloglist", log2.GetOperLogList)
-		v1auth.GET("/configKey/:configKey", system.GetConfigByConfigKey)
 	}
 }
 
@@ -148,7 +139,7 @@ func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		v1auth.GET("/deptTree", system.GetDeptTree)
 		v1auth.GET("/sysUserList", system.GetSysUserList)
 		v1auth.GET("/rolelist", system.GetRoleList)
-		v1auth.GET("/configList", system.GetConfigList)
+		//v1auth.GET("/configList", system.GetConfigList)
 		v1auth.GET("/postlist", system.GetPostList)
 		v1auth.GET("/menulist", system.GetMenuList)
 		v1auth.GET("/loginloglist", log2.GetLoginLogList)
@@ -199,16 +190,6 @@ func registerMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		menu.POST("", system.InsertMenu)
 		menu.PUT("", system.UpdateMenu)
 		menu.DELETE("/:id", system.DeleteMenu)
-	}
-}
-
-func registerConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	config := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
-	{
-		config.GET("/:configId", system.GetConfig)
-		config.POST("", system.InsertConfig)
-		config.PUT("", system.UpdateConfig)
-		config.DELETE("/:configId", system.DeleteConfig)
 	}
 }
 
