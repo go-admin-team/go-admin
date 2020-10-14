@@ -1,7 +1,6 @@
 package version
 
 import (
-	common "go-admin/common/models"
 	"runtime"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/cmd/migrate/migration"
+	common "go-admin/common/models"
 )
 
 func init() {
@@ -261,9 +261,9 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list4 := []models.SysConfig{
-			{ConfigId: 1, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{ConfigId: 2, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{ConfigId: 3, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{Model: gorm.Model{ID: 1, CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: gorm.DeletedAt{}}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow"},
+			{Model: gorm.Model{ID: 2, CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: gorm.DeletedAt{}}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456"},
+			{Model: gorm.Model{ID: 3, CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: gorm.DeletedAt{}}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light"},
 		}
 
 		list5 := []models.Post{
