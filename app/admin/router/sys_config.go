@@ -2,9 +2,9 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/apis/sys_config"
+	"go-admin/app/admin/apis/system/sys_config"
 	"go-admin/app/admin/middleware"
-	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	jwt "go-admin/pkg/jwtauth"
@@ -18,9 +18,9 @@ func init() {
 func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		model := &models.SysConfig{}
+		model := &system.SysConfig{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(model, new(dto.SysConfigSearch), func() interface{} {
-			list := make([]models.SysConfig, 0)
+			list := make([]system.SysConfig, 0)
 			return &list
 		}))
 		r.GET("/:id", actions.PermissionAction(), actions.ViewAction(new(dto.SysConfigById), nil))
