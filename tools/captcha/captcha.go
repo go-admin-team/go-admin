@@ -33,7 +33,7 @@ func DriverStringFunc() (id, b64s string, err error) {
 func DriverDigitFunc() (id, b64s string, err error) {
 	e := configJsonBody{}
 	e.Id = uuid.New().String()
-	e.DriverDigit = base64Captcha.DefaultDriverDigit
+	e.DriverDigit = base64Captcha.NewDriverDigit(80, 240, 4, 0.7, 80)
 	driver := e.DriverDigit
 	cap := base64Captcha.NewCaptcha(driver, store)
 	return cap.Generate()
