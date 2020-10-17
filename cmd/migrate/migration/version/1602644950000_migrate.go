@@ -2,6 +2,7 @@ package version
 
 import (
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
 	"runtime"
 
@@ -16,7 +17,7 @@ func init() {
 
 func _1602644950000Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
-		err := db.Migrator().RenameColumn(&models.SysConfig{}, "config_id", "id")
+		err := db.Migrator().RenameColumn(&system.SysConfig{}, "config_id", "id")
 		if err != nil {
 			return err
 		}
