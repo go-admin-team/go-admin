@@ -1,14 +1,14 @@
 package migration
 
 import (
-	"fmt"
-	"github.com/spf13/cast"
-	"gorm.io/gorm"
 	"log"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"sync"
+
+	"github.com/spf13/cast"
+	"gorm.io/gorm"
 )
 
 var Migrate = &Migration{
@@ -40,11 +40,12 @@ func (e *Migration) Migrate() {
 	for k := range e.version {
 		versions = append(versions, k)
 	}
-	sort.IntsAreSorted(versions)
+	if !sort.IntsAreSorted(versions) {
+		sort.Ints(versions)
+	}
 	var err error
 	var count int64
 	for _, v := range versions {
-		fmt.Println(v)
 		err = e.db.Debug().Table("sys_migration").Where("version = ?", v).Count(&count).Error
 		if err != nil {
 			log.Fatalln(err)

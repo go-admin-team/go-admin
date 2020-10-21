@@ -1,6 +1,7 @@
 package version
 
 import (
+	"go-admin/app/admin/models/system"
 	"runtime"
 
 	"gorm.io/gorm"
@@ -20,7 +21,7 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 	err := db.Debug().Migrator().AutoMigrate(
 		new(models.CasbinRule),
 		new(models.SysDept),
-		new(models.SysConfig),
+		new(system.SysConfig),
 		new(tools.SysTables),
 		new(tools.SysColumns),
 		new(models.Menu),
@@ -34,7 +35,7 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.DictData),
 		new(models.DictType),
 		new(models.SysJob),
-		new(models.SysConfig),
+		new(system.SysConfig),
 		new(models.SysSetting),
 		new(models.SysFileDir),
 		new(models.SysFileInfo),

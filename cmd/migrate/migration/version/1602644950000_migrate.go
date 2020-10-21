@@ -2,6 +2,7 @@ package version
 
 import (
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
 	"runtime"
 
@@ -16,14 +17,16 @@ func init() {
 
 func _1602644950000Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
-		err := db.Migrator().RenameColumn(&models.SysConfig{}, "config_id", "id")
-		if err != nil {
-			return err
+		if tx.Migrator().HasColumn(&system.SysConfig{}, "config_id") {
+			err := tx.Migrator().RenameColumn(&system.SysConfig{}, "config_id", "id")
+			if err != nil {
+				return err
+			}
 		}
 		list2 := []models.CasbinRule{
 			{PType: "p", V0: "admin", V1: "/api/v1/config", V2: "GET"},
 		}
-		err = tx.Create(list2).Error
+		err := tx.Create(list2).Error
 		if err != nil {
 			return err
 		}
@@ -34,7 +37,7 @@ func _1602644950000Test(db *gorm.DB, version string) error {
 			return err
 		}
 
-		return db.Create(&common.Migration{
+		return tx.Create(&common.Migration{
 			Version: version,
 		}).Error
 	})

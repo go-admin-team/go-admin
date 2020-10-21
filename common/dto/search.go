@@ -3,7 +3,7 @@ package dto
 import (
 	"go-admin/tools/config"
 
-	"github.com/matchstalk/go-admin-core/search"
+	"github.com/go-admin-team/go-admin-core/search"
 	"gorm.io/gorm"
 )
 

@@ -2,9 +2,9 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	"go-admin/common/log"
 	common "go-admin/common/models"
@@ -65,7 +65,7 @@ func (s *SysConfigControl) Generate() dto.Control {
 }
 
 func (s *SysConfigControl) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysConfig{
+	return &system.SysConfig{
 		Model:       gorm.Model{ID: s.ID},
 		ConfigName:  s.ConfigName,
 		ConfigKey:   s.ConfigKey,
@@ -89,5 +89,5 @@ func (s *SysConfigById) Generate() dto.Control {
 }
 
 func (s *SysConfigById) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysConfig{}, nil
+	return &system.SysConfig{}, nil
 }
