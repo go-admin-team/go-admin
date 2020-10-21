@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/matchstalk/go-admin-core/cache"
+	"github.com/go-admin-team/go-admin-core/cache"
 )
 
 var MemoryAdapter Adapter

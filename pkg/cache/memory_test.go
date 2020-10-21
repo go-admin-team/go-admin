@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/matchstalk/go-admin-core/cache"
+	"github.com/go-admin-team/go-admin-core/cache"
 )
 
 func TestInitMemory(t *testing.T) {

@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"go-admin/app/admin/router"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -11,9 +10,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/transfer"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
@@ -74,7 +76,18 @@ func run() error {
 	}
 	engine := global.Cfg.GetEngine()
 	if engine == nil {
-		engine = gin.New()
+		if mode == "dev" {
+			r := gin.New()
+			//开发环境启动监控指标
+			r.GET("/metrics", transfer.Handler(promhttp.Handler()))
+			//健康检查
+			r.GET("/health", func(c *gin.Context) {
+				c.Status(http.StatusOK)
+			})
+			engine = r
+		} else {
+			engine = gin.New()
+		}
 	}
 
 	for _, f := range AppRouters {
