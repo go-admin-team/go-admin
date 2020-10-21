@@ -1,7 +1,7 @@
-package version
+package {{.Package}}
 
 import (
-	"go-admin/app/admin/models"
+	//"go-admin/app/admin/models"
 	"gorm.io/gorm"
 	"runtime"
 
@@ -20,21 +20,21 @@ func _{{.GenerateTime}}Test(db *gorm.DB, version string) error {
 	    // TODO: 这里开始写入要变更的内容
 
 	    // TODO: 例如 修改表字段 使用过程中请删除此段代码
-		err := db.Migrator().RenameColumn(&models.SysConfig{}, "config_id", "id")
-		if err != nil {
-		 	return err
-		}
+		//err := tx.Migrator().RenameColumn(&models.SysConfig{}, "config_id", "id")
+		//if err != nil {
+		// 	return err
+		//}
 
 		// TODO: 例如 新增表结构 使用过程中请删除此段代码
-		err = db.Debug().Migrator().AutoMigrate(
-        		new(models.CasbinRule),
-         		)
-        if err != nil {
-         	return err
-        }
+		//err = tx.Debug().Migrator().AutoMigrate(
+        //		new(models.CasbinRule),
+        // 		)
+        //if err != nil {
+        // 	return err
+        //}
 
 
-		return db.Create(&common.Migration{
+		return tx.Create(&common.Migration{
 			Version: version,
 		}).Error
 	})
