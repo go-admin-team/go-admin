@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"sort"
@@ -114,7 +115,11 @@ func (l *defaultLogger) Log(level Level, v ...interface{}) {
 	}
 
 	t := rec.Timestamp.Format("2006-01-02 15:04:05")
-	fmt.Printf("%s %s %v\n", t, metadata, rec.Message)
+	_, err := l.opts.Out.Write([]byte(fmt.Sprintf("%s %s %v\n", t, metadata, rec.Message)))
+	if err != nil {
+		log.Printf("log [Log] write error: %s \n", err.Error())
+	}
+	//fmt.Printf("%s %s %v\n", t, metadata, rec.Message)
 }
 
 func (l *defaultLogger) Logf(level Level, format string, v ...interface{}) {
@@ -153,7 +158,11 @@ func (l *defaultLogger) Logf(level Level, format string, v ...interface{}) {
 	}
 
 	t := rec.Timestamp.Format("2006-01-02 15:04:05")
-	fmt.Printf("%s %s %v\n", t, metadata, rec.Message)
+	//fmt.Printf("%s %s %v\n", t, metadata, rec.Message)
+	_, err := l.opts.Out.Write([]byte(fmt.Sprintf("%s %s %v\n", t, metadata, rec.Message)))
+	if err != nil {
+		log.Printf("log [Logf] write error: %s \n", err.Error())
+	}
 }
 
 func (l *defaultLogger) Options() Options {

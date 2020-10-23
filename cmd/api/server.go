@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/transfer"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -76,18 +74,12 @@ func run() error {
 	}
 	engine := global.Cfg.GetEngine()
 	if engine == nil {
-		if mode == "dev" {
-			r := gin.New()
-			//开发环境启动监控指标
-			r.GET("/metrics", transfer.Handler(promhttp.Handler()))
-			//健康检查
-			r.GET("/health", func(c *gin.Context) {
-				c.Status(http.StatusOK)
-			})
-			engine = r
-		} else {
-			engine = gin.New()
-		}
+		engine = gin.New()
+	}
+
+	if mode == "dev" {
+		//监控
+		AppRouters = append(AppRouters, router.Monitor)
 	}
 
 	for _, f := range AppRouters {
