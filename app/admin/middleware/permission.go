@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"fmt"
+	"go-admin/common/log"
+	"go-admin/tools/app"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,16 +18,20 @@ func AuthCheckRole() gin.HandlerFunc {
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
 		e := mycasbin.Casbin()
+		var res bool
+		var err error
+		msgID := tools.GenerateMsgIDFromContext(c)
 		//检查权限
-		res, err := e.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
-		tools.HasError(err, "", 500)
-
-		fmt.Printf("%s [INFO] %s %s %s \r\n",
-			tools.GetCurrentTimeStr(),
-			c.Request.Method,
-			c.Request.URL.Path,
-			v["rolekey"],
-		)
+		if v["rolekey"]=="admin" {
+			res = true
+			log.Infof("msgID[%s] info:%s method:%s path:%s", msgID, v["rolekey"], c.Request.Method, c.Request.URL.Path)
+		}else {
+			res, err = e.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
+			if err != nil {
+				log.Errorf("msgID[%s] error:%s method:%s path:%s", msgID, err, c.Request.Method, c.Request.URL.Path)
+				app.Error(c, 500, err, "")
+			}
+		}
 
 		if res {
 			c.Next()

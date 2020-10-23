@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"gorm.io/gorm"
 
 	orm "go-admin/common/global"
 	"go-admin/tools"
@@ -216,8 +217,14 @@ func (e *MenuRole) Get() (Menus []MenuRole, err error) {
 }
 
 func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
-	table := orm.Eloquent.Table(e.TableName()).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
-	table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", rolename)
+	var table *gorm.DB
+	if rolename == "admin" {
+		table = orm.Eloquent.Table(e.TableName()).Select("sys_menu.*")
+		table = table.Where(" menu_type in ('M','C')")
+	} else {
+		table = orm.Eloquent.Table(e.TableName()).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
+		table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", rolename)
+	}
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return
 	}
