@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 
@@ -23,6 +24,8 @@ func getGormFromDb(driver string, db *sql.DB, config *gorm.Config) (*gorm.DB, er
 		return gorm.Open(mysql.New(mysql.Config{Conn: db}), config)
 	case "postgres":
 		return gorm.Open(postgres.New(postgres.Config{Conn: db}), config)
+	case "sqlite3":
+		return gorm.Open(sqlite.Open(global.Source), config)
 	default:
 		return nil, errors.New("not support this db driver")
 	}
