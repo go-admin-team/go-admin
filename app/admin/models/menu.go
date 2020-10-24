@@ -146,10 +146,10 @@ func DiguiMenu(menulist *[]Menu, menu Menu) Menu {
 	return menu
 }
 
-func (e *Menu) SetMenuLable() (m []MenuLable, err error) {
+func (e *Menu) SetMenuLable() (m *[]MenuLable, err error) {
 	menulist, err := e.Get()
 
-	m = make([]MenuLable, 0)
+	ml := make([]MenuLable, 0)
 	for i := 0; i < len(menulist); i++ {
 		if menulist[i].ParentId != 0 {
 			continue
@@ -159,9 +159,9 @@ func (e *Menu) SetMenuLable() (m []MenuLable, err error) {
 		e.Label = menulist[i].Title
 		menusInfo := DiguiMenuLable(&menulist, e)
 
-		m = append(m, menusInfo)
+		ml = append(ml, menusInfo)
 	}
-	return
+	return &ml, err
 }
 
 func DiguiMenuLable(menulist *[]Menu, menu MenuLable) MenuLable {

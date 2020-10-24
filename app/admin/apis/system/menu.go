@@ -46,17 +46,22 @@ func GetMenu(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
+// GetMenuTreeRoleselect 角色修改中的菜单列表
 func GetMenuTreeRoleselect(c *gin.Context) {
 	var Menu models.Menu
 	var SysRole models.SysRole
+
 	id, err := tools.StringToInt(c.Param("roleId"))
 	SysRole.RoleId = id
-	result, err := Menu.SetMenuLable()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
+	var result *[]models.MenuLable
 	menuIds := make([]int, 0)
-	if id != 0 {
-		menuIds, err = SysRole.GetRoleMeunId()
+	if tools.GetRoleName(c) != "admin" {
+		result, err = Menu.SetMenuLable()
 		tools.HasError(err, "抱歉未找到相关信息", -1)
+		if id != 0 {
+			menuIds, err = SysRole.GetRoleMeunId()
+			tools.HasError(err, "抱歉未找到相关信息", -1)
+		}
 	}
 	app.Custum(c, gin.H{
 		"code":        200,
