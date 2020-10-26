@@ -20,8 +20,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	mycasbin.Setup()
-	logger.Setup()
+	global.CasbinEnforcer = mycasbin.Setup(global.Eloquent, "sys_")
+	global.Logger, global.JobLogger, global.RequestLogger = logger.Setup()
 	global.GinEngine = gin.Default()
 	//router.InitRouter()
 	log.Fatal(global.GinEngine.Run(":8000"))

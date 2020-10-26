@@ -2,7 +2,8 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"go-admin/common/log"
+	. "log"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -10,9 +11,9 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
+	goAdminLogger "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/config"
 	"go-admin/common/global"
-	goAdminLogger "go-admin/logger"
 	"go-admin/tools"
 	toolsConfig "go-admin/tools/config"
 )
@@ -24,7 +25,7 @@ func (e *PgSql) Setup() {
 	var err error
 
 	global.Source = e.GetConnect()
-	log.Println(global.Source)
+	log.Info(global.Source)
 	db, err := sql.Open("postgresql", global.Source)
 	if err != nil {
 		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
@@ -41,7 +42,7 @@ func (e *PgSql) Setup() {
 	if err != nil {
 		log.Fatalf("%s connect error %v", e.GetDriver(), err)
 	} else {
-		log.Printf("%s connect success!", e.GetDriver())
+		log.Infof("%s connect success!", e.GetDriver())
 	}
 
 	if global.Eloquent.Error != nil {
@@ -50,7 +51,7 @@ func (e *PgSql) Setup() {
 
 	if toolsConfig.LoggerConfig.EnabledDB {
 		global.Eloquent.Logger = logger.New(
-			log.New(goAdminLogger.DefaultLogger.Options().Out, "\r\n", log.LstdFlags),
+			New(goAdminLogger.DefaultLogger.Options().Out, "\r\n", LstdFlags),
 			logger.Config{
 				SlowThreshold: time.Second,
 				Colorful:      true,

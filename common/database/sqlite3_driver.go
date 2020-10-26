@@ -4,7 +4,7 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	. "log"
 	"os"
 	"time"
 
@@ -15,6 +15,7 @@ import (
 
 	"go-admin/common/config"
 	"go-admin/common/global"
+	"go-admin/common/log"
 	"go-admin/tools"
 	toolsConfig "go-admin/tools/config"
 )
@@ -26,7 +27,7 @@ func (e *SqLite) Setup() {
 	var err error
 
 	global.Source = e.GetConnect()
-	log.Println(global.Source)
+	log.Info(global.Source)
 	db, err := sql.Open("sqlite3", global.Source)
 	if err != nil {
 		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
@@ -44,7 +45,7 @@ func (e *SqLite) Setup() {
 	if err != nil {
 		log.Fatalf("%s connect error %v", e.GetDriver(), err)
 	} else {
-		log.Printf("%s connect success!", e.GetDriver())
+		log.Infof("%s connect success!", e.GetDriver())
 	}
 
 	if global.Eloquent.Error != nil {
@@ -52,11 +53,13 @@ func (e *SqLite) Setup() {
 	}
 
 	if toolsConfig.LoggerConfig.EnabledDB {
-		global.Eloquent.Logger = logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold: time.Second,
-			Colorful:      true,
-			LogLevel:      logger.Info,
-		})
+		global.Eloquent.Logger = logger.New(
+			New(os.Stdout, "\r\n", LstdFlags), logger.Config{
+				SlowThreshold: time.Second,
+				Colorful:      true,
+				LogLevel:      logger.Info,
+			},
+		)
 	}
 }
 
