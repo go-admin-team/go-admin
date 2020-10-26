@@ -1,11 +1,12 @@
 package version
 
 import (
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/models/system"
-	"gorm.io/gorm"
 	"runtime"
 
+	"gorm.io/gorm"
+
+	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
 	"go-admin/cmd/migrate/migration"
 	common "go-admin/common/models"
 )

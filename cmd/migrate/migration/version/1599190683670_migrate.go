@@ -1,10 +1,10 @@
 package version
 
 import (
-	"go-admin/app/admin/models/system"
 	"runtime"
 	"time"
 
+	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
@@ -20,10 +20,8 @@ func init() {
 func _1599190683670Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-		list1 := []models.RoleMenu{
-		}
-		list2 := []models.CasbinRule{
-		}
+		list1 := []models.RoleMenu{}
+		list2 := []models.CasbinRule{}
 
 		list3 := []models.SysDept{
 			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "0", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
