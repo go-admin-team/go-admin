@@ -38,10 +38,10 @@ func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 
 	list := make([]system.SysLoginLog, 0)
 	var count int64
-	serviceStudent := service.SysLoginlog{}
+	serviceStudent := service.SysLoginLog{}
 	serviceStudent.MsgID = msgID
 	serviceStudent.Orm = db
-	err = serviceStudent.GetSysLoginlogPage(req, &list, &count)
+	err = serviceStudent.GetSysLoginLogPage(req, &list, &count)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -68,10 +68,10 @@ func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
 	}
 	var object system.SysLoginLog
 
-	serviceSysLoginLog := service.SysLoginlog{}
+	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.MsgID = msgID
 	serviceSysLoginLog.Orm = db
-	err = serviceSysLoginLog.GetSysLoginlog(req, &object)
+	err = serviceSysLoginLog.GetSysLoginLog(req, &object)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -105,10 +105,10 @@ func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 	// 设置创建人
 	object.SetCreateBy(tools.GetUserIdUint(c))
 
-	serviceSysLoginLog := service.SysLoginlog{}
+	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
 	serviceSysLoginLog.MsgID = msgID
-	err = serviceSysLoginLog.InsertSysLoginlog(object)
+	err = serviceSysLoginLog.InsertSysLoginLog(object)
 	if err != nil {
 		log.Error(err)
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
@@ -142,10 +142,10 @@ func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
 	}
 	object.SetUpdateBy(tools.GetUserIdUint(c))
 
-	serviceSysLoginLog := service.SysLoginlog{}
+	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
 	serviceSysLoginLog.MsgID = msgID
-	err = serviceSysLoginLog.UpdateSysLoginlog(object)
+	err = serviceSysLoginLog.UpdateSysLoginLog(object)
 	if err != nil {
 		log.Error(err)
 		return
@@ -180,10 +180,10 @@ func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 	// 设置编辑人
 	object.SetUpdateBy(tools.GetUserIdUint(c))
 
-	serviceSysLoginLog := service.SysLoginlog{}
+	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
 	serviceSysLoginLog.MsgID = msgID
-	err = serviceSysLoginLog.RemoveSysLoginlog(req, object)
+	err = serviceSysLoginLog.RemoveSysLoginLog(req, object)
 	if err != nil {
 		log.Error(err)
 		return

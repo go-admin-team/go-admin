@@ -15,13 +15,11 @@ import (
 
 type SysLoginLogSearch struct {
 	dto.Pagination `search:"-"`
-	Username       string `form:"username" search:"type:exact;column:username;table:sys_loginlog" comment:"用户名"`
 
-	Status string `form:"status" search:"type:exact;column:status;table:sys_loginlog" comment:"状态"`
-
-	Ipaddr string `form:"ipaddr" search:"type:exact;column:ipaddr;table:sys_loginlog" comment:"ip地址"`
-
-	LoginLocation string `form:"loginLocation" search:"type:exact;column:login_location;table:sys_loginlog" comment:"归属地"`
+	Username      string `form:"username" search:"type:exact;column:username;table:sys_login_log" comment:"用户名"`
+	Status        string `form:"status" search:"type:exact;column:status;table:sys_login_log" comment:"状态"`
+	Ipaddr        string `form:"ipaddr" search:"type:exact;column:ipaddr;table:sys_login_log" comment:"ip地址"`
+	LoginLocation string `form:"loginLocation" search:"type:exact;column:login_location;table:sys_login_log" comment:"归属地"`
 }
 
 func (m *SysLoginLogSearch) GetNeedSearch() interface{} {

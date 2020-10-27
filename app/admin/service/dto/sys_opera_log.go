@@ -16,11 +16,11 @@ import (
 type SysOperaLogSearch struct {
 	dto.Pagination `search:"-"`
 
-	Title         string `form:"title" search:"type:contains;column:title;table:sys_operlog" comment:"操作模块"`
-	Method        string `form:"method" search:"type:contains;column:method;table:sys_operlog" comment:"函数"`
-	RequestMethod string `form:"requestMethod" search:"type:contains;column:request_method;table:sys_operlog" comment:"请求方式"`
-	OperUrl       string `form:"operUrl" search:"type:contains;column:oper_url;table:sys_operlog" comment:"访问地址"`
-	OperIp        string `form:"operIp" search:"type:exact;column:oper_ip;table:sys_operlog" comment:"客户端ip"`
+	Title         string `form:"title" search:"type:contains;column:title;table:sys_opera_log" comment:"操作模块"`
+	Method        string `form:"method" search:"type:contains;column:method;table:sys_opera_log" comment:"函数"`
+	RequestMethod string `form:"requestMethod" search:"type:contains;column:request_method;table:sys_opera_log" comment:"请求方式"`
+	OperUrl       string `form:"operUrl" search:"type:contains;column:oper_url;table:sys_opera_log" comment:"访问地址"`
+	OperIp        string `form:"operIp" search:"type:exact;column:oper_ip;table:sys_opera_log" comment:"客户端ip"`
 }
 
 func (m *SysOperaLogSearch) GetNeedSearch() interface{} {

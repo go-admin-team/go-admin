@@ -101,7 +101,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	if config.LoggerConfig.EnabledDB {
 		var loginlog system.SysLoginLog
-		serviceLoginLog :=service.SysLoginlog{}
+		serviceLoginLog :=service.SysLoginLog{}
 		ua := user_agent.New(c.Request.UserAgent())
 		loginlog.Ipaddr = c.ClientIP()
 		loginlog.Username = username
@@ -115,7 +115,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 		loginlog.Os = ua.OS()
 		loginlog.Msg = msg
 		loginlog.Platform = ua.Platform()
-		_ = serviceLoginLog.InsertSysLoginlog(loginlog.Generate())
+		_ = serviceLoginLog.InsertSysLoginLog(loginlog.Generate())
 	}
 }
 
@@ -143,8 +143,8 @@ func LogOut(c *gin.Context) {
 	loginlog.Platform = ua.Platform()
 	loginlog.Username = tools.GetUserName(c)
 	loginlog.Msg = "退出成功"
-	serviceLoginLog:=service.SysLoginlog{}
-	_ = serviceLoginLog.InsertSysLoginlog(loginlog.Generate())
+	serviceLoginLog:=service.SysLoginLog{}
+	_ = serviceLoginLog.InsertSysLoginLog(loginlog.Generate())
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,

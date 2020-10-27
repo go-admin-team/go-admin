@@ -10,12 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type SysLoginlog struct {
+type SysLoginLog struct {
 	service.Service
 }
 
-// GetSysLoginlogPage 获取SysLoginlog列表
-func (e *SysLoginlog) GetSysLoginlogPage(c cDto.Index, list *[]system.SysLoginLog, count *int64) error {
+// GetSysLoginLogPage 获取SysLoginLog列表
+func (e *SysLoginLog) GetSysLoginLogPage(c cDto.Index, list *[]system.SysLoginLog, count *int64) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID
@@ -34,8 +34,8 @@ func (e *SysLoginlog) GetSysLoginlogPage(c cDto.Index, list *[]system.SysLoginLo
 	return nil
 }
 
-// GetSysLoginlog 获取SysLoginlog对象
-func (e *SysLoginlog) GetSysLoginlog(d cDto.Control, model *system.SysLoginLog) error {
+// GetSysLoginLog 获取SysLoginLog对象
+func (e *SysLoginLog) GetSysLoginLog(d cDto.Control, model *system.SysLoginLog) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID
@@ -55,8 +55,8 @@ func (e *SysLoginlog) GetSysLoginlog(d cDto.Control, model *system.SysLoginLog) 
 	return nil
 }
 
-// InsertSysLoginlog 创建SysLoginlog对象
-func (e *SysLoginlog) InsertSysLoginlog(model common.ActiveRecord) error {
+// InsertSysLoginLog 创建SysLoginLog对象
+func (e *SysLoginLog) InsertSysLoginLog(model common.ActiveRecord) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID
@@ -70,8 +70,8 @@ func (e *SysLoginlog) InsertSysLoginlog(model common.ActiveRecord) error {
 	return nil
 }
 
-// UpdateSysLoginlog 修改SysLoginlog对象
-func (e *SysLoginlog) UpdateSysLoginlog(c common.ActiveRecord) error {
+// UpdateSysLoginLog 修改SysLoginLog对象
+func (e *SysLoginLog) UpdateSysLoginLog(c common.ActiveRecord) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID
@@ -89,8 +89,8 @@ func (e *SysLoginlog) UpdateSysLoginlog(c common.ActiveRecord) error {
 	return nil
 }
 
-// RemoveSysLoginlog 删除SysLoginlog
-func (e *SysLoginlog) RemoveSysLoginlog(d cDto.Control, c common.ActiveRecord) error {
+// RemoveSysLoginLog 删除SysLoginLog
+func (e *SysLoginLog) RemoveSysLoginLog(d cDto.Control, c common.ActiveRecord) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID
