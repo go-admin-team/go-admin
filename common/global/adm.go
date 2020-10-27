@@ -5,8 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/os/glog"
 	"github.com/robfig/cron/v3"
-	"go-admin/common/config"
 	"gorm.io/gorm"
+
+	"go-admin/common/config"
 )
 
 const (

@@ -2,16 +2,16 @@ package logger
 
 import (
 	"github.com/gogf/gf/os/glog"
-	"go-admin/common/global"
+
 	"go-admin/tools"
 	"go-admin/tools/config"
 )
 
-var Logger *glog.Logger
-var JobLogger *glog.Logger
-var RequestLogger *glog.Logger
+func Setup() (*glog.Logger, *glog.Logger, *glog.Logger) {
+	var Logger *glog.Logger
+	var JobLogger *glog.Logger
+	var RequestLogger *glog.Logger
 
-func Setup() {
 	Logger = glog.New()
 	_ = Logger.SetPath(config.LoggerConfig.Path + "/bus")
 	Logger.SetStdoutPrint(config.LoggerConfig.EnabledBUS && config.LoggerConfig.Stdout)
@@ -31,8 +31,5 @@ func Setup() {
 	_ = RequestLogger.SetLevelStr(config.LoggerConfig.Level)
 
 	Logger.Info(tools.Green("Logger init success!"))
-
-	global.Logger = Logger.Line()
-	global.JobLogger = JobLogger.Line()
-	global.RequestLogger = RequestLogger.Line()
+	return Logger, JobLogger, RequestLogger
 }

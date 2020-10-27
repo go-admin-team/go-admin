@@ -3,7 +3,7 @@ package config
 import (
 	"net/http"
 
-	"go-admin/logger"
+	"github.com/go-admin-team/go-admin-core/logger"
 )
 
 type Conf interface {

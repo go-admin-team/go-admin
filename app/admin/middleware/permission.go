@@ -1,15 +1,15 @@
 package middleware
 
 import (
-	"go-admin/common/log"
-	"go-admin/tools/app"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
-	mycasbin "go-admin/pkg/casbin"
+	"go-admin/common/global"
+	"go-admin/common/log"
 	"go-admin/pkg/jwtauth"
 	"go-admin/tools"
+	"go-admin/tools/app"
 )
 
 //权限检查中间件
@@ -17,15 +17,15 @@ func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := mycasbin.Casbin()
+		e := global.CasbinEnforcer
 		var res bool
 		var err error
 		msgID := tools.GenerateMsgIDFromContext(c)
 		//检查权限
-		if v["rolekey"]=="admin" {
+		if v["rolekey"] == "admin" {
 			res = true
 			log.Infof("msgID[%s] info:%s method:%s path:%s", msgID, v["rolekey"], c.Request.Method, c.Request.URL.Path)
-		}else {
+		} else {
 			res, err = e.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
 			if err != nil {
 				log.Errorf("msgID[%s] error:%s method:%s path:%s", msgID, err, c.Request.Method, c.Request.URL.Path)

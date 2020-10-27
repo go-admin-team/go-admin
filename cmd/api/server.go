@@ -17,6 +17,7 @@ import (
 	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
+	"go-admin/common/log"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
 	"go-admin/tools"
@@ -57,14 +58,14 @@ func setup() {
 	//1. 读取配置
 	config.Setup(configYml)
 	//2. 设置日志
-	logger.Setup()
+	global.Logger, global.JobLogger, global.RequestLogger = logger.Setup()
 	//3. 初始化数据库链接
 	database.Setup(config.DatabaseConfig.Driver)
 	//4. 接口访问控制加载
-	mycasbin.Setup()
+	global.CasbinEnforcer = mycasbin.Setup(global.Eloquent, "sys_")
 
 	usageStr := `starting api server`
-	global.Logger.Info(usageStr)
+	log.Info(usageStr)
 
 }
 
@@ -100,11 +101,11 @@ func run() error {
 		// 服务连接
 		if config.SslConfig.Enable {
 			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
-				global.Logger.Fatal("listen: ", err)
+				log.Fatal("listen: ", err)
 			}
 		} else {
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				global.Logger.Fatal("listen: ", err)
+				log.Fatal("listen: ", err)
 			}
 		}
 	}()
@@ -127,9 +128,9 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		global.Logger.Fatal("Server Shutdown:", err)
+		log.Fatal("Server Shutdown:", err)
 	}
-	global.Logger.Println("Server exiting")
+	log.Info("Server exiting")
 
 	return nil
 }

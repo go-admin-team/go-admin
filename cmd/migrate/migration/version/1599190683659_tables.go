@@ -1,9 +1,9 @@
 package version
 
 import (
-	"go-admin/app/admin/models/system"
 	"runtime"
 
+	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"

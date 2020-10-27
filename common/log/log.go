@@ -1,6 +1,6 @@
 package log
 
-import "go-admin/logger"
+import "github.com/go-admin-team/go-admin-core/logger"
 
 var (
 	// Trace trace级日志输出
