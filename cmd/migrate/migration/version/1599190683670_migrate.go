@@ -20,11 +20,6 @@ func init() {
 func _1599190683670Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-		list1 := []models.RoleMenu{
-		}
-		list2 := []models.CasbinRule{
-		}
-
 		list3 := []models.SysDept{
 			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "0", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "0", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
@@ -109,16 +104,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{2, "函数测试", "DEFAULT", 2, "0/5 * * * * ", "ExamplesOne", "参数", 1, 1, 1, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
 		}
 
-		err := tx.Create(list1).Error
-		if err != nil {
-			return err
-		}
-		err = tx.Create(list2).Error
-		if err != nil {
-			return err
-		}
-
-		err = tx.Create(list3).Error
+		err := tx.Create(list3).Error
 		if err != nil {
 			return err
 		}

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -98,7 +100,8 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 // Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	if config.LoggerConfig.EnabledDB {
-		var loginlog models.LoginLog
+		var loginlog system.SysLoginLog
+		serviceLoginLog :=service.SysLoginlog{}
 		ua := user_agent.New(c.Request.UserAgent())
 		loginlog.Ipaddr = c.ClientIP()
 		loginlog.Username = username
@@ -112,7 +115,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 		loginlog.Os = ua.OS()
 		loginlog.Msg = msg
 		loginlog.Platform = ua.Platform()
-		_, _ = loginlog.Create()
+		_ = serviceLoginLog.InsertSysLoginlog(loginlog.Generate())
 	}
 }
 
@@ -126,7 +129,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Router /logout [post]
 // @Security Bearer
 func LogOut(c *gin.Context) {
-	var loginlog models.LoginLog
+	var loginlog system.SysLoginLog
 	ua := user_agent.New(c.Request.UserAgent())
 	loginlog.Ipaddr = c.ClientIP()
 	location := tools.GetLocation(c.ClientIP())
@@ -140,7 +143,8 @@ func LogOut(c *gin.Context) {
 	loginlog.Platform = ua.Platform()
 	loginlog.Username = tools.GetUserName(c)
 	loginlog.Msg = "退出成功"
-	loginlog.Create()
+	serviceLoginLog:=service.SysLoginlog{}
+	_ = serviceLoginLog.InsertSysLoginlog(loginlog.Generate())
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,

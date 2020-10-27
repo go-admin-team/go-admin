@@ -3,7 +3,6 @@ package router
 import (
 	"mime"
 
-	log2 "go-admin/app/admin/apis/log"
 	"go-admin/app/admin/apis/monitor"
 	"go-admin/app/admin/apis/public"
 	"go-admin/app/admin/apis/system"
@@ -112,8 +111,6 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	registerUserCenterRouter(v1, authMiddleware)
 	registerPostRouter(v1, authMiddleware)
 	registerMenuRouter(v1, authMiddleware)
-	registerLoginLogRouter(v1, authMiddleware)
-	registerOperLogRouter(v1, authMiddleware)
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
@@ -127,8 +124,6 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 
 		v1auth.POST("/logout", handler.LogOut)
 		v1auth.GET("/menuids", system.GetMenuIDS)
-
-		v1auth.GET("/operloglist", log2.GetOperLogList)
 	}
 }
 
@@ -142,7 +137,6 @@ func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		//v1auth.GET("/configList", system.GetConfigList)
 		v1auth.GET("/postlist", system.GetPostList)
 		v1auth.GET("/menulist", system.GetMenuList)
-		v1auth.GET("/loginloglist", log2.GetLoginLogList)
 	}
 }
 
@@ -152,24 +146,6 @@ func registerUserCenterRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMid
 		user.GET("/profile", system.GetSysUserProfile)
 		user.POST("/avatar", system.InsetSysUserAvatar)
 		user.PUT("/pwd", system.SysUserUpdatePwd)
-	}
-}
-
-func registerOperLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	operlog := v1.Group("/operlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
-	{
-		operlog.GET("/:operId", log2.GetOperLog)
-		operlog.DELETE("/:operId", log2.DeleteOperLog)
-	}
-}
-
-func registerLoginLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	loginlog := v1.Group("/loginlog").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
-	{
-		loginlog.GET("/:infoId", log2.GetLoginLog)
-		loginlog.POST("", log2.InsertLoginLog)
-		loginlog.PUT("", log2.UpdateLoginLog)
-		loginlog.DELETE("/:infoId", log2.DeleteLoginLog)
 	}
 }
 
