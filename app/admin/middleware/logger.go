@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
+	"go-admin/common/log"
 	"strings"
 	"time"
 
@@ -108,6 +109,12 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	} else {
 		sysOperaLog.Status = "1"
 	}
+	msgID := tools.GenerateMsgIDFromContext(c)
+	db, err := tools.GetOrm(c)
+	if err !=nil{
+		log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
+	}
 	serviceOperaLog:=service.SysOperaLog{}
+	serviceOperaLog.Orm = db
 	_ = serviceOperaLog.InsertSysOperaLog(sysOperaLog.Generate())
 }
