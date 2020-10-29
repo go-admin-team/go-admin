@@ -5,12 +5,12 @@ import (
 	. "log"
 	"time"
 
+	goAdminLogger "github.com/go-admin-team/go-admin-core/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
-	goAdminLogger "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/config"
 	"go-admin/common/global"
 	"go-admin/common/log"
@@ -18,9 +18,11 @@ import (
 	toolsConfig "go-admin/tools/config"
 )
 
+// Mysql mysql配置结构体
 type Mysql struct {
 }
 
+// Setup 配置步骤
 func (e *Mysql) Setup() {
 	global.Source = e.GetConnect()
 	log.Info(tools.Green(global.Source))
@@ -59,16 +61,17 @@ func (e *Mysql) Setup() {
 	}
 }
 
-// 打开数据库连接
+// Open 打开数据库连接
 func (e *Mysql) Open(db *sql.DB, cfg *gorm.Config) (*gorm.DB, error) {
 	return gorm.Open(mysql.New(mysql.Config{Conn: db}), cfg)
 }
 
-// 获取数据库连接
+// GetConnect 获取数据库连接
 func (e *Mysql) GetConnect() string {
 	return toolsConfig.DatabaseConfig.Source
 }
 
+// GetDriver 获取连接
 func (e *Mysql) GetDriver() string {
 	return toolsConfig.DatabaseConfig.Driver
 }

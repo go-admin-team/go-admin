@@ -2,6 +2,7 @@
 
 package database
 
+// Setup 配置数据库
 func Setup(driver string) {
 	dbType := driver
 	if dbType == "mysql" {
