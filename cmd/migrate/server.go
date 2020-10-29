@@ -48,7 +48,9 @@ func run() {
 		//1. 读取配置
 		config.Setup(configYml)
 		//2. 设置日志
-		global.Logger, global.JobLogger, global.RequestLogger = logger.Setup()
+		global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
+		global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
+		global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
 		_ = initDB()
 	} else {
 		_ = genFile()

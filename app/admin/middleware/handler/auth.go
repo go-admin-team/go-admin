@@ -1,9 +1,6 @@
 package handler
 
 import (
-	"go-admin/app/admin/models/system"
-	"go-admin/app/admin/service"
-	"go-admin/common/log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +8,10 @@ import (
 	"github.com/mssola/user_agent"
 
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/service"
 	"go-admin/common/global"
+	"go-admin/common/log"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/tools"
 	"go-admin/tools/config"
@@ -93,12 +93,12 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		msg = "登录失败"
 		status = "1"
 		LoginLogToDB(c, status, msg, username)
-		global.RequestLogger.Println(e.Error())
+		global.RequestLogger.Error(e)
 	}
 	return nil, jwt.ErrFailedAuthentication
 }
 
-// Write log to database
+// LoginLogToDB Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	if config.LoggerConfig.EnabledDB {
 		var loginLog system.SysLoginLog

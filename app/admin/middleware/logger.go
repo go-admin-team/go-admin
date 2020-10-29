@@ -1,22 +1,21 @@
 package middleware
 
 import (
-	"fmt"
-	"go-admin/app/admin/models/system"
-	"go-admin/app/admin/service"
-	"go-admin/common/log"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/service"
 	"go-admin/common/global"
+	"go-admin/common/log"
 	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	"go-admin/tools/config"
 )
 
-// 日志记录到文件
+// LoggerToFile 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
@@ -45,25 +44,23 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		fmt.Printf("%s [INFO] %s %s %3d %13v %15s \r\n",
-			startTime.Format("2006-01-02 15:04:05"),
-			reqMethod,
-			reqUri,
-			statusCode,
-			latencyTime,
-			clientIP,
-		)
+		logData := map[string]interface{}{
+			"statusCode":  statusCode,
+			"latencyTime": latencyTime,
+			"clientIP":    clientIP,
+			"method":      reqMethod,
+			"uri":         reqUri,
+		}
+		log.Info(logData)
+		global.RequestLogger.Info(logData)
 
-		global.RequestLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
-
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LoggerConfig.EnabledDB {
+		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime)
 		}
 	}
 }
 
-// 写入操作日志表
-// 该方法后续即将弃用
+// SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
 func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration) {
 	menu := models.Menu{}
 	menu.Path = reqUri
@@ -111,10 +108,10 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	}
 	msgID := tools.GenerateMsgIDFromContext(c)
 	db, err := tools.GetOrm(c)
-	if err !=nil{
+	if err != nil {
 		log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
 	}
-	serviceOperaLog:=service.SysOperaLog{}
+	serviceOperaLog := service.SysOperaLog{}
 	serviceOperaLog.Orm = db
 	_ = serviceOperaLog.InsertSysOperaLog(sysOperaLog.Generate())
 }

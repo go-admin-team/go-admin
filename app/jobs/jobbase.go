@@ -41,7 +41,7 @@ func (e *ExecJob) Run() {
 	startTime := time.Now()
 	var obj = jobList[e.InvokeTarget]
 	if obj == nil {
-		global.JobLogger.Warning(" ExecJob Run job nil", e)
+		global.JobLogger.Warn(" ExecJob Run job nil")
 		return
 	}
 	err := CallExec(obj.(JobsExec), e.Args)

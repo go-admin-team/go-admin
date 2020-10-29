@@ -1,7 +1,8 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+
 	"gorm.io/gorm"
 
 	orm "go-admin/common/global"
