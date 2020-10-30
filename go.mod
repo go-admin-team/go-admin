@@ -16,12 +16,16 @@ require (
 	github.com/matchstalk/redisqueue v1.0.3
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2
+	github.com/opentracing/basictracer-go v1.1.0 // indirect
+	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/shamsher31/goimgext v1.0.0 // indirect
 	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shirou/gopsutil v2.20.7+incompatible
+	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
+	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546 // indirect
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
@@ -33,4 +37,6 @@ require (
 	gorm.io/driver/postgres v0.2.9
 	gorm.io/driver/sqlite v1.0.9
 	gorm.io/gorm v1.20.1
+	sourcegraph.com/sourcegraph/appdash v0.0.0-20190731080439-ebfcffb1b5c0
+	sourcegraph.com/sourcegraph/appdash-data v0.0.0-20151005221446-73f23eafcf67 // indirect
 )

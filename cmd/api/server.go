@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"go-admin/tools/trace"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,10 +25,11 @@ import (
 )
 
 var (
-	configYml string
-	port      string
-	mode      string
-	StartCmd  = &cobra.Command{
+	configYml  string
+	port       string
+	mode       string
+	traceStart bool
+	StartCmd   = &cobra.Command{
 		Use:          "server",
 		Short:        "Start API server",
 		Example:      "go-admin server -c config/settings.yml",
@@ -48,6 +49,7 @@ func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
+	StartCmd.PersistentFlags().BoolVarP(&traceStart, "traceStart", "t", false, "start traceStart app dash")
 
 	//注册路由 fixme 其他应用的路由，在本目录新建文件放在init方法
 	AppRouters = append(AppRouters, router.InitRouter)
@@ -99,6 +101,15 @@ func run() error {
 
 	}()
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if traceStart {
+		//链路追踪, fixme 页面显示需要自备梯子
+		trace.Start()
+		defer trace.Stop(ctx)
+	}
+
 	go func() {
 		// 服务连接
 		if config.SslConfig.Enable {
@@ -111,8 +122,7 @@ func run() error {
 			}
 		}
 	}()
-	content, _ := ioutil.ReadFile("./static/go-admin.txt")
-	fmt.Println(tools.Red(string(content)))
+	fmt.Println(tools.Red(string(global.LogoContent)))
 	tip()
 	fmt.Println(tools.Green("Server run at:"))
 	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", config.ApplicationConfig.Port)
@@ -127,8 +137,6 @@ func run() error {
 	<-quit
 	fmt.Printf("%s Shutdown Server ... \r\n", tools.GetCurrentTimeStr())
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
