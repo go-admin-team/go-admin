@@ -20,7 +20,8 @@ func Trace() gin.HandlerFunc {
 		} else {
 			sp = opentracing.StartSpan(opName, opentracing.ChildOf(wireContext))
 		}
-		defer sp.Finish()
+		ctx.Set("traceSpan", sp)
 		ctx.Next()
+		sp.Finish()
 	}
 }
