@@ -3,13 +3,13 @@ package jwtauth
 import (
 	"crypto/rsa"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	config2 "go-admin/tools/config"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 const JwtPayloadKey = "JWT_PAYLOAD"
@@ -282,17 +282,6 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 
 	if mw.SigningAlgorithm == "" {
 		mw.SigningAlgorithm = "HS256"
-	}
-
-	mw.Timeout = time.Hour
-	if config2.JwtConfig.Timeout != 0 {
-		// TODO: token过期时长
-		mw.Timeout = time.Duration(config2.JwtConfig.Timeout) * time.Second
-	}
-
-	if config2.ApplicationConfig.Mode == "dev" {
-		// TODO: dev mode token过期时长 为 10 年
-		mw.Timeout = time.Duration(876010) * time.Hour
 	}
 
 	if mw.TimeFunc == nil {
