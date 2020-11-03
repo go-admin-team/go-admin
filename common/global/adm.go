@@ -3,10 +3,11 @@ package global
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/gogf/gf/os/glog"
 	"github.com/robfig/cron/v3"
-	"go-admin/common/config"
 	"gorm.io/gorm"
+
+	"go-admin/common/config"
+	"go-admin/pkg/logger"
 )
 
 const (
@@ -29,7 +30,7 @@ var (
 )
 
 var (
-	Logger        *glog.Logger
-	JobLogger     *glog.Logger
-	RequestLogger *glog.Logger
+	Logger        = &logger.Logger{}
+	JobLogger     = &logger.Logger{}
+	RequestLogger = &logger.Logger{}
 )

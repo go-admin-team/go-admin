@@ -1,38 +1,73 @@
 package logger
 
 import (
-	"github.com/gogf/gf/os/glog"
-	"go-admin/common/global"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/go-admin-team/go-admin-core/logger"
+	"os"
 )
 
-var Logger *glog.Logger
-var JobLogger *glog.Logger
-var RequestLogger *glog.Logger
+// Logger 通用log个性化实现
+type Logger struct {
+	logger.Logger
+}
 
-func Setup() {
-	Logger = glog.New()
-	_ = Logger.SetPath(config.LoggerConfig.Path + "/bus")
-	Logger.SetStdoutPrint(config.LoggerConfig.EnabledBUS && config.LoggerConfig.Stdout)
-	Logger.SetFile("bus-{Ymd}.log")
-	_ = Logger.SetLevelStr(config.LoggerConfig.Level)
+// Info info级日志输出
+func (l *Logger) Info(args ...interface{}) {
+	l.Log(logger.InfoLevel, args...)
+}
 
-	JobLogger = glog.New()
-	_ = JobLogger.SetPath(config.LoggerConfig.Path + "/job")
-	JobLogger.SetStdoutPrint(false)
-	JobLogger.SetFile("db-{Ymd}.log")
-	_ = JobLogger.SetLevelStr(config.LoggerConfig.Level)
+// Infof info级日志输出
+func (l *Logger) Infof(template string, args ...interface{}) {
+	l.Logf(logger.InfoLevel, template, args...)
+}
 
-	RequestLogger = glog.New()
-	_ = RequestLogger.SetPath(config.LoggerConfig.Path + "/request")
-	RequestLogger.SetStdoutPrint(false)
-	RequestLogger.SetFile("access-{Ymd}.log")
-	_ = RequestLogger.SetLevelStr(config.LoggerConfig.Level)
+// Trace trace级日志输出
+func (l *Logger) Trace(args ...interface{}) {
+	l.Log(logger.InfoLevel, args...)
+}
 
-	Logger.Info(tools.Green("Logger init success!"))
+// Tracef trace级日志输出
+func (l *Logger) Tracef(template string, args ...interface{}) {
+	l.Logf(logger.InfoLevel, template, args...)
+}
 
-	global.Logger = Logger.Line()
-	global.JobLogger = JobLogger.Line()
-	global.RequestLogger = RequestLogger.Line()
+// Debug debug级日志输出
+func (l *Logger) Debug(args ...interface{}) {
+	l.Log(logger.InfoLevel, args...)
+}
+
+// Debugf debug级日志输出
+func (l *Logger) Debugf(template string, args ...interface{}) {
+	l.Logf(logger.InfoLevel, template, args...)
+}
+
+// Warn warn级日志输出
+func (l *Logger) Warn(args ...interface{}) {
+	l.Log(logger.InfoLevel, args...)
+}
+
+// Warnf warn级日志输出
+func (l *Logger) Warnf(template string, args ...interface{}) {
+	l.Logf(logger.InfoLevel, template, args...)
+}
+
+// Error error级日志输出
+func (l *Logger) Error(args ...interface{}) {
+	l.Log(logger.InfoLevel, args...)
+}
+
+// Errorf error级日志输出
+func (l *Logger) Errorf(template string, args ...interface{}) {
+	l.Logf(logger.InfoLevel, template, args...)
+}
+
+// Fatal fatal级日志输出
+func (l *Logger) Fatal(args ...interface{}) {
+	l.Log(logger.InfoLevel, args...)
+	os.Exit(1)
+}
+
+// Fatalf fatal级日志输出
+func (l *Logger) Fatalf(template string, args ...interface{}) {
+	l.Logf(logger.InfoLevel, template, args...)
+	os.Exit(1)
 }

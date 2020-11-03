@@ -7,6 +7,11 @@ import (
 	jwt "go-admin/pkg/jwtauth"
 )
 
+
+func init()  {
+	routerCheckRole = append(routerCheckRole, registerSysContentRouter)
+}
+
 // 需认证的路由代码
 func registerSysContentRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 

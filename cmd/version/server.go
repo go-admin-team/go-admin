@@ -9,10 +9,7 @@ import (
 )
 
 var (
-	configYml string
-	port      string
-	mode      string
-	StartCmd  = &cobra.Command{
+	StartCmd = &cobra.Command{
 		Use:     "version",
 		Short:   "Get version info",
 		Example: "go-admin version",

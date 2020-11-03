@@ -8,7 +8,10 @@ import (
 	"github.com/mssola/user_agent"
 
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/service"
 	"go-admin/common/global"
+	"go-admin/common/log"
 	jwt "go-admin/pkg/jwtauth"
 	"go-admin/tools"
 	"go-admin/tools/config"
@@ -90,29 +93,36 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		msg = "登录失败"
 		status = "1"
 		LoginLogToDB(c, status, msg, username)
-		global.RequestLogger.Println(e.Error())
+		global.RequestLogger.Error(e)
 	}
 	return nil, jwt.ErrFailedAuthentication
 }
 
-// Write log to database
+// LoginLogToDB Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	if config.LoggerConfig.EnabledDB {
-		var loginlog models.LoginLog
+		var loginLog system.SysLoginLog
+		msgID := tools.GenerateMsgIDFromContext(c)
+		db, err := tools.GetOrm(c)
+		if err != nil {
+			log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
+		}
 		ua := user_agent.New(c.Request.UserAgent())
-		loginlog.Ipaddr = c.ClientIP()
-		loginlog.Username = username
+		loginLog.Ipaddr = c.ClientIP()
+		loginLog.Username = username
 		location := tools.GetLocation(c.ClientIP())
-		loginlog.LoginLocation = location
-		loginlog.LoginTime = tools.GetCurrentTime()
-		loginlog.Status = status
-		loginlog.Remark = c.Request.UserAgent()
+		loginLog.LoginLocation = location
+		loginLog.LoginTime = tools.GetCurrentTime()
+		loginLog.Status = status
+		loginLog.Remark = c.Request.UserAgent()
 		browserName, browserVersion := ua.Browser()
-		loginlog.Browser = browserName + " " + browserVersion
-		loginlog.Os = ua.OS()
-		loginlog.Msg = msg
-		loginlog.Platform = ua.Platform()
-		_, _ = loginlog.Create()
+		loginLog.Browser = browserName + " " + browserVersion
+		loginLog.Os = ua.OS()
+		loginLog.Msg = msg
+		loginLog.Platform = ua.Platform()
+		serviceLoginLog := service.SysLoginLog{}
+		serviceLoginLog.Orm = db
+		_ = serviceLoginLog.InsertSysLoginLog(loginLog.Generate())
 	}
 }
 
@@ -126,21 +136,28 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Router /logout [post]
 // @Security Bearer
 func LogOut(c *gin.Context) {
-	var loginlog models.LoginLog
+	var loginLog system.SysLoginLog
 	ua := user_agent.New(c.Request.UserAgent())
-	loginlog.Ipaddr = c.ClientIP()
+	loginLog.Ipaddr = c.ClientIP()
 	location := tools.GetLocation(c.ClientIP())
-	loginlog.LoginLocation = location
-	loginlog.LoginTime = tools.GetCurrentTime()
-	loginlog.Status = "0"
-	loginlog.Remark = c.Request.UserAgent()
+	loginLog.LoginLocation = location
+	loginLog.LoginTime = tools.GetCurrentTime()
+	loginLog.Status = "0"
+	loginLog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
-	loginlog.Browser = browserName + " " + browserVersion
-	loginlog.Os = ua.OS()
-	loginlog.Platform = ua.Platform()
-	loginlog.Username = tools.GetUserName(c)
-	loginlog.Msg = "退出成功"
-	loginlog.Create()
+	loginLog.Browser = browserName + " " + browserVersion
+	loginLog.Os = ua.OS()
+	loginLog.Platform = ua.Platform()
+	loginLog.Username = tools.GetUserName(c)
+	loginLog.Msg = "退出成功"
+	msgID := tools.GenerateMsgIDFromContext(c)
+	db, err := tools.GetOrm(c)
+	if err != nil {
+		log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
+	}
+	serviceLoginLog := service.SysLoginLog{}
+	serviceLoginLog.Orm = db
+	_ = serviceLoginLog.InsertSysLoginLog(loginLog.Generate())
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,

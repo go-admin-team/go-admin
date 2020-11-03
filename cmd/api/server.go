@@ -3,15 +3,13 @@ package api
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"go-admin/tools/trace"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/transfer"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -19,6 +17,7 @@ import (
 	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
+	"go-admin/common/log"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
 	"go-admin/tools"
@@ -26,10 +25,11 @@ import (
 )
 
 var (
-	configYml string
-	port      string
-	mode      string
-	StartCmd  = &cobra.Command{
+	configYml  string
+	port       string
+	mode       string
+	traceStart bool
+	StartCmd   = &cobra.Command{
 		Use:          "server",
 		Short:        "Start API server",
 		Example:      "go-admin server -c config/settings.yml",
@@ -49,6 +49,7 @@ func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
 	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
+	StartCmd.PersistentFlags().BoolVarP(&traceStart, "traceStart", "t", false, "start traceStart app dash")
 
 	//注册路由 fixme 其他应用的路由，在本目录新建文件放在init方法
 	AppRouters = append(AppRouters, router.InitRouter)
@@ -59,14 +60,16 @@ func setup() {
 	//1. 读取配置
 	config.Setup(configYml)
 	//2. 设置日志
-	logger.Setup()
+	global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
+	global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
+	global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
 	//3. 初始化数据库链接
 	database.Setup(config.DatabaseConfig.Driver)
 	//4. 接口访问控制加载
-	mycasbin.Setup()
+	global.CasbinEnforcer = mycasbin.Setup(global.Eloquent, "sys_")
 
 	usageStr := `starting api server`
-	global.Logger.Info(usageStr)
+	log.Info(usageStr)
 
 }
 
@@ -76,18 +79,12 @@ func run() error {
 	}
 	engine := global.Cfg.GetEngine()
 	if engine == nil {
-		if mode == "dev" {
-			r := gin.New()
-			//开发环境启动监控指标
-			r.GET("/metrics", transfer.Handler(promhttp.Handler()))
-			//健康检查
-			r.GET("/health", func(c *gin.Context) {
-				c.Status(http.StatusOK)
-			})
-			engine = r
-		} else {
-			engine = gin.New()
-		}
+		engine = gin.New()
+	}
+
+	if mode == "dev" {
+		//监控
+		AppRouters = append(AppRouters, router.Monitor)
 	}
 
 	for _, f := range AppRouters {
@@ -104,20 +101,28 @@ func run() error {
 
 	}()
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if traceStart {
+		//链路追踪, fixme 页面显示需要自备梯子
+		trace.Start()
+		defer trace.Stop(ctx)
+	}
+
 	go func() {
 		// 服务连接
 		if config.SslConfig.Enable {
 			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
-				global.Logger.Fatal("listen: ", err)
+				log.Fatal("listen: ", err)
 			}
 		} else {
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				global.Logger.Fatal("listen: ", err)
+				log.Fatal("listen: ", err)
 			}
 		}
 	}()
-	content, _ := ioutil.ReadFile("./static/go-admin.txt")
-	fmt.Println(tools.Red(string(content)))
+	fmt.Println(tools.Red(string(global.LogoContent)))
 	tip()
 	fmt.Println(tools.Green("Server run at:"))
 	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", config.ApplicationConfig.Port)
@@ -132,12 +137,10 @@ func run() error {
 	<-quit
 	fmt.Printf("%s Shutdown Server ... \r\n", tools.GetCurrentTimeStr())
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		global.Logger.Fatal("Server Shutdown:", err)
+		log.Fatal("Server Shutdown:", err)
 	}
-	global.Logger.Println("Server exiting")
+	log.Info("Server exiting")
 
 	return nil
 }

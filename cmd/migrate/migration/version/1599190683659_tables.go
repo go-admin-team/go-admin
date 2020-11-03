@@ -1,9 +1,9 @@
 package version
 
 import (
-	"go-admin/app/admin/models/system"
 	"runtime"
 
+	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
@@ -25,8 +25,8 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(tools.SysTables),
 		new(tools.SysColumns),
 		new(models.Menu),
-		new(models.LoginLog),
-		new(models.SysOperLog),
+		new(system.SysLoginLog),
+		new(system.SysOperaLog),
 		new(models.RoleMenu),
 		new(models.SysRoleDept),
 		new(models.SysUser),

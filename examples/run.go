@@ -12,6 +12,7 @@ import (
 	"go-admin/common/global"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
+	"go-admin/tools/config"
 )
 
 func main() {
@@ -20,8 +21,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	mycasbin.Setup()
-	logger.Setup()
+	global.CasbinEnforcer = mycasbin.Setup(global.Eloquent, "sys_")
+	global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
+	global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
+	global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
 	global.GinEngine = gin.Default()
 	//router.InitRouter()
 	log.Fatal(global.GinEngine.Run(":8000"))

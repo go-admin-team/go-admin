@@ -1,19 +1,21 @@
 package middleware
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/service"
 	"go-admin/common/global"
+	"go-admin/common/log"
 	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	"go-admin/tools/config"
 )
 
-// 日志记录到文件
+// LoggerToFile 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
@@ -42,69 +44,74 @@ func LoggerToFile() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		fmt.Printf("%s [INFO] %s %s %3d %13v %15s \r\n",
-			startTime.Format("2006-01-02 15:04:05"),
-			reqMethod,
-			reqUri,
-			statusCode,
-			latencyTime,
-			clientIP,
-		)
+		logData := map[string]interface{}{
+			"statusCode":  statusCode,
+			"latencyTime": latencyTime,
+			"clientIP":    clientIP,
+			"method":      reqMethod,
+			"uri":         reqUri,
+		}
+		log.Info(logData)
+		global.RequestLogger.Info(logData)
 
-		global.RequestLogger.Info(statusCode, latencyTime, clientIP, reqMethod, reqUri)
-
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config2.LoggerConfig.EnabledDB {
+		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime)
 		}
 	}
 }
 
-// 写入操作日志表
-// 该方法后续即将弃用
+// SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
 func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration) {
 	menu := models.Menu{}
 	menu.Path = reqUri
 	menu.Action = reqMethod
 	menuList, _ := menu.Get()
-	sysOperLog := models.SysOperLog{}
-	sysOperLog.OperIp = clientIP
-	sysOperLog.OperLocation = tools.GetLocation(clientIP)
-	sysOperLog.Status = tools.IntToString(statusCode)
-	sysOperLog.OperName = tools.GetUserName(c)
-	sysOperLog.RequestMethod = c.Request.Method
-	sysOperLog.OperUrl = reqUri
+	sysOperaLog := system.SysOperaLog{}
+	sysOperaLog.OperIp = clientIP
+	sysOperaLog.OperLocation = tools.GetLocation(clientIP)
+	sysOperaLog.Status = tools.IntToString(statusCode)
+	sysOperaLog.OperName = tools.GetUserName(c)
+	sysOperaLog.RequestMethod = c.Request.Method
+	sysOperaLog.OperUrl = reqUri
 	if reqUri == "/login" {
-		sysOperLog.BusinessType = "10"
-		sysOperLog.Title = "用户登录"
-		sysOperLog.OperName = "-"
+		sysOperaLog.BusinessType = "10"
+		sysOperaLog.Title = "用户登录"
+		sysOperaLog.OperName = "-"
 	} else if strings.Contains(reqUri, "/api/v1/logout") {
-		sysOperLog.BusinessType = "11"
+		sysOperaLog.BusinessType = "11"
 	} else if strings.Contains(reqUri, "/api/v1/getCaptcha") {
-		sysOperLog.BusinessType = "12"
-		sysOperLog.Title = "验证码"
+		sysOperaLog.BusinessType = "12"
+		sysOperaLog.Title = "验证码"
 	} else {
 		if reqMethod == "POST" {
-			sysOperLog.BusinessType = "1"
+			sysOperaLog.BusinessType = "1"
 		} else if reqMethod == "PUT" {
-			sysOperLog.BusinessType = "2"
+			sysOperaLog.BusinessType = "2"
 		} else if reqMethod == "DELETE" {
-			sysOperLog.BusinessType = "3"
+			sysOperaLog.BusinessType = "3"
 		}
 	}
-	sysOperLog.Method = reqMethod
+	sysOperaLog.Method = reqMethod
 	if len(menuList) > 0 {
-		sysOperLog.Title = menuList[0].Title
+		sysOperaLog.Title = menuList[0].Title
 	}
 	b, _ := c.Get("body")
-	sysOperLog.OperParam, _ = tools.StructToJsonStr(b)
-	sysOperLog.CreateBy = tools.GetUserName(c)
-	sysOperLog.OperTime = tools.GetCurrentTime()
-	sysOperLog.LatencyTime = (latencyTime).String()
-	sysOperLog.UserAgent = c.Request.UserAgent()
+	sysOperaLog.OperParam, _ = tools.StructToJsonStr(b)
+	sysOperaLog.CreateBy = tools.GetUserIdUint(c)
+	sysOperaLog.OperTime = tools.GetCurrentTime()
+	sysOperaLog.LatencyTime = (latencyTime).String()
+	sysOperaLog.UserAgent = c.Request.UserAgent()
 	if c.Err() == nil {
-		sysOperLog.Status = "0"
+		sysOperaLog.Status = "0"
 	} else {
-		sysOperLog.Status = "1"
+		sysOperaLog.Status = "1"
 	}
-	_, _ = sysOperLog.Create()
+	msgID := tools.GenerateMsgIDFromContext(c)
+	db, err := tools.GetOrm(c)
+	if err != nil {
+		log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
+	}
+	serviceOperaLog := service.SysOperaLog{}
+	serviceOperaLog.Orm = db
+	_ = serviceOperaLog.InsertSysOperaLog(sysOperaLog.Generate())
 }

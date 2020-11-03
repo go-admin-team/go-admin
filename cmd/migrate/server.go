@@ -16,7 +16,7 @@ import (
 	"go-admin/common/global"
 	"go-admin/common/models"
 	"go-admin/pkg/logger"
-	tools2 "go-admin/tools"
+	"go-admin/tools"
 	"go-admin/tools/config"
 )
 
@@ -48,7 +48,9 @@ func run() {
 		//1. 读取配置
 		config.Setup(configYml)
 		//2. 设置日志
-		logger.Setup()
+		global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
+		global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
+		global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
 		_ = initDB()
 	} else {
 		_ = genFile()
@@ -91,9 +93,9 @@ func genFile() error {
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, m)
 	if goAdmin {
-		tools2.FileCreate(b1, "./cmd/migrate/migration/version/"+m["GenerateTime"]+"_migrate.go")
+		tools.FileCreate(b1, "./cmd/migrate/migration/version/"+m["GenerateTime"]+"_migrate.go")
 	} else {
-		tools2.FileCreate(b1, "./cmd/migrate/migration/version-local/"+m["GenerateTime"]+"_migrate.go")
+		tools.FileCreate(b1, "./cmd/migrate/migration/version-local/"+m["GenerateTime"]+"_migrate.go")
 	}
 	return nil
 }

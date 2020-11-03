@@ -1,7 +1,8 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+
 	"gorm.io/gorm"
 
 	orm "go-admin/common/global"
@@ -22,9 +23,9 @@ type SysRole struct {
 	DataScope string `json:"dataScope" gorm:"size:128;"`
 	BaseModel
 
-	Params    string `json:"params" gorm:"-"`
-	MenuIds   []int  `json:"menuIds" gorm:"-"`
-	DeptIds   []int  `json:"deptIds" gorm:"-"`
+	Params  string `json:"params" gorm:"-"`
+	MenuIds []int  `json:"menuIds" gorm:"-"`
+	DeptIds []int  `json:"deptIds" gorm:"-"`
 }
 
 func (SysRole) TableName() string {

@@ -1,11 +1,11 @@
 package log
 
-import "go-admin/logger"
+import "github.com/go-admin-team/go-admin-core/logger"
 
 var (
 	// Trace trace级日志输出
 	Trace = logger.Trace
-	// Trace trace级日志输出
+	// Tracef trace级日志输出
 	Tracef = logger.Tracef
 	// Debug debug级日志输出
 	Debug = logger.Debug
