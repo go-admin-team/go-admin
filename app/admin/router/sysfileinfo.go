@@ -2,34 +2,33 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/apis/sysfiledir"
-	"go-admin/app/admin/apis/sysfileinfo"
+	"go-admin/app/admin/apis/sysfile"
 )
 
 // 无需认证的路由代码
 func registerSysFileInfoRouter(v1 *gin.RouterGroup) {
 
-	v1.GET("/sysfileinfoList", sysfileinfo.GetSysFileInfoList)
+	v1.GET("/sysfileinfoList", sysfile.GetSysFileInfoList)
 
 	r := v1.Group("/sysfileinfo")
 	{
-		r.GET("/:id", sysfileinfo.GetSysFileInfo)
-		r.POST("", sysfileinfo.InsertSysFileInfo)
-		r.PUT("", sysfileinfo.UpdateSysFileInfo)
-		r.DELETE("/:id", sysfileinfo.DeleteSysFileInfo)
+		r.GET("/:id", sysfile.GetSysFileInfo)
+		r.POST("", sysfile.InsertSysFileInfo)
+		r.PUT("", sysfile.UpdateSysFileInfo)
+		r.DELETE("/:id", sysfile.DeleteSysFileInfo)
 	}
 }
 
 // 无需认证的路由代码
 func registerSysFileDirRouter(v1 *gin.RouterGroup) {
 
-	v1.GET("/sysfiledirList", sysfiledir.GetSysFileDirList)
+	v1.GET("/sysfiledirList", sysfile.GetSysFileDirList)
 
 	r := v1.Group("/sysfiledir")
 	{
-		r.GET("/:id", sysfiledir.GetSysFileDir)
-		r.POST("", sysfiledir.InsertSysFileDir)
-		r.PUT("", sysfiledir.UpdateSysFileDir)
-		r.DELETE("/:id", sysfiledir.DeleteSysFileDir)
+		r.GET("/:id", sysfile.GetSysFileDir)
+		r.POST("", sysfile.InsertSysFileDir)
+		r.PUT("", sysfile.UpdateSysFileDir)
+		r.DELETE("/:id", sysfile.DeleteSysFileDir)
 	}
 }

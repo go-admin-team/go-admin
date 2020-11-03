@@ -1,4 +1,4 @@
-package sysfiledir
+package sysfile
 
 import (
 	"github.com/gin-gonic/gin"
