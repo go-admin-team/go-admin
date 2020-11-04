@@ -18,6 +18,16 @@ func PathCreate(dir string) error {
 	return os.MkdirAll(dir, os.ModePerm)
 }
 
+// PathExist 判断目录是否存在
+func PathExist(addr string) bool {
+	s, err := os.Stat(addr)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	return s.IsDir()
+}
+
 func FileCreate(content bytes.Buffer, name string) {
 	file, err := os.Create(name)
 	if err != nil {
