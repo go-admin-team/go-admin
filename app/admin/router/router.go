@@ -35,8 +35,7 @@ func examplesNoCheckRoleRouter(r *gin.Engine) {
 	}
 
 	// {{无需认证路由自动补充在此处请勿删除}}
-	registerSysFileInfoRouter(v1)
-	registerSysFileDirRouter(v1)
+	//registerSysFileInfoRouter(v1)
 }
 
 // 需要认证的路由示例

@@ -5,7 +5,7 @@ import (
 	"go-admin/tools"
 )
 
-type SysFileDir struct {
+type SysFileDirOld struct {
 	Id        int          `json:"id"`
 	Label     string       `json:"label" gorm:"type:varchar(255);"`    // 名称
 	PId       int          `json:"pId" gorm:"type:int(11);"`           // 父id
@@ -13,19 +13,19 @@ type SysFileDir struct {
 	Path      string       `json:"path" gorm:"size:255;"`              //
 	CreateBy  string       `json:"createBy" gorm:"type:varchar(128);"` // 创建人
 	UpdateBy  string       `json:"updateBy" gorm:"type:varchar(128);"` // 编辑人
-	Children  []SysFileDir `json:"children" gorm:"-"`
+	Children  []SysFileDirOld `json:"children" gorm:"-"`
 	DataScope string       `json:"dataScope" gorm:"-"`
 	Params    string       `json:"params"  gorm:"-"`
 	BaseModel
 }
 
-func (SysFileDir) TableName() string {
+func (SysFileDirOld) TableName() string {
 	return "sys_file_dir"
 }
 
-// 创建SysFileDir
-func (e *SysFileDir) Create() (SysFileDir, error) {
-	var doc SysFileDir
+// 创建SysFileDirOld
+func (e *SysFileDirOld) Create() (SysFileDirOld, error) {
+	var doc SysFileDirOld
 	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -34,7 +34,7 @@ func (e *SysFileDir) Create() (SysFileDir, error) {
 
 	path := "/" + tools.IntToString(e.Id)
 	if int(e.PId) != 0 {
-		var deptP SysFileDir
+		var deptP SysFileDirOld
 		orm.Eloquent.Table(e.TableName()).Where("id = ?", e.PId).First(&deptP)
 		path = deptP.Path + path
 	} else {
@@ -52,9 +52,9 @@ func (e *SysFileDir) Create() (SysFileDir, error) {
 	return doc, nil
 }
 
-// 获取SysFileDir
-func (e *SysFileDir) Get() (SysFileDir, error) {
-	var doc SysFileDir
+// 获取SysFileDirOld
+func (e *SysFileDirOld) Get() (SysFileDirOld, error) {
+	var doc SysFileDirOld
 	table := orm.Eloquent.Table(e.TableName())
 
 	if e.Id != 0 {
@@ -67,19 +67,11 @@ func (e *SysFileDir) Get() (SysFileDir, error) {
 	return doc, nil
 }
 
-// 获取SysFileDir带分页
-func (e *SysFileDir) GetPage() ([]SysFileDir, int, error) {
-	var doc []SysFileDir
+// 获取SysFileDirOld带分页
+func (e *SysFileDirOld) GetPage() ([]SysFileDirOld, int, error) {
+	var doc []SysFileDirOld
 
 	table := orm.Eloquent.Table(e.TableName())
-
-	// 数据权限控制(如果不需要数据权限请将此处去掉)
-	//dataPermission := new(DataPermission)
-	//dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
-	//table, err := dataPermission.GetDataScope(e.TableName(), table)
-	//if err != nil {
-	//	return nil, 0, err
-	//}
 	var count int64
 
 	if err := table.Find(&doc).Error; err != nil {
@@ -89,15 +81,15 @@ func (e *SysFileDir) GetPage() ([]SysFileDir, int, error) {
 	return doc, int(count), nil
 }
 
-// 更新SysFileDir
-func (e *SysFileDir) Update(id int) (update SysFileDir, err error) {
+// 更新SysFileDirOld
+func (e *SysFileDirOld) Update(id int) (update SysFileDirOld, err error) {
 	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	path := "/" + tools.IntToString(e.Id)
 	if int(e.Id) != 0 {
-		var deptP SysFileDir
+		var deptP SysFileDirOld
 		orm.Eloquent.Table(e.TableName()).Where("id = ?", e.Id).First(&deptP)
 		path = deptP.Path + path
 	} else {
@@ -105,21 +97,15 @@ func (e *SysFileDir) Update(id int) (update SysFileDir, err error) {
 	}
 	e.Path = path
 
-	//if e.Path != "" && e.Path != update.Path {
-	//	return update, errors.New("上级不允许修改！")
-	//}
-
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
 	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
 		return
 	}
 	return
 }
 
-// 删除SysFileDir
-func (e *SysFileDir) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).Delete(&SysFileDir{}).Error; err != nil {
+// 删除SysFileDirOld
+func (e *SysFileDirOld) Delete(id int) (success bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).Delete(&SysFileDirOld{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -128,47 +114,47 @@ func (e *SysFileDir) Delete(id int) (success bool, err error) {
 }
 
 //批量删除
-func (e *SysFileDir) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id in (?)", id).Delete(&SysFileDir{}).Error; err != nil {
+func (e *SysFileDirOld) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("id in (?)", id).Delete(&SysFileDirOld{}).Error; err != nil {
 		return
 	}
 	Result = true
 	return
 }
 
-func (e *SysFileDir) SetSysFileDir() ([]SysFileDir, error) {
+func (e *SysFileDirOld) SetSysFileDirOld() ([]SysFileDirOld, error) {
 	list, _, err := e.GetPage()
 
-	m := make([]SysFileDir, 0)
+	m := make([]SysFileDirOld, 0)
 	for i := 0; i < len(list); i++ {
 		if list[i].PId != 0 {
 			continue
 		}
-		info := SysFileDirDigui(&list, list[i])
+		info := SysFileDirOldDigui(&list, list[i])
 
 		m = append(m, info)
 	}
 	return m, err
 }
 
-func SysFileDirDigui(deptlist *[]SysFileDir, menu SysFileDir) SysFileDir {
+func SysFileDirOldDigui(deptlist *[]SysFileDirOld, menu SysFileDirOld) SysFileDirOld {
 	list := *deptlist
 
-	min := make([]SysFileDir, 0)
+	min := make([]SysFileDirOld, 0)
 	for j := 0; j < len(list); j++ {
 
 		if menu.Id != list[j].PId {
 			continue
 		}
-		mi := SysFileDir{}
+		mi := SysFileDirOld{}
 		mi.Id = list[j].Id
 		mi.PId = list[j].PId
 		mi.Label = list[j].Label
 		mi.Sort = list[j].Sort
 		mi.CreatedAt = list[j].CreatedAt
 		mi.UpdatedAt = list[j].UpdatedAt
-		mi.Children = []SysFileDir{}
-		ms := SysFileDirDigui(deptlist, mi)
+		mi.Children = []SysFileDirOld{}
+		ms := SysFileDirOldDigui(deptlist, mi)
 		min = append(min, ms)
 
 	}
