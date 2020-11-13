@@ -84,7 +84,7 @@ func (e *SysFileDir) InsertSysFileDir(model common.ActiveRecord) error {
 	}
 	//var mp = map[string]string{}
 	//mp["path"] = path
-	if err := e.Orm.Model(&data).Where("id = ?", data.ID).Update("path",path).Error; err != nil {
+	if err := e.Orm.Model(&data).Where("id = ?", data.ID).Update("path", path).Error; err != nil {
 		return err
 	}
 
@@ -166,6 +166,11 @@ func SysFileDirCall(list *[]models.SysFileDirL, m models.SysFileDirL) models.Sys
 		ms := SysFileDirCall(list, mi)
 		min = append(min, ms)
 	}
-	m.Children = min
+	if len(min) > 0 {
+		m.Children = min
+	} else {
+		m.Children = nil
+	}
+
 	return m
 }
