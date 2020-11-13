@@ -88,6 +88,21 @@ func (role *SysRole) Get() (SysRole SysRole, err error) {
 	return
 }
 
+func (role *SysRole) GetOne(sysRole *SysRole) (err error) {
+	table := orm.Eloquent.Table("sys_role")
+	if role.RoleId != 0 {
+		table = table.Where("role_id = ?", role.RoleId)
+	}
+	if role.RoleName != "" {
+		table = table.Where("role_name = ?", role.RoleName)
+	}
+	if err = table.First(sysRole).Error; err != nil {
+		return
+	}
+
+	return
+}
+
 func (role *SysRole) GetList() (SysRole []SysRole, err error) {
 	table := orm.Eloquent.Table("sys_role")
 	if role.RoleId != 0 {
@@ -107,7 +122,12 @@ func (role *SysRole) GetList() (SysRole []SysRole, err error) {
 func (role *SysRole) GetRoleMeunId() ([]int, error) {
 	menuIds := make([]int, 0)
 	menuList := make([]MenuIdList, 0)
-	if err := orm.Eloquent.Table("sys_role_menu").Select("sys_role_menu.menu_id").Where("role_id = ? ", role.RoleId).Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id =?  and parent_id is not null)", role.RoleId).Find(&menuList).Error; err != nil {
+	if err := orm.Eloquent.Table("sys_role_menu").
+		Select("sys_role_menu.menu_id").
+		Where("role_id = ? ", role.RoleId).
+		Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu " +
+			"LEFT JOIN sys_menu on sys_menu.menu_id=sys_role_menu.menu_id where role_id =?  and parent_id is not null)", role.RoleId).
+		Find(&menuList).Error; err != nil {
 		return nil, err
 	}
 

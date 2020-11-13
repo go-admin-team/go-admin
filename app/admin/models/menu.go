@@ -146,7 +146,7 @@ func DiguiMenu(menulist *[]Menu, menu Menu) Menu {
 	return menu
 }
 
-func (e *Menu) SetMenuLable() (m *[]MenuLable, err error) {
+func (e *Menu) SetMenuLabel() (m *[]MenuLable, err error) {
 	menulist, err := e.Get()
 
 	ml := make([]MenuLable, 0)
@@ -157,14 +157,14 @@ func (e *Menu) SetMenuLable() (m *[]MenuLable, err error) {
 		e := MenuLable{}
 		e.Id = menulist[i].MenuId
 		e.Label = menulist[i].Title
-		menusInfo := DiguiMenuLable(&menulist, e)
+		menusInfo := MenuLabelCall(&menulist, e)
 
 		ml = append(ml, menusInfo)
 	}
 	return &ml, err
 }
 
-func DiguiMenuLable(menulist *[]Menu, menu MenuLable) MenuLable {
+func MenuLabelCall(menulist *[]Menu, menu MenuLable) MenuLable {
 	list := *menulist
 
 	min := make([]MenuLable, 0)
@@ -178,27 +178,31 @@ func DiguiMenuLable(menulist *[]Menu, menu MenuLable) MenuLable {
 		mi.Label = list[j].Title
 		mi.Children = []MenuLable{}
 		if list[j].MenuType != "F" {
-			ms := DiguiMenuLable(menulist, mi)
+			ms := MenuLabelCall(menulist, mi)
 			min = append(min, ms)
 		} else {
 			min = append(min, mi)
 		}
 
 	}
-	menu.Children = min
+	if len(min) > 0 {
+		menu.Children = min
+	} else {
+		menu.Children = nil
+	}
 	return menu
 }
 
-func (e *Menu) SetMenuRole(rolename string) (m []Menu, err error) {
+func (e *Menu) SetMenuRole(roleName string) (m []Menu, err error) {
 
-	menulist, err := e.GetByRoleName(rolename)
+	menus, err := e.GetByRoleName(roleName)
 
 	m = make([]Menu, 0)
-	for i := 0; i < len(menulist); i++ {
-		if menulist[i].ParentId != 0 {
+	for i := 0; i < len(menus); i++ {
+		if menus[i].ParentId != 0 {
 			continue
 		}
-		menusInfo := DiguiMenu(&menulist, menulist[i])
+		menusInfo := DiguiMenu(&menus, menus[i])
 
 		m = append(m, menusInfo)
 	}
@@ -216,14 +220,14 @@ func (e *MenuRole) Get() (Menus []MenuRole, err error) {
 	return
 }
 
-func (e *Menu) GetByRoleName(rolename string) (Menus []Menu, err error) {
+func (e *Menu) GetByRoleName(roleName string) (Menus []Menu, err error) {
 	var table *gorm.DB
-	if rolename == "admin" {
+	if roleName == "admin" {
 		table = orm.Eloquent.Table(e.TableName()).Select("sys_menu.*")
 		table = table.Where(" menu_type in ('M','C')")
 	} else {
 		table = orm.Eloquent.Table(e.TableName()).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
-		table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", rolename)
+		table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", roleName)
 	}
 	if err = table.Order("sort").Find(&Menus).Error; err != nil {
 		return

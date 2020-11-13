@@ -53,10 +53,13 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 
 	id, err := tools.StringToInt(c.Param("roleId"))
 	SysRole.RoleId = id
+	//var r *models.SysRole
+	r, err := SysRole.Get()
+
 	var result *[]models.MenuLable
 	menuIds := make([]int, 0)
-	if tools.GetRoleName(c) != "admin" {
-		result, err = Menu.SetMenuLable()
+	if r.RoleKey != "admin" {
+		result, err = Menu.SetMenuLabel()
 		tools.HasError(err, "抱歉未找到相关信息", -1)
 		if id != 0 {
 			menuIds, err = SysRole.GetRoleMeunId()
@@ -81,7 +84,7 @@ func GetMenuTreeRoleselect(c *gin.Context) {
 // @Security Bearer
 func GetMenuTreeelect(c *gin.Context) {
 	var data models.Menu
-	result, err := data.SetMenuLable()
+	result, err := data.SetMenuLabel()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c, result, "")
 }
