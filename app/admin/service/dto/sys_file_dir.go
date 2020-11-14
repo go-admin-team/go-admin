@@ -17,7 +17,7 @@ type SysFileDirSearch struct {
 	ID    uint   `form:"ID" search:"type:exact;column:id;table:sys_file_dir" comment:"标识"`
 	Label string `form:"label" search:"type:exact;column:label;table:sys_file_dir" comment:"目录名称"`
 	PId   string `form:"pId" search:"type:exact;column:p_id;table:sys_file_dir" comment:"上级目录"`
-	Sort  string `form:"sort" search:"type:exact;column:sort;table:sys_file_dir" comment:"排序"`
+	//Sort  string `form:"sort" search:"type:exact;column:sort;table:sys_file_dir" comment:"排序"`
 	Path  string `form:"path" search:"type:exact;column:path;table:sys_file_dir" comment:"路径"`
 }
 
@@ -43,7 +43,7 @@ type SysFileDirControl struct {
 	ID    uint   `uri:"ID" comment:"标识"` // 标识
 	Label string `json:"label" comment:"目录名称"`
 	PId   uint   `json:"pId" comment:"上级目录"`
-	Sort  string `json:"sort" comment:"排序"`
+	//Sort  string `json:"sort" comment:"排序"`
 	Path  string `json:"path" comment:"路径"`
 }
 
@@ -71,7 +71,7 @@ func (s *SysFileDirControl) GenerateM() (common.ActiveRecord, error) {
 		Model: gorm.Model{ID: s.ID},
 		Label: s.Label,
 		PId:   s.PId,
-		Sort:  s.Sort,
+		//Sort:  s.Sort,
 		Path:  s.Path,
 	}, nil
 }

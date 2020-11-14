@@ -159,7 +159,7 @@ func SysFileDirCall(list *[]models.SysFileDirL, m models.SysFileDirL) models.Sys
 		mi.ID = listGroup[j].ID
 		mi.PId = listGroup[j].PId
 		mi.Label = listGroup[j].Label
-		mi.Sort = listGroup[j].Sort
+		//mi.Sort = listGroup[j].Sort
 		mi.CreatedAt = listGroup[j].CreatedAt
 		mi.UpdatedAt = listGroup[j].UpdatedAt
 		mi.Children = []models.SysFileDirL{}
