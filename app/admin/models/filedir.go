@@ -8,8 +8,8 @@ import (
 type SysFileDir struct {
 	Id        int          `json:"id"`
 	Label     string       `json:"label" gorm:"type:varchar(255);"`    // 名称
-	PId       int          `json:"pId" gorm:"type:int(11);"`           // 父id
-	Sort      int          `json:"sort" gorm:""`                       //排序
+	PId       int          `json:"pId"`           // 父id
+	Sort      int          `json:"sort"`          //排序
 	Path      string       `json:"path" gorm:"size:255;"`              //
 	CreateBy  string       `json:"createBy" gorm:"type:varchar(128);"` // 创建人
 	UpdateBy  string       `json:"updateBy" gorm:"type:varchar(128);"` // 编辑人

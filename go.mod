@@ -13,6 +13,7 @@ require (
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
+	github.com/lib/pq v1.3.0
 	github.com/matchstalk/redisqueue v1.0.3
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2

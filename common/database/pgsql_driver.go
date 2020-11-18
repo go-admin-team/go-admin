@@ -11,11 +11,13 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
-	goAdminLogger "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/config"
 	"go-admin/common/global"
 	"go-admin/tools"
 	toolsConfig "go-admin/tools/config"
+
+	goAdminLogger "github.com/go-admin-team/go-admin-core/logger"
+	_ "github.com/lib/pq"
 )
 
 type PgSql struct {
@@ -26,12 +28,12 @@ func (e *PgSql) Setup() {
 
 	global.Source = e.GetConnect()
 	log.Info(global.Source)
-	db, err := sql.Open("postgresql", global.Source)
+	db, err := sql.Open("postgres", global.Source)
 	if err != nil {
 		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
 	}
 	global.Cfg.SetDb(&config.DBConfig{
-		Driver: "mysql",
+		Driver: "postgres",
 		DB:     db,
 	})
 	global.Eloquent, err = e.Open(db, &gorm.Config{

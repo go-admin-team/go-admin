@@ -14,6 +14,8 @@ import (
 	"go-admin/common/global"
 	"go-admin/common/middleware"
 	"go-admin/tools"
+
+	_ "github.com/lib/pq"
 )
 
 var WithContextDb = middleware.WithContextDb
