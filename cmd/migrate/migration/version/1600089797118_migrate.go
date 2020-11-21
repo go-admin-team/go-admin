@@ -18,12 +18,14 @@ func init() {
 func _1600089797118Migrate(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		f := &models.SysFileDir{
-			Label:    "根目录",
-			PId:      0,
-			Sort:     0,
-			Path:     "",
-			CreateBy: "1",
-			UpdateBy: "1",
+			Label: "根目录",
+			PId:   0,
+			//Sort:  "0",
+			Path:  "",
+			ControlBy: common.ControlBy{
+				CreateBy: 1,
+				UpdateBy: 1,
+			},
 		}
 		err := tx.Create(f).Error
 		if err != nil {

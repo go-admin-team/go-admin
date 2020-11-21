@@ -1,4 +1,4 @@
-package sysfiledir
+package sysfile
 
 import (
 	"github.com/gin-gonic/gin"
@@ -11,18 +11,18 @@ import (
 )
 
 func GetSysFileDirList(c *gin.Context) {
-	var SysFileDir models.SysFileDir
+	var SysFileDir models.SysFileDirOld
 	SysFileDir.Label = c.Request.FormValue("label")
 	SysFileDir.PId, _ = tools.StringToInt(c.Request.FormValue("pid"))
 	SysFileDir.Id, _ = tools.StringToInt(c.Request.FormValue("id"))
 	SysFileDir.DataScope = tools.GetUserIdStr(c)
-	result, err := SysFileDir.SetSysFileDir()
+	result, err := SysFileDir.SetSysFileDirOld()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c, result, "")
 }
 
 func GetSysFileDir(c *gin.Context) {
-	var data models.SysFileDir
+	var data models.SysFileDirOld
 	data.Id, _ = tools.StringToInt(c.Param("id"))
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
@@ -40,7 +40,7 @@ func GetSysFileDir(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sysfiledir [post]
 func InsertSysFileDir(c *gin.Context) {
-	var data models.SysFileDir
+	var data models.SysFileDirOld
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = tools.GetUserIdStr(c)
 	tools.HasError(err, "", 500)
@@ -50,7 +50,7 @@ func InsertSysFileDir(c *gin.Context) {
 }
 
 func UpdateSysFileDir(c *gin.Context) {
-	var data models.SysFileDir
+	var data models.SysFileDirOld
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "数据解析失败", -1)
 	data.UpdateBy = tools.GetUserIdStr(c)
@@ -61,7 +61,7 @@ func UpdateSysFileDir(c *gin.Context) {
 }
 
 func DeleteSysFileDir(c *gin.Context) {
-	var data models.SysFileDir
+	var data models.SysFileDirOld
 	data.UpdateBy = tools.GetUserIdStr(c)
 
 	IDS := tools.IdsStrToIdsIntGroup("id", c)
