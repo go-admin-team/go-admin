@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"go-admin/tools"
 	"path/filepath"
 
 	"github.com/go-admin-team/go-admin-core/debug/writer"
@@ -39,9 +40,16 @@ import (
 // SetupLogger 日志
 func SetupLogger(path string, subPath string) logger.Logger {
 	var setLogger logger.Logger
-	output, err := writer.NewFileWriter(filepath.Join(path, subPath), "log")
+	fullPath := filepath.Join(path, subPath)
+	if !tools.PathExist(fullPath) {
+		err := tools.PathCreate(fullPath)
+		if err != nil {
+			log.Fatal("create dir error: %s", err.Error())
+		}
+	}
+	output, err := writer.NewFileWriter(fullPath, "log")
 	if err != nil {
-		log.Fatal("request logger setup error: %s", err.Error)
+		log.Fatal("%s logger setup error: %s", subPath, err.Error())
 	}
 	setLogger = logger.NewHelper(logger.NewLogger(logger.WithOutput(output)))
 	return setLogger

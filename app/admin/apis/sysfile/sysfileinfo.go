@@ -1,4 +1,4 @@
-package sysfileinfo
+package sysfile
 
 import (
 	"github.com/gin-gonic/gin"
@@ -10,8 +10,8 @@ import (
 	"go-admin/tools/app/msg"
 )
 
-func GetSysFileInfoList(c *gin.Context) {
-	var data models.SysFileInfo
+func GetSysFileInfoOldList(c *gin.Context) {
+	var data models.SysFileInfoOld
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
@@ -36,8 +36,8 @@ func GetSysFileInfoList(c *gin.Context) {
 	app.PageOK(c, result, count, pageIndex, pageSize, "")
 }
 
-func GetSysFileInfo(c *gin.Context) {
-	var data models.SysFileInfo
+func GetSysFileInfoOld(c *gin.Context) {
+	var data models.SysFileInfoOld
 	data.Id, _ = tools.StringToInt(c.Param("id"))
 	result, err := data.Get()
 	tools.HasError(err, "抱歉未找到相关信息", -1)
@@ -45,8 +45,8 @@ func GetSysFileInfo(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
-func InsertSysFileInfo(c *gin.Context) {
-	var data models.SysFileInfo
+func InsertSysFileInfoOld(c *gin.Context) {
+	var data models.SysFileInfoOld
 	err := c.ShouldBindJSON(&data)
 	data.CreateBy = tools.GetUserIdStr(c)
 	tools.HasError(err, "", 500)
@@ -55,8 +55,8 @@ func InsertSysFileInfo(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
-func UpdateSysFileInfo(c *gin.Context) {
-	var data models.SysFileInfo
+func UpdateSysFileInfoOld(c *gin.Context) {
+	var data models.SysFileInfoOld
 	err := c.BindWith(&data, binding.JSON)
 	tools.HasError(err, "数据解析失败", -1)
 	data.UpdateBy = tools.GetUserIdStr(c)
@@ -66,8 +66,8 @@ func UpdateSysFileInfo(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
-func DeleteSysFileInfo(c *gin.Context) {
-	var data models.SysFileInfo
+func DeleteSysFileInfoOld(c *gin.Context) {
+	var data models.SysFileInfoOld
 	data.UpdateBy = tools.GetUserIdStr(c)
 
 	IDS := tools.IdsStrToIdsIntGroup("id", c)

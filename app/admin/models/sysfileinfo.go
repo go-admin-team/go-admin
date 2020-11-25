@@ -4,7 +4,7 @@ import (
 	orm "go-admin/common/global"
 )
 
-type SysFileInfo struct {
+type SysFileInfoOld struct {
 	Id        int    `json:"id"`                                 // id
 	Type      string `json:"type" gorm:"type:varchar(255);"`     // 文件类型
 	Name      string `json:"name" gorm:"type:varchar(255);"`     // 文件名称
@@ -20,13 +20,13 @@ type SysFileInfo struct {
 	BaseModel
 }
 
-func (SysFileInfo) TableName() string {
+func (SysFileInfoOld) TableName() string {
 	return "sys_file_info"
 }
 
-// 创建SysFileInfo
-func (e *SysFileInfo) Create() (SysFileInfo, error) {
-	var doc SysFileInfo
+// 创建SysFileInfoOld
+func (e *SysFileInfoOld) Create() (SysFileInfoOld, error) {
+	var doc SysFileInfoOld
 	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -36,9 +36,9 @@ func (e *SysFileInfo) Create() (SysFileInfo, error) {
 	return doc, nil
 }
 
-// 获取SysFileInfo
-func (e *SysFileInfo) Get() (SysFileInfo, error) {
-	var doc SysFileInfo
+// 获取SysFileInfoOld
+func (e *SysFileInfoOld) Get() (SysFileInfoOld, error) {
+	var doc SysFileInfoOld
 	table := orm.Eloquent.Table(e.TableName())
 
 	if e.Id != 0 {
@@ -51,9 +51,9 @@ func (e *SysFileInfo) Get() (SysFileInfo, error) {
 	return doc, nil
 }
 
-// 获取SysFileInfo带分页
-func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int, error) {
-	var doc []SysFileInfo
+// 获取SysFileInfoOld带分页
+func (e *SysFileInfoOld) GetPage(pageSize int, pageIndex int) ([]SysFileInfoOld, int, error) {
+	var doc []SysFileInfoOld
 
 	table := orm.Eloquent.Table(e.TableName())
 
@@ -77,8 +77,8 @@ func (e *SysFileInfo) GetPage(pageSize int, pageIndex int) ([]SysFileInfo, int, 
 	return doc, int(count), nil
 }
 
-// 更新SysFileInfo
-func (e *SysFileInfo) Update(id int) (update SysFileInfo, err error) {
+// 更新SysFileInfoOld
+func (e *SysFileInfoOld) Update(id int) (update SysFileInfoOld, err error) {
 	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).First(&update).Error; err != nil {
 		return
 	}
@@ -91,9 +91,9 @@ func (e *SysFileInfo) Update(id int) (update SysFileInfo, err error) {
 	return
 }
 
-// 删除SysFileInfo
-func (e *SysFileInfo) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).Delete(&SysFileInfo{}).Error; err != nil {
+// 删除SysFileInfoOld
+func (e *SysFileInfoOld) Delete(id int) (success bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("id = ?", id).Delete(&SysFileInfoOld{}).Error; err != nil {
 		success = false
 		return
 	}
@@ -102,8 +102,8 @@ func (e *SysFileInfo) Delete(id int) (success bool, err error) {
 }
 
 //批量删除
-func (e *SysFileInfo) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("id in (?)", id).Delete(&SysFileInfo{}).Error; err != nil {
+func (e *SysFileInfoOld) BatchDelete(id []int) (Result bool, err error) {
+	if err = orm.Eloquent.Table(e.TableName()).Where("id in (?)", id).Delete(&SysFileInfoOld{}).Error; err != nil {
 		return
 	}
 	Result = true
