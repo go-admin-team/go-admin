@@ -19,7 +19,7 @@ import (
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} app.PageResponse "{"code": 200, "data": [...]}"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/list [get]
 // @Security Bearer
 func GetDictTypeList(c *gin.Context) {
