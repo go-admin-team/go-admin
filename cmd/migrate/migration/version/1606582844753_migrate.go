@@ -19,8 +19,14 @@ func _1606582844753Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 
-		dicData := models.SysDept{}
-		err := tx.Model(&dicData).Where("status = ?", 0).Update("status", 2).Error
+		dept := models.SysDept{}
+		err := tx.Model(&dept).Where("status = ?", 0).Update("status", 2).Error
+		if err != nil {
+			return err
+		}
+
+		dictData := models.DictData{}
+		err = tx.Model(&dictData).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err
 		}

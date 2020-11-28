@@ -88,6 +88,8 @@ func (e *DictData) Get() ([]DictData, error) {
 		table = table.Where("dict_type = ?", e.DictType)
 	}
 
+	table = table.Where("status = ?", 2)
+
 	if err := table.Order("dict_sort").Find(&doc).Error; err != nil {
 		return doc, err
 	}

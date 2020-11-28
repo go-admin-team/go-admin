@@ -24,6 +24,12 @@ func _1606579402398Test(db *gorm.DB, version string) error {
 			return err
 		}
 
+		dicType := models.DictType{}
+		err = tx.Model(&dicType).Where("status = ?", 0).Update("status", 2).Error
+		if err != nil {
+			return err
+		}
+
 		user := models.SysUser{}
 		err = tx.Model(&user).Where("user_id = ?", 1).Update("status", 2).Error
 		if err != nil {
