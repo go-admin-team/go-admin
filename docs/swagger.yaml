@@ -1,29 +1,4 @@
 definitions:
-  app.Page:
-    properties:
-      count:
-        type: integer
-      list:
-        type: object
-      pageIndex:
-        type: integer
-      pageSize:
-        type: integer
-    type: object
-  app.PageResponse:
-    properties:
-      code:
-        description: 代码
-        example: 200
-        type: integer
-      data:
-        $ref: '#/definitions/app.Page'
-        description: 数据集
-        type: object
-      msg:
-        description: 消息
-        type: string
-    type: object
   app.Response:
     properties:
       code:
@@ -35,6 +10,8 @@ definitions:
         type: object
       msg:
         description: 消息
+        type: string
+      requestId:
         type: string
     type: object
   models.DictType:
@@ -85,58 +62,6 @@ definitions:
     - password
     - username
     - uuid
-    type: object
-  models.LoginLog:
-    properties:
-      browser:
-        description: 浏览器
-        type: string
-      createBy:
-        description: 创建人
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        description: 数据
-        type: string
-      deletedAt:
-        type: string
-      infoId:
-        description: 主键
-        type: integer
-      ipaddr:
-        description: ip地址
-        type: string
-      loginLocation:
-        description: 归属地
-        type: string
-      loginTime:
-        description: 登录时间
-        type: string
-      msg:
-        type: string
-      os:
-        description: 系统
-        type: string
-      params:
-        type: string
-      platform:
-        description: 固件
-        type: string
-      remark:
-        description: 备注
-        type: string
-      status:
-        description: 状态
-        type: string
-      updateBy:
-        description: 更新者
-        type: string
-      updatedAt:
-        type: string
-      username:
-        description: 用户名
-        type: string
     type: object
   models.Menu:
     properties:
@@ -224,78 +149,6 @@ definitions:
         type: integer
       status:
         description: 状态
-        type: string
-      updateBy:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.SysCategory:
-    properties:
-      createBy:
-        description: 创建者
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
-      id:
-        description: 分类Id
-        type: integer
-      img:
-        description: 图片
-        type: string
-      name:
-        description: 名称
-        type: string
-      params:
-        type: string
-      remark:
-        description: 备注
-        type: string
-      sort:
-        description: 排序
-        type: string
-      status:
-        description: 状态
-        type: string
-      updateBy:
-        description: 更新者
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.SysConfig:
-    properties:
-      configId:
-        description: 编码
-        type: integer
-      configKey:
-        description: 参数键名
-        type: string
-      configName:
-        description: 参数名称
-        type: string
-      configType:
-        description: 是否系统内置
-        type: string
-      configValue:
-        description: 参数键值
-        type: string
-      createBy:
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
-      params:
-        type: string
-      remark:
-        description: 备注
         type: string
       updateBy:
         type: string
@@ -390,119 +243,6 @@ definitions:
       updateBy:
         type: string
       updatedAt:
-        type: string
-    type: object
-  models.SysFileDir:
-    properties:
-      children:
-        items:
-          $ref: '#/definitions/models.SysFileDir'
-        type: array
-      createBy:
-        description: 创建人
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
-      id:
-        type: integer
-      label:
-        description: 名称
-        type: string
-      pId:
-        description: 父id
-        type: integer
-      params:
-        type: string
-      path:
-        type: string
-      sort:
-        description: 排序
-        type: integer
-      updateBy:
-        description: 编辑人
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.SysOperLog:
-    properties:
-      businessType:
-        description: 操作类型
-        type: string
-      businessTypes:
-        type: string
-      createBy:
-        description: 创建人
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        description: 数据
-        type: string
-      deletedAt:
-        type: string
-      deptName:
-        description: 部门名称
-        type: string
-      jsonResult:
-        description: 返回数据
-        type: string
-      latencyime:
-        description: 耗时
-        type: string
-      method:
-        description: 函数
-        type: string
-      operId:
-        description: 日志编码
-        type: integer
-      operIp:
-        description: 客户端ip
-        type: string
-      operLocation:
-        description: 访问位置
-        type: string
-      operName:
-        description: 操作者
-        type: string
-      operParam:
-        description: 请求参数
-        type: string
-      operTime:
-        description: 操作时间
-        type: string
-      operUrl:
-        description: 访问地址
-        type: string
-      operatorType:
-        description: 操作类型
-        type: string
-      params:
-        description: 参数
-        type: string
-      remark:
-        description: 备注
-        type: string
-      requestMethod:
-        description: 请求方式
-        type: string
-      status:
-        description: 操作状态
-        type: string
-      title:
-        description: 操作模块
-        type: string
-      updateBy:
-        description: 更新者
-        type: string
-      updatedAt:
-        type: string
-      userAgent:
-        description: ua
         type: string
     type: object
   models.SysRole:
@@ -729,6 +469,12 @@ definitions:
       functionName:
         description: 功能名称
         type: string
+      isActions:
+        type: integer
+      isAuth:
+        type: integer
+      isDataScope:
+        type: integer
       isLogicalDelete:
         type: string
       logicalDelete:
@@ -745,7 +491,6 @@ definitions:
         type: string
       params:
         $ref: '#/definitions/tools.Params'
-        type: object
       pkColumn:
         type: string
       pkGoField:
@@ -785,121 +530,10 @@ info:
     添加qq群: 74520518 进入技术交流群 请备注，谢谢！
   license:
     name: MIT
-    url: https://github.com/wenjianzhang/go-admin/blob/master/LICENSE.md
+    url: https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md
   title: go-admin API
   version: 1.0.1
 paths:
-  /api/v1/config:
-    put:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: body
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.SysConfig'
-          type: object
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 修改配置
-      tags:
-      - 配置
-  /api/v1/config/{configId}:
-    delete:
-      description: 删除数据
-      parameters:
-      - description: configId
-        in: path
-        name: configId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: '{"code": -1, "message": "删除失败"}'
-          schema:
-            type: string
-      summary: 删除配置
-      tags:
-      - 配置
-    get:
-      description: 获取JSON
-      parameters:
-      - description: 配置编码
-        in: path
-        name: configId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 获取配置
-      tags:
-      - 配置
-  /api/v1/configKey/{configKey}:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: configKey
-        in: path
-        name: configKey
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 获取配置
-      tags:
-      - 配置
-  /api/v1/configList:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: configKey
-        in: query
-        name: configKey
-        type: string
-      - description: configName
-        in: query
-        name: configName
-        type: string
-      - description: configType
-        in: query
-        name: configType
-        type: string
-      - description: 页条数
-        in: query
-        name: pageSize
-        type: integer
-      - description: 页码
-        in: query
-        name: pageIndex
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 配置列表数据
-      tags:
-      - 配置
   /api/v1/db/columns/page:
     get:
       description: 数据库表列分页列表 / database table column page list
@@ -960,7 +594,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysDept'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -987,7 +620,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysDept'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1075,7 +707,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.DictType'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1097,7 +728,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.DictType'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1208,7 +838,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.DictType'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1230,7 +859,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.DictType'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1304,126 +932,12 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.PageResponse'
+            $ref: '#/definitions/app.Response'
       security:
       - Bearer: []
       summary: 字典类型列表数据
       tags:
       - 字典类型
-  /api/v1/loginlog:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.LoginLog'
-          type: object
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 添加登录日志
-      tags:
-      - 登录日志
-    put:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: body
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.LoginLog'
-          type: object
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 修改登录日志
-      tags:
-      - 登录日志
-  /api/v1/loginlog/{infoId}:
-    delete:
-      description: 删除数据
-      parameters:
-      - description: 以逗号（,）分割的infoId
-        in: path
-        name: infoId
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{"code": -1, "message": "删除失败"}'
-          schema:
-            type: string
-      summary: 批量删除登录日志
-      tags:
-      - 登录日志
-    get:
-      description: 获取JSON
-      parameters:
-      - description: infoId
-        in: path
-        name: infoId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 通过编码获取登录日志
-      tags:
-      - 登录日志
-  /api/v1/loginloglist:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: status
-        in: query
-        name: status
-        type: string
-      - description: dictCode
-        in: query
-        name: dictCode
-        type: string
-      - description: dictType
-        in: query
-        name: dictType
-        type: string
-      - description: 页条数
-        in: query
-        name: pageSize
-        type: integer
-      - description: 页码
-        in: query
-        name: pageIndex
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 登录日志列表
-      tags:
-      - 登录日志
   /api/v1/menu:
     get:
       description: 获取JSON
@@ -1519,7 +1033,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Menu'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -1601,99 +1114,6 @@ paths:
       summary: 根据角色名称获取菜单列表数据（左菜单使用）
       tags:
       - 菜单
-  /api/v1/operlog:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.SysOperLog'
-          type: object
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 添加操作日志
-      tags:
-      - 操作日志
-  /api/v1/operlog/{infoId}:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: infoId
-        in: path
-        name: infoId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 通过编码获取登录日志
-      tags:
-      - 登录日志
-  /api/v1/operlog/{operId}:
-    delete:
-      description: 删除数据
-      parameters:
-      - description: 以逗号（,）分割的operId
-        in: path
-        name: operId
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{"code": -1, "message": "删除失败"}'
-          schema:
-            type: string
-      summary: 批量删除操作日志
-      tags:
-      - 操作日志
-  /api/v1/operloglist:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: status
-        in: query
-        name: status
-        type: string
-      - description: dictCode
-        in: query
-        name: dictCode
-        type: string
-      - description: dictType
-        in: query
-        name: dictType
-        type: string
-      - description: 页条数
-        in: query
-        name: pageSize
-        type: integer
-      - description: 页码
-        in: query
-        name: pageIndex
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 登录日志列表
-      tags:
-      - 登录日志
   /api/v1/post:
     get:
       description: 获取JSON
@@ -1735,7 +1155,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Post'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1758,7 +1177,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Post'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1861,7 +1279,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysRole'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1881,7 +1298,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysRole'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -2033,7 +1449,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/tools.SysTables'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2127,7 +1542,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysUser'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2173,27 +1587,6 @@ paths:
       summary: 列表用户信息数据
       tags:
       - 用户
-  /api/v1/syscategory:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.SysCategory'
-          type: object
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      summary: 添加分类
-      tags:
-      - 分类
   /api/v1/syscontent:
     post:
       consumes:
@@ -2206,7 +1599,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysContent'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2215,27 +1607,6 @@ paths:
       summary: 添加内容管理
       tags:
       - 内容管理
-  /api/v1/sysfiledir:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.SysFileDir'
-          type: object
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      summary: 添加SysFileDir
-      tags:
-      - SysFileDir
   /api/v1/system/setting:
     post:
       description: 获取JSON
@@ -2246,7 +1617,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysUser'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -2283,7 +1653,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.SysUser'
-          type: object
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -2342,7 +1711,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Login'
-          type: object
       responses:
         "200":
           description: '{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token":
@@ -2364,79 +1732,6 @@ paths:
       security:
       - Bearer: []
       summary: 退出登录
-  /sd/cpu:
-    get:
-      consumes:
-      - text/html
-      description: CPU 使用量 DiskCheck checks the disk usage.
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: CPU 使用量
-  /sd/disk:
-    get:
-      consumes:
-      - text/html
-      description: 服务器硬盘使用量 DiskCheck checks the disk usage.
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: 'OK - Free space: 16321MB (15GB) / 51200MB (50GB) | Used: 31%'
-          schema:
-            type: string
-        "429":
-          description: WARNING
-          schema:
-            type: string
-        "500":
-          description: CRITICAL
-          schema:
-            type: string
-      summary: 服务器硬盘使用量
-  /sd/health:
-    get:
-      consumes:
-      - text/html
-      description: 健康状况
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: 健康状况 HealthCheck shows OK as the ping-pong result.
-  /sd/os:
-    get:
-      consumes:
-      - text/html
-      description: Os
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: OS
-  /sd/ram:
-    get:
-      consumes:
-      - text/html
-      description: 内存使用量 RAMCheck checks the disk usage.
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: 内存使用量
 securityDefinitions:
   Bearer:
     in: header
