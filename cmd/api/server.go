@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-admin/tools/trace"
+	"golang.org/x/crypto/acme/autocert"
 	"net/http"
 	"os"
 	"os/signal"
@@ -113,6 +114,25 @@ func run() error {
 	go func() {
 		// 服务连接
 		if config.SslConfig.Enable {
+			if len(config.SslConfig.Domain) == 0 {
+				log.Fatal("Domain must config")
+			}
+			if !tools.PathExist(config.SslConfig.CertCache) {
+				err := tools.PathCreate(config.SslConfig.CertCache)
+				if err != nil {
+					log.Errorf("创建目录失败:%v", err.Error())
+				}
+			}
+			if !tools.FileExist(config.SslConfig.Pem) || !tools.FileExist(config.SslConfig.KeyStr) {
+				log.Info("启用https证书自动签发")
+				m := &autocert.Manager{
+					Cache:       autocert.DirCache(config.SslConfig.CertCache),
+					Prompt:      autocert.AcceptTOS,
+					HostPolicy:  autocert.HostWhitelist(config.SslConfig.Domain),
+					RenewBefore: time.Hour * 24 * config.SslConfig.RenewBefore, //设置15天更新一次证书
+				}
+				srv.TLSConfig = m.TLSConfig()
+			}
 			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
 				log.Fatal("listen: ", err)
 			}

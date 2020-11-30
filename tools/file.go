@@ -27,7 +27,14 @@ func PathExist(addr string) bool {
 	}
 	return s.IsDir()
 }
-
+func FileExist(filename string) bool {
+	s, err := os.Stat(filename)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	return !s.IsDir()
+}
 func FileCreate(content bytes.Buffer, name string) {
 	file, err := os.Create(name)
 	if err != nil {
