@@ -14,16 +14,15 @@ require (
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
-	github.com/matchstalk/redisqueue v1.0.3
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2
 	github.com/opentracing/basictracer-go v1.1.0 // indirect
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v1.1.0
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/robinjoseph08/redisqueue/v2 v2.1.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shamsher31/goimgext v1.0.0
-	github.com/shamsher31/goimgtype v1.0.0
 	github.com/shirou/gopsutil v2.20.7+incompatible
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546 // indirect

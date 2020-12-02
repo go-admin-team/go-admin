@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-admin-team/go-admin-core/cache"
 	"github.com/go-redis/redis/v7"
-	"github.com/matchstalk/redisqueue"
+	"github.com/robinjoseph08/redisqueue/v2"
 )
 
 var RedisAdapter Adapter
