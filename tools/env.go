@@ -11,3 +11,7 @@ const (
 	Mysql         = "mysql"   //mysql数据库标识
 	Sqlite        = "sqlite3" //sqlite
 )
+
+func (e Mode) String() string {
+	return string(e)
+}
