@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/go-admin-team/go-admin-core/config"
-	"github.com/go-admin-team/go-admin-core/config/source/file"
+	"github.com/go-admin-team/go-admin-core/config/source"
 	"log"
 )
 
@@ -33,15 +33,13 @@ var (
 )
 
 // Setup 载入配置文件
-func Setup(path string) {
+func Setup(f func(opts ...source.Option) source.Source, options ...source.Option) {
 	c, err := config.NewConfig()
 	if err != nil {
 		log.Fatal(fmt.Sprintf("New config object fail: %s", err.Error()))
 	}
 	err = c.Load(
-		file.NewSource(
-			file.WithPath(path),
-		),
+		f(options...),
 	)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Load config source fail: %s", err.Error()))

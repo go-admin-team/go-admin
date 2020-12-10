@@ -3,14 +3,15 @@ package api
 import (
 	"context"
 	"fmt"
-	"go-admin/tools/trace"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/spf13/cobra"
+
 	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
 	"go-admin/common/database"
@@ -20,6 +21,7 @@ import (
 	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/config"
+	"go-admin/tools/trace"
 )
 
 var (
@@ -56,7 +58,7 @@ func init() {
 func setup() {
 
 	//1. 读取配置
-	config.Setup(configYml)
+	config.Setup(file.NewSource, file.WithPath(configYml))
 	go config.Watch()
 	//2. 设置日志
 	global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
