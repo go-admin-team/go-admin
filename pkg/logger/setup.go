@@ -1,28 +1,26 @@
 package logger
 
 import (
-	"go-admin/tools"
-	"path/filepath"
-
 	"github.com/go-admin-team/go-admin-core/debug/writer"
 	"github.com/go-admin-team/go-admin-core/logger"
 
 	"go-admin/common/log"
+	"go-admin/tools"
 )
 
 // SetupLogger 日志
-func SetupLogger(path string, subPath string) logger.Logger {
+func SetupLogger(path string, prefix string) logger.Logger {
 	var setLogger logger.Logger
-	fullPath := filepath.Join(path, subPath)
-	if !tools.PathExist(fullPath) {
-		err := tools.PathCreate(fullPath)
+	prefix = "[" + prefix + "] "
+	if !tools.PathExist(path) {
+		err := tools.PathCreate(path)
 		if err != nil {
 			log.Fatal("create dir error: %s", err.Error())
 		}
 	}
-	output, err := writer.NewFileWriter(fullPath, "log")
+	output, err := writer.NewFileWriter(path, prefix, "log")
 	if err != nil {
-		log.Fatal("%s logger setup error: %s", subPath, err.Error())
+		log.Fatal("%s logger setup error: %s", prefix, err.Error())
 	}
 	setLogger = logger.NewHelper(logger.NewLogger(logger.WithOutput(output)))
 	return setLogger
