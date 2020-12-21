@@ -4,8 +4,8 @@ import "gorm.io/gorm/schema"
 
 type ActiveRecord interface {
 	schema.Tabler
-	SetCreateBy(createBy uint)
-	SetUpdateBy(updateBy uint)
+	SetCreateBy(createBy int)
+	SetUpdateBy(updateBy int)
 	Generate() ActiveRecord
 	GetId() interface{}
 }

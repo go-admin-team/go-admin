@@ -3,7 +3,7 @@ package sys_file
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/app/admin/service"
-	common "go-admin/common/models"
+	"go-admin/tools/app"
 	"net/http"
 
 	"go-admin/app/admin/models"
@@ -20,19 +20,16 @@ type SysFileInfo struct {
 
 func (e *SysFileInfo) GetSysFileInfoList(c *gin.Context) {
 	msgID := tools.GenerateMsgIDFromContext(c)
-	d := new(dto.SysFileInfoSearch)
+	search := new(dto.SysFileInfoSearch)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Error(err)
 		return
 	}
-
-	req := d.Generate()
-
-	//查询列表
-	err = req.Bind(c)
+	err = c.ShouldBind(search)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
 
@@ -44,13 +41,13 @@ func (e *SysFileInfo) GetSysFileInfoList(c *gin.Context) {
 	serviceStudent := service.SysFileInfo{}
 	serviceStudent.MsgID = msgID
 	serviceStudent.Orm = db
-	err = serviceStudent.GetSysFileInfoPage(req, p, &list, &count)
+	err = serviceStudent.GetSysFileInfoPage(search, p, &list, &count)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+	e.PageOK(c, list, int(count), search.PageIndex, search.PageSize, "查询成功")
 }
 
 func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
@@ -63,12 +60,13 @@ func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
 
 	msgID := tools.GenerateMsgIDFromContext(c)
 	//查看详情
-	req := control.Generate()
-	err = req.Bind(c)
+	err = c.ShouldBindUri(control)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
+
 	var object models.SysFileInfo
 
 	//数据权限检查
@@ -77,7 +75,7 @@ func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
 	serviceSysFileInfo := service.SysFileInfo{}
 	serviceSysFileInfo.MsgID = msgID
 	serviceSysFileInfo.Orm = db
-	err = serviceSysFileInfo.GetSysFileInfo(req, p, &object)
+	err = serviceSysFileInfo.GetSysFileInfo(control, p, &object)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -96,32 +94,32 @@ func (e *SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 
 	msgID := tools.GenerateMsgIDFromContext(c)
 	//新增操作
-	req := control.Generate()
-	err = req.Bind(c)
+	err = c.ShouldBindUri(control)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
+	err = c.ShouldBind(control)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserIdUint(c))
+	control.CreateBy = tools.GetUserId(c)
 
 	serviceSysFileInfo := service.SysFileInfo{}
 	serviceSysFileInfo.Orm = db
 	serviceSysFileInfo.MsgID = msgID
-	err = serviceSysFileInfo.InsertSysFileInfo(object)
+	err = serviceSysFileInfo.InsertSysFileInfo(control)
 	if err != nil {
 		log.Error(err)
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(c, control.ID, "创建成功")
 }
 
 func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
@@ -133,20 +131,20 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 	}
 
 	msgID := tools.GenerateMsgIDFromContext(c)
-	req := control.Generate()
-	//更新操作
-	err = req.Bind(c)
+	err = c.ShouldBindUri(control)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
+	err = c.ShouldBind(control)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserIdUint(c))
+	// 设置创建人
+	control.UpdateBy = tools.GetUserId(c)
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -154,12 +152,12 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 	serviceSysFileInfo := service.SysFileInfo{}
 	serviceSysFileInfo.Orm = db
 	serviceSysFileInfo.MsgID = msgID
-	err = serviceSysFileInfo.UpdateSysFileInfo(object, p)
+	err = serviceSysFileInfo.UpdateSysFileInfo(control, p)
 	if err != nil {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(c, control.ID, "更新成功")
 }
 
 func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
@@ -172,22 +170,21 @@ func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
 
 	msgID := tools.GenerateMsgIDFromContext(c)
 	//删除操作
-	req := control.Generate()
-	err = req.Bind(c)
+	err = c.ShouldBindUri(control)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
+	err = c.ShouldBind(control)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(tools.GetUserIdUint(c))
+	control.UpdateBy = tools.GetUserId(c)
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -195,10 +192,10 @@ func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
 	serviceSysFileInfo := service.SysFileInfo{}
 	serviceSysFileInfo.Orm = db
 	serviceSysFileInfo.MsgID = msgID
-	err = serviceSysFileInfo.RemoveSysFileInfo(req, object, p)
+	err = serviceSysFileInfo.RemoveSysFileInfo(control, p)
 	if err != nil {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "删除成功")
+	e.OK(c, control.Id, "删除成功")
 }

@@ -3,10 +3,10 @@ package service
 import (
 	"errors"
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 	"go-admin/common/log"
-	common "go-admin/common/models"
 	"go-admin/common/service"
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ type SysFileInfo struct {
 }
 
 // GetSysFileInfoPage 获取SysFileInfo列表
-func (e *SysFileInfo) GetSysFileInfoPage(c cDto.Index, p *actions.DataPermission, list *[]models.SysFileInfo, count *int64) error {
+func (e *SysFileInfo) GetSysFileInfoPage(c *dto.SysFileInfoSearch, p *actions.DataPermission, list *[]models.SysFileInfo, count *int64) error {
 	var err error
 	var data models.SysFileInfo
 	msgID := e.MsgID
@@ -37,7 +37,7 @@ func (e *SysFileInfo) GetSysFileInfoPage(c cDto.Index, p *actions.DataPermission
 }
 
 // GetSysFileInfo 获取SysFileInfo对象
-func (e *SysFileInfo) GetSysFileInfo(d cDto.Control, p *actions.DataPermission, model *models.SysFileInfo) error {
+func (e *SysFileInfo) GetSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPermission, model *models.SysFileInfo) error {
 	var err error
 	var data models.SysFileInfo
 	msgID := e.MsgID
@@ -61,13 +61,19 @@ func (e *SysFileInfo) GetSysFileInfo(d cDto.Control, p *actions.DataPermission, 
 }
 
 // InsertSysFileInfo 创建SysFileInfo对象
-func (e *SysFileInfo) InsertSysFileInfo(model common.ActiveRecord) error {
+func (e *SysFileInfo) InsertSysFileInfo(model *dto.SysFileInfoControl) error {
 	var err error
-	var data models.SysFileInfo
+	var data *models.SysFileInfo
 	msgID := e.MsgID
 
+	data, err = model.Generate()
+	if err != nil {
+		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		return err
+	}
+
 	err = e.Orm.Model(&data).
-		Create(model).Error
+		Create(data).Error
 	if err != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
@@ -76,20 +82,25 @@ func (e *SysFileInfo) InsertSysFileInfo(model common.ActiveRecord) error {
 }
 
 // UpdateSysFileInfo 修改SysFileInfo对象
-func (e *SysFileInfo) UpdateSysFileInfo(c common.ActiveRecord, p *actions.DataPermission) error {
+func (e *SysFileInfo) UpdateSysFileInfo(c *dto.SysFileInfoControl, p *actions.DataPermission) error {
 	var err error
-	var data models.SysFileInfo
+	var data *models.SysFileInfo
 	msgID := e.MsgID
 
-	db := e.Orm.Model(&data).
-		Scopes(
-			actions.Permission(data.TableName(), p),
-		).Where(c.GetId()).Updates(c)
-	if db.Error != nil {
+	data, err = c.Generate()
+	if err != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
 	}
-	if db.RowsAffected == 0 {
+	err = e.Orm.Debug().Model(&data).
+		Scopes(
+			actions.Permission(data.TableName(), p),
+		).Where("id = ?", c.ID).Updates(&data).Error
+	if err != nil {
+		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		return err
+	}
+	if err == gorm.ErrRecordNotFound {
 		return errors.New("无权更新该数据")
 
 	}
@@ -97,7 +108,7 @@ func (e *SysFileInfo) UpdateSysFileInfo(c common.ActiveRecord, p *actions.DataPe
 }
 
 // RemoveSysFileInfo 删除SysFileInfo
-func (e *SysFileInfo) RemoveSysFileInfo(d cDto.Control, c common.ActiveRecord, p *actions.DataPermission) error {
+func (e *SysFileInfo) RemoveSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysFileInfo
 	msgID := e.MsgID
@@ -105,7 +116,7 @@ func (e *SysFileInfo) RemoveSysFileInfo(d cDto.Control, c common.ActiveRecord, p
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(d.GetId()).Delete(c)
+		).Where(d.GetId()).Delete(&data)
 	if db.Error != nil {
 		err = db.Error
 		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)

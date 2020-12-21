@@ -37,7 +37,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			return
 		}
 
-		object.SetUpdateBy(tools.GetUserIdUint(c))
+		object.SetUpdateBy(tools.GetUserId(c))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)
