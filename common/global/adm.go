@@ -12,7 +12,7 @@ import (
 
 const (
 	// go-admin Version Info
-	Version = "1.2.2"
+	Version = "1.2.3"
 )
 
 var Cfg config.Conf = config.DefaultConfig()

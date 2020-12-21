@@ -72,7 +72,6 @@ func Start() {
 func Stop(ctx context.Context) {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
-	<-quit
 	fmt.Printf("%s Shutdown Server ... \r\n", tools.GetCurrentTimeStr())
 	err := _server.Shutdown(ctx)
 	if err != nil {

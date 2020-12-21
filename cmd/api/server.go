@@ -3,15 +3,14 @@ package api
 import (
 	"context"
 	"fmt"
-	"go-admin/tools/trace"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
@@ -22,6 +21,7 @@ import (
 	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/config"
+	"go-admin/tools/trace"
 )
 
 var (
@@ -58,7 +58,8 @@ func init() {
 func setup() {
 
 	//1. 读取配置
-	config.Setup(configYml)
+	config.Setup(file.NewSource, file.WithPath(configYml))
+	go config.Watch()
 	//2. 设置日志
 	global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
 	global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
@@ -74,7 +75,9 @@ func setup() {
 }
 
 func run() error {
-	if viper.GetString("settings.application.mode") == string(tools.ModeProd) {
+	defer config.Stop()
+
+	if config.ApplicationConfig.Mode == tools.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	engine := global.Cfg.GetEngine()
@@ -92,7 +95,7 @@ func run() error {
 	}
 
 	srv := &http.Server{
-		Addr:    config.ApplicationConfig.Host + ":" + config.ApplicationConfig.Port,
+		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
 		Handler: global.Cfg.GetEngine(),
 	}
 	go func() {
@@ -125,11 +128,11 @@ func run() error {
 	fmt.Println(tools.Red(string(global.LogoContent)))
 	tip()
 	fmt.Println(tools.Green("Server run at:"))
-	fmt.Printf("-  Local:   http://localhost:%s/ \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/ \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Local:   http://localhost:%d/ \r\n", config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%d/ \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
 	fmt.Println(tools.Green("Swagger run at:"))
-	fmt.Printf("-  Local:   http://localhost:%s/swagger/index.html \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%s/swagger/index.html \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Local:   http://localhost:%d/swagger/index.html \r\n", config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%d/swagger/index.html \r\n", tools.GetLocaHonst(), config.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", tools.GetCurrentTimeStr())
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)

@@ -83,7 +83,7 @@ func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 	}
 	//var mp = map[string]string{}
 	//mp["path"] = path
-	if err := e.Orm.Model(&data).Where("id = ?", data.ID).Update("path",path).Error; err != nil {
+	if err := e.Orm.Model(&data).Where("id = ?", data.ID).Update("path", path).Error; err != nil {
 		return err
 	}
 
@@ -157,13 +157,18 @@ func SysFileDirCall(list *[]models.SysFileDirL, m models.SysFileDirL) models.Sys
 		mi.ID = listGroup[j].ID
 		mi.PId = listGroup[j].PId
 		mi.Label = listGroup[j].Label
-		mi.Sort = listGroup[j].Sort
+		//mi.Sort = listGroup[j].Sort
 		mi.CreatedAt = listGroup[j].CreatedAt
 		mi.UpdatedAt = listGroup[j].UpdatedAt
 		mi.Children = []models.SysFileDirL{}
 		ms := SysFileDirCall(list, mi)
 		min = append(min, ms)
 	}
-	m.Children = min
+	if len(min) > 0 {
+		m.Children = min
+	} else {
+		m.Children = nil
+	}
+
 	return m
 }

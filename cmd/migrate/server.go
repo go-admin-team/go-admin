@@ -7,6 +7,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/spf13/cobra"
 
 	"go-admin/cmd/migrate/migration"
@@ -46,7 +47,7 @@ func run() {
 
 	if !generate {
 		//1. 读取配置
-		config.Setup(configYml)
+		config.Setup(file.NewSource, file.WithPath(configYml))
 		//2. 设置日志
 		global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
 		global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
