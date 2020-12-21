@@ -49,6 +49,7 @@ func CreateSetting(c *gin.Context) {
 	var sModel models.SysSetting
 	sModel.Logo = s.Logo
 	sModel.Name = s.Name
+	sModel.SettingsId = s.SettingsId
 
 	a, e := sModel.Update()
 	if e != nil {

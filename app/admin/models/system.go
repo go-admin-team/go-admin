@@ -27,7 +27,7 @@ func (s *SysSetting) Get() (create SysSetting, err error) {
 
 //修改
 func (s *SysSetting) Update() (update SysSetting, err error) {
-	if err = orm.Eloquent.Table("sys_setting").Model(&update).Updates(&s).Error; err != nil {
+	if err = orm.Eloquent.Table("sys_setting").Model(&update).Where("settings_id = ?", s.SettingsId).Updates(&s).Error; err != nil {
 		return
 	}
 	return
@@ -36,4 +36,5 @@ func (s *SysSetting) Update() (update SysSetting, err error) {
 type ResponseSystemConfig struct {
 	Name string `json:"name" binding:"required"` // 名称
 	Logo string `json:"logo" binding:"required"` // 头像
+	SettingsId int    `json:"settings_id" binding:"required"` // 头像
 }
