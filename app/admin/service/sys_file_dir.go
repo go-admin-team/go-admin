@@ -3,10 +3,10 @@ package service
 import (
 	"errors"
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 	"go-admin/common/log"
-	common "go-admin/common/models"
 	"go-admin/common/service"
 	"go-admin/tools"
 	"gorm.io/gorm"
@@ -17,7 +17,7 @@ type SysFileDir struct {
 }
 
 // GetSysFileDirPage 获取SysFileDir列表
-func (e *SysFileDir) GetSysFileDirPage(c cDto.Index, list *[]models.SysFileDirL) error {
+func (e *SysFileDir) GetSysFileDirPage(c *dto.SysFileDirSearch, list *[]models.SysFileDirL) error {
 	var err error
 	var data models.SysFileDir
 	msgID := e.MsgID
@@ -25,7 +25,6 @@ func (e *SysFileDir) GetSysFileDirPage(c cDto.Index, list *[]models.SysFileDirL)
 	err = e.Orm.Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
-			//cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
 		).
 		Find(list). //Limit(-1).Offset(-1).
 		Error
@@ -58,7 +57,7 @@ func (e *SysFileDir) GetSysFileDir(d cDto.Control, model *models.SysFileDir) err
 }
 
 // InsertSysFileDir 创建SysFileDir对象
-func (e *SysFileDir) InsertSysFileDir(model common.ActiveRecord) error {
+func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 	var err error
 	var data models.SysFileDir
 	msgID := e.MsgID
@@ -70,7 +69,7 @@ func (e *SysFileDir) InsertSysFileDir(model common.ActiveRecord) error {
 		return err
 	}
 	id := model.GetId()
-	path := "/" + tools.UIntToString(id.(uint))
+	path := "/" + tools.IntToString(id.(int))
 	db = e.Orm.Model(&data).
 		First(&data, model.GetId())
 	err = db.Error
@@ -92,7 +91,7 @@ func (e *SysFileDir) InsertSysFileDir(model common.ActiveRecord) error {
 }
 
 // UpdateSysFileDir 修改SysFileDir对象
-func (e *SysFileDir) UpdateSysFileDir(c common.ActiveRecord, p *actions.DataPermission) error {
+func (e *SysFileDir) UpdateSysFileDir(c *dto.SysFileDirControl, p *actions.DataPermission) error {
 	var err error
 	var data models.SysFileDir
 	msgID := e.MsgID
@@ -100,20 +99,19 @@ func (e *SysFileDir) UpdateSysFileDir(c common.ActiveRecord, p *actions.DataPerm
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(c.GetId()).Updates(c)
+		).Where(c.ID).Updates(c)
 	if db.Error != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
 	}
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
-
 	}
 	return nil
 }
 
 // RemoveSysFileDir 删除SysFileDir
-func (e *SysFileDir) RemoveSysFileDir(d cDto.Control, c common.ActiveRecord, p *actions.DataPermission) error {
+func (e *SysFileDir) RemoveSysFileDir(d *dto.SysFileDirById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysFileDir
 	msgID := e.MsgID
@@ -121,7 +119,7 @@ func (e *SysFileDir) RemoveSysFileDir(d cDto.Control, c common.ActiveRecord, p *
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(d.GetId()).Delete(c)
+		).Where(d.Id).Delete(&data)
 	if db.Error != nil {
 		err = db.Error
 		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
@@ -134,7 +132,7 @@ func (e *SysFileDir) RemoveSysFileDir(d cDto.Control, c common.ActiveRecord, p *
 	return nil
 }
 
-func (e *SysFileDir) SetSysFileDir(c cDto.Index) (*[]models.SysFileDirL, error) {
+func (e *SysFileDir) SetSysFileDir(c *dto.SysFileDirSearch) (*[]models.SysFileDirL, error) {
 	var list []models.SysFileDirL
 	err := e.GetSysFileDirPage(c, &list)
 	m := make([]models.SysFileDirL, 0)

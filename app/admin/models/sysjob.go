@@ -9,7 +9,7 @@ import (
 )
 
 type SysJob struct {
-	JobId          uint   `json:"jobId" gorm:"primary_key;AUTO_INCREMENT"` // 编码
+	JobId          int   `json:"jobId" gorm:"primary_key;AUTO_INCREMENT"` // 编码
 	JobName        string `json:"jobName" gorm:"size:255;"`                // 名称
 	JobGroup       string `json:"jobGroup" gorm:"size:255;"`               // 任务分组
 	JobType        int    `json:"jobType" gorm:"size:1;"`                  // 任务类型
@@ -40,11 +40,11 @@ func (e *SysJob) GetId() interface{} {
 	return e.JobId
 }
 
-func (e *SysJob) SetCreateBy(createBy uint) {
+func (e *SysJob) SetCreateBy(createBy int) {
 	e.CreateBy = strconv.Itoa(int(createBy))
 }
 
-func (e *SysJob) SetUpdateBy(updateBy uint) {
+func (e *SysJob) SetUpdateBy(updateBy int) {
 	e.UpdateBy = strconv.Itoa(int(updateBy))
 }
 

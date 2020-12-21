@@ -2,8 +2,6 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	"go-admin/common/log"
@@ -42,7 +40,7 @@ func (m *SysOperaLogSearch) Generate() dto.Index {
 }
 
 type SysOperaLogControl struct {
-	ID            uint      `uri:"ID" comment:"编码"` // 编码
+	ID            int      `uri:"ID" comment:"编码"` // 编码
 	Title         string    `json:"title" comment:"操作模块"`
 	BusinessType  string    `json:"businessType" comment:"操作类型"`
 	BusinessTypes string    `json:"businessTypes" comment:""`
@@ -84,7 +82,7 @@ func (s *SysOperaLogControl) Generate() dto.Control {
 
 func (s *SysOperaLogControl) GenerateM() (common.ActiveRecord, error) {
 	return &system.SysOperaLog{
-		Model:         gorm.Model{ID: s.ID},
+		Model:         common.Model{ID: s.ID},
 		Title:         s.Title,
 		BusinessType:  s.BusinessType,
 		BusinessTypes: s.BusinessTypes,

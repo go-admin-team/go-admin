@@ -103,7 +103,7 @@ func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserIdUint(c))
+	object.SetCreateBy(tools.GetUserId(c))
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
@@ -140,7 +140,7 @@ func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserIdUint(c))
+	object.SetUpdateBy(tools.GetUserId(c))
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
@@ -178,7 +178,7 @@ func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(tools.GetUserIdUint(c))
+	object.SetUpdateBy(tools.GetUserId(c))
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db

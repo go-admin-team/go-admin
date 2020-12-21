@@ -103,7 +103,7 @@ func (e *SysOperaLog) InsertSysOperaLog(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserIdUint(c))
+	object.SetCreateBy(tools.GetUserId(c))
 
 	serviceSysOperaLog := service.SysOperaLog{}
 	serviceSysOperaLog.Orm = db
@@ -140,7 +140,7 @@ func (e *SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserIdUint(c))
+	object.SetUpdateBy(tools.GetUserId(c))
 
 	serviceSysOperaLog := service.SysOperaLog{}
 	serviceSysOperaLog.Orm = db
@@ -178,7 +178,7 @@ func (e *SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(tools.GetUserIdUint(c))
+	object.SetUpdateBy(tools.GetUserId(c))
 
 	serviceSysOperaLog := service.SysOperaLog{}
 	serviceSysOperaLog.Orm = db

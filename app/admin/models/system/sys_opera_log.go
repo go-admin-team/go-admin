@@ -1,17 +1,13 @@
 package system
 
 import (
-	"gorm.io/gorm"
-
 	"go-admin/common/models"
 
 	"time"
 )
 
 type SysOperaLog struct {
-	gorm.Model
-	models.ControlBy
-
+	models.Model
 	Title         string    `json:"title" gorm:"type:varchar(255);comment:操作模块"`                  //
 	BusinessType  string    `json:"businessType" gorm:"type:varchar(128);comment:操作类型"`           //
 	BusinessTypes string    `json:"businessTypes" gorm:"type:varchar(128);comment:BusinessTypes"` //
@@ -30,6 +26,8 @@ type SysOperaLog struct {
 	Remark        string    `json:"remark" gorm:"type:varchar(255);comment:备注"`                   //
 	LatencyTime   string    `json:"latencyTime" gorm:"type:varchar(128);comment:耗时"`              //
 	UserAgent     string    `json:"userAgent" gorm:"type:varchar(255);comment:ua"`                //
+	models.ControlBy
+	models.ModelTime
 }
 
 func (SysOperaLog) TableName() string {

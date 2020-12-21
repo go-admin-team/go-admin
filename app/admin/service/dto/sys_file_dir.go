@@ -2,8 +2,6 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	"go-admin/common/log"
@@ -14,7 +12,7 @@ import (
 type SysFileDirSearch struct {
 	dto.Pagination `search:"-"`
 
-	ID    uint   `form:"ID" search:"type:exact;column:id;table:sys_file_dir" comment:"标识"`
+	ID    int   `form:"ID" search:"type:exact;column:id;table:sys_file_dir" comment:"标识"`
 	Label string `form:"label" search:"type:exact;column:label;table:sys_file_dir" comment:"目录名称"`
 	PId   string `form:"pId" search:"type:exact;column:p_id;table:sys_file_dir" comment:"上级目录"`
 	Sort  string `form:"sort" search:"type:exact;column:sort;table:sys_file_dir" comment:"排序"`
@@ -40,11 +38,13 @@ func (m *SysFileDirSearch) Generate() dto.Index {
 }
 
 type SysFileDirControl struct {
-	ID    uint   `uri:"ID" comment:"标识"` // 标识
+	ID    int   `uri:"ID" comment:"标识"` // 标识
 	Label string `json:"label" comment:"目录名称"`
-	PId   uint   `json:"pId" comment:"上级目录"`
+	PId   int   `json:"pId" comment:"上级目录"`
 	Sort  string `json:"sort" comment:"排序"`
 	Path  string `json:"path" comment:"路径"`
+	CreateBy int `json:"-"`
+	UpdateBy int `json:"-"`
 }
 
 func (s *SysFileDirControl) Bind(ctx *gin.Context) error {
@@ -68,7 +68,7 @@ func (s *SysFileDirControl) Generate() dto.Control {
 
 func (s *SysFileDirControl) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysFileDir{
-		Model: gorm.Model{ID: s.ID},
+		Model: common.Model{ID: s.ID},
 		Label: s.Label,
 		PId:   s.PId,
 		Sort:  s.Sort,
@@ -82,6 +82,7 @@ func (s *SysFileDirControl) GetId() interface{} {
 
 type SysFileDirById struct {
 	dto.ObjectById
+	UpdateBy int `json:"-"`
 }
 
 func (s *SysFileDirById) Generate() dto.Control {

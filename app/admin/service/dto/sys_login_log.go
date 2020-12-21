@@ -2,8 +2,6 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	"go-admin/common/log"
@@ -41,7 +39,7 @@ func (m *SysLoginLogSearch) Generate() dto.Index {
 }
 
 type SysLoginLogControl struct {
-	ID            uint      `uri:"ID" comment:"主键"` // 主键
+	ID            int      `uri:"ID" comment:"主键"` // 主键
 	Username      string    `json:"username" comment:"用户名"`
 	Status        string    `json:"status" comment:"状态"`
 	Ipaddr        string    `json:"ipaddr" comment:"ip地址"`
@@ -75,8 +73,7 @@ func (s *SysLoginLogControl) Generate() dto.Control {
 
 func (s *SysLoginLogControl) GenerateM() (common.ActiveRecord, error) {
 	return &system.SysLoginLog{
-
-		Model:         gorm.Model{ID: s.ID},
+		Model:         common.Model{ID: s.ID},
 		Username:      s.Username,
 		Status:        s.Status,
 		Ipaddr:        s.Ipaddr,

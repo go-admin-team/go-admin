@@ -1,17 +1,13 @@
 package system
 
 import (
-	"gorm.io/gorm"
-
 	"go-admin/common/models"
 
 	"time"
 )
 
 type SysLoginLog struct {
-	gorm.Model
-	models.ControlBy
-
+	models.Model
 	Username      string    `json:"username" gorm:"type:varchar(128);comment:用户名"`      //
 	Status        string    `json:"status" gorm:"type:varchar(4);comment:状态"`           //
 	Ipaddr        string    `json:"ipaddr" gorm:"type:varchar(255);comment:ip地址"`       //
@@ -22,6 +18,8 @@ type SysLoginLog struct {
 	LoginTime     time.Time `json:"loginTime" gorm:"type:timestamp;comment:登录时间"`       //
 	Remark        string    `json:"remark" gorm:"type:varchar(255);comment:备注"`         //
 	Msg           string    `json:"msg" gorm:"type:varchar(255);comment:信息"`            //
+	models.ControlBy
+	models.ModelTime
 }
 
 func (SysLoginLog) TableName() string {

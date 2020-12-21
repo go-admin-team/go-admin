@@ -3,8 +3,6 @@ package dto
 import (
 	"github.com/gin-gonic/gin"
 	"go-admin/app/admin/models/system"
-	"gorm.io/gorm"
-
 	"go-admin/common/dto"
 	"go-admin/common/log"
 	common "go-admin/common/models"
@@ -37,7 +35,7 @@ func (m *SysConfigSearch) Generate() dto.Index {
 }
 
 type SysConfigControl struct {
-	ID          uint   `uri:"ID" comment:"编码"` // 编码
+	ID          int    `uri:"ID" comment:"编码"` // 编码
 	ConfigName  string `json:"configName" comment:""`
 	ConfigKey   string `json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
@@ -66,7 +64,7 @@ func (s *SysConfigControl) Generate() dto.Control {
 
 func (s *SysConfigControl) GenerateM() (common.ActiveRecord, error) {
 	return &system.SysConfig{
-		Model:       gorm.Model{ID: s.ID},
+		Model:       common.Model{ID: s.ID},
 		ConfigName:  s.ConfigName,
 		ConfigKey:   s.ConfigKey,
 		ConfigValue: s.ConfigValue,
