@@ -97,7 +97,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	}
 	b, _ := c.Get("body")
 	sysOperaLog.OperParam, _ = tools.StructToJsonStr(b)
-	sysOperaLog.CreateBy = tools.GetUserIdUint(c)
+	sysOperaLog.CreateBy = tools.GetUserId(c)
 	sysOperaLog.OperTime = tools.GetCurrentTime()
 	sysOperaLog.LatencyTime = (latencyTime).String()
 	sysOperaLog.UserAgent = c.Request.UserAgent()
