@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: go-admin
+  namespace: go-admin
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: "1Mi"
+  volumeName:
+  storageClassName: nfs-csi
