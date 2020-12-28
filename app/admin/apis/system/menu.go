@@ -3,8 +3,8 @@ package system
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-
 	"go-admin/app/admin/models"
+	"go-admin/common/global"
 	"go-admin/tools"
 	"go-admin/tools/app"
 )
@@ -149,6 +149,10 @@ func DeleteMenu(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	_, err = data.Delete(id)
 	tools.HasError(err, "删除失败", 500)
+
+	_, err = global.LoadPolicy()
+	tools.HasError(err, "", -1)
+
 	app.OK(c, "", "删除成功")
 }
 
