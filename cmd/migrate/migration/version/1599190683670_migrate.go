@@ -96,7 +96,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list10 := []models.SysSetting{
-			{1, "go-admin管理系统", "https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{1, "go-admin管理系统", "https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png", common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list11 := []models.SysJob{

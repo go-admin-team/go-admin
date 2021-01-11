@@ -219,10 +219,11 @@ func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	}
 }
 func registerSysSettingRouter(v1 *gin.RouterGroup) {
+	api := system.SysSetting{}
 	setting := v1.Group("/setting")
 	{
-		setting.GET("", system.GetSetting)
-		setting.POST("", system.CreateSetting)
+		setting.GET("", api.GetSetting)
+		setting.POST("", api.CreateOrUpdateSetting)
 		setting.GET("/serverInfo", monitor.ServerInfo)
 	}
 }

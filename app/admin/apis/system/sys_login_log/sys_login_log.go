@@ -8,7 +8,6 @@ import (
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
 	"go-admin/common/log"
-	common "go-admin/common/models"
 	"go-admin/tools"
 
 	"net/http"
@@ -27,10 +26,8 @@ func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 		return
 	}
 
-	req := d.Generate()
-
 	//查询列表
-	err = req.Bind(c)
+	err = d.Bind(c)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
@@ -41,13 +38,13 @@ func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 	serviceStudent := service.SysLoginLog{}
 	serviceStudent.MsgID = msgID
 	serviceStudent.Orm = db
-	err = serviceStudent.GetSysLoginLogPage(req, &list, &count)
+	err = serviceStudent.GetSysLoginLogPage(d, &list, &count)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
 func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
@@ -60,8 +57,7 @@ func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
 
 	msgID := tools.GenerateMsgIDFromContext(c)
 	//查看详情
-	req := control.Generate()
-	err = req.Bind(c)
+	err = control.Bind(c)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
@@ -71,7 +67,7 @@ func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.MsgID = msgID
 	serviceSysLoginLog.Orm = db
-	err = serviceSysLoginLog.GetSysLoginLog(req, &object)
+	err = serviceSysLoginLog.GetSysLoginLog(control, &object)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -90,14 +86,12 @@ func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 
 	msgID := tools.GenerateMsgIDFromContext(c)
 	//新增操作
-	req := control.Generate()
-	err = req.Bind(c)
+	err = control.Bind(c)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
+	object, err := control.Generate()
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
@@ -127,15 +121,13 @@ func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
 	}
 
 	msgID := tools.GenerateMsgIDFromContext(c)
-	req := control.Generate()
 	//更新操作
-	err = req.Bind(c)
+	err = control.Bind(c)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
+	object, err := control.Generate()
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
@@ -163,15 +155,13 @@ func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 
 	msgID := tools.GenerateMsgIDFromContext(c)
 	//删除操作
-	req := control.Generate()
-	err = req.Bind(c)
+	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
+	object, err := control.GenerateM()
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
@@ -183,7 +173,7 @@ func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
 	serviceSysLoginLog.MsgID = msgID
-	err = serviceSysLoginLog.RemoveSysLoginLog(req, object)
+	err = serviceSysLoginLog.RemoveSysLoginLog(control, object)
 	if err != nil {
 		log.Error(err)
 		return

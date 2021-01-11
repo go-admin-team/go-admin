@@ -34,13 +34,8 @@ func (m *SysOperaLogSearch) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (m *SysOperaLogSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
 type SysOperaLogControl struct {
-	ID            int      `uri:"ID" comment:"编码"` // 编码
+	ID            int       `uri:"ID" comment:"编码"` // 编码
 	Title         string    `json:"title" comment:"操作模块"`
 	BusinessType  string    `json:"businessType" comment:"操作类型"`
 	BusinessTypes string    `json:"businessTypes" comment:""`
@@ -75,12 +70,7 @@ func (s *SysOperaLogControl) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysOperaLogControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysOperaLogControl) GenerateM() (common.ActiveRecord, error) {
+func (s *SysOperaLogControl) Generate() (*system.SysOperaLog, error) {
 	return &system.SysOperaLog{
 		Model:         common.Model{ID: s.ID},
 		Title:         s.Title,
@@ -109,14 +99,32 @@ func (s *SysOperaLogControl) GetId() interface{} {
 }
 
 type SysOperaLogById struct {
-	dto.ObjectById
+	Id  int   `uri:"id"`
+	Ids []int `json:"ids"`
 }
 
-func (s *SysOperaLogById) Generate() dto.Control {
-	cp := *s
-	return &cp
+func (s *SysOperaLogById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
+	return s.Id
 }
 
-func (s *SysOperaLogById) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysOperaLog{}, nil
+func (s *SysOperaLogById) Bind(ctx *gin.Context) error {
+	msgID := tools.GenerateMsgIDFromContext(ctx)
+	err := ctx.ShouldBindUri(s)
+	if err != nil {
+		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		return err
+	}
+	err = ctx.ShouldBind(s)
+	if err != nil {
+		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+	}
+	return err
+}
+
+func (s *SysOperaLogById) SetUpdateBy(id int) {
+	
 }
