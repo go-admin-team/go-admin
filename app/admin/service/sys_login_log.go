@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/log"
 	common "go-admin/common/models"
@@ -15,7 +16,7 @@ type SysLoginLog struct {
 }
 
 // GetSysLoginLogPage 获取SysLoginLog列表
-func (e *SysLoginLog) GetSysLoginLogPage(c cDto.Index, list *[]system.SysLoginLog, count *int64) error {
+func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]system.SysLoginLog, count *int64) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID
@@ -35,7 +36,7 @@ func (e *SysLoginLog) GetSysLoginLogPage(c cDto.Index, list *[]system.SysLoginLo
 }
 
 // GetSysLoginLog 获取SysLoginLog对象
-func (e *SysLoginLog) GetSysLoginLog(d cDto.Control, model *system.SysLoginLog) error {
+func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *system.SysLoginLog) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID
@@ -90,7 +91,7 @@ func (e *SysLoginLog) UpdateSysLoginLog(c common.ActiveRecord) error {
 }
 
 // RemoveSysLoginLog 删除SysLoginLog
-func (e *SysLoginLog) RemoveSysLoginLog(d cDto.Control, c common.ActiveRecord) error {
+func (e *SysLoginLog) RemoveSysLoginLog(d *dto.SysLoginLogById, c common.ActiveRecord) error {
 	var err error
 	var data system.SysLoginLog
 	msgID := e.MsgID

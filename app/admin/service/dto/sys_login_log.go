@@ -13,11 +13,10 @@ import (
 
 type SysLoginLogSearch struct {
 	dto.Pagination `search:"-"`
-
-	Username      string `form:"username" search:"type:exact;column:username;table:sys_login_log" comment:"用户名"`
-	Status        string `form:"status" search:"type:exact;column:status;table:sys_login_log" comment:"状态"`
-	Ipaddr        string `form:"ipaddr" search:"type:exact;column:ipaddr;table:sys_login_log" comment:"ip地址"`
-	LoginLocation string `form:"loginLocation" search:"type:exact;column:login_location;table:sys_login_log" comment:"归属地"`
+	Username       string `form:"username" search:"type:exact;column:username;table:sys_login_log" comment:"用户名"`
+	Status         string `form:"status" search:"type:exact;column:status;table:sys_login_log" comment:"状态"`
+	Ipaddr         string `form:"ipaddr" search:"type:exact;column:ipaddr;table:sys_login_log" comment:"ip地址"`
+	LoginLocation  string `form:"loginLocation" search:"type:exact;column:login_location;table:sys_login_log" comment:"归属地"`
 }
 
 func (m *SysLoginLogSearch) GetNeedSearch() interface{} {
@@ -33,13 +32,8 @@ func (m *SysLoginLogSearch) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (m *SysLoginLogSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
 type SysLoginLogControl struct {
-	ID            int      `uri:"ID" comment:"主键"` // 主键
+	ID            int       `uri:"ID" comment:"主键"` // 主键
 	Username      string    `json:"username" comment:"用户名"`
 	Status        string    `json:"status" comment:"状态"`
 	Ipaddr        string    `json:"ipaddr" comment:"ip地址"`
@@ -66,12 +60,7 @@ func (s *SysLoginLogControl) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysLoginLogControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysLoginLogControl) GenerateM() (common.ActiveRecord, error) {
+func (s *SysLoginLogControl) Generate() (*system.SysLoginLog, error) {
 	return &system.SysLoginLog{
 		Model:         common.Model{ID: s.ID},
 		Username:      s.Username,
@@ -92,14 +81,33 @@ func (s *SysLoginLogControl) GetId() interface{} {
 }
 
 type SysLoginLogById struct {
-	dto.ObjectById
+	Id  int   `uri:"id"`
+	Ids []int `json:"ids"`
 }
 
-func (s *SysLoginLogById) Generate() dto.Control {
+func (s *SysLoginLogById) GetId() interface{} {
+	return s.Id
+}
+
+func (s *SysLoginLogById) Bind(ctx *gin.Context) error {
+	msgID := tools.GenerateMsgIDFromContext(ctx)
+	err := ctx.ShouldBindUri(s)
+	if err != nil {
+		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		return err
+	}
+	err = ctx.ShouldBind(s)
+	if err != nil {
+		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+	}
+	return err
+}
+
+func (s *SysLoginLogById) Generate() *SysLoginLogById {
 	cp := *s
 	return &cp
 }
 
-func (s *SysLoginLogById) GenerateM() (common.ActiveRecord, error) {
+func (s *SysLoginLogById) GenerateM() (*system.SysLoginLog, error) {
 	return &system.SysLoginLog{}, nil
 }
