@@ -61,7 +61,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
 	var loginVals models.Login
-	var status = "0"
+	var status = "2"
 	var msg = "登录成功"
 	var username = ""
 
@@ -142,7 +142,7 @@ func LogOut(c *gin.Context) {
 	location := tools.GetLocation(c.ClientIP())
 	loginLog.LoginLocation = location
 	loginLog.LoginTime = tools.GetCurrentTime()
-	loginLog.Status = "0"
+	loginLog.Status = "2"
 	loginLog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
 	loginLog.Browser = browserName + " " + browserVersion
