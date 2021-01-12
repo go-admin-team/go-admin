@@ -58,7 +58,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list8 := []models.SysUser{
-			{models.SysUserId{1}, models.LoginM{models.UserName{"admin"}, models.PassWord{"$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2"}}, models.SysUserB{"zhangwj", "13818888888", 1, "", "", "0", "1@qq.com", 1, 1, "1", "1", "", "0", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", ""}},
+			{models.SysUserId{1}, models.LoginM{models.UserName{"admin"}, models.PassWord{"$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2"}}, models.SysUserB{"zhangwj", "13818888888", 1, "", "", "0", "1@qq.com", 1, 1, "1", "1", "", "2", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", ""}},
 		}
 
 		list9 := []models.DictData{
