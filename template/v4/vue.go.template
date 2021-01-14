@@ -1,0 +1,470 @@
+{{$tableComment:=.TableComment}}
+<template>
+    <BasicLayout>
+        <template #wrapper>
+            <el-card class="box-card">
+                <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+                    {{range .Columns}}
+                        {{- $x := .IsQuery -}}
+                        {{- if ($x) -}}
+                            <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                                {{- if ne .FkTableName "" -}}
+                                <el-select v-model="form.{{.JsonField}}"
+                                           placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                    <el-option
+                                            v-for="dict in {{.JsonField}}Options"
+                                            :key="dict.key"
+                                            :label="dict.value"
+                                            :value="dict.key"
+                                    />
+                                </el-select>
+                                {{- else -}}
+                                {{if eq .DictType "" -}}
+                                    <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable
+                                              size="small" @keyup.enter.native="handleQuery"/>
+                                {{- else -}}
+                                    <el-select v-model="queryParams.{{.JsonField}}"
+                                               placeholder="{{$tableComment}}{{.ColumnComment}}" clearable size="small">
+                                        <el-option
+                                                v-for="dict in {{.JsonField}}Options"
+                                                :key="dict.dictValue"
+                                                :label="dict.dictLabel"
+                                                :value="dict.dictValue"
+                                        />
+                                    </el-select>
+                                {{- end}}
+                                {{- end}}
+                            </el-form-item>
+                        {{end}}
+                    {{- end }}
+                    <el-form-item>
+                        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+                        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <el-row :gutter="10" class="mb8">
+                    <el-col :span="1.5">
+                        <el-button
+                                v-permisaction="['{{.PackageName}}:{{.ModuleName}}:add']"
+                                type="primary"
+                                icon="el-icon-plus"
+                                size="mini"
+                                @click="handleAdd"
+                        >新增
+                        </el-button>
+                    </el-col>
+                    <el-col :span="1.5">
+                        <el-button
+                                v-permisaction="['{{.PackageName}}:{{.ModuleName}}:edit']"
+                                type="success"
+                                icon="el-icon-edit"
+                                size="mini"
+                                :disabled="single"
+                                @click="handleUpdate"
+                        >修改
+                        </el-button>
+                    </el-col>
+                    <el-col :span="1.5">
+                        <el-button
+                                v-permisaction="['{{.PackageName}}:{{.ModuleName}}:remove']"
+                                type="danger"
+                                icon="el-icon-delete"
+                                size="mini"
+                                :disabled="multiple"
+                                @click="handleDelete"
+                        >删除
+                        </el-button>
+                    </el-col>
+                </el-row>
+
+                <el-table v-loading="loading" :data="{{.ModuleName}}List" @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="55" align="center"/>
+                    {{- range .Columns -}}
+                        {{- $x := .IsList -}}
+                        {{- if (eq $x "1") }}
+                            {{- if ne .FkTableName "" -}}
+                            <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :formatter="{{.JsonField}}Format" width="100">
+                                <template slot-scope="scope">
+                                    {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
+                                </template>
+                            </el-table-column>
+
+                            {{- else -}}
+                            {{- if ne .DictType "" -}}
+                                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
+                                                 :formatter="{{.JsonField}}Format" width="100">
+                                    <template slot-scope="scope">
+                                        {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
+                                    </template>
+                                </el-table-column>
+
+                            {{- end -}}
+                            {{- if eq .DictType "" -}}
+                                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
+                                                 :show-overflow-tooltip="true"/>
+
+                            {{- end -}}
+                            {{- end -}}
+                        {{- end }}
+                    {{- end }}
+                    <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+                        <template slot-scope="scope">
+                            <el-button
+                                    v-permisaction="['{{.PackageName}}:{{.ModuleName}}:edit']"
+                                    size="mini"
+                                    type="text"
+                                    icon="el-icon-edit"
+                                    @click="handleUpdate(scope.row)"
+                            >修改
+                            </el-button>
+                            <el-button
+                                    v-permisaction="['{{.PackageName}}:{{.ModuleName}}:remove']"
+                                    size="mini"
+                                    type="text"
+                                    icon="el-icon-delete"
+                                    @click="handleDelete(scope.row)"
+                            >删除
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
+                <pagination
+                        v-show="total>0"
+                        :total="total"
+                        :page.sync="queryParams.pageIndex"
+                        :limit.sync="queryParams.pageSize"
+                        @pagination="getList"
+                />
+
+                <!-- 添加或修改对话框 -->
+                <el-dialog :title="title" :visible.sync="open" width="500px">
+                    <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+                        {{ range .Columns }}
+                            {{- $x := .IsInsert -}}
+                            {{- if (eq $x "1") -}}
+                                {{- if (.Pk) }}
+                                {{- else if eq .GoField "CreatedAt" -}}
+                                {{- else if eq .GoField "UpdatedAt" -}}
+                                {{- else if eq .GoField "DeletedAt" -}}
+                                {{- else if eq .GoField "UpdateBy" -}}
+                                {{- else if eq .GoField "CreateBy" -}}
+                                {{- else }}
+                                    <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
+                                        {{ if eq "input" .HtmlType -}}
+                                            <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"
+                                                      {{if eq .IsEdit "false" -}}:disabled="isEdit" {{- end}}/>
+                                        {{- else if eq "select" .HtmlType -}}
+                                            {{- if ne .FkTableName "" -}}
+                                            <el-select v-model="form.{{.JsonField}}"
+                                                       placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                                <el-option
+                                                        v-for="dict in {{.JsonField}}Options"
+                                                        :key="dict.key"
+                                                        :label="dict.value"
+                                                        :value="dict.key"
+                                                />
+                                            </el-select>
+                                            {{- else -}}
+                                            <el-select v-model="form.{{.JsonField}}"
+                                                       placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                                <el-option
+                                                        v-for="dict in {{.JsonField}}Options"
+                                                        :key="dict.dictValue"
+                                                        :label="dict.dictLabel"
+                                                        :value="dict.dictValue"
+                                                />
+                                            </el-select>
+                                            {{- end -}}
+                                        {{- else if eq "radio" .HtmlType -}}
+                                            <el-radio-group v-model="form.{{.JsonField}}">
+                                                <el-radio
+                                                        v-for="dict in {{.JsonField}}Options"
+                                                        :key="dict.dictValue"
+                                                        :label="dict.dictValue"
+                                                >{{"{{"}} dict.dictLabel {{"}}"}}</el-radio>
+                                            </el-radio-group>
+                                        {{- else if eq "file" .HtmlType -}}
+                                            <el-input
+                                                v-model="form.{{.JsonField}}"
+                                                placeholder="图片"
+                                            />
+                                            <el-button type="primary" @click="fileShow{{.GoField}}">选择文件</el-button>
+                                        {{- else if eq "datetime" .HtmlType -}}
+                                            <el-date-picker
+                                                    v-model="form.{{.JsonField}}"
+                                                    type="datetime"
+                                                    placeholder="选择日期">
+                                            </el-date-picker>
+                                        {{- else if eq "textarea" .HtmlType -}}
+                                            <el-input
+                                                    v-model="form.{{.JsonField}}"
+                                                    type="textarea"
+                                                    :rows="2"
+                                                    placeholder="请输入内容">
+                                            </el-input>
+                                        {{- end }}
+                                    </el-form-item>
+                                {{- end }}
+                            {{- end }}
+                        {{- end }}
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click="submitForm">确 定</el-button>
+                        <el-button @click="cancel">取 消</el-button>
+                    </div>
+                </el-dialog>
+                <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
+            </el-card>
+        </template>
+    </BasicLayout>
+</template>
+
+<script>
+    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .BusinessName}}'
+    {{range .Columns}}
+    {{- if ne .FkTableName "" -}}
+     import {list{{.FkTableNameClass}} } from '@/api/{{ .FkTableNamePackage}}'
+
+    {{ end -}}
+    {{- end -}}
+
+    import FileChoose from '@/components/FileChoose'
+
+    export default {
+        name: '{{.ClassName}}',
+        components: {
+            FileChoose
+        },
+        data() {
+            return {
+                // 遮罩层
+                loading: true,
+                // 选中数组
+                ids: [],
+                // 非单个禁用
+                single: true,
+                // 非多个禁用
+                multiple: true,
+                // 总条数
+                total: 0,
+                // 弹出层标题
+                title: '',
+                // 是否显示弹出层
+                open: false,
+                isEdit: false,
+                fileOpen: false,
+                fileIndex: undefined,
+                // 类型数据字典
+                typeOptions: [],
+                {{.ModuleName}}List: [],
+                {{range .Columns}}
+                {{- if ne .DictType "" -}}
+                {{.JsonField}}Options: [],
+                {{- end -}}
+                {{- end }}
+                // 关系表类型
+                {{range .Columns}}
+                {{- if ne .FkTableName "" -}}
+                {{.JsonField}}Options :[],
+                {{ end -}}
+                {{- end }}
+                // 查询参数
+                queryParams: {
+                    pageIndex: 1,
+                    pageSize: 10,
+                    {{ range .Columns }}
+                    {{- if (.IsQuery) -}}
+                    {{.JsonField}}:undefined,
+                    {{ end -}}
+                    {{- end }}
+                },
+                // 表单参数
+                form: {
+                },
+                // 表单校验
+                rules: {
+                {{- range .Columns -}}
+                {{- $x := .IsQuery -}}
+                {{- if ($x) -}}
+                {{.JsonField}}:
+                [
+                    {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'}
+                ],
+                {{ end }}
+                {{- end -}}
+            }
+        }
+        },
+        created() {
+            this.getList()
+            {{range .Columns}}
+            {{- if ne .DictType "" -}}
+
+            this.getDicts('{{.DictType}}').then(response => {
+                this.{{.JsonField}}Options = response.data
+            })
+
+            {{ end -}}
+            {{- if ne .FkTableName "" -}}
+            this.get{{.FkTableNameClass}}Items()
+
+            {{ end -}}
+            {{- end -}}
+        },
+        methods: {
+            /** 查询参数列表 */
+            getList() {
+                this.loading = true
+                list{{.ClassName}}(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+                        this.{{.ModuleName}}List = response.data.list
+                        this.total = response.data.count
+                        this.loading = false
+                    }
+                )
+            },
+            // 取消按钮
+            cancel() {
+                this.open = false
+                this.reset()
+            },
+            // 表单重置
+            reset() {
+                this.form = {
+                {{ range .Columns}}
+                {{- $x := .IsInsert -}}
+                {{- if ($x) -}}
+                {{- if eq .GoField "CreatedAt" -}}
+                {{- else if eq .GoField "UpdatedAt" -}}
+                {{- else if eq .GoField "DeletedAt" -}}
+                {{- else if eq .GoField "UpdateBy" -}}
+                {{- else if eq .GoField "CreateBy" -}}
+                {{- else }}
+                {{.JsonField}}: undefined,
+                {{- end }}
+                {{- end -}}
+                {{- end }}
+            }
+                this.resetForm('form')
+            },
+            getImgList: function() {
+              this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
+            },
+            fileClose: function() {
+              this.fileOpen = false
+            },
+            {{range .Columns}}
+            {{- if ne .DictType "" -}}
+            {{.JsonField}}Format(row) {
+                return this.selectDictLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
+            },
+            {{ end -}}
+            {{- if ne .FkTableName "" -}}
+            {{.JsonField}}Format(row) {
+                return this.selectItemsLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
+            },
+            {{ end -}}
+            {{- end -}}
+            // 关系
+            {{range .Columns}}
+            {{- if ne .FkTableName "" -}}
+            get{{.FkTableNameClass}}Items() {
+               this.getItems(list{{.FkTableNameClass}}, undefined).then(res => {
+                   this.{{.JsonField}}Options = this.setItems(res, '{{.FkLabelId}}', '{{.FkLabelName}}')
+               })
+            },
+            {{ end -}}
+            {{- end -}}
+            // 文件
+            {{range .Columns}}
+            {{- if eq .HtmlType "file" -}}
+            fileShow{{.GoField}}: function() {
+              this.fileOpen = true
+              this.fileIndex = '{{.JsonField}}'
+            },
+            {{ end -}}
+            {{- end -}}
+            /** 搜索按钮操作 */
+            handleQuery() {
+                this.queryParams.pageIndex = 1
+                this.getList()
+            },
+            /** 重置按钮操作 */
+            resetQuery() {
+                this.dateRange = []
+                this.resetForm('queryForm')
+                this.handleQuery()
+            },
+            /** 新增按钮操作 */
+            handleAdd() {
+                this.reset()
+                this.open = true
+                this.title = '添加{{.TableComment}}'
+                this.isEdit = false
+            },
+            // 多选框选中数据
+            handleSelectionChange(selection) {
+                this.ids = selection.map(item => item.{{.PkJsonField}})
+                this.single = selection.length !== 1
+                this.multiple = !selection.length
+            },
+            /** 修改按钮操作 */
+            handleUpdate(row) {
+                this.reset()
+                const {{.PkJsonField}} =
+                row.{{.PkJsonField}} || this.ids
+                get{{.ClassName}}({{.PkJsonField}}).then(response => {
+                    this.form = response.data
+                    this.open = true
+                    this.title = '修改{{.TableComment}}'
+                    this.isEdit = true
+                })
+            },
+            /** 提交按钮 */
+            submitForm: function () {
+                this.$refs['form'].validate(valid => {
+                    if (valid) {
+                        if (this.form.{{.PkJsonField}} !== undefined) {
+                            update{{.ClassName}}(this.form).then(response => {
+                                if (response.code === 200) {
+                                    this.msgSuccess('修改成功')
+                                    this.open = false
+                                    this.getList()
+                                } else {
+                                    this.msgError(response.msg)
+                                }
+                            })
+                        } else {
+                            add{{.ClassName}}(this.form).then(response => {
+                                if (response.code === 200) {
+                                    this.msgSuccess('新增成功')
+                                    this.open = false
+                                    this.getList()
+                                } else {
+                                    this.msgError(response.msg)
+                                }
+                            })
+                        }
+                    }
+                })
+            },
+            /** 删除按钮操作 */
+            handleDelete(row) {
+                var Ids = (row.{{.PkJsonField}} && [row.{{.PkJsonField}}]) || this.ids
+
+                this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(function () {
+                      return del{{.ClassName}}( { 'ids': Ids })
+                }).then(() => {
+                    this.getList()
+                    this.msgSuccess('删除成功')
+                }).catch(function () {
+                })
+            }
+        }
+    }
+</script>
