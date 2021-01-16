@@ -8,7 +8,7 @@ import (
 	"go-admin/tools"
 )
 
-type SysDept struct {
+type SysDepts struct {
 	DeptId    int       `json:"deptId" gorm:"primary_key;auto_increment;"` //部门编码
 	ParentId  int       `json:"parentId" gorm:""`                          //上级部门
 	DeptPath  string    `json:"deptPath" gorm:"size:255;"`                 //
@@ -24,10 +24,10 @@ type SysDept struct {
 
 	DataScope string    `json:"dataScope" gorm:"-"`
 	Params    string    `json:"params" gorm:"-"`
-	Children  []SysDept `json:"children" gorm:"-"`
+	Children  []SysDepts `json:"children" gorm:"-"`
 }
 
-func (SysDept) TableName() string {
+func (SysDepts) TableName() string {
 	return "sys_dept"
 }
 
@@ -37,8 +37,8 @@ type DeptLable struct {
 	Children []DeptLable `gorm:"-" json:"children"`
 }
 
-func (e *SysDept) Create() (SysDept, error) {
-	var doc SysDept
+func (e *SysDepts) Create() (SysDepts, error) {
+	var doc SysDepts
 	result := orm.Eloquent.Table(e.TableName()).Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -46,7 +46,7 @@ func (e *SysDept) Create() (SysDept, error) {
 	}
 	deptPath := "/" + tools.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
-		var deptP SysDept
+		var deptP SysDepts
 		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
@@ -63,8 +63,8 @@ func (e *SysDept) Create() (SysDept, error) {
 	return doc, nil
 }
 
-func (e *SysDept) Get() (SysDept, error) {
-	var doc SysDept
+func (e *SysDepts) Get() (SysDepts, error) {
+	var doc SysDepts
 
 	table := orm.Eloquent.Table(e.TableName())
 	if e.DeptId != 0 {
@@ -80,8 +80,8 @@ func (e *SysDept) Get() (SysDept, error) {
 	return doc, nil
 }
 
-func (e *SysDept) GetList() ([]SysDept, error) {
-	var doc []SysDept
+func (e *SysDepts) GetList() ([]SysDepts, error) {
+	var doc []SysDepts
 
 	table := orm.Eloquent.Table(e.TableName())
 	if e.DeptId != 0 {
@@ -100,8 +100,8 @@ func (e *SysDept) GetList() ([]SysDept, error) {
 	return doc, nil
 }
 
-func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
-	var doc []SysDept
+func (e *SysDepts) GetPage(bl bool) ([]SysDepts, error) {
+	var doc []SysDepts
 
 	table := orm.Eloquent.Table(e.TableName())
 	if e.DeptId != 0 {
@@ -133,10 +133,10 @@ func (e *SysDept) GetPage(bl bool) ([]SysDept, error) {
 	return doc, nil
 }
 
-func (e *SysDept) SetDept(bl bool) ([]SysDept, error) {
+func (e *SysDepts) SetDept(bl bool) ([]SysDepts, error) {
 	list, err := e.GetPage(bl)
 
-	m := make([]SysDept, 0)
+	m := make([]SysDepts, 0)
 	for i := 0; i < len(list); i++ {
 		if list[i].ParentId != 0 {
 			continue
@@ -148,16 +148,16 @@ func (e *SysDept) SetDept(bl bool) ([]SysDept, error) {
 	return m, err
 }
 
-func Digui(deptlist *[]SysDept, menu SysDept) SysDept {
+func Digui(deptlist *[]SysDepts, menu SysDepts) SysDepts {
 	list := *deptlist
 
-	min := make([]SysDept, 0)
+	min := make([]SysDepts, 0)
 	for j := 0; j < len(list); j++ {
 
 		if menu.DeptId != list[j].ParentId {
 			continue
 		}
-		mi := SysDept{}
+		mi := SysDepts{}
 		mi.DeptId = list[j].DeptId
 		mi.ParentId = list[j].ParentId
 		mi.DeptPath = list[j].DeptPath
@@ -168,7 +168,7 @@ func Digui(deptlist *[]SysDept, menu SysDept) SysDept {
 		mi.Email = list[j].Email
 		mi.Status = list[j].Status
 		mi.CreatedAt = list[j].CreatedAt
-		mi.Children = []SysDept{}
+		mi.Children = []SysDepts{}
 		ms := Digui(deptlist, mi)
 		min = append(min, ms)
 
@@ -177,14 +177,14 @@ func Digui(deptlist *[]SysDept, menu SysDept) SysDept {
 	return menu
 }
 
-func (e *SysDept) Update(id int) (update SysDept, err error) {
+func (e *SysDepts) Update(id int) (update SysDepts, err error) {
 	if err = orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", id).First(&update).Error; err != nil {
 		return
 	}
 
 	deptPath := "/" + tools.IntToString(e.DeptId)
 	if int(e.ParentId) != 0 {
-		var deptP SysDept
+		var deptP SysDepts
 		orm.Eloquent.Table(e.TableName()).Where("dept_id = ?", e.ParentId).First(&deptP)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
@@ -206,7 +206,7 @@ func (e *SysDept) Update(id int) (update SysDept, err error) {
 	return
 }
 
-func (e *SysDept) Delete(id int) (success bool, err error) {
+func (e *SysDepts) Delete(id int) (success bool, err error) {
 
 	user := SysUser{}
 	user.DeptId = id
@@ -226,7 +226,7 @@ func (e *SysDept) Delete(id int) (success bool, err error) {
 		return
 	}
 
-	if err = tx.Table(e.TableName()).Where("dept_id = ?", id).Delete(&SysDept{}).Error; err != nil {
+	if err = tx.Table(e.TableName()).Where("dept_id = ?", id).Delete(&SysDepts{}).Error; err != nil {
 		success = false
 		tx.Rollback()
 		return
@@ -240,7 +240,7 @@ func (e *SysDept) Delete(id int) (success bool, err error) {
 	return
 }
 
-func (dept *SysDept) SetDeptLable() (m []DeptLable, err error) {
+func (dept *SysDepts) SetDeptLable() (m []DeptLable, err error) {
 	deptlist, err := dept.GetList()
 
 	m = make([]DeptLable, 0)
@@ -258,7 +258,7 @@ func (dept *SysDept) SetDeptLable() (m []DeptLable, err error) {
 	return
 }
 
-func DiguiDeptLable(deptlist *[]SysDept, dept DeptLable) DeptLable {
+func DiguiDeptLable(deptlist *[]SysDepts, dept DeptLable) DeptLable {
 	list := *deptlist
 
 	min := make([]DeptLable, 0)

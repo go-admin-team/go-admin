@@ -21,11 +21,11 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		list3 := []models.SysDept{
-			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 8, ParentId: 1, DeptPath: "/0/1/8", DeptName: "运维部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 9, ParentId: 1, DeptPath: "/0/1/9", DeptName: "客服部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 10, ParentId: 1, DeptPath: "/0/1/10", DeptName: "人力资源", Sort: 3, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "1", CreateBy: "1", UpdateBy: "1", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 8, ParentId: 1, DeptPath: "/0/1/8", DeptName: "运维部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 9, ParentId: 1, DeptPath: "/0/1/9", DeptName: "客服部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 10, ParentId: 1, DeptPath: "/0/1/10", DeptName: "人力资源", Sort: 3, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "1", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list4 := []system.SysConfig{
