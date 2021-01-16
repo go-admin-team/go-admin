@@ -1,0 +1,47 @@
+import request from '@/utils/request'
+
+// 查询{{.ClassName}}列表
+export function list{{.ClassName}}(query) {
+    return request({
+        url: '/api/v1/{{.ModuleName}}',
+        method: 'get',
+        params: query
+    })
+}
+
+// 查询{{.ClassName}}详细
+export function get{{.ClassName}} ({{.PkJsonField}}) {
+    return request({
+        url: '/api/v1/{{.ModuleName}}/' + {{.PkJsonField}},
+        method: 'get'
+    })
+}
+
+
+// 新增{{.ClassName}}
+export function add{{.ClassName}}(data) {
+    return request({
+        url: '/api/v1/{{.ModuleName}}',
+        method: 'post',
+        data: data
+    })
+}
+
+// 修改{{.ClassName}}
+export function update{{.ClassName}}(data) {
+    return request({
+        url: '/api/v1/{{.ModuleName}}/'+data.{{.PkJsonField}},
+        method: 'put',
+        data: data
+    })
+}
+
+// 删除{{.ClassName}}
+export function del{{.ClassName}}(data) {
+    return request({
+        url: '/api/v1/{{.ModuleName}}',
+        method: 'delete',
+        data: data
+    })
+}
+
