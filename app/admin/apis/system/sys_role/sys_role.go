@@ -1,8 +1,9 @@
-package sys_dept
+package sys_role
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/models"
+
+	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -12,13 +13,13 @@ import (
 	"net/http"
 )
 
-type SysDept struct {
+type SysRole struct {
 	apis.Api
 }
 
-func (e *SysDept) GetSysDeptList(c *gin.Context) {
+func (e *SysRole) GetSysRoleList(c *gin.Context) {
 	msgID := tools.GenerateMsgIDFromContext(c)
-	d := new(dto.SysDeptSearch)
+	d := new(dto.SysRoleSearch)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -32,21 +33,22 @@ func (e *SysDept) GetSysDeptList(c *gin.Context) {
 		return
 	}
 
-	list := make([]models.SysDept, 0)
-	serviceStudent := service.SysDept{}
+	list := make([]system.SysRole, 0)
+	var count int64
+	serviceStudent := service.SysRole{}
 	serviceStudent.MsgID = msgID
 	serviceStudent.Orm = db
-	list, err = serviceStudent.SetDeptPage(d)
+	err = serviceStudent.GetSysRolePage(d, &list, &count)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, list, "查询成功")
+	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
-func (e *SysDept) GetSysDept(c *gin.Context) {
-	control := new(dto.SysDeptById)
+func (e *SysRole) GetSysRole(c *gin.Context) {
+	control := new(dto.SysRoleById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -60,12 +62,12 @@ func (e *SysDept) GetSysDept(c *gin.Context) {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object models.SysDept
+	var object system.SysRole
 
-	serviceSysOperlog := service.SysDept{}
+	serviceSysOperlog := service.SysRole{}
 	serviceSysOperlog.MsgID = msgID
 	serviceSysOperlog.Orm = db
-	err = serviceSysOperlog.GetSysDept(control, &object)
+	err = serviceSysOperlog.GetSysRole(control, &object)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -74,8 +76,8 @@ func (e *SysDept) GetSysDept(c *gin.Context) {
 	e.OK(c, object, "查看成功")
 }
 
-func (e *SysDept) InsertSysDept(c *gin.Context) {
-	control := new(dto.SysDeptControl)
+func (e *SysRole) InsertSysRole(c *gin.Context) {
+	control := new(dto.SysRoleControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -95,12 +97,12 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.CreateBy= tools.GetUserId(c)
 
-	serviceSysDept := service.SysDept{}
-	serviceSysDept.Orm = db
-	serviceSysDept.MsgID = msgID
-	err = serviceSysDept.InsertSysDept(object)
+	serviceSysRole := service.SysRole{}
+	serviceSysRole.Orm = db
+	serviceSysRole.MsgID = msgID
+	err = serviceSysRole.InsertSysRole(object)
 	if err != nil {
 		log.Error(err)
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
@@ -110,8 +112,8 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 	e.OK(c, object.GetId(), "创建成功")
 }
 
-func (e *SysDept) UpdateSysDept(c *gin.Context) {
-	control := new(dto.SysDeptControl)
+func (e *SysRole) UpdateSysRole(c *gin.Context) {
+	control := new(dto.SysRoleControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -130,12 +132,12 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.UpdateBy = tools.GetUserId(c)
 
-	serviceSysDept := service.SysDept{}
-	serviceSysDept.Orm = db
-	serviceSysDept.MsgID = msgID
-	err = serviceSysDept.UpdateSysDept(object)
+	serviceSysRole := service.SysRole{}
+	serviceSysRole.Orm = db
+	serviceSysRole.MsgID = msgID
+	err = serviceSysRole.UpdateSysRole(object)
 	if err != nil {
 		log.Error(err)
 		return
@@ -143,8 +145,8 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 	e.OK(c, object.GetId(), "更新成功")
 }
 
-func (e *SysDept) DeleteSysDept(c *gin.Context) {
-	control := new(dto.SysDeptById)
+func (e *SysRole) DeleteSysRole(c *gin.Context) {
+	control := new(dto.SysRoleById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -160,10 +162,10 @@ func (e *SysDept) DeleteSysDept(c *gin.Context) {
 		return
 	}
 
-	serviceSysDept := service.SysDept{}
-	serviceSysDept.Orm = db
-	serviceSysDept.MsgID = msgID
-	err = serviceSysDept.RemoveSysDept(control)
+	serviceSysRole := service.SysRole{}
+	serviceSysRole.Orm = db
+	serviceSysRole.MsgID = msgID
+	err = serviceSysRole.RemoveSysRole(control)
 	if err != nil {
 		log.Error(err)
 		return
@@ -171,38 +173,3 @@ func (e *SysDept) DeleteSysDept(c *gin.Context) {
 	e.OK(c, control.GetId(), "删除成功")
 }
 
-// GetDeptTree 用户管理 左侧部门树
-func (e *SysDept) GetDeptTree(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
-	d := new(dto.SysDeptSearch)
-	db, err := tools.GetOrm(c)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//查询列表
-	err = d.Bind(c)
-	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-
-	list := make([]dto.DeptLabel, 0)
-	serviceStudent := service.SysDept{}
-	serviceStudent.MsgID = msgID
-	serviceStudent.Orm = db
-	list, err = serviceStudent.SetDeptTree(d)
-	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
-		return
-	}
-
-	//var Dept models.SysDepts
-	//Dept.DeptName = c.Request.FormValue("deptName")
-	//Dept.Status = c.Request.FormValue("status")
-	//Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
-	//result, err := Dept.SetDept(false)
-	//tools.HasError(err, "抱歉未找到相关信息", -1)
-	e.OK(c, list, "")
-}

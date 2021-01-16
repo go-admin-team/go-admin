@@ -15,7 +15,7 @@ type SysDept struct {
 }
 
 // GetSysDeptPage 获取SysDept列表
-func (e *SysDept) GetSysDeptPage(c *dto.SysDeptSearch, list *[]models.SysDept, count *int64) error {
+func (e *SysDept) GetSysDeptPage(c *dto.SysDeptSearch, list *[]models.SysDept) error {
 	var err error
 	var data models.SysDept
 	msgID := e.MsgID
@@ -23,10 +23,8 @@ func (e *SysDept) GetSysDeptPage(c *dto.SysDeptSearch, list *[]models.SysDept, c
 	err = e.Orm.Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
-			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
 		).
-		Find(list).Limit(-1).Offset(-1).
-		Count(count).Error
+		Find(list).Error
 	if err != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
@@ -110,7 +108,7 @@ func (e *SysDept) RemoveSysDept(d *dto.SysDeptById) error {
 }
 
 // GetSysDeptList 获取组织数据
-func (e *SysDept) GetSysDeptList(c *dto.SysDeptSearch, list *[]models.SysDept) error {
+func (e *SysDept) getSysDeptList(c *dto.SysDeptSearch, list *[]models.SysDept) error {
 	var err error
 	var data models.SysDept
 	msgID := e.MsgID
@@ -128,9 +126,9 @@ func (e *SysDept) GetSysDeptList(c *dto.SysDeptSearch, list *[]models.SysDept) e
 }
 
 // SetDeptTree 设置组织数据
-func (e *SysDept) SetDeptTree() (c *dto.SysDeptSearch, m []dto.DeptLabel, err error) {
+func (e *SysDept) SetDeptTree(c *dto.SysDeptSearch) (m []dto.DeptLabel, err error) {
 	var list []models.SysDept
-	err = e.GetSysDeptList(c, &list)
+	err = e.getSysDeptList(c, &list)
 
 	m = make([]dto.DeptLabel, 0)
 	for i := 0; i < len(list); i++ {
@@ -140,7 +138,7 @@ func (e *SysDept) SetDeptTree() (c *dto.SysDeptSearch, m []dto.DeptLabel, err er
 		e := dto.DeptLabel{}
 		e.Id = list[i].DeptId
 		e.Label = list[i].DeptName
-		deptsInfo := DeptCall(&list, e)
+		deptsInfo := deptTreeCall(&list, e)
 
 		m = append(m, deptsInfo)
 	}
@@ -148,7 +146,7 @@ func (e *SysDept) SetDeptTree() (c *dto.SysDeptSearch, m []dto.DeptLabel, err er
 }
 
 // Call 递归构造组织数据
-func DeptCall(deptlist *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
+func deptTreeCall(deptlist *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
 	list := *deptlist
 	min := make([]dto.DeptLabel, 0)
 	for j := 0; j < len(list); j++ {
@@ -156,9 +154,55 @@ func DeptCall(deptlist *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
 			continue
 		}
 		mi := dto.DeptLabel{Id: list[j].DeptId, Label: list[j].DeptName, Children: []dto.DeptLabel{}}
-		ms := DeptCall(deptlist, mi)
+		ms := deptTreeCall(deptlist, mi)
 		min = append(min, ms)
 	}
 	dept.Children = min
 	return dept
+}
+
+// SetDeptPage 设置dept页面数据
+func (e *SysDept) SetDeptPage(c *dto.SysDeptSearch) (m []models.SysDept, err error) {
+	var list []models.SysDept
+	err = e.getSysDeptList(c, &list)
+
+	//m := make([]models.SysDept, 0)
+	for i := 0; i < len(list); i++ {
+		if list[i].ParentId != 0 {
+			continue
+		}
+		info := e.deptPageCall(&list, list[i])
+
+		m = append(m, info)
+	}
+	return
+}
+
+func  (e *SysDept) deptPageCall(deptlist *[]models.SysDept, menu models.SysDept) models.SysDept {
+	list := *deptlist
+
+	min := make([]models.SysDept, 0)
+	for j := 0; j < len(list); j++ {
+
+		if menu.DeptId != list[j].ParentId {
+			continue
+		}
+		mi := models.SysDept{}
+		mi.DeptId = list[j].DeptId
+		mi.ParentId = list[j].ParentId
+		mi.DeptPath = list[j].DeptPath
+		mi.DeptName = list[j].DeptName
+		mi.Sort = list[j].Sort
+		mi.Leader = list[j].Leader
+		mi.Phone = list[j].Phone
+		mi.Email = list[j].Email
+		mi.Status = list[j].Status
+		mi.CreatedAt = list[j].CreatedAt
+		mi.Children = []models.SysDept{}
+		ms := e.deptPageCall(deptlist, mi)
+		min = append(min, ms)
+
+	}
+	menu.Children = min
+	return menu
 }

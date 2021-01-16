@@ -104,20 +104,20 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 
 	registerPageRouter(v1, authMiddleware)
 	registerBaseRouter(v1, authMiddleware)
-	registerDeptRouter(v1, authMiddleware)
+	//registerDeptRouter(v1, authMiddleware)
 	registerDictRouter(v1, authMiddleware)
 	registerSysUserRouter(v1, authMiddleware)
-	registerRoleRouter(v1, authMiddleware)
+	//registerRoleRouter(v1, authMiddleware)
 	registerUserCenterRouter(v1, authMiddleware)
-	registerPostRouter(v1, authMiddleware)
-	registerMenuRouter(v1, authMiddleware)
+	//registerPostRouter(v1, authMiddleware)
+	//registerMenuRouter(v1, authMiddleware)
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		v1auth.GET("/getinfo", system.GetInfo)
-		v1auth.GET("/menurole", system.GetMenuRole)
+
 		v1auth.PUT("/roledatascope", system.UpdateRoleDataScope)
 		v1auth.GET("/roleMenuTreeselect/:roleId", system.GetMenuTreeRoleselect)
 		v1auth.GET("/roleDeptTreeselect/:roleId", system.GetDeptTreeRoleselect)
@@ -130,13 +130,13 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		v1auth.GET("/deptList", system.GetDeptList)
-		v1auth.GET("/deptTree", system.GetDeptTree)
+		//v1auth.GET("/deptList", system.GetDeptList)
+		//v1auth.GET("/deptTree", system.GetDeptTree)
 		v1auth.GET("/sysUserList", system.GetSysUserList)
-		v1auth.GET("/rolelist", system.GetRoleList)
+		//v1auth.GET("/rolelist", system.GetRoleList)
 		//v1auth.GET("/configList", system.GetConfigList)
-		v1auth.GET("/postlist", system.GetPostList)
-		v1auth.GET("/menulist", system.GetMenuList)
+		//v1auth.GET("/postlist", system.GetPostList)
+		//v1auth.GET("/menulist", system.GetMenuList)
 	}
 }
 
@@ -159,15 +159,15 @@ func registerPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	}
 }
 
-func registerMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	menu := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
-	{
-		menu.GET("/:id", system.GetMenu)
-		menu.POST("", system.InsertMenu)
-		menu.PUT("", system.UpdateMenu)
-		menu.DELETE("/:id", system.DeleteMenu)
-	}
-}
+//func registerMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+//	menu := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+//	{
+//		menu.GET("/:id", system.GetMenu)
+//		menu.POST("", system.InsertMenu)
+//		menu.PUT("", system.UpdateMenu)
+//		menu.DELETE("/:id", system.DeleteMenu)
+//	}
+//}
 
 func registerRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	role := v1.Group("/role").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
@@ -209,15 +209,15 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	}
 }
 
-func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	dept := v1.Group("/dept").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
-	{
-		dept.GET("/:deptId", system.GetDept)
-		dept.POST("", system.InsertDept)
-		dept.PUT("", system.UpdateDept)
-		dept.DELETE("/:id", system.DeleteDept)
-	}
-}
+//func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+//	dept := v1.Group("/dept").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+//	{
+//		dept.GET("/:deptId", system.GetDept)
+//		dept.POST("", system.InsertDept)
+//		dept.PUT("", system.UpdateDept)
+//		dept.DELETE("/:id", system.DeleteDept)
+//	}
+//}
 func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	api := system.SysSetting{}
 	setting := v1.Group("/setting")

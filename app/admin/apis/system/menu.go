@@ -46,49 +46,6 @@ func GetMenu(c *gin.Context) {
 	app.OK(c, result, "")
 }
 
-// GetMenuTreeRoleselect 角色修改中的菜单列表
-func GetMenuTreeRoleselect(c *gin.Context) {
-	var Menu models.Menu
-	var SysRole models.SysRole
-
-	id, err := tools.StringToInt(c.Param("roleId"))
-	SysRole.RoleId = id
-	//var r *models.SysRole
-	r, err := SysRole.Get()
-
-	var result *[]models.MenuLable
-	menuIds := make([]int, 0)
-	if r.RoleKey != "admin" {
-		result, err = Menu.SetMenuLabel()
-		tools.HasError(err, "抱歉未找到相关信息", -1)
-		if id != 0 {
-			menuIds, err = SysRole.GetRoleMeunId()
-			tools.HasError(err, "抱歉未找到相关信息", -1)
-		}
-	}
-	app.Custum(c, gin.H{
-		"code":        200,
-		"menus":       result,
-		"checkedKeys": menuIds,
-	})
-}
-
-// @Summary 获取菜单树
-// @Description 获取JSON
-// @Tags 菜单
-// @Accept  application/x-www-form-urlencoded
-// @Product application/x-www-form-urlencoded
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/menuTreeselect [get]
-// @Security Bearer
-func GetMenuTreeelect(c *gin.Context) {
-	var data models.Menu
-	result, err := data.SetMenuLabel()
-	tools.HasError(err, "抱歉未找到相关信息", -1)
-	app.OK(c, result, "")
-}
-
 // @Summary 创建菜单
 // @Description 获取JSON
 // @Tags 菜单
@@ -181,5 +138,48 @@ func GetMenuIDS(c *gin.Context) {
 	data.UpdateBy = tools.GetUserIdStr(c)
 	result, err := data.GetIDS()
 	tools.HasError(err, "获取失败", 500)
+	app.OK(c, result, "")
+}
+
+// GetMenuTreeRoleselect 角色修改中的菜单列表
+func GetMenuTreeRoleselect(c *gin.Context) {
+	var Menu models.Menu
+	var SysRole models.SysRole
+
+	id, err := tools.StringToInt(c.Param("roleId"))
+	SysRole.RoleId = id
+	//var r *models.SysRole
+	r, err := SysRole.Get()
+
+	var result *[]models.MenuLable
+	menuIds := make([]int, 0)
+	if r.RoleKey != "admin" {
+		result, err = Menu.SetMenuLabel()
+		tools.HasError(err, "抱歉未找到相关信息", -1)
+		if id != 0 {
+			menuIds, err = SysRole.GetRoleMeunId()
+			tools.HasError(err, "抱歉未找到相关信息", -1)
+		}
+	}
+	app.Custum(c, gin.H{
+		"code":        200,
+		"menus":       result,
+		"checkedKeys": menuIds,
+	})
+}
+
+// @Summary 获取菜单树
+// @Description 获取JSON
+// @Tags 菜单
+// @Accept  application/x-www-form-urlencoded
+// @Product application/x-www-form-urlencoded
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/menuTreeselect [get]
+// @Security Bearer
+func GetMenuTreeelect(c *gin.Context) {
+	var data models.Menu
+	result, err := data.SetMenuLabel()
+	tools.HasError(err, "抱歉未找到相关信息", -1)
 	app.OK(c, result, "")
 }
