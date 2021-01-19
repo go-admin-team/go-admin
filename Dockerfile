@@ -1,4 +1,4 @@
-FROM registry.cn-shanghai.aliyuncs.com/lwmeng/golang:alpine as builder
+FROM golang:alpine as builder
 
 MAINTAINER lwnmengjing
 
@@ -15,7 +15,7 @@ RUN pwd && ls
 
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o go-admin .
 
-FROM registry.cn-shanghai.aliyuncs.com/lwmeng/alpine
+FROM alpine
 
 COPY --from=builder /go/release/go-admin /
 

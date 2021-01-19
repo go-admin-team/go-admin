@@ -2,16 +2,16 @@ package app
 
 import (
 	"encoding/json"
-	"go-admin/common/log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
+	"go-admin/common/log"
 	"go-admin/tools"
 )
 
 // 失败数据处理
-func Error(c *gin.Context, code int, err error, msg string) {
+func Error(c *gin.Context, code int32, err error, msg string) {
 	msgID := tools.GenerateMsgIDFromContext(c)
 	var res Response
 	if err != nil {
@@ -27,7 +27,7 @@ func Error(c *gin.Context, code int, err error, msg string) {
 	if err != nil {
 		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
 	}
-	c.Set("result",string(jsonStr))
+	c.Set("result", string(jsonStr))
 	c.AbortWithStatusJSON(http.StatusOK, Return)
 }
 
@@ -46,7 +46,7 @@ func OK(c *gin.Context, data interface{}, msg string) {
 	if err != nil {
 		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
 	}
-	c.Set("result",string(jsonStr))
+	c.Set("result", string(jsonStr))
 	c.AbortWithStatusJSON(http.StatusOK, Return)
 }
 
@@ -69,6 +69,6 @@ func Custum(c *gin.Context, data gin.H) {
 	if err != nil {
 		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
 	}
-	c.Set("result",string(jsonStr))
+	c.Set("result", string(jsonStr))
 	c.AbortWithStatusJSON(http.StatusOK, Return)
 }

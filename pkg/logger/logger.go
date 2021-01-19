@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"github.com/go-admin-team/go-admin-core/logger"
 	"os"
+
+	"github.com/go-admin-team/go-admin-core/logger"
 )
 
 // Logger 通用log个性化实现
