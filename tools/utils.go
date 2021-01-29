@@ -3,16 +3,16 @@ package tools
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"log"
 	"runtime"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/spf13/cast"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
+
+const TrafficKey = "X-Request-Id"
 
 func CompareHashAndPassword(e string, p string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(e), []byte(p))
@@ -56,15 +56,12 @@ func HasError(err error, msg string, code ...int) {
 
 // GenerateMsgIDFromContext 生成msgID
 func GenerateMsgIDFromContext(c *gin.Context) string {
-	var msgID string
-	data, ok := c.Get("msgID")
-	if !ok {
-		msgID = uuid.New().String()
-		c.Set("msgID", msgID)
-		return msgID
+	requestId := c.GetHeader(TrafficKey)
+	if requestId == "" {
+		fmt.Println("no", requestId)
+		c.Header(TrafficKey, requestId)
 	}
-	msgID = cast.ToString(data)
-	return msgID
+	return requestId
 }
 
 // GetOrm 获取orm连接
