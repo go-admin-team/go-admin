@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -58,6 +59,7 @@ func HasError(err error, msg string, code ...int) {
 func GenerateMsgIDFromContext(c *gin.Context) string {
 	requestId := c.GetHeader(TrafficKey)
 	if requestId == "" {
+		requestId = uuid.New().String()
 		c.Header(TrafficKey, requestId)
 	}
 	return requestId
