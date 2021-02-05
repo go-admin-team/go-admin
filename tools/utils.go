@@ -58,7 +58,6 @@ func HasError(err error, msg string, code ...int) {
 func GenerateMsgIDFromContext(c *gin.Context) string {
 	requestId := c.GetHeader(TrafficKey)
 	if requestId == "" {
-		fmt.Println("no", requestId)
 		c.Header(TrafficKey, requestId)
 	}
 	return requestId
