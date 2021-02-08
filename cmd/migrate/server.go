@@ -50,8 +50,8 @@ func run() {
 	if !generate {
 		//1. 读取配置
 		config.Setup(file.NewSource, file.WithPath(configYml))
-		//2. 设置日志
 		
+		//2. 设置日志		
 		createDir(path.Join(config.LoggerConfig.Path,"bus"))
 		createDir(path.Join(config.LoggerConfig.Path,"job"))
 		createDir(path.Join(config.LoggerConfig.Path,"request"))
