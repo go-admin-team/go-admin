@@ -131,12 +131,12 @@ func registerPageRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		//v1auth.GET("/deptList", system.GetDeptList)
-		//v1auth.GET("/deptTree", system.GetDeptTree)
+		v1auth.GET("/deptTree", system.GetDeptTree)
 		v1auth.GET("/sysUserList", system.GetSysUserList)
-		//v1auth.GET("/rolelist", system.GetRoleList)
+		v1auth.GET("/rolelist", system.GetRoleList)
 		//v1auth.GET("/configList", system.GetConfigList)
 		//v1auth.GET("/postlist", system.GetPostList)
-		//v1auth.GET("/menulist", system.GetMenuList)
+		v1auth.GET("/menulist", system.GetMenuList)
 	}
 }
 

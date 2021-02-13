@@ -18,11 +18,12 @@ import (
 )
 
 type FileResponse struct {
-	Size     int64  `json:"size"`
-	Path     string `json:"path"`
-	FullPath string `json:"full_path"`
-	Name     string `json:"name"`
-	Type     string `json:"type"`
+	Size      int64  `json:"size"`
+	Path      string `json:"path"`
+	FullPath  string `json:"full_path"`
+	LocalPath string `json:"local_path"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
 }
 
 // @Summary 上传图片
@@ -71,11 +72,12 @@ func baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix string) FileRe
 	_ = ioutil.WriteFile(base64File, ddd, 0666)
 	typeStr := strings.Replace(strings.Replace(file2list[0], "data:", "", -1), ";base64", "", -1)
 	fileResponse = FileResponse{
-		Size:     tools.GetFileSize(base64File),
-		Path:     base64File,
-		FullPath: urlPerfix + base64File,
-		Name:     "",
-		Type:     typeStr,
+		Size:      tools.GetFileSize(base64File),
+		Path:      base64File,
+		FullPath:  urlPerfix + base64File,
+		LocalPath: base64File,
+		Name:      "",
+		Type:      typeStr,
 	}
 	source, _ := c.GetPostForm("source")
 	err := thirdUpload(source, fileName, base64File)
@@ -106,11 +108,12 @@ func multipleFile(c *gin.Context, urlPerfix string) []FileResponse {
 				app.Error(c, 200, errors.New(""), "上传第三方失败")
 			} else {
 				fileResponse := FileResponse{
-					Size:     tools.GetFileSize(multipartFileName),
-					Path:     multipartFileName,
-					FullPath: urlPerfix + multipartFileName,
-					Name:     f.Filename,
-					Type:     fileType,
+					Size:      tools.GetFileSize(multipartFileName),
+					Path:      multipartFileName,
+					FullPath:  urlPerfix + multipartFileName,
+					LocalPath: multipartFileName,
+					Name:      f.Filename,
+					Type:      fileType,
 				}
 				if source != "1" {
 					fileResponse.Path = "https://youshikeji.oss-cn-shanghai.aliyuncs.com/img/" + fileName
@@ -138,31 +141,38 @@ func singleFile(c *gin.Context, fileResponse FileResponse, urlPerfix string) (Fi
 	_ = c.SaveUploadedFile(files, singleFile)
 	fileType, _ := utils.GetType(singleFile)
 	fileResponse = FileResponse{
-		Size:     tools.GetFileSize(singleFile),
-		Path:     singleFile,
-		FullPath: urlPerfix + singleFile,
-		Name:     files.Filename,
-		Type:     fileType,
+		Size:      tools.GetFileSize(singleFile),
+		Path:      singleFile,
+		FullPath:  urlPerfix + singleFile,
+		LocalPath: singleFile,
+		Name:      files.Filename,
+		Type:      fileType,
 	}
 	source, _ := c.GetPostForm("source")
 	err = thirdUpload(source, fileName, singleFile)
-	if err != nil {
-		app.Error(c, 200, errors.New(""), "上传第三方失败")
-		return FileResponse{}, true
-	}
+	fmt.Println("上传第三方失败 err", err)
+	//if err != nil {
+	//	app.Error(c, 200, errors.New(""), "上传第三方失败")
+	//	return FileResponse{}, true
+	//}
 	fileResponse.Path = "https://youshikeji.oss-cn-shanghai.aliyuncs.com/img/" + fileName
 	fileResponse.FullPath = "https://youshikeji.oss-cn-shanghai.aliyuncs.com/img/" + fileName
 	return fileResponse, false
 }
 
 func thirdUpload(source string, name string, path string) error {
+	if source == "" {
+		source = "2"
+	}
 	switch source {
 	case "2":
 		return ossUpload("img/"+name, path)
 	case "3":
 		return qiniuUpload("img/"+name, path)
 	}
-	return nil
+
+	//return nil
+	return errors.New("source is empty")
 }
 
 func ossUpload(name string, path string) error {
