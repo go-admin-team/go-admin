@@ -81,7 +81,7 @@ type SysUserPage struct {
 	SysUserId
 	SysUserB
 	LoginM
-	DeptName string `gorm:"-" json:"deptName"`
+	DeptName string `gorm:"size:128;" json:"deptName"`
 }
 
 type SysUserView struct {
