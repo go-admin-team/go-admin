@@ -2,10 +2,9 @@ package models
 
 import (
 	"errors"
-	"fmt"
-
 	"gorm.io/gorm"
 
+	"go-admin/common/log"
 	"go-admin/tools"
 	"go-admin/tools/config"
 )
@@ -21,7 +20,7 @@ func (e *DataPermission) GetDataScope(tbname string, table *gorm.DB) (*gorm.DB, 
 
 	if !config.ApplicationConfig.EnableDP {
 		usageStr := `数据权限已经为您` + tools.Green(`关闭`) + `，如需开启请参考配置文件字段说明`
-		fmt.Printf("%s\n", usageStr)
+		log.Debug("%s\n", usageStr)
 		return table, nil
 	}
 	SysUser := new(SysUser)
