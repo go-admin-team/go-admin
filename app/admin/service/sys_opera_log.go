@@ -95,7 +95,7 @@ func (e *SysOperaLog) RemoveSysOperaLog(d *dto.SysOperaLogById) error {
 	var data system.SysOperaLog
 	msgID := e.MsgID
 
-	db := e.Orm.Model(&data).Delete(&data, d.GetId())
+	db := e.Orm.Model(&data).Where(d.Ids).Delete(&data)
 	if db.Error != nil {
 		err = db.Error
 		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)

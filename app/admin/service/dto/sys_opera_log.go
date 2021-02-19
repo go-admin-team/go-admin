@@ -118,7 +118,7 @@ func (s *SysOperaLogById) Bind(ctx *gin.Context) error {
 		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
 		return err
 	}
-	err = ctx.ShouldBind(s)
+	err = ctx.ShouldBind(&s.Ids)
 	if err != nil {
 		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
 	}
@@ -126,5 +126,5 @@ func (s *SysOperaLogById) Bind(ctx *gin.Context) error {
 }
 
 func (s *SysOperaLogById) SetUpdateBy(id int) {
-	
+
 }

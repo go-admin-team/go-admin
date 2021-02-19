@@ -106,7 +106,7 @@ func (e *SysContent) Update(id int) (update SysContent, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
+	if err = orm.Eloquent.Table(e.TableName()).Model(&update).Where("id = ?", id).Updates(&e).Error; err != nil {
 		return
 	}
 	return

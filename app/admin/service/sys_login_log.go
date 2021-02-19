@@ -97,7 +97,7 @@ func (e *SysLoginLog) RemoveSysLoginLog(d *dto.SysLoginLogById, c common.ActiveR
 	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
-		Where(d.GetId()).Delete(c)
+		Where(d.Ids).Delete(c)
 	if db.Error != nil {
 		err = db.Error
 		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)

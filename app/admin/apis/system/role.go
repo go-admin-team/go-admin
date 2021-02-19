@@ -2,6 +2,7 @@ package system
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-admin/app/admin/service/dto"
 
 	"go-admin/app/admin/models"
 	"go-admin/common/global"
@@ -126,9 +127,12 @@ func UpdateRole(c *gin.Context) {
 
 func UpdateRoleDataScope(c *gin.Context) {
 	var data models.SysRole
+	var req dto.RoleDataScopeReq
 	data.UpdateBy = tools.GetUserIdStr(c)
-	err := c.Bind(&data)
+	err := c.Bind(&req)
 	tools.HasError(err, "数据解析失败", -1)
+	data.RoleId = req.RoleId
+	data.DataScope = req.DataScope
 	result, err := data.Update(data.RoleId)
 
 	var t models.SysRoleDept

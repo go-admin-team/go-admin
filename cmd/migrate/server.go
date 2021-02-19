@@ -42,10 +42,9 @@ func init() {
 }
 
 func run() {
-	usage := `start init`
-	fmt.Println(usage)
 
 	if !generate {
+		fmt.Println(`start init`)
 		//1. 读取配置
 		config.Setup(file.NewSource, file.WithPath(configYml))
 		//2. 设置日志
@@ -54,6 +53,7 @@ func run() {
 		global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
 		_ = initDB()
 	} else {
+		fmt.Println(`generate migration file`)
 		_ = genFile()
 	}
 }

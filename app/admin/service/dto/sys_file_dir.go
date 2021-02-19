@@ -74,6 +74,10 @@ func (s *SysFileDirControl) GenerateM() (common.ActiveRecord, error) {
 		PId:   s.PId,
 		//Sort:  s.Sort,
 		Path: s.Path,
+		ControlBy: common.ControlBy{
+			CreateBy: s.CreateBy,
+			UpdateBy: s.UpdateBy,
+		},
 	}, nil
 }
 

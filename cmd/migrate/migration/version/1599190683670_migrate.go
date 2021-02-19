@@ -21,17 +21,17 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		list3 := []models.SysDept{
-			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 8, ParentId: 1, DeptPath: "/0/1/8", DeptName: "运维部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 9, ParentId: 1, DeptPath: "/0/1/9", DeptName: "客服部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 10, ParentId: 1, DeptPath: "/0/1/10", DeptName: "人力资源", Sort: 3, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "1", ControlBy:common.ControlBy{ CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 8, ParentId: 1, DeptPath: "/0/1/8", DeptName: "运维部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 9, ParentId: 1, DeptPath: "/0/1/9", DeptName: "客服部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 10, ParentId: 1, DeptPath: "/0/1/10", DeptName: "人力资源", Sort: 3, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "1", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list4 := []system.SysConfig{
-			{Model: common.Model{ID: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: nil}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow"},
-			{Model: common.Model{ID: 2}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: nil}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456"},
-			{Model: common.Model{ID: 3}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now(), DeletedAt: nil}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light"},
+			{Model: common.Model{ID: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow"},
+			{Model: common.Model{ID: 2}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456"},
+			{Model: common.Model{ID: 3}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light"},
 		}
 
 		list5 := []models.Post{

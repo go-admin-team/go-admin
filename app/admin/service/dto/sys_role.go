@@ -42,7 +42,7 @@ func (m *SysRoleSearch) Bind(ctx *gin.Context) error {
 
 // SysConfigControl 增、改使用的结构体
 type SysRoleControl struct {
-	RoleId    int    `uri:"roleId" comment:"角色编码"`    // 角色编码
+	RoleId    int    `uri:"id" comment:"角色编码"`        // 角色编码
 	RoleName  string `form:"roleName" comment:"角色名称"` // 角色名称
 	Status    string `form:"status" comment:"状态"`     // 状态
 	RoleKey   string `form:"roleKey" comment:"角色代码"`  // 角色代码
@@ -56,14 +56,14 @@ type SysRoleControl struct {
 // Bind 映射上下文中的结构体数据
 func (s *SysRoleControl) Bind(ctx *gin.Context) error {
 	msgID := tools.GenerateMsgIDFromContext(ctx)
-	err := ctx.ShouldBindUri(s)
+	err := ctx.ShouldBindBodyWith(s, binding.JSON)
+	if err != nil {
+		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+	}
+	err = ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
 		return err
-	}
-	err = ctx.ShouldBindBodyWith(s, binding.JSON)
-	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
 	}
 	var jsonStr []byte
 	jsonStr, err = json.Marshal(s)
@@ -125,4 +125,10 @@ func (s *SysRoleById) Bind(ctx *gin.Context) error {
 
 func (s *SysRoleById) GenerateM() (*models.SysRole, error) {
 	return &models.SysRole{}, nil
+}
+
+// RoleDataScopeReq 角色数据权限修改
+type RoleDataScopeReq struct {
+	RoleId    int    `json:"roleId" binding:"required"`
+	DataScope string `json:"dataScope" binding:"required"`
 }

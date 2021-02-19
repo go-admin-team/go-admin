@@ -2,13 +2,13 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 	"go-admin/common/log"
 	"go-admin/common/service"
-	"go-admin/tools"
 	"gorm.io/gorm"
 )
 
@@ -59,31 +59,30 @@ func (e *SysFileDir) GetSysFileDir(d cDto.Control, model *models.SysFileDir) err
 // InsertSysFileDir 创建SysFileDir对象
 func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 	var err error
-	var data models.SysFileDir
+	data, _ := model.GenerateM()
+
 	msgID := e.MsgID
 
-	db := e.Orm.Model(&data).
-		Create(model)
-	if db.Error != nil {
+	err = e.Orm.Create(data).Error
+	if err != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
 	}
-	id := model.GetId()
-	path := "/" + tools.IntToString(id.(int))
-	db = e.Orm.Model(&data).
-		First(&data, model.GetId())
-	err = db.Error
+	path := fmt.Sprintf("/%d", model.ID)
+	//db = e.Orm.Model(&data).
+	//	First(&data, model.GetId())
+	//err = db.Error
 
-	if data.PId != 0 {
+	if model.PId != 0 {
 		var dept models.SysFileDir
-		e.Orm.Model(&data).Where("id = ?", data.PId).First(&dept)
+		e.Orm.Model(&models.SysFileDir{}).Where("id = ?", model.PId).First(&dept)
 		path = dept.Path + path
 	} else {
 		path = "/0" + path
 	}
 	//var mp = map[string]string{}
 	//mp["path"] = path
-	if err := e.Orm.Model(&data).Where("id = ?", data.ID).Update("path", path).Error; err != nil {
+	if err := e.Orm.Model(&models.SysFileDir{}).Where("id = ?", model.ID).Update("path", path).Error; err != nil {
 		return err
 	}
 
@@ -93,13 +92,13 @@ func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 // UpdateSysFileDir 修改SysFileDir对象
 func (e *SysFileDir) UpdateSysFileDir(c *dto.SysFileDirControl, p *actions.DataPermission) error {
 	var err error
-	var data models.SysFileDir
+	data, _ := c.GenerateM()
 	msgID := e.MsgID
 
-	db := e.Orm.Model(&data).
+	db := e.Orm.
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(c.ID).Updates(c)
+		).Where(c.ID).Updates(data)
 	if db.Error != nil {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err

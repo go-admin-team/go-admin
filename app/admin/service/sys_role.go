@@ -84,7 +84,6 @@ func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 	}
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
-
 	}
 	return nil
 }

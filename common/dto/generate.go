@@ -13,7 +13,7 @@ type ObjectById struct {
 
 func (s *ObjectById) Bind(ctx *gin.Context) error {
 	if ctx.Request.Method == http.MethodDelete {
-		err := ctx.Bind(s)
+		err := ctx.ShouldBind(&s.Ids)
 		if err != nil {
 			return err
 		}
@@ -21,7 +21,7 @@ func (s *ObjectById) Bind(ctx *gin.Context) error {
 			return nil
 		}
 	}
-	return ctx.BindUri(s)
+	return ctx.ShouldBindUri(s)
 }
 
 func (s *ObjectById) GetId() interface{} {
