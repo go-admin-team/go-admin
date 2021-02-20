@@ -44,7 +44,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{1, "系统管理员", "2", "admin", 1, "", "1", "", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
 		}
 
-		list7 := []models.DictType{
+		list7 := []DictType{
 			{DictId: 1, DictName: "系统开关", DictType: "sys_normal_disable", Status: "2", CreateBy: "1", UpdateBy: "1", Remark: "系统开关列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictId: 2, DictName: "用户性别", DictType: "sys_user_sex", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "用户性别列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictId: 3, DictName: "菜单状态", DictType: "sys_show_hide", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "菜单状态列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
@@ -61,7 +61,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{models.SysUserId{1}, models.LoginM{models.UserName{"admin"}, models.PassWord{"$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2"}}, models.SysUserB{"zhangwj", "13818888888", 1, "", "", "0", "1@qq.com", 1, 1, "1", "1", "", "2", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", ""}},
 		}
 
-		list9 := []models.DictData{
+		list9 := []DictData{
 			{DictCode: 1, DictSort: 0, DictLabel: "正常", DictValue: "2", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统正常", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictCode: 2, DictSort: 0, DictLabel: "停用", DictValue: "1", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统停用", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictCode: 3, DictSort: 0, DictLabel: "男", DictValue: "0", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "性别男", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},

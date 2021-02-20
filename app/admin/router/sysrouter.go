@@ -63,7 +63,6 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/gen/todb/:tableId", GenMenuAndApi)
 	v1.GET("/gen/tabletree", GetSysTablesTree)
 	v1.GET("/menuTreeselect", system.GetMenuTreeelect)
-	v1.GET("/dict/databytype/:dictType", dict.GetDictDataByDictType)
 
 	registerDBRouter(v1)
 	registerSysTableRouter(v1)
@@ -191,21 +190,24 @@ func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 }
 
 func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	dictApi := &dict.SysDictType{}
+	dataApi := &dict.SysDictData{}
 	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		dicts.GET("/datalist", dict.GetDictDataList)
-		dicts.GET("/typelist", dict.GetDictTypeList)
-		dicts.GET("/typeoptionselect", dict.GetDictTypeOptionSelect)
 
-		dicts.GET("/data/:dictCode", dict.GetDictData)
-		dicts.POST("/data", dict.InsertDictData)
-		dicts.PUT("/data/", dict.UpdateDictData)
-		dicts.DELETE("/data/:dictCode", dict.DeleteDictData)
+		dicts.GET("/data-all", dataApi.GetSysDictDataAll)
+		dicts.GET("/data", dataApi.GetSysDictDataList)
+		dicts.GET("/data/:dictCode", dataApi.GetSysDictData)
+		dicts.POST("/data", dataApi.InsertSysDictData)
+		dicts.PUT("/data/:dictCode", dataApi.UpdateSysDictData)
+		dicts.DELETE("/data/:dictCode", dataApi.DeleteSysDictData)
 
-		dicts.GET("/type/:dictId", dict.GetDictType)
-		dicts.POST("/type", dict.InsertDictType)
-		dicts.PUT("/type", dict.UpdateDictType)
-		dicts.DELETE("/type/:dictId", dict.DeleteDictType)
+		dicts.GET("/type-option-select", dictApi.GetSysDictTypeAll)
+		dicts.GET("/type", dictApi.GetSysDictTypeList)
+		dicts.GET("/type/:id", dictApi.GetSysDictType)
+		dicts.POST("/type", dictApi.InsertSysDictType)
+		dicts.PUT("/type/:id", dictApi.UpdateSysDictType)
+		dicts.DELETE("/type/:id", dictApi.DeleteSysDictType)
 	}
 }
 

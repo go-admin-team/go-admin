@@ -18,13 +18,13 @@ func init() {
 func _1606579402398Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-		dicData := models.DictData{}
+		dicData := DictData{}
 		err := tx.Model(&dicData).Where("dict_code = ?", 1).Update("dict_value", 2).Error
 		if err != nil {
 			return err
 		}
 
-		dicType := models.DictType{}
+		dicType := DictType{}
 		err = tx.Model(&dicType).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err

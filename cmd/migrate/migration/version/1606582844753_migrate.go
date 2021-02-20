@@ -24,7 +24,7 @@ func _1606582844753Test(db *gorm.DB, version string) error {
 			return err
 		}
 
-		dictData := models.DictData{}
+		dictData := DictData{}
 		err = tx.Model(&dictData).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err

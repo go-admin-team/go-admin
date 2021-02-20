@@ -1,7 +1,6 @@
 package version
 
 import (
-	"go-admin/app/admin/models"
 	//"go-admin/app/admin/models"
 	"gorm.io/gorm"
 	"runtime"
@@ -19,7 +18,7 @@ func _1613720892819Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		// TODO: 这里开始写入要变更的内容
-		t := &models.DictType{
+		t := &DictType{
 			DictName: "内容状态",
 			DictType: "sys_content_status",
 			Status:   "2",
@@ -31,8 +30,8 @@ func _1613720892819Test(db *gorm.DB, version string) error {
 			return err
 		}
 
-		data := make([]models.DictData, 2)
-		data[0] = models.DictData{
+		data := make([]DictData, 2)
+		data[0] = DictData{
 			DictSort:  0,
 			DictLabel: "正常",
 			DictValue: "1",
@@ -41,7 +40,7 @@ func _1613720892819Test(db *gorm.DB, version string) error {
 			CreateBy:  "1",
 			UpdateBy:  "1",
 		}
-		data[1] = models.DictData{
+		data[1] = DictData{
 			DictSort:  1,
 			DictLabel: "禁用",
 			DictValue: "2",
