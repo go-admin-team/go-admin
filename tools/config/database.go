@@ -5,4 +5,7 @@ type Database struct {
 	Source string
 }
 
-var DatabaseConfig = new(Database)
+var (
+	DatabaseConfig  = new(Database)
+	DatabasesConfig = make(map[string]*Database)
+)

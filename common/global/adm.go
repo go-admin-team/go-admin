@@ -1,7 +1,6 @@
 package global
 
 import (
-	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
@@ -15,10 +14,9 @@ const (
 	Version = "1.2.3"
 )
 
-var Cfg config.Conf = config.DefaultConfig()
+var Cfg config.Conf = config.NewConfig()
 
 var GinEngine *gin.Engine
-var CasbinEnforcer *casbin.SyncedEnforcer
 var Eloquent *gorm.DB
 
 var GADMCron *cron.Cron

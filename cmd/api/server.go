@@ -17,19 +17,14 @@ import (
 	"go-admin/common/database"
 	"go-admin/common/global"
 	"go-admin/common/log"
-	mycasbin "go-admin/pkg/casbin"
 	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/config"
-	"go-admin/tools/trace"
 )
 
 var (
-	configYml  string
-	port       string
-	mode       string
-	traceStart bool
-	StartCmd   = &cobra.Command{
+	configYml string
+	StartCmd  = &cobra.Command{
 		Use:          "server",
 		Short:        "Start API server",
 		Example:      "go-admin server -c config/settings.yml",
@@ -47,9 +42,6 @@ var AppRouters = make([]func(), 0)
 
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
-	StartCmd.PersistentFlags().StringVarP(&port, "port", "p", "8000", "Tcp port server listening on")
-	StartCmd.PersistentFlags().StringVarP(&mode, "mode", "m", "dev", "server mode ; eg:dev,test,prod")
-	StartCmd.PersistentFlags().BoolVarP(&traceStart, "traceStart", "t", false, "start traceStart app dash")
 
 	//注册路由 fixme 其他应用的路由，在本目录新建文件放在init方法
 	AppRouters = append(AppRouters, router.InitRouter)
@@ -65,9 +57,7 @@ func setup() {
 	global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
 	global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
 	//3. 初始化数据库链接
-	database.Setup(config.DatabaseConfig.Driver)
-	//4. 接口访问控制加载
-	global.CasbinEnforcer = mycasbin.Setup(global.Eloquent, "sys_")
+	database.Setup()
 
 	usageStr := `starting api server`
 	log.Info(usageStr)
@@ -85,7 +75,7 @@ func run() error {
 		engine = gin.New()
 	}
 
-	if mode == "dev" {
+	if config.ApplicationConfig.Mode == "dev" {
 		//监控
 		AppRouters = append(AppRouters, router.Monitor)
 	}
@@ -106,12 +96,6 @@ func run() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	if traceStart {
-		//链路追踪, fixme 页面显示需要自备梯子
-		trace.Start()
-		defer trace.Stop(ctx)
-	}
 
 	go func() {
 		// 服务连接

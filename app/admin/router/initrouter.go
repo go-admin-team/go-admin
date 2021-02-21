@@ -32,7 +32,6 @@ func InitRouter() {
 	if config.SslConfig.Enable {
 		r.Use(handler.TlsHandler())
 	}
-	r.Use(middleware.WithContextDb(middleware.GetGormFromConfig(global.Cfg)))
 
 	r.Use(common.Sentinel())
 	middleware.InitMiddleware(r)

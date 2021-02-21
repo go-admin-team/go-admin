@@ -17,5 +17,7 @@ func InitMiddleware(r *gin.Engine) {
 	// Secure is a middleware function that appends security
 	r.Use(Secure)
 	// 链路追踪
-	r.Use(middleware.Trace())
+	//r.Use(middleware.Trace())
+	// 数据库链接
+	r.Use(middleware.WithContextDb)
 }

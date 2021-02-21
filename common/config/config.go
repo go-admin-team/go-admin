@@ -1,47 +1,47 @@
 package config
 
 import (
-	"database/sql"
 	"net/http"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/go-admin-team/go-admin-core/logger"
+	"gorm.io/gorm"
 )
 
 type Config struct {
-	saas   bool
-	dbs    map[string]*DBConfig
-	db     *DBConfig
-	engine http.Handler
+	dbs     map[string]*gorm.DB
+	casbins map[string]*casbin.SyncedEnforcer
+	engine  http.Handler
 }
 
-type DBConfig struct {
-	Driver string
-	DB     *sql.DB
-}
-
-// SetDbs 设置对应key的db
-func (c *Config) SetDbs(key string, db *DBConfig) {
+// SetDb 设置对应key的db
+func (c *Config) SetDb(key string, db *gorm.DB) {
 	c.dbs[key] = db
 }
 
-// GetDbs 获取所有map里的db数据
-func (c *Config) GetDbs() map[string]*DBConfig {
+// GetDb 获取所有map里的db数据
+func (c *Config) GetDb() map[string]*gorm.DB {
 	return c.dbs
 }
 
 // GetDbByKey 根据key获取db
-func (c *Config) GetDbByKey(key string) *DBConfig {
+func (c *Config) GetDbByKey(key string) *gorm.DB {
+	if db, ok := c.dbs["*"]; ok {
+		return db
+	}
 	return c.dbs[key]
 }
 
-// SetDb 设置单个db
-func (c *Config) SetDb(db *DBConfig) {
-	c.db = db
+func (c *Config) SetCasbin(key string, enforcer *casbin.SyncedEnforcer) {
+	c.casbins[key] = enforcer
 }
 
-// GetDb 获取单个db
-func (c *Config) GetDb() *DBConfig {
-	return c.db
+// GetCasbinKey 根据key获取casbin
+func (c *Config) GetCasbinKey(key string) *casbin.SyncedEnforcer {
+	if e, ok := c.casbins["*"]; ok {
+		return e
+	}
+	return c.casbins[key]
 }
 
 // SetEngine 设置路由引擎
@@ -64,16 +64,10 @@ func (c *Config) GetLogger() logger.Logger {
 	return logger.DefaultLogger
 }
 
-// SetSaas 设置是否是saas应用
-func (c *Config) SetSaas(saas bool) {
-	c.saas = saas
-}
-
-// GetSaas 获取是否是saas应用
-func (c *Config) GetSaas() bool {
-	return c.saas
-}
-
-func DefaultConfig() *Config {
-	return &Config{}
+// NewConfig 默认值
+func NewConfig() *Config {
+	return &Config{
+		dbs:     make(map[string]*gorm.DB),
+		casbins: make(map[string]*casbin.SyncedEnforcer),
+	}
 }

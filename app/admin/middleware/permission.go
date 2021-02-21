@@ -17,7 +17,7 @@ func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := global.CasbinEnforcer
+		e := global.Cfg.GetCasbinKey(c.Request.Host)
 		var res bool
 		var err error
 		msgID := tools.GenerateMsgIDFromContext(c)
@@ -38,7 +38,7 @@ func AuthCheckRole() gin.HandlerFunc {
 			log.Infof("msgID[%s] isTrue: %v role: %s method: %s path: %s", msgID, res, v["rolekey"], c.Request.Method, c.Request.URL.Path)
 			c.Next()
 		} else {
-			log.Warnf("msgID[%s] isTrue: %v role: %s method: %s path: %s message: %s", msgID, res, v["rolekey"], c.Request.Method, c.Request.URL.Path,"当前request无权限，请管理员确认！")
+			log.Warnf("msgID[%s] isTrue: %v role: %s method: %s path: %s message: %s", msgID, res, v["rolekey"], c.Request.Method, c.Request.URL.Path, "当前request无权限，请管理员确认！")
 			c.JSON(http.StatusOK, gin.H{
 				"code": 403,
 				"msg":  "对不起，您没有该接口访问权限，请联系管理员",

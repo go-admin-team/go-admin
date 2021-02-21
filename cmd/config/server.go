@@ -12,7 +12,6 @@ import (
 
 var (
 	configYml string
-	mode      string
 	StartCmd  = &cobra.Command{
 		Use:     "config",
 		Short:   "Get Application config info",
@@ -42,7 +41,8 @@ func run() {
 	}
 	fmt.Println("jwt:", string(jwt))
 
-	database, errs := json.MarshalIndent(config.DatabaseConfig, "", "   ") //转换成JSON返回的是byte[]
+	// todo 需要兼容
+	database, errs := json.MarshalIndent(config.DatabasesConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}

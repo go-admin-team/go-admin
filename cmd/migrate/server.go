@@ -72,7 +72,7 @@ func migrateModel() error {
 }
 func initDB() error {
 	//3. 初始化数据库链接
-	database.Setup(config.DatabaseConfig.Driver)
+	database.Setup()
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()

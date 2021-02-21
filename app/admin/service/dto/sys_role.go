@@ -51,6 +51,7 @@ type SysRoleControl struct {
 	Remark    string `form:"remark" comment:"备注"`     // 备注
 	Admin     bool   `form:"admin" comment:"是否管理员"`
 	DataScope string `form:"dataScope" comment:"是否管理员"`
+	MenuIds   []int  `json:"menuIds"`
 }
 
 // Bind 映射上下文中的结构体数据
@@ -86,6 +87,7 @@ func (s *SysRoleControl) Generate() (*system.SysRole, error) {
 		Remark:    s.Remark,
 		Admin:     s.Admin,
 		DataScope: s.DataScope,
+		MenuIds:   s.MenuIds,
 	}, nil
 }
 
@@ -131,4 +133,5 @@ func (s *SysRoleById) GenerateM() (*models.SysRole, error) {
 type RoleDataScopeReq struct {
 	RoleId    int    `json:"roleId" binding:"required"`
 	DataScope string `json:"dataScope" binding:"required"`
+	DeptIds   []int  `json:"deptIds"`
 }

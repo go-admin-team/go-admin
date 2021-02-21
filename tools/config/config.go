@@ -9,6 +9,8 @@ import (
 
 var (
 	ExtendConfig interface{}
+	_watch       config.Watcher
+	_cfg         *Settings
 )
 
 // Settings 兼容原先的配置结构
@@ -18,19 +20,25 @@ type Settings struct {
 
 // Config 配置集合
 type Config struct {
-	Application *Application `yaml:"application"`
-	Ssl         *Ssl         `yaml:"ssl"`
-	Logger      *Logger      `yaml:"logger"`
-	Jwt         *Jwt         `yaml:"jwt"`
-	Database    *Database    `yaml:"database"`
-	Gen         *Gen         `yaml:"gen"`
-	Extend      interface{}  `yaml:"extend"`
+	Application *Application          `yaml:"application"`
+	Ssl         *Ssl                  `yaml:"ssl"`
+	Logger      *Logger               `yaml:"logger"`
+	Jwt         *Jwt                  `yaml:"jwt"`
+	Database    *Database             `yaml:"database"`
+	Databases   *map[string]*Database `yaml:"databases"`
+	Gen         *Gen                  `yaml:"gen"`
+	Extend      interface{}           `yaml:"extend"`
 }
 
-var (
-	_watch config.Watcher
-	_cfg   *Settings
-)
+// 多db改造
+func (e *Config) multiDatabase() {
+	if len(*e.Databases) == 0 {
+		*e.Databases = map[string]*Database{
+			"*": e.Database,
+		}
+
+	}
+}
 
 // Setup 载入配置文件
 func Setup(f func(opts ...source.Option) source.Source, options ...source.Option) {
@@ -50,7 +58,8 @@ func Setup(f func(opts ...source.Option) source.Source, options ...source.Option
 		Ssl:         SslConfig,
 		Logger:      LoggerConfig,
 		Jwt:         JwtConfig,
-		Database:    DatabaseConfig,
+		Database:    new(Database),
+		Databases:   &DatabasesConfig,
 		Gen:         GenConfig,
 		Extend:      ExtendConfig,
 	}}
@@ -58,6 +67,7 @@ func Setup(f func(opts ...source.Option) source.Source, options ...source.Option
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Scan config fail: %s", err.Error()))
 	}
+	_cfg.Settings.multiDatabase()
 
 	_watch, err = c.Watch()
 	if err != nil {
@@ -65,7 +75,7 @@ func Setup(f func(opts ...source.Option) source.Source, options ...source.Option
 	}
 }
 
-// Watch 配置监听, 重载时报错，不影响运行
+// Watch 配置监听, 重载时报错，不影响运行 fixme 数据连接 redis连接还没支持动态配置
 func Watch() {
 	for {
 		v, err := _watch.Next()
@@ -80,7 +90,7 @@ func Watch() {
 			log.Println(fmt.Sprintf("Scan config fail: %s", err.Error()))
 			break
 		}
-		fmt.Println(DatabaseConfig)
+		_cfg.Settings.multiDatabase()
 	}
 }
 
