@@ -98,8 +98,7 @@ func (s *SysRoleControl) GetId() interface{} {
 
 // SysConfigById 获取单个或者删除的结构体
 type SysRoleById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
+	dto.ObjectById
 }
 
 func (s *SysRoleById) Generate() *SysRoleById {
@@ -109,20 +108,6 @@ func (s *SysRoleById) Generate() *SysRoleById {
 
 func (s *SysRoleById) GetId() interface{} {
 	return s.Id
-}
-
-func (s *SysRoleById) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
-	}
-	return err
 }
 
 func (s *SysRoleById) GenerateM() (*models.SysRole, error) {

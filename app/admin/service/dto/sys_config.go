@@ -37,7 +37,7 @@ func (m *SysConfigSearch) Bind(ctx *gin.Context) error {
 type SysConfigControl struct {
 	ID          int    `uri:"ID" comment:"编码"` // 编码
 	ConfigName  string `json:"configName" comment:""`
-	ConfigKey   string `json:"configKey" comment:""`
+	ConfigKey   string `uri:"configKey" json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
 	ConfigType  string `json:"configType" comment:""`
 	Remark      string `json:"remark" comment:""`

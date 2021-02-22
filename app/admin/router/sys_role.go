@@ -20,7 +20,7 @@ func registerSysRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 		r.GET("/:id", api.GetSysRole)
 		r.POST("", api.InsertSysRole)
 		r.PUT("/:id", api.UpdateSysRole)
-		r.DELETE("/:id", api.DeleteSysRole)
+		r.DELETE("", api.DeleteSysRole)
 	}
 	v1.PUT("/roledatascope", api.UpdateRoleDataScope)
 }

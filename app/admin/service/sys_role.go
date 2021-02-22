@@ -155,7 +155,17 @@ func (e *SysRole) RemoveSysRole(d *dto.SysRoleById) error {
 		}
 	}()
 
-	db := tx.Model(&data).Delete(&data, d.GetId())
+	s := SysRoleMenu{}
+	s.Orm = tx
+	s.MsgID = msgID
+	for _, roleId := range d.Ids {
+		err = s.DeleteRoleMenu(tx, roleId)
+		if err != nil {
+			log.Errorf("msgID[%s] insert role menu error, %", msgID, err.Error())
+			return err
+		}
+	}
+	db := tx.Model(&data).Delete(&data, d.Ids)
 	if db.Error != nil {
 		err = db.Error
 		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
@@ -163,14 +173,6 @@ func (e *SysRole) RemoveSysRole(d *dto.SysRoleById) error {
 	}
 	if db.RowsAffected == 0 {
 		err = errors.New("无权删除该数据")
-		return err
-	}
-	s := SysRoleMenu{}
-	s.Orm = db
-	s.MsgID = msgID
-	err = s.DeleteRoleMenu(tx, d.Id)
-	if err != nil {
-		log.Errorf("msgID[%s] insert role menu error, %", msgID, err.Error())
 		return err
 	}
 	return nil

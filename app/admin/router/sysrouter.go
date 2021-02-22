@@ -167,14 +167,14 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		dicts.GET("/data/:dictCode", dataApi.GetSysDictData)
 		dicts.POST("/data", dataApi.InsertSysDictData)
 		dicts.PUT("/data/:dictCode", dataApi.UpdateSysDictData)
-		dicts.DELETE("/data/:dictCode", dataApi.DeleteSysDictData)
+		dicts.DELETE("/data", dataApi.DeleteSysDictData)
 
 		dicts.GET("/type-option-select", dictApi.GetSysDictTypeAll)
 		dicts.GET("/type", dictApi.GetSysDictTypeList)
 		dicts.GET("/type/:id", dictApi.GetSysDictType)
 		dicts.POST("/type", dictApi.InsertSysDictType)
 		dicts.PUT("/type/:id", dictApi.UpdateSysDictType)
-		dicts.DELETE("/type/:id", dictApi.DeleteSysDictType)
+		dicts.DELETE("/type", dictApi.DeleteSysDictType)
 	}
 }
 

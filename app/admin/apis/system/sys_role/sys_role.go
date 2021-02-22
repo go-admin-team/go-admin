@@ -126,6 +126,9 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 	}
 	// 设置创建人
 	object.CreateBy = tools.GetUserId(c)
+	if object.Status == "" {
+		object.Status = "2"
+	}
 
 	s := service.SysRole{}
 	s.Orm = db
@@ -195,10 +198,10 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 // @Summary 删除用户角色
 // @Description 删除数据
 // @Tags 角色/Role
-// @Param roleId path int true "roleId"
+// @Param data body dto.SysRoleById true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/role/{roleId} [delete]
+// @Router /api/v1/role [delete]
 // @Security Bearer
 func (e *SysRole) DeleteSysRole(c *gin.Context) {
 	control := new(dto.SysRoleById)
@@ -223,6 +226,7 @@ func (e *SysRole) DeleteSysRole(c *gin.Context) {
 	err = s.RemoveSysRole(control)
 	if err != nil {
 		log.Error(err)
+		e.Error(c, http.StatusInternalServerError, err, "")
 		return
 	}
 	_, err = global.LoadPolicy(c)
