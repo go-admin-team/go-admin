@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/apis/sysjob"
+	"go-admin/app/admin/apis/sys_job"
 	"go-admin/app/admin/middleware"
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
@@ -31,7 +31,7 @@ func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 		r.PUT("", actions.PermissionAction(), actions.UpdateAction(new(dto.SysJobControl)))
 		r.DELETE("", actions.PermissionAction(), actions.DeleteAction(new(dto.SysJobById)))
 	}
-	sysJob := &sysjob.SysJob{}
+	sysJob := &sys_job.SysJob{}
 
 	v1.GET("/job/remove/:id", sysJob.RemoveJobForService)
 	v1.GET("/job/start/:id", sysJob.StartJobForService)

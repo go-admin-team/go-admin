@@ -1,4 +1,4 @@
-package syscontent
+package sys_content
 
 import (
 	"github.com/gin-gonic/gin"

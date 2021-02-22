@@ -48,7 +48,4 @@ func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddle
 	for _, f := range routerCheckRole {
 		f(v1, authMiddleware)
 	}
-
-	// {{认证路由自动补充在此处请勿删除}}
-
 }

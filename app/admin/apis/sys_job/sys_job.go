@@ -1,4 +1,4 @@
-package sysjob
+package sys_job
 
 import (
 	"github.com/gin-gonic/gin"
