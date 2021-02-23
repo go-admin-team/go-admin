@@ -7,6 +7,7 @@ import (
 	cDto "go-admin/common/dto"
 	"go-admin/common/log"
 	"go-admin/common/service"
+	"go-admin/tools"
 	"gorm.io/gorm"
 )
 
@@ -65,6 +66,20 @@ func (e *SysDept) InsertSysDept(model *models.SysDept) error {
 		log.Errorf("msgID[%s] db error:%s", msgID, err)
 		return err
 	}
+	deptPath := "/" + tools.IntToString(model.DeptId)
+	if model.ParentId != 0 {
+		var deptP models.SysDepts
+		e.Orm.Model(&data).First(&deptP, model.ParentId)
+		deptPath = deptP.DeptPath + deptPath
+	} else {
+		deptPath = "/0" + deptPath
+	}
+	var mp = map[string]string{}
+	mp["dept_path"] = deptPath
+	if err := e.Orm.Model(&model).Update("dept_path",deptPath).Error; err != nil {
+		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		return err
+	}
 	return nil
 }
 
@@ -82,8 +97,11 @@ func (e *SysDept) UpdateSysDept(c *models.SysDept) error {
 	}
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
-
 	}
+
+	//参数1:是要修改的数据
+	//参数2:是修改的数据
+
 	return nil
 }
 
