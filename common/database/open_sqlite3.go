@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var open = map[string]func(string) gorm.Dialector{
+var opens = map[string]func(string) gorm.Dialector{
 	"mysql":    mysql.Open,
 	"postgres": postgres.Open,
 	"sqlite3":  sqlite.Open,

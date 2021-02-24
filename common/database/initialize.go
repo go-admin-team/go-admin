@@ -5,6 +5,7 @@ import (
 	"time"
 
 	logCore "github.com/go-admin-team/go-admin-core/logger"
+	toolsDB "github.com/go-admin-team/go-admin-core/tools/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -28,7 +29,16 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 		global.Driver = c.Driver
 	}
 	log.Infof("%s => %s", host, tools.Green(c.Source))
-	db, err := gorm.Open(open[c.Driver](c.Source), &gorm.Config{
+	registers := make([]toolsDB.ResolverConfigure, len(c.Registers))
+	for i := range c.Registers {
+		registers[i] = toolsDB.NewResolverConfigure(
+			c.Registers[i].Sources,
+			c.Registers[i].Replicas,
+			c.Registers[i].Policy,
+			c.Registers[i].Tables)
+	}
+	resolverConfig := toolsDB.NewConfigure(c.Source, c.MaxIdleConns, c.MaxOpenConns, c.ConnMaxIdleTime, c.ConnMaxLifetime, registers)
+	db, err := resolverConfig.Init(&gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
@@ -41,7 +51,8 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 					logCore.DefaultLogger.Options().Level.LevelForGorm()),
 			},
 		),
-	})
+	}, opens[c.Driver])
+
 	if err != nil {
 		log.Fatal(tools.Red(c.Driver+" connect error :"), err)
 	} else {
