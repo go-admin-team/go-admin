@@ -6,7 +6,7 @@ import (
 )
 
 type SysContent struct {
-	Id        int    `json:"id" gorm:"type:int(11);primary_key;auto_increment"` // id
+	Id        int    `json:"id" gorm:"type:int(11);primaryKey;autoIncrement"` // id
 	CateId    string `json:"cateId" gorm:"type:int(11);"`                       // 分类id
 	Name      string `json:"name" gorm:"type:varchar(255);"`                    // 名称
 	Status    string `json:"status" gorm:"type:int(1);"`                        // 状态

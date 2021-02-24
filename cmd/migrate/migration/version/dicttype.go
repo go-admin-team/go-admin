@@ -5,7 +5,7 @@ import (
 )
 
 type DictType struct {
-	DictId   int    `gorm:"primary_key;auto_increment;" json:"dictId"`
+	DictId   int    `gorm:"primaryKey;autoIncrement;" json:"dictId"`
 	DictName string `gorm:"size:128;" json:"dictName"` //字典名称
 	DictType string `gorm:"size:128;" json:"dictType"` //字典类型
 	Status   string `gorm:"size:4;" json:"status"`     //状态

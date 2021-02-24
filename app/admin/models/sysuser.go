@@ -39,7 +39,7 @@ type LoginM struct {
 }
 
 type SysUserId struct {
-	UserId int `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"` // 编码
+	UserId int `gorm:"primaryKey;autoIncrement"  json:"userId"` // 编码
 }
 
 type SysUserB struct {

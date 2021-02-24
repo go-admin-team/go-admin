@@ -9,7 +9,7 @@ import (
 )
 
 type SysJob struct {
-	JobId          int   `json:"jobId" gorm:"primary_key;AUTO_INCREMENT"` // 编码
+	JobId          int   `json:"jobId" gorm:"primaryKey;autoIncrement"` // 编码
 	JobName        string `json:"jobName" gorm:"size:255;"`                // 名称
 	JobGroup       string `json:"jobGroup" gorm:"size:255;"`               // 任务分组
 	JobType        int    `json:"jobType" gorm:"size:1;"`                  // 任务类型

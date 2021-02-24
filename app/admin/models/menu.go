@@ -9,7 +9,7 @@ import (
 )
 
 type Menu struct {
-	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT"`
+	MenuId     int    `json:"menuId" gorm:"primaryKey;autoIncrement"`
 	MenuName   string `json:"menuName" gorm:"size:128;"`
 	Title      string `json:"title" gorm:"size:128;"`
 	Icon       string `json:"icon" gorm:"size:128;"`
@@ -46,7 +46,7 @@ type MenuLable struct {
 }
 
 type Menus struct {
-	MenuId     int    `json:"menuId" gorm:"column:menu_id;primary_key;"`
+	MenuId     int    `json:"menuId" gorm:"column:menu_id;primaryKey;autoIncrement;"`
 	MenuName   string `json:"menuName" gorm:"column:menu_name"`
 	Title      string `json:"title" gorm:"column:title"`
 	Icon       string `json:"icon" gorm:"column:icon"`

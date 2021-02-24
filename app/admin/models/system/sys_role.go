@@ -3,7 +3,7 @@ package system
 import "go-admin/common/models"
 
 type SysRole struct {
-	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"` // 角色编码
+	RoleId    int    `json:"roleId" gorm:"primaryKey;autoIncrement"` // 角色编码
 	RoleName  string `json:"roleName" gorm:"size:128;"`                // 角色名称
 	Status    string `json:"status" gorm:"size:4;"`                    //
 	RoleKey   string `json:"roleKey" gorm:"size:128;"`                 //角色代码

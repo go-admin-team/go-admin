@@ -3,7 +3,7 @@ package system
 import "go-admin/common/models"
 
 type SysPost struct {
-	PostId   int    `gorm:"primary_key;AUTO_INCREMENT" json:"postId"` //岗位编号
+	PostId   int    `gorm:"primaryKey;autoIncrement" json:"postId"` //岗位编号
 	PostName string `gorm:"size:128;" json:"postName"`                //岗位名称
 	PostCode string `gorm:"size:128;" json:"postCode"`                //岗位代码
 	Sort     int    `gorm:"" json:"sort"`                             //岗位排序

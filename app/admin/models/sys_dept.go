@@ -3,7 +3,7 @@ package models
 import "go-admin/common/models"
 
 type SysDept struct {
-	DeptId   int    `json:"deptId" gorm:"primary_key;auto_increment;"` //部门编码
+	DeptId   int    `json:"deptId" gorm:"primaryKey;autoIncrement;"` //部门编码
 	ParentId int    `json:"parentId" gorm:""`                          //上级部门
 	DeptPath string `json:"deptPath" gorm:"size:255;"`                 //
 	DeptName string `json:"deptName"  gorm:"size:128;"`                //部门名称

@@ -5,7 +5,7 @@ import (
 )
 
 type DictData struct {
-	DictCode  int    `gorm:"primary_key;auto_increment;" json:"dictCode" example:"1"` //字典编码
+	DictCode  int    `gorm:"primaryKey;autoIncrement;" json:"dictCode" example:"1"` //字典编码
 	DictSort  int    `gorm:"" json:"dictSort"`                                        //显示顺序
 	DictLabel string `gorm:"size:128;" json:"dictLabel"`                              //数据标签
 	DictValue string `gorm:"size:255;" json:"dictValue"`                              //数据键值
