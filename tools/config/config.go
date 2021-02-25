@@ -58,7 +58,7 @@ func Setup(f func(opts ...source.Option) source.Source, options ...source.Option
 		Ssl:         SslConfig,
 		Logger:      LoggerConfig,
 		Jwt:         JwtConfig,
-		Database:    new(Database),
+		Database:    DatabaseConfig,
 		Databases:   &DatabasesConfig,
 		Gen:         GenConfig,
 		Extend:      ExtendConfig,
