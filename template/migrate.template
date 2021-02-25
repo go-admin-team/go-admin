@@ -1,7 +1,6 @@
 package {{.Package}}
 
 import (
-	//"go-admin/app/admin/models"
 	"gorm.io/gorm"
 	"runtime"
 

@@ -3,9 +3,9 @@ package router
 import (
     "github.com/gin-gonic/gin"
 
-    "go-admin/app/admin/middleware"
-    "go-admin/app/admin/models"
-    "go-admin/app/admin/service/dto"
+    "go-admin/app/{{.PackageName}}/middleware"
+    "go-admin/app/{{.PackageName}}/models"
+    "go-admin/app/{{.PackageName}}/service/dto"
     "go-admin/common/actions"
 )
 

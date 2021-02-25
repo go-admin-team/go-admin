@@ -191,8 +191,8 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 			column.IsPk = "1"
 			column.Pk = true
 			data.PkColumn = dbcolumn[i].ColumnName
-			column.GoField = strings.ToUpper(column.GoField)
-			column.JsonField = strings.ToUpper(column.JsonField)
+			//column.GoField = strings.ToUpper(column.GoField)
+			//column.JsonField = strings.ToUpper(column.JsonField)
 			data.PkGoField = column.GoField
 			data.PkJsonField = column.JsonField
 		}
@@ -204,10 +204,8 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 
 		if strings.Contains(dbcolumn[i].ColumnType, "int") {
 			if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
-				column.GoType = "uint"
-			} else if strings.Contains(dbcolumn[i].ColumnType, "unsigned") {
-				column.GoType = "uint"
-			} else {
+				column.GoType = "int"
+			}  else {
 				column.GoType = "string"
 			}
 			column.HtmlType = "input"

@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
+	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/common/dto"
 	"go-admin/common/log"
 	"go-admin/tools"
