@@ -1,4 +1,4 @@
-package syschinaareadata
+package sys_china_area_data
 
 import (
 	"github.com/gin-gonic/gin"
