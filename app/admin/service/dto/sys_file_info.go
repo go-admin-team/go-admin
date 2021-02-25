@@ -8,7 +8,7 @@ import (
 
 type SysFileInfoSearch struct {
 	dto.Pagination `search:"-"`
-	ID             int    `form:"ID" search:"type:exact;column:id;table:sys_file_info" comment:"标识"`
+	ID             int    `form:"Id" search:"type:exact;column:id;table:sys_file_info" comment:"标识"`
 	Type           string `form:"type" search:"type:exact;column:type;table:sys_file_info" comment:"类型"`
 	Name           string `form:"name" search:"type:exact;column:name;table:sys_file_info" comment:"名称"`
 	PId            string `form:"pId" search:"type:exact;column:p_id;table:sys_file_info" comment:"目录"`
@@ -34,7 +34,7 @@ type SysFileInfoControl struct {
 
 func (s *SysFileInfoControl) Generate() (*models.SysFileInfo, error) {
 	return &models.SysFileInfo{
-		Model:     common.Model{ID: s.ID},
+		Model:     common.Model{Id: s.ID},
 		Type:      s.Type,
 		Name:      s.Name,
 		Size:      s.Size,

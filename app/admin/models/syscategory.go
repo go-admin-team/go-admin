@@ -25,5 +25,5 @@ func (e *SysCategory) Generate() models.ActiveRecord {
 }
 
 func (e *SysCategory) GetId() interface{} {
-	return e.ID
+	return e.Id
 }

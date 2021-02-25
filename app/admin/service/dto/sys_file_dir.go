@@ -13,7 +13,7 @@ import (
 type SysFileDirSearch struct {
 	dto.Pagination `search:"-"`
 
-	ID    int    `form:"ID" search:"type:exact;column:id;table:sys_file_dir" comment:"标识"`
+	ID    int    `form:"Id" search:"type:exact;column:id;table:sys_file_dir" comment:"标识"`
 	Label string `form:"label" search:"type:exact;column:label;table:sys_file_dir" comment:"目录名称"`
 	PId   string `form:"pId" search:"type:exact;column:p_id;table:sys_file_dir" comment:"上级目录"`
 	//Sort  string `form:"sort" search:"type:exact;column:sort;table:sys_file_dir" comment:"排序"`
@@ -39,7 +39,7 @@ func (m *SysFileDirSearch) Generate() dto.Index {
 }
 
 type SysFileDirControl struct {
-	ID       int    `uri:"ID" comment:"标识"` // 标识
+	ID       int    `uri:"Id" comment:"标识"` // 标识
 	Label    string `json:"label" comment:"目录名称"`
 	PId      int    `json:"pId" comment:"上级目录"`
 	Sort     string `json:"sort" comment:"排序"`
@@ -69,7 +69,7 @@ func (s *SysFileDirControl) Generate() dto.Control {
 
 func (s *SysFileDirControl) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysFileDir{
-		Model: common.Model{ID: s.ID},
+		Model: common.Model{Id: s.ID},
 		Label: s.Label,
 		PId:   s.PId,
 		//Sort:  s.Sort,

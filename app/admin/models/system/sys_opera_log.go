@@ -41,5 +41,5 @@ func (e *SysOperaLog) Generate() models.ActiveRecord {
 }
 
 func (e *SysOperaLog) GetId() interface{} {
-	return e.ID
+	return e.Id
 }

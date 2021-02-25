@@ -19,7 +19,7 @@ func (e *ControlBy) SetUpdateBy(updateBy int) {
 }
 
 type Model struct {
-	ID int `json:"id" gorm:"primaryKey;autoIncrement;comment:主键编码"`
+	Id int `json:"id" gorm:"primaryKey;autoIncrement;comment:主键编码"`
 }
 
 type ModelTime struct {

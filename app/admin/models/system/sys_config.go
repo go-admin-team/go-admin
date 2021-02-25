@@ -25,5 +25,5 @@ func (e *SysConfig) Generate() models.ActiveRecord {
 }
 
 func (e *SysConfig) GetId() interface{} {
-	return e.ID
+	return e.Id
 }

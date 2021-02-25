@@ -35,7 +35,7 @@ func (m *SysOperaLogSearch) Bind(ctx *gin.Context) error {
 }
 
 type SysOperaLogControl struct {
-	ID            int       `uri:"ID" comment:"编码"` // 编码
+	ID            int       `uri:"Id" comment:"编码"` // 编码
 	Title         string    `json:"title" comment:"操作模块"`
 	BusinessType  string    `json:"businessType" comment:"操作类型"`
 	BusinessTypes string    `json:"businessTypes" comment:""`
@@ -72,7 +72,7 @@ func (s *SysOperaLogControl) Bind(ctx *gin.Context) error {
 
 func (s *SysOperaLogControl) Generate() (*system.SysOperaLog, error) {
 	return &system.SysOperaLog{
-		Model:         common.Model{ID: s.ID},
+		Model:         common.Model{Id: s.ID},
 		Title:         s.Title,
 		BusinessType:  s.BusinessType,
 		BusinessTypes: s.BusinessTypes,

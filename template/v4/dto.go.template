@@ -72,7 +72,7 @@ func (s *{{.ClassName}}Control) Generate() (*models.{{.ClassName}}, error) {
 	{{ range .Columns -}}
         {{$x := .Pk}}
         {{- if ($x) }}
-        Model:     gorm.Model{ID: s.ID},
+        Model:     common.Model{ {{.GoField}}: s.{{.GoField}} },
         {{- else if eq .GoField "CreatedAt" -}}
         {{- else if eq .GoField "UpdatedAt" -}}
         {{- else if eq .GoField "DeletedAt" -}}

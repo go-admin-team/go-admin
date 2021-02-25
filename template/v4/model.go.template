@@ -7,7 +7,7 @@ import (
 )
 
 type {{.ClassName}} struct {
-    gorm.Model
+    models.Model
     models.ControlBy
     {{ range .Columns -}}
     {{$x := .Pk}}

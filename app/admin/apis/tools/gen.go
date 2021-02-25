@@ -19,17 +19,17 @@ func Preview(c *gin.Context) {
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
-	t1, err := template.ParseFiles("template/v3/model.go.template")
+	t1, err := template.ParseFiles("template/v4/model.go.template")
 	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/v3/no_actions/apis.go.template")
+	t2, err := template.ParseFiles("template/v4/no_actions/apis.go.template")
 	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles("template/v3/js.go.template")
+	t3, err := template.ParseFiles("template/v4/js.go.template")
 	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/v3/vue.go.template")
+	t4, err := template.ParseFiles("template/v4/vue.go.template")
 	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
+	t5, err := template.ParseFiles("template/v4/no_actions/router_check_role.go.template")
 	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v3/dto.go.template")
+	t6, err := template.ParseFiles("template/v4/dto.go.template")
 	tools2.HasError(err, "", -1)
 	tab, _ := table.Get()
 	var b1 bytes.Buffer
@@ -76,7 +76,7 @@ func GenCodeV3(c *gin.Context) {
 
 func NOActionsGenV3(tab tools.SysTables) {
 
-	basePath := "template/v3/"
+	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {
@@ -130,7 +130,7 @@ func NOActionsGenV3(tab tools.SysTables) {
 }
 
 func ActionsGenV3(tab tools.SysTables) {
-	basePath := "template/v3/"
+	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {

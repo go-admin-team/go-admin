@@ -33,7 +33,7 @@ func (m *SysLoginLogSearch) Bind(ctx *gin.Context) error {
 }
 
 type SysLoginLogControl struct {
-	ID            int       `uri:"ID" comment:"主键"` // 主键
+	ID            int       `uri:"Id" comment:"主键"` // 主键
 	Username      string    `json:"username" comment:"用户名"`
 	Status        string    `json:"status" comment:"状态"`
 	Ipaddr        string    `json:"ipaddr" comment:"ip地址"`
@@ -62,7 +62,7 @@ func (s *SysLoginLogControl) Bind(ctx *gin.Context) error {
 
 func (s *SysLoginLogControl) Generate() (*system.SysLoginLog, error) {
 	return &system.SysLoginLog{
-		Model:         common.Model{ID: s.ID},
+		Model:         common.Model{Id: s.ID},
 		Username:      s.Username,
 		Status:        s.Status,
 		Ipaddr:        s.Ipaddr,

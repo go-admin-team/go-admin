@@ -36,7 +36,6 @@ require (
 	gorm.io/driver/postgres v1.0.6-0.20201208020313-1ed927cfab53
 	gorm.io/driver/sqlite v1.1.5-0.20201206014648-c84401fbe3ba
 	gorm.io/gorm v1.20.12
-	gorm.io/plugin/dbresolver v1.1.0
 	sourcegraph.com/sourcegraph/appdash v0.0.0-20190731080439-ebfcffb1b5c0
 	sourcegraph.com/sourcegraph/appdash-data v0.0.0-20151005221446-73f23eafcf67 // indirect
 )
