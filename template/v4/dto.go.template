@@ -2,11 +2,12 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	//"gorm.io/gorm"
 
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/common/dto"
 	"go-admin/common/log"
+	common "go-admin/common/models"
 	"go-admin/tools"
 )
 
