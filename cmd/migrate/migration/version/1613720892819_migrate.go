@@ -23,7 +23,7 @@ func _1613720892819Test(db *gorm.DB, version string) error {
 			DictType: "sys_content_status",
 			Status:   "2",
 			CreateBy: "1",
-			UpdateBy: "1",
+			UpdateBy: 1,
 		}
 		err := tx.Create(t).Error
 		if err != nil {
@@ -38,7 +38,7 @@ func _1613720892819Test(db *gorm.DB, version string) error {
 			DictType:  "sys_content_status",
 			Status:    "1",
 			CreateBy:  "1",
-			UpdateBy:  "1",
+			UpdateBy:  1,
 		}
 		data[1] = DictData{
 			DictSort:  1,
@@ -47,7 +47,7 @@ func _1613720892819Test(db *gorm.DB, version string) error {
 			DictType:  "sys_content_status",
 			Status:    "1",
 			CreateBy:  "1",
-			UpdateBy:  "1",
+			UpdateBy:  1,
 		}
 		err = tx.Create(data).Error
 		if err != nil {
