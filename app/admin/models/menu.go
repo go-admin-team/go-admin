@@ -332,10 +332,65 @@ func (e *Menu) Update(id int) (update Menu, err error) {
 }
 
 func (e *Menu) Delete(id int) (success bool, err error) {
-	if err = orm.Eloquent.Table(e.TableName()).Where("menu_id = ?", id).Delete(&Menu{}).Error; err != nil {
-		success = false
+	tx := orm.Eloquent.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	m := Menu{}
+	rm := RoleMenu{}
+	if err = tx.Table(e.TableName()).First(&m, "menu_id = ?", id).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	// 删除菜单
+	if err = tx.Delete(&m).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	// 删除角色菜单
+	if err := tx.Table("sys_role_menu").Where("menu_id = ?", id).First(&rm).Delete(&RoleMenu{}).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	// 删除casbin配置
+	if err := tx.Table("sys_casbin_rule").Where("v1 = ?", m.Path).Delete(&CasbinRule{}).Error; err != nil {
+		tx.Rollback()
+		return false, err
+	}
+
+	// 判断父菜单是否只有当前菜单；如果只有当前菜单则删除角色菜单表中父菜单的记录
+	if m.ParentId != 0 {
+		m.deleteParentRoleMenu(tx, m.ParentId, rm.RoleId)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (e *Menu) deleteParentRoleMenu(tx *gorm.DB, parentId, roleId int) (err error) {
+	if parentId == 0 {
 		return
 	}
-	success = true
+
+	var i int64 // 该角色与当前菜单拥有相同父菜单的菜单数
+	err = tx.Table("sys_role_menu").Select("menu_id").Where("menu_id in (?)", tx.Table("sys_menu").Select("menu_id").Where("parent_id = ?", parentId)).Where("role_id = ?", roleId).Count(&i).Error
+	if i == 0 {
+		tx.Table("sys_role_menu").Delete(&RoleMenu{}, "role_id = ? and menu_id = ?", roleId, parentId)
+		var m Menu
+		tx.Table("sys_menu").First(&m, "menu_id = ?", parentId)
+		err = m.deleteParentRoleMenu(tx, m.ParentId, roleId)
+	}
 	return
 }
+
+
