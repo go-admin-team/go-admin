@@ -2,13 +2,14 @@ package service
 
 import (
 	"errors"
+
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/common/log"
-	"go-admin/app/admin/service/dto"
 	"go-admin/common/service"
-	"gorm.io/gorm"
 )
 
 type SysChinaAreaData struct {
@@ -19,7 +20,6 @@ type SysChinaAreaData struct {
 func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto.SysChinaAreaDataSearch, p *actions.DataPermission, list *[]models.SysChinaAreaData, count *int64) error {
 	var err error
 	var data models.SysChinaAreaData
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -30,7 +30,7 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto.SysChinaAreaDataSearch
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
@@ -40,7 +40,6 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto.SysChinaAreaDataSearch
 func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto.SysChinaAreaDataById, p *actions.DataPermission, model *models.SysChinaAreaData) error {
 	var err error
 	var data models.SysChinaAreaData
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Scopes(
@@ -50,11 +49,11 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto.SysChinaAreaDataById, p *a
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
@@ -64,12 +63,11 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto.SysChinaAreaDataById, p *a
 func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models.SysChinaAreaData) error {
 	var err error
 	var data models.SysChinaAreaData
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
@@ -79,14 +77,13 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models.SysChinaAreaData
 func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models.SysChinaAreaData, p *actions.DataPermission) error {
 	var err error
 	var data models.SysChinaAreaData
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Where(c.GetId()).Updates(c)
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -100,7 +97,6 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models.SysChinaAreaData, p 
 func (e *SysChinaAreaData) RemoveSysChinaAreaData(d *dto.SysChinaAreaDataById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysChinaAreaData
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Scopes(
@@ -108,7 +104,7 @@ func (e *SysChinaAreaData) RemoveSysChinaAreaData(d *dto.SysChinaAreaDataById, p
 		).Delete(&data, d.GetId())
 	if db.Error != nil {
 		err = db.Error
-		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {

@@ -2,20 +2,18 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-admin/pkg/logger"
+
 	//"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	common "go-admin/common/models"
-	"go-admin/tools"
 )
 
 type WfProcessClassifySearch struct {
-	dto.Pagination     `search:"-"`
-    Name string `form:"name" search:"type:contains;column:name;table:wf_process_classify" comment:"名称"`
-
-    
+	dto.Pagination `search:"-"`
+	Name           string `form:"name" search:"type:contains;column:name;table:wf_process_classify" comment:"名称"`
 }
 
 func (m *WfProcessClassifySearch) GetNeedSearch() interface{} {
@@ -23,41 +21,39 @@ func (m *WfProcessClassifySearch) GetNeedSearch() interface{} {
 }
 
 func (m *WfProcessClassifySearch) Bind(ctx *gin.Context) error {
-    msgID := tools.GenerateMsgIDFromContext(ctx)
-    err := ctx.ShouldBind(m)
-    if err != nil {
-    	log.Debugf("MsgID[%s] ShouldBind error: %s", msgID, err.Error())
-    }
-    return err
+	log := logger.GetRequestLogger(ctx)
+	err := ctx.ShouldBind(m)
+	if err != nil {
+		log.Debugf("ShouldBind error: %s", err.Error())
+	}
+	return err
 }
 
 type WfProcessClassifyControl struct {
-    
-    Id int `uri:"id" comment:"编码"` // 编码
+	Id int `uri:"id" comment:"编码"` // 编码
 
-    Name string `json:"name" comment:"名称"`
-    
+	Name string `json:"name" comment:"名称"`
 }
 
 func (s *WfProcessClassifyControl) Bind(ctx *gin.Context) error {
-    msgID := tools.GenerateMsgIDFromContext(ctx)
-    err := ctx.ShouldBindUri(s)
-    if err != nil {
-        log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
-        return err
-    }
-    err = ctx.ShouldBind(s)
-    if err != nil {
-        log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
-    }
-    return err
+	log := logger.GetRequestLogger(ctx)
+	err := ctx.ShouldBindUri(s)
+	if err != nil {
+		log.Debugf("ShouldBindUri error: %s", err.Error())
+		return err
+	}
+	err = ctx.ShouldBind(s)
+	if err != nil {
+		log.Debugf("ShouldBind error: %#v", err.Error())
+	}
+	return err
 }
 
 func (s *WfProcessClassifyControl) Generate() (*models.WfProcessClassify, error) {
 	return &models.WfProcessClassify{
-	
-        Model:     common.Model{ Id: s.Id },
-        Name:  s.Name,
+
+		Model: common.Model{Id: s.Id},
+		Name:  s.Name,
 	}, nil
 }
 
@@ -79,15 +75,15 @@ func (s *WfProcessClassifyById) GetId() interface{} {
 }
 
 func (s *WfProcessClassifyById) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := logger.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %#v", err.Error())
 	}
 	return err
 }

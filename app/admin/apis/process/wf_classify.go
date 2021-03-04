@@ -9,7 +9,6 @@ import (
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 
@@ -18,11 +17,12 @@ type WfProcessClassify struct {
 }
 
 func (e *WfProcessClassify) GetWfProcessClassifyList(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	d := new(dto.WfProcessClassifySearch)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -39,11 +39,12 @@ func (e *WfProcessClassify) GetWfProcessClassifyList(c *gin.Context) {
 	list := make([]models.WfProcessClassify, 0)
 	var count int64
 	serviceStudent := service.WfProcessClassify{}
-	serviceStudent.MsgID = msgID
+	serviceStudent.Log = log
 	serviceStudent.Orm = db
 	err = serviceStudent.GetWfProcessClassifyPage(d, p, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		log.Errorf("GetWfProcessClassifyPage error, %s", err)
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -51,14 +52,15 @@ func (e *WfProcessClassify) GetWfProcessClassifyList(c *gin.Context) {
 }
 
 func (e *WfProcessClassify) GetWfProcessClassify(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
@@ -71,11 +73,12 @@ func (e *WfProcessClassify) GetWfProcessClassify(c *gin.Context) {
 	p := actions.GetPermissionFromContext(c)
 
 	serviceWfProcessClassify := service.WfProcessClassify{}
-	serviceWfProcessClassify.MsgID = msgID
+	serviceWfProcessClassify.Log = log
 	serviceWfProcessClassify.Orm = db
 	err = serviceWfProcessClassify.GetWfProcessClassify(control, p, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		log.Errorf("GetWfProcessClassify error, %s", err)
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -83,14 +86,15 @@ func (e *WfProcessClassify) GetWfProcessClassify(c *gin.Context) {
 }
 
 func (e *WfProcessClassify) InsertWfProcessClassify(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
@@ -107,10 +111,10 @@ func (e *WfProcessClassify) InsertWfProcessClassify(c *gin.Context) {
 
 	serviceWfProcessClassify := service.WfProcessClassify{}
 	serviceWfProcessClassify.Orm = db
-	serviceWfProcessClassify.MsgID = msgID
+	serviceWfProcessClassify.Log = log
 	err = serviceWfProcessClassify.InsertWfProcessClassify(object)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("InsertWfProcessClassify error, %s", err)
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
 		return
 	}
@@ -119,14 +123,15 @@ func (e *WfProcessClassify) InsertWfProcessClassify(c *gin.Context) {
 }
 
 func (e *WfProcessClassify) UpdateWfProcessClassify(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
@@ -145,28 +150,30 @@ func (e *WfProcessClassify) UpdateWfProcessClassify(c *gin.Context) {
 
 	serviceWfProcessClassify := service.WfProcessClassify{}
 	serviceWfProcessClassify.Orm = db
-	serviceWfProcessClassify.MsgID = msgID
+	serviceWfProcessClassify.Log = log
 	err = serviceWfProcessClassify.UpdateWfProcessClassify(object, p)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("UpdateWfProcessClassify error, %s", err)
+		e.Error(c, http.StatusInternalServerError, err, "更新失败")
 		return
 	}
 	e.OK(c, object.GetId(), "更新成功")
 }
 
 func (e *WfProcessClassify) DeleteWfProcessClassify(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//删除操作
 	err = control.Bind(c)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+		log.Warnf("Bind error: %s", err)
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -179,10 +186,11 @@ func (e *WfProcessClassify) DeleteWfProcessClassify(c *gin.Context) {
 
 	serviceWfProcessClassify := service.WfProcessClassify{}
 	serviceWfProcessClassify.Orm = db
-	serviceWfProcessClassify.MsgID = msgID
+	serviceWfProcessClassify.Log = log
 	err = serviceWfProcessClassify.RemoveWfProcessClassify(control, p)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("RemoveWfProcessClassify error, %s", err)
+		e.Error(c, http.StatusInternalServerError, err, "删除失败")
 		return
 	}
 	e.OK(c, control.GetId(), "删除成功")

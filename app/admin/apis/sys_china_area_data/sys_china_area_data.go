@@ -1,15 +1,15 @@
 package sys_china_area_data
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/service"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 
@@ -18,11 +18,12 @@ type SysChinaAreaData struct {
 }
 
 func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	d := new(dto.SysChinaAreaDataSearch)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -39,11 +40,11 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
 	list := make([]models.SysChinaAreaData, 0)
 	var count int64
 	serviceStudent := service.SysChinaAreaData{}
-	serviceStudent.MsgID = msgID
+	serviceStudent.Log = log
 	serviceStudent.Orm = db
 	err = serviceStudent.GetSysChinaAreaDataPage(d, p, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -51,14 +52,15 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
 }
 
 func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
@@ -71,7 +73,7 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
 	p := actions.GetPermissionFromContext(c)
 
 	serviceSysChinaAreaData := service.SysChinaAreaData{}
-	serviceSysChinaAreaData.MsgID = msgID
+	serviceSysChinaAreaData.Log = log
 	serviceSysChinaAreaData.Orm = db
 	err = serviceSysChinaAreaData.GetSysChinaAreaData(control, p, &object)
 	if err != nil {
@@ -83,14 +85,15 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
 }
 
 func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
@@ -107,7 +110,7 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 
 	serviceSysChinaAreaData := service.SysChinaAreaData{}
 	serviceSysChinaAreaData.Orm = db
-	serviceSysChinaAreaData.MsgID = msgID
+	serviceSysChinaAreaData.Log = log
 	err = serviceSysChinaAreaData.InsertSysChinaAreaData(object)
 	if err != nil {
 		log.Error(err)
@@ -119,14 +122,15 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 }
 
 func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
@@ -145,7 +149,7 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 
 	serviceSysChinaAreaData := service.SysChinaAreaData{}
 	serviceSysChinaAreaData.Orm = db
-	serviceSysChinaAreaData.MsgID = msgID
+	serviceSysChinaAreaData.Log = log
 	err = serviceSysChinaAreaData.UpdateSysChinaAreaData(object, p)
 	if err != nil {
 		log.Error(err)
@@ -155,18 +159,19 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 }
 
 func (e *SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//删除操作
 	err = control.Bind(c)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+		log.Errorf("Bind error: %s", err)
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -179,10 +184,11 @@ func (e *SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
 
 	serviceSysChinaAreaData := service.SysChinaAreaData{}
 	serviceSysChinaAreaData.Orm = db
-	serviceSysChinaAreaData.MsgID = msgID
+	serviceSysChinaAreaData.Log = log
 	err = serviceSysChinaAreaData.RemoveSysChinaAreaData(control, p)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("RemoveSysChinaAreaData error, %s", err)
+		e.Error(c, http.StatusInternalServerError, err, "删除失败")
 		return
 	}
 	e.OK(c, control.GetId(), "删除成功")
