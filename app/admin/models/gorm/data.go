@@ -1,14 +1,13 @@
 package gorm
 
 import (
+	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
-
-	"go-admin/app/admin/models"
 )
 
 func InitData(db *gorm.DB) {
 
-	list := []models.CasbinRule{
+	list := []system.CasbinRule{
 		{"p", "admin", "/api/v1/menulist", "GET", "", "", ""},
 		{"p", "admin", "/api/v1/menu", "POST", "", "", ""},
 		{"p", "admin", "/api/v1/dict/databytype/", "GET", "", "", ""},

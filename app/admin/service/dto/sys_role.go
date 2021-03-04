@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go-admin/app/admin/models"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 
@@ -110,8 +109,8 @@ func (s *SysRoleById) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysRoleById) GenerateM() (*models.SysRole, error) {
-	return &models.SysRole{}, nil
+func (s *SysRoleById) GenerateM() (*system.SysRole, error) {
+	return &system.SysRole{}, nil
 }
 
 // RoleDataScopeReq 角色数据权限修改
@@ -119,4 +118,8 @@ type RoleDataScopeReq struct {
 	RoleId    int    `json:"roleId" binding:"required"`
 	DataScope string `json:"dataScope" binding:"required"`
 	DeptIds   []int  `json:"deptIds"`
+}
+
+type DeptIdList struct {
+	DeptId int `json:"DeptId"`
 }

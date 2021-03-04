@@ -15,18 +15,12 @@ settings:
   logger:
     # 日志存放路径
     path: temp/logs
-    # 控制台日志
-    stdout: true
-    # 日志等级
-    level: all
-    # 业务日志开关
-    enabledbus: true
-    # 请求日志开关
-    enabledreq: false
+    # 日志输出，file：文件，default：命令行，其他：命令行
+    stdout: '' #控制台日志，启用后，不输出到文件
+    # 日志等级, trace, debug, info, warn, error, fatal
+    level: trace
     # 数据库日志开关 dev模式，将自动开启
     enableddb: false
-    # 自动任务日志开关 dev模式，将自动开启
-    enabledjob: false
   jwt:
     # token 密钥，生产环境时及的修改
     secret: go-admin

@@ -10,7 +10,8 @@ require (
 	github.com/casbin/gorm-adapter/v3 v3.0.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-admin-team/go-admin-core v1.2.3-0.20210225031955-e373f5bcdf3f
+	github.com/go-admin-team/go-admin-core v1.2.3-0.20210304081332-24763d77c51b
+	github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210304081332-24763d77c51b
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2
@@ -36,7 +37,6 @@ require (
 	gorm.io/driver/postgres v1.0.6-0.20201208020313-1ed927cfab53
 	gorm.io/driver/sqlite v1.1.5-0.20201206014648-c84401fbe3ba
 	gorm.io/gorm v1.20.12
-	gorm.io/plugin/dbresolver v1.1.0
 	sourcegraph.com/sourcegraph/appdash v0.0.0-20190731080439-ebfcffb1b5c0
 	sourcegraph.com/sourcegraph/appdash-data v0.0.0-20151005221446-73f23eafcf67 // indirect
 )

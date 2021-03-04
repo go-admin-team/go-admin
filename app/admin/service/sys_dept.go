@@ -2,13 +2,14 @@ package service
 
 import (
 	"errors"
-	"go-admin/app/admin/models"
+
+	"gorm.io/gorm"
+
+	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/service"
 	"go-admin/tools"
-	"gorm.io/gorm"
 )
 
 type SysDept struct {
@@ -16,10 +17,9 @@ type SysDept struct {
 }
 
 // GetSysDeptPage 获取SysDept列表
-func (e *SysDept) GetSysDeptPage(c *dto.SysDeptSearch, list *[]models.SysDept) error {
+func (e *SysDept) GetSysDeptPage(c *dto.SysDeptSearch, list *[]system.SysDept) error {
 	var err error
-	var data models.SysDept
-	msgID := e.MsgID
+	var data system.SysDept
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -27,48 +27,46 @@ func (e *SysDept) GetSysDeptPage(c *dto.SysDeptSearch, list *[]models.SysDept) e
 		).
 		Find(list).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
 }
 
 // GetSysDept 获取SysDept对象
-func (e *SysDept) GetSysDept(d *dto.SysDeptById, model *models.SysDept) error {
+func (e *SysDept) GetSysDept(d *dto.SysDeptById, model *system.SysDept) error {
 	var err error
-	var data models.SysDept
-	msgID := e.MsgID
+	var data system.SysDept
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
 }
 
 // InsertSysDept 创建SysDept对象
-func (e *SysDept) InsertSysDept(model *models.SysDept) error {
+func (e *SysDept) InsertSysDept(model *system.SysDept) error {
 	var err error
-	var data models.SysDept
-	msgID := e.MsgID
+	var data system.SysDept
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	deptPath := "/" + tools.IntToString(model.DeptId)
 	if model.ParentId != 0 {
-		var deptP models.SysDepts
+		var deptP system.SysDept
 		e.Orm.Model(&data).First(&deptP, model.ParentId)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
@@ -76,23 +74,22 @@ func (e *SysDept) InsertSysDept(model *models.SysDept) error {
 	}
 	var mp = map[string]string{}
 	mp["dept_path"] = deptPath
-	if err := e.Orm.Model(&model).Update("dept_path",deptPath).Error; err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+	if err := e.Orm.Model(&model).Update("dept_path", deptPath).Error; err != nil {
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
 }
 
 // UpdateSysDept 修改SysDept对象
-func (e *SysDept) UpdateSysDept(c *models.SysDept) error {
+func (e *SysDept) UpdateSysDept(c *system.SysDept) error {
 	var err error
-	var data models.SysDept
-	msgID := e.MsgID
+	var data system.SysDept
 
 	db := e.Orm.Model(&data).
 		Where(c.GetId()).Updates(c)
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -108,14 +105,13 @@ func (e *SysDept) UpdateSysDept(c *models.SysDept) error {
 // RemoveSysDept 删除SysDept
 func (e *SysDept) RemoveSysDept(d *dto.SysDeptById) error {
 	var err error
-	var data models.SysDept
-	msgID := e.MsgID
+	var data system.SysDept
 
 	db := e.Orm.Model(&data).
 		Where(d.GetId()).Delete(&data)
 	if db.Error != nil {
 		err = db.Error
-		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -126,10 +122,9 @@ func (e *SysDept) RemoveSysDept(d *dto.SysDeptById) error {
 }
 
 // GetSysDeptList 获取组织数据
-func (e *SysDept) getSysDeptList(c *dto.SysDeptSearch, list *[]models.SysDept) error {
+func (e *SysDept) getSysDeptList(c *dto.SysDeptSearch, list *[]system.SysDept) error {
 	var err error
-	var data models.SysDept
-	msgID := e.MsgID
+	var data system.SysDept
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -137,7 +132,7 @@ func (e *SysDept) getSysDeptList(c *dto.SysDeptSearch, list *[]models.SysDept) e
 		).
 		Find(list).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
@@ -145,7 +140,7 @@ func (e *SysDept) getSysDeptList(c *dto.SysDeptSearch, list *[]models.SysDept) e
 
 // SetDeptTree 设置组织数据
 func (e *SysDept) SetDeptTree(c *dto.SysDeptSearch) (m []dto.DeptLabel, err error) {
-	var list []models.SysDept
+	var list []system.SysDept
 	err = e.getSysDeptList(c, &list)
 
 	m = make([]dto.DeptLabel, 0)
@@ -164,7 +159,7 @@ func (e *SysDept) SetDeptTree(c *dto.SysDeptSearch) (m []dto.DeptLabel, err erro
 }
 
 // Call 递归构造组织数据
-func deptTreeCall(deptlist *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
+func deptTreeCall(deptlist *[]system.SysDept, dept dto.DeptLabel) dto.DeptLabel {
 	list := *deptlist
 	min := make([]dto.DeptLabel, 0)
 	for j := 0; j < len(list); j++ {
@@ -180,8 +175,8 @@ func deptTreeCall(deptlist *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel 
 }
 
 // SetDeptPage 设置dept页面数据
-func (e *SysDept) SetDeptPage(c *dto.SysDeptSearch) (m []models.SysDept, err error) {
-	var list []models.SysDept
+func (e *SysDept) SetDeptPage(c *dto.SysDeptSearch) (m []system.SysDept, err error) {
+	var list []system.SysDept
 	err = e.getSysDeptList(c, &list)
 
 	//m := make([]models.SysDept, 0)
@@ -196,16 +191,16 @@ func (e *SysDept) SetDeptPage(c *dto.SysDeptSearch) (m []models.SysDept, err err
 	return
 }
 
-func  (e *SysDept) deptPageCall(deptlist *[]models.SysDept, menu models.SysDept) models.SysDept {
+func (e *SysDept) deptPageCall(deptlist *[]system.SysDept, menu system.SysDept) system.SysDept {
 	list := *deptlist
 
-	min := make([]models.SysDept, 0)
+	min := make([]system.SysDept, 0)
 	for j := 0; j < len(list); j++ {
 
 		if menu.DeptId != list[j].ParentId {
 			continue
 		}
-		mi := models.SysDept{}
+		mi := system.SysDept{}
 		mi.DeptId = list[j].DeptId
 		mi.ParentId = list[j].ParentId
 		mi.DeptPath = list[j].DeptPath
@@ -216,7 +211,7 @@ func  (e *SysDept) deptPageCall(deptlist *[]models.SysDept, menu models.SysDept)
 		mi.Email = list[j].Email
 		mi.Status = list[j].Status
 		mi.CreatedAt = list[j].CreatedAt
-		mi.Children = []models.SysDept{}
+		mi.Children = []system.SysDept{}
 		ms := e.deptPageCall(deptlist, mi)
 		min = append(min, ms)
 
@@ -224,3 +219,67 @@ func  (e *SysDept) deptPageCall(deptlist *[]models.SysDept, menu models.SysDept)
 	menu.Children = min
 	return menu
 }
+
+//// GetRoleDeptId 获取角色的部门ID集合
+//func (e *SysDept) GetRoleDeptId(roleId int) ([]int, error) {
+//	deptIds := make([]int, 0)
+//	deptList := make([]dto.DeptIdList, 0)
+//	if err := e.Orm.Table("sys_role_dept").
+//		Select("sys_role_dept.dept_id").
+//		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").
+//		Where("role_id = ? ", roleId).
+//		Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", roleId).
+//		Find(&deptList).Error; err != nil {
+//		return nil, err
+//	}
+//
+//	for i := 0; i < len(deptList); i++ {
+//		deptIds = append(deptIds, deptList[i].DeptId)
+//	}
+//
+//	return deptIds, nil
+//}
+//
+//func (e *SysDept) SetDeptLabel() (m []dto.DeptLabel, err error) {
+//	list := make([]models.SysDept, 0)
+//	err = e.Orm.Find(&list).Error
+//	if err != nil {
+//		log.Error("find dept list error, %s", e.err)
+//		return
+//	}
+//
+//	m = make([]dto.DeptLabel, 0)
+//	var item dto.DeptLabel
+//	for i := range list {
+//		if list[i].ParentId != 0 {
+//			continue
+//		}
+//		item = dto.DeptLabel{}
+//		item.Id = list[i].DeptId
+//		item.Label = list[i].DeptName
+//		deptInfo := digitDeptLabel(&list, item)
+//
+//		m = append(m, deptInfo)
+//	}
+//	return
+//}
+//
+//// digitDeptLabel
+//func digitDeptLabel(deptList *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
+//	list := *deptList
+//
+//	var mi dto.DeptLabel
+//	min := make([]dto.DeptLabel, 0)
+//	for j := 0; j < len(list); j++ {
+//
+//		if dept.Id != list[j].ParentId {
+//			continue
+//		}
+//		mi = dto.DeptLabel{Id: list[j].DeptId, Label: list[j].DeptName, Children: []dto.DeptLabel{}}
+//		ms := digitDeptLabel(deptList, mi)
+//		min = append(min, ms)
+//
+//	}
+//	dept.Children = min
+//	return dept
+//}

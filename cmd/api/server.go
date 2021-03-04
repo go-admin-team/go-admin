@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,7 +17,6 @@ import (
 	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
-	"go-admin/common/log"
 	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/config"
@@ -53,15 +53,17 @@ func setup() {
 	config.Setup(file.NewSource, file.WithPath(configYml))
 	go config.Watch()
 	//2. 设置日志
-	global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
-	global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
-	global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
+	global.Cfg.SetLogger(
+		logger.SetupLogger(
+			config.LoggerConfig.Type,
+			config.LoggerConfig.Path,
+			config.LoggerConfig.Level,
+			config.LoggerConfig.Stdout))
 	//3. 初始化数据库链接
 	database.Setup()
 
-	usageStr := `starting api server`
-	log.Info(usageStr)
-
+	usageStr := `starting api server...`
+	log.Println(usageStr)
 }
 
 func run() error {
@@ -90,7 +92,7 @@ func run() error {
 	}
 	go func() {
 		jobs.InitJob()
-		jobs.Setup()
+		jobs.Setup(global.Cfg.GetDb())
 
 	}()
 
@@ -127,7 +129,7 @@ func run() error {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
-	log.Info("Server exiting")
+	log.Println("Server exiting")
 
 	return nil
 }

@@ -3,9 +3,9 @@ package dto
 import (
 	"github.com/gin-gonic/gin"
 
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	common "go-admin/common/models"
 )
 

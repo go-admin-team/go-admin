@@ -25,6 +25,7 @@ var (
 	configYml string
 	generate  bool
 	goAdmin   bool
+	host      string
 	StartCmd  = &cobra.Command{
 		Use:     "migrate",
 		Short:   "Initialize the database",
@@ -39,6 +40,7 @@ func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().BoolVarP(&generate, "generate", "g", false, "generate migration file")
 	StartCmd.PersistentFlags().BoolVarP(&goAdmin, "goAdmin", "a", false, "generate go-admin migration file")
+	StartCmd.PersistentFlags().StringVarP(&host, "domain", "d", "*", "select tenant host")
 }
 
 func run() {
@@ -48,9 +50,12 @@ func run() {
 		//1. 读取配置
 		config.Setup(file.NewSource, file.WithPath(configYml))
 		//2. 设置日志
-		global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
-		global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
-		global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
+		global.Cfg.SetLogger(
+			logger.SetupLogger(
+				config.LoggerConfig.Type,
+				config.LoggerConfig.Path,
+				config.LoggerConfig.Level,
+				config.LoggerConfig.Stdout))
 		_ = initDB()
 	} else {
 		fmt.Println(`generate migration file`)
@@ -59,14 +64,19 @@ func run() {
 }
 
 func migrateModel() error {
-	if config.DatabaseConfig.Driver == "mysql" {
-		global.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+	if host == "" {
+		host = "*"
 	}
-	err := global.Eloquent.Debug().AutoMigrate(&models.Migration{})
+	db := global.Cfg.GetDbByKey(host)
+	if config.DatabasesConfig[host].Driver == "mysql" {
+		//初始化数据库时候用
+		db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+	}
+	err := db.Debug().AutoMigrate(&models.Migration{})
 	if err != nil {
 		return err
 	}
-	migration.Migrate.SetDb(global.Eloquent.Debug())
+	migration.Migrate.SetDb(db.Debug())
 	migration.Migrate.Migrate()
 	return err
 }

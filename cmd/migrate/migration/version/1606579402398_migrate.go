@@ -1,7 +1,8 @@
 package version
 
 import (
-	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
+
 	//"go-admin/app/admin/models"
 	"gorm.io/gorm"
 	"runtime"
@@ -30,7 +31,7 @@ func _1606579402398Test(db *gorm.DB, version string) error {
 			return err
 		}
 
-		user := models.SysUser{}
+		user := system.SysUser{}
 		err = tx.Model(&user).Where("user_id = ?", 1).Update("status", 2).Error
 		if err != nil {
 			return err

@@ -9,7 +9,6 @@ import (
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/common/log"
 	common "go-admin/common/models"
 	"go-admin/tools"
 )
@@ -30,10 +29,11 @@ type SysDictType struct {
 // @Router /api/v1/dict/type [get]
 // @Security Bearer
 func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -49,11 +49,11 @@ func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
 	list := make([]system.SysDictType, 0)
 	var count int64
 	s := service.SysDictType{}
-	s.MsgID = msgID
+	s.Log = log
 	s.Orm = db.Debug()
 	err = s.GetPage(req, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -68,13 +68,14 @@ func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [get]
 // @Security Bearer
 func (e *SysDictType) GetSysDictType(c *gin.Context) {
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//查看详情
 	req := &dto.SysDictTypeById{}
 	err = req.Bind(c)
@@ -85,7 +86,7 @@ func (e *SysDictType) GetSysDictType(c *gin.Context) {
 	var object system.SysDictType
 
 	s := service.SysDictType{}
-	s.MsgID = msgID
+	s.Log = log
 	s.Orm = db
 	err = s.Get(req, &object)
 	if err != nil {
@@ -107,13 +108,14 @@ func (e *SysDictType) GetSysDictType(c *gin.Context) {
 // @Router /api/v1/dict/type [post]
 // @Security Bearer
 func (e *SysDictType) InsertSysDictType(c *gin.Context) {
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//新增操作
 	req := &dto.SysDictTypeControl{}
 	err = req.Bind(c)
@@ -127,7 +129,7 @@ func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 
 	s := service.SysDictType{}
 	s.Orm = db
-	s.MsgID = msgID
+	s.Log = log
 	err = s.Insert(object.(*system.SysDictType))
 	if err != nil {
 		log.Error(err)
@@ -149,13 +151,14 @@ func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [put]
 // @Security Bearer
 func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	req := &dto.SysDictTypeControl{}
 	//更新操作
 	err = req.Bind(c)
@@ -168,7 +171,7 @@ func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 
 	s := service.SysDictType{}
 	s.Orm = db
-	s.MsgID = msgID
+	s.Log = log
 	err = s.Update(object.(*system.SysDictType))
 	if err != nil {
 		log.Error(err)
@@ -185,18 +188,19 @@ func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/type/{dictId} [delete]
 func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//删除操作
 	req := new(dto.SysDictTypeById)
 	err = req.Bind(c)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+		log.Errorf("Bind error: %s", err)
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -212,7 +216,7 @@ func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 
 	s := service.SysDictType{}
 	s.Orm = db
-	s.MsgID = msgID
+	s.Log = log
 	err = s.Remove(req, object.(*system.SysDictType))
 	if err != nil {
 		log.Error(err)
@@ -231,10 +235,11 @@ func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 // @Router /api/v1/dict/type-option-select [get]
 // @Security Bearer
 func (e *SysDictType) GetSysDictTypeAll(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -249,7 +254,7 @@ func (e *SysDictType) GetSysDictTypeAll(c *gin.Context) {
 
 	list := make([]system.SysDictType, 0)
 	s := service.SysDictType{}
-	s.MsgID = msgID
+	s.Log = log
 	s.Orm = db
 	err = s.GetAll(req, &list)
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"go-admin/common/log"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/tools"
 )
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/go-admin-team/go-admin-core/logger"
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +13,7 @@ type Config struct {
 	dbs     map[string]*gorm.DB
 	casbins map[string]*casbin.SyncedEnforcer
 	engine  http.Handler
+	crontab map[string]*cron.Cron
 }
 
 // SetDb 设置对应key的db
@@ -69,5 +71,24 @@ func NewConfig() *Config {
 	return &Config{
 		dbs:     make(map[string]*gorm.DB),
 		casbins: make(map[string]*casbin.SyncedEnforcer),
+		crontab: make(map[string]*cron.Cron),
 	}
+}
+
+// SetCrontab 设置对应key的crontab
+func (c *Config) SetCrontab(key string, crontab *cron.Cron) {
+	c.crontab[key] = crontab
+}
+
+// GetCrontab 获取所有map里的crontab数据
+func (c *Config) GetCrontab() map[string]*cron.Cron {
+	return c.crontab
+}
+
+// GetCrontabKey 根据key获取crontab
+func (c *Config) GetCrontabKey(key string) *cron.Cron {
+	if e, ok := c.crontab["*"]; ok {
+		return e
+	}
+	return c.crontab[key]
 }

@@ -1,7 +1,8 @@
 package version
 
 import (
-	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
+
 	//"go-admin/app/admin/models"
 	"gorm.io/gorm"
 	"runtime"
@@ -18,8 +19,8 @@ func init() {
 func _1610427732413Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-	    // TODO: 这里开始写入要变更的内容
-		user := models.SysUser{}
+		// TODO: 这里开始写入要变更的内容
+		user := system.SysUser{}
 		err := tx.Model(&user).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err

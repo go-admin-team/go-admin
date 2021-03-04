@@ -9,8 +9,6 @@ import (
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	orm "go-admin/common/global"
-	"go-admin/common/log"
 	"go-admin/common/service"
 )
 
@@ -22,7 +20,6 @@ type SysRole struct {
 func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]system.SysRole, count *int64) error {
 	var err error
 	var data system.SysRole
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -32,7 +29,7 @@ func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]system.SysRole, c
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
@@ -42,23 +39,22 @@ func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]system.SysRole, c
 func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *system.SysRole) error {
 	var err error
 	var data system.SysRole
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	data.MenuIds, err = e.GetRoleMenuId(data.RoleId)
+	data.MenuIds, err = e.GetRoleMenuId(e.Orm, data.RoleId)
 	if err != nil {
-		log.Errorf("msgID[%s] get menuIds error, %s", msgID, err.Error())
+		e.Log.Errorf("get menuIds error, %s", err.Error())
 		return err
 	}
 	return nil
@@ -68,7 +64,6 @@ func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *system.SysRole) error {
 func (e *SysRole) InsertSysRole(c *system.SysRole) error {
 	var err error
 	var data system.SysRole
-	msgID := e.MsgID
 
 	tx := e.Orm.Begin()
 	defer func() {
@@ -82,16 +77,16 @@ func (e *SysRole) InsertSysRole(c *system.SysRole) error {
 	err = tx.Model(&data).
 		Create(c).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if len(c.MenuIds) > 0 {
 		s := SysRoleMenu{}
 		s.Orm = e.Orm
-		s.MsgID = msgID
+		s.Log = e.Log
 		err = s.ReloadRule(tx, c.RoleId, c.MenuIds)
 		if err != nil {
-			log.Errorf("msgID[%s] reload casbin rule error, %", msgID, err.Error())
+			e.Log.Errorf("reload casbin rule error, %", err.Error())
 			return err
 		}
 	}
@@ -101,7 +96,6 @@ func (e *SysRole) InsertSysRole(c *system.SysRole) error {
 // UpdateSysRole 修改SysRole对象
 func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 	var err error
-	msgID := e.MsgID
 
 	tx := e.Orm.Debug().Begin()
 	defer func() {
@@ -114,7 +108,7 @@ func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 	db := tx.Model(&c).
 		Where(c.GetId()).Updates(c)
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -124,16 +118,16 @@ func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 	var t system.RoleMenu
 	err = t.DeleteRoleMenu(tx, c.RoleId)
 	if err != nil {
-		log.Errorf("msgID[%s] delete role menu error, %", msgID, err.Error())
+		e.Log.Errorf("delete role menu error, %", err.Error())
 		return err
 	}
 	if len(c.MenuIds) > 0 {
 		s := SysRoleMenu{}
 		s.Orm = e.Orm
-		s.MsgID = msgID
+		s.Log = e.Log
 		err = s.ReloadRule(tx, c.RoleId, c.MenuIds)
 		if err != nil {
-			log.Errorf("msgID[%s] reload casbin rule error, %", msgID, err.Error())
+			e.Log.Errorf("reload casbin rule error, %", err.Error())
 			return err
 		}
 	}
@@ -144,7 +138,6 @@ func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 func (e *SysRole) RemoveSysRole(d *dto.SysRoleById) error {
 	var err error
 	var data system.SysRole
-	msgID := e.MsgID
 
 	tx := e.Orm.Begin()
 	defer func() {
@@ -157,18 +150,18 @@ func (e *SysRole) RemoveSysRole(d *dto.SysRoleById) error {
 
 	s := SysRoleMenu{}
 	s.Orm = tx
-	s.MsgID = msgID
+	s.Log = e.Log
 	for _, roleId := range d.Ids {
 		err = s.DeleteRoleMenu(tx, roleId)
 		if err != nil {
-			log.Errorf("msgID[%s] insert role menu error, %", msgID, err.Error())
+			e.Log.Errorf("insert role menu error, %", err.Error())
 			return err
 		}
 	}
 	db := tx.Model(&data).Delete(&data, d.Ids)
 	if db.Error != nil {
 		err = db.Error
-		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -179,10 +172,10 @@ func (e *SysRole) RemoveSysRole(d *dto.SysRoleById) error {
 }
 
 // 获取角色对应的菜单ids
-func (e *SysRole) GetRoleMenuId(roleId int) ([]int, error) {
+func (e *SysRole) GetRoleMenuId(tx *gorm.DB, roleId int) ([]int, error) {
 	menuIds := make([]int, 0)
 	menuList := make([]models.MenuIdList, 0)
-	if err := orm.Eloquent.Table("sys_role_menu").
+	if err := tx.Table("sys_role_menu").
 		Select("sys_role_menu.menu_id").
 		Where("role_id = ? ", roleId).
 		Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu "+

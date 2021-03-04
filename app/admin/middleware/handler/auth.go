@@ -7,13 +7,12 @@ import (
 	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
 
-	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
-	"go-admin/common/global"
-	"go-admin/common/log"
 	jwt "go-admin/pkg/jwtauth"
+	"go-admin/pkg/logger"
 	"go-admin/tools"
+	"go-admin/tools/app"
 	"go-admin/tools/config"
 )
 
@@ -21,8 +20,8 @@ var store = base64Captcha.DefaultMemStore
 
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(models.SysUser)
-		r, _ := v["role"].(models.SysRole)
+		u, _ := v["user"].(system.SysUser)
+		r, _ := v["role"].(system.SysRole)
 		return jwt.MapClaims{
 			jwt.IdentityKey:  u.UserId,
 			jwt.RoleIdKey:    r.RoleId,
@@ -60,16 +59,26 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
-	var loginVals models.Login
+	log := logger.GetRequestLogger(c)
+	db, err := tools.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return nil, jwt.ErrFailedAuthentication
+	}
+
+	var loginVals system.Login
 	var status = "2"
 	var msg = "登录成功"
 	var username = ""
+	defer func() {
+		LoginLogToDB(c, status, msg, username)
+	}()
 
-	if err := c.ShouldBind(&loginVals); err != nil {
+	if err = c.ShouldBind(&loginVals); err != nil {
 		username = loginVals.Username
 		msg = "数据解析失败"
 		status = "1"
-		LoginLogToDB(c, status, msg, username)
 
 		return nil, jwt.ErrMissingLoginValues
 	}
@@ -78,34 +87,31 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 			username = loginVals.Username
 			msg = "验证码错误"
 			status = "1"
-			LoginLogToDB(c, status, msg, username)
 
 			return nil, jwt.ErrInvalidVerificationode
 		}
 	}
-	user, role, e := loginVals.GetUser()
+	user, role, e := loginVals.GetUser(db)
 	if e == nil {
 		username = loginVals.Username
-		LoginLogToDB(c, status, msg, username)
 
 		return map[string]interface{}{"user": user, "role": role}, nil
 	} else {
 		msg = "登录失败"
 		status = "1"
-		LoginLogToDB(c, status, msg, username)
-		global.RequestLogger.Error(e)
+		log.Warnf("%s login failed!", loginVals.Username)
 	}
 	return nil, jwt.ErrFailedAuthentication
 }
 
 // LoginLogToDB Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
+	log := logger.GetRequestLogger(c)
 	if config.LoggerConfig.EnabledDB {
 		var loginLog system.SysLoginLog
-		msgID := tools.GenerateMsgIDFromContext(c)
 		db, err := tools.GetOrm(c)
 		if err != nil {
-			log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
+			log.Errorf("获取Orm失败, error:%s", err)
 		}
 		ua := user_agent.New(c.Request.UserAgent())
 		loginLog.Ipaddr = c.ClientIP()
@@ -136,6 +142,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Router /logout [post]
 // @Security Bearer
 func LogOut(c *gin.Context) {
+	log := logger.GetRequestLogger(c)
 	var loginLog system.SysLoginLog
 	ua := user_agent.New(c.Request.UserAgent())
 	loginLog.Ipaddr = c.ClientIP()
@@ -150,10 +157,9 @@ func LogOut(c *gin.Context) {
 	loginLog.Platform = ua.Platform()
 	loginLog.Username = tools.GetUserName(c)
 	loginLog.Msg = "退出成功"
-	msgID := tools.GenerateMsgIDFromContext(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
+		log.Errorf("获取Orm失败, error:%s", err)
 	}
 	serviceLoginLog := service.SysLoginLog{}
 	serviceLoginLog.Orm = db
@@ -169,12 +175,12 @@ func LogOut(c *gin.Context) {
 func Authorizator(data interface{}, c *gin.Context) bool {
 
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(models.SysUser)
-		r, _ := v["role"].(models.SysRole)
+		u, _ := v["user"].(system.SysUser)
+		r, _ := v["role"].(system.SysRole)
 		c.Set("role", r.RoleName)
 		c.Set("roleIds", r.RoleId)
 		c.Set("userId", u.UserId)
-		c.Set("userName", u.UserName)
+		c.Set("userName", u.Username)
 		c.Set("dataScope", r.DataScope)
 
 		return true

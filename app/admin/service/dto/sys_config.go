@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	common "go-admin/common/models"
 	"go-admin/tools"
 )

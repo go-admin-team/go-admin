@@ -1,9 +1,9 @@
 package service
 
 import (
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
-	"go-admin/common/log"
 	"go-admin/common/service"
 	"gorm.io/gorm"
 )
@@ -19,7 +19,7 @@ func (e *SysRoleMenu) ReloadRule(tx *gorm.DB, roleId int, menuId []int) (err err
 
 	menu := make([]models.Menu, 0)
 	roleMenu := make([]system.RoleMenu, len(menuId))
-	casbinRule := make([]models.CasbinRule, 0)
+	casbinRule := make([]system.CasbinRule, 0)
 	//先删除所有的
 	err = e.DeleteRoleMenu(tx, roleId)
 	if err != nil {
@@ -46,7 +46,7 @@ func (e *SysRoleMenu) ReloadRule(tx *gorm.DB, roleId int, menuId []int) (err err
 			RoleName: role.RoleKey,
 		}
 		if menu[i].MenuType == "A" {
-			casbinRule = append(casbinRule, models.CasbinRule{
+			casbinRule = append(casbinRule, system.CasbinRule{
 				PType: "p",
 				V0:    role.RoleKey,
 				V1:    menu[i].Path,
@@ -92,7 +92,7 @@ func (e *SysRoleMenu) DeleteRoleMenu(tx *gorm.DB, roleId int) (err error) {
 		return
 	}
 	err = tx.Where("v0 = ?", role.RoleKey).
-		Delete(&models.CasbinRule{}).Error
+		Delete(&system.CasbinRule{}).Error
 	if err != nil {
 		log.Errorf("msgID[%s] delete casbin rule error, %s", msgID, err.Error())
 		return

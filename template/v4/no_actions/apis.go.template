@@ -9,7 +9,6 @@ import (
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 
@@ -18,17 +17,19 @@ type {{.ClassName}} struct {
 }
 
 func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
-	d := new(dto.{{.ClassName}}Search)
+    log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
+	d := new(dto.{{.ClassName}}Search)
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -38,12 +39,13 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 
 	list := make([]models.{{.ClassName}}, 0)
 	var count int64
-	serviceStudent := service.{{.ClassName}}{}
-	serviceStudent.MsgID = msgID
-	serviceStudent.Orm = db
-	err = serviceStudent.Get{{.ClassName}}Page(d, p, &list, &count)
+	service{{.ClassName}} := service.{{.ClassName}}{}
+	service{{.ClassName}}.Log = log
+	service{{.ClassName}}.Orm = db
+	err = service{{.ClassName}}.Get{{.ClassName}}Page(d, p, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		log.Errorf("Get {{.ClassName}} Page error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -51,17 +53,20 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 }
 
 func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
-	control := new(dto.{{.ClassName}}ById)
+    log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
+	control := new(dto.{{.ClassName}}ById)
+
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -71,11 +76,12 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 	p := actions.GetPermissionFromContext(c)
 
 	service{{.ClassName}} := service.{{.ClassName}}{}
-	service{{.ClassName}}.MsgID = msgID
+	service{{.ClassName}}.Log = log
 	service{{.ClassName}}.Orm = db
 	err = service{{.ClassName}}.Get{{.ClassName}}(control, p, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		log.Errorf("Get {{.ClassName}} error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -83,22 +89,26 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 }
 
 func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
-	control := new(dto.{{.ClassName}}Control)
+    log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
+	control := new(dto.{{.ClassName}}Control)
+
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
+		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
@@ -107,10 +117,10 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.Orm = db
-	service{{.ClassName}}.MsgID = msgID
+	service{{.ClassName}}.Log = log
 	err = service{{.ClassName}}.Insert{{.ClassName}}(object)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("Insert {{.ClassName}} error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
 		return
 	}
@@ -119,22 +129,26 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 }
 
 func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
-	control := new(dto.{{.ClassName}}Control)
+    log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
+	control := new(dto.{{.ClassName}}Control)
+
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
+		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
@@ -145,28 +159,31 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.Orm = db
-	service{{.ClassName}}.MsgID = msgID
+	service{{.ClassName}}.Log = log
 	err = service{{.ClassName}}.Update{{.ClassName}}(object, p)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("Update {{.ClassName}} error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "更新失败")
 		return
 	}
 	e.OK(c, object.GetId(), "更新成功")
 }
 
 func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
-	control := new(dto.{{.ClassName}}ById)
+    log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
+	control := new(dto.{{.ClassName}}ById)
+
 	//删除操作
 	err = control.Bind(c)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+	    log.Warnf("request body bind error, %s", err.Error())
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -179,10 +196,11 @@ func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
 
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.Orm = db
-	service{{.ClassName}}.MsgID = msgID
+	service{{.ClassName}}.Log = log
 	err = service{{.ClassName}}.Remove{{.ClassName}}(control, p)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("Remove {{.ClassName}} error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "删除失败")
 		return
 	}
 	e.OK(c, control.GetId(), "删除成功")

@@ -24,7 +24,7 @@ func _1602644950000Test(db *gorm.DB, version string) error {
 				return err
 			}
 		}
-		list2 := []models.CasbinRule{
+		list2 := []system.CasbinRule{
 			{PType: "p", V0: "admin", V1: "/api/v1/config", V2: "GET"},
 		}
 		err := tx.Create(list2).Error

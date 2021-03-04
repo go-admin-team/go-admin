@@ -8,7 +8,6 @@ import (
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/service"
 )
 
@@ -20,7 +19,6 @@ type SysDictData struct {
 func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]system.SysDictData, count *int64) error {
 	var err error
 	var data system.SysDictData
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -30,7 +28,7 @@ func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]system.SysDictDa
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil
@@ -40,18 +38,17 @@ func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]system.SysDictDa
 func (e *SysDictData) Get(d *dto.SysDictDataById, model *system.SysDictData) error {
 	var err error
 	var data system.SysDictData
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil
@@ -61,12 +58,11 @@ func (e *SysDictData) Get(d *dto.SysDictDataById, model *system.SysDictData) err
 func (e *SysDictData) Insert(model *system.SysDictData) error {
 	var err error
 	var data system.SysDictData
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil
@@ -76,12 +72,11 @@ func (e *SysDictData) Insert(model *system.SysDictData) error {
 func (e *SysDictData) Update(c *system.SysDictData) error {
 	var err error
 	var data system.SysDictData
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Where(c.GetId()).Updates(c)
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -95,13 +90,12 @@ func (e *SysDictData) Update(c *system.SysDictData) error {
 func (e *SysDictData) Remove(d *dto.SysDictDataById, c *system.SysDictData) error {
 	var err error
 	var data system.SysDictData
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Where(d.GetId()).Delete(c)
 	if db.Error != nil {
 		err = db.Error
-		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -115,7 +109,6 @@ func (e *SysDictData) Remove(d *dto.SysDictDataById, c *system.SysDictData) erro
 func (e *SysDictData) GetAll(c *dto.SysDictDataSearch, list *[]system.SysDictData) error {
 	var err error
 	var data system.SysDictData
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -123,7 +116,7 @@ func (e *SysDictData) GetAll(c *dto.SysDictDataSearch, list *[]system.SysDictDat
 		).
 		Find(list).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil

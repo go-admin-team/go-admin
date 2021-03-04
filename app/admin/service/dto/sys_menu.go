@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go-admin/app/admin/models"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 
@@ -79,8 +79,8 @@ func (s *SysMenuControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysMenuControl) Generate() (*models.SysMenu, error) {
-	return &models.SysMenu{
+func (s *SysMenuControl) Generate() (*system.SysMenu, error) {
+	return &system.SysMenu{
 		MenuId:     s.MenuId,
 		MenuName:   s.MenuName,
 		Title:      s.Title,
@@ -134,8 +134,8 @@ func (s *SysMenuById) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysMenuById) GenerateM() (*models.SysMenu, error) {
-	return &models.SysMenu{}, nil
+func (s *SysMenuById) GenerateM() (*system.SysMenu, error) {
+	return &system.SysMenu{}, nil
 }
 
 type MenuLabel struct {
@@ -145,6 +145,6 @@ type MenuLabel struct {
 }
 
 type MenuRole struct {
-	models.SysMenus
+	system.SysMenus
 	IsSelect bool `json:"is_select" gorm:"-"`
 }

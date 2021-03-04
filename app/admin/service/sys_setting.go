@@ -2,10 +2,11 @@ package service
 
 import (
 	"errors"
-	"go-admin/app/admin/models"
-	"go-admin/common/log"
-	"go-admin/common/service"
+
 	"gorm.io/gorm"
+
+	"go-admin/app/admin/models"
+	"go-admin/common/service"
 )
 
 type SysSetting struct {
@@ -16,18 +17,17 @@ type SysSetting struct {
 func (e *SysSetting) GetSysSetting(model *models.SysSetting) error {
 	var err error
 	var data models.SysSetting
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		First(model)
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
@@ -37,12 +37,11 @@ func (e *SysSetting) GetSysSetting(model *models.SysSetting) error {
 func (e *SysSetting) UpdateSysSetting(c *models.SysSetting) error {
 	var err error
 	var data models.SysSetting
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Where(c.GetId()).Updates(c)
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {

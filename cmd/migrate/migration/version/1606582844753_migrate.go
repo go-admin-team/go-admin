@@ -1,7 +1,8 @@
 package version
 
 import (
-	"go-admin/app/admin/models"
+	"go-admin/app/admin/models/system"
+
 	//"go-admin/app/admin/models"
 	"gorm.io/gorm"
 	"runtime"
@@ -18,7 +19,7 @@ func init() {
 func _1606582844753Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-		dept := models.SysDept{}
+		dept := system.SysDept{}
 		err := tx.Model(&dept).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err

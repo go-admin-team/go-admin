@@ -3,13 +3,14 @@ package service
 import (
 	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/service"
-	"gorm.io/gorm"
 )
 
 type SysFileDir struct {
@@ -20,7 +21,6 @@ type SysFileDir struct {
 func (e *SysFileDir) GetSysFileDirPage(c *dto.SysFileDirSearch, list *[]models.SysFileDirL) error {
 	var err error
 	var data models.SysFileDir
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -29,7 +29,7 @@ func (e *SysFileDir) GetSysFileDirPage(c *dto.SysFileDirSearch, list *[]models.S
 		Find(list). //Limit(-1).Offset(-1).
 		Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil
@@ -39,18 +39,17 @@ func (e *SysFileDir) GetSysFileDirPage(c *dto.SysFileDirSearch, list *[]models.S
 func (e *SysFileDir) GetSysFileDir(d cDto.Control, model *models.SysFileDir) error {
 	var err error
 	var data models.SysFileDir
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	return nil
@@ -61,11 +60,9 @@ func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 	var err error
 	data, _ := model.GenerateM()
 
-	msgID := e.MsgID
-
 	err = e.Orm.Create(data).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	path := fmt.Sprintf("/%d", model.ID)
@@ -82,7 +79,7 @@ func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 	}
 	//var mp = map[string]string{}
 	//mp["path"] = path
-	if err := e.Orm.Model(&models.SysFileDir{}).Where("id = ?", model.ID).Update("path", path).Error; err != nil {
+	if err = e.Orm.Model(&models.SysFileDir{}).Where("id = ?", model.ID).Update("path", path).Error; err != nil {
 		return err
 	}
 
@@ -93,14 +90,13 @@ func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 func (e *SysFileDir) UpdateSysFileDir(c *dto.SysFileDirControl, p *actions.DataPermission) error {
 	var err error
 	data, _ := c.GenerateM()
-	msgID := e.MsgID
 
 	db := e.Orm.
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Where(c.ID).Updates(data)
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -113,7 +109,6 @@ func (e *SysFileDir) UpdateSysFileDir(c *dto.SysFileDirControl, p *actions.DataP
 func (e *SysFileDir) RemoveSysFileDir(d *dto.SysFileDirById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysFileDir
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Scopes(
@@ -121,7 +116,7 @@ func (e *SysFileDir) RemoveSysFileDir(d *dto.SysFileDirById, p *actions.DataPerm
 		).Where(d.Id).Delete(&data)
 	if db.Error != nil {
 		err = db.Error
-		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {

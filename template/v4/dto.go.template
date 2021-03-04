@@ -6,8 +6,8 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/tools"
+	"go-admin/pkg/logger"
 )
 
 type {{.ClassName}}Search struct {
@@ -27,10 +27,10 @@ func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
 }
 
 func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
-    msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := logger.GetRequestLogger(ctx)
     err := ctx.ShouldBind(m)
     if err != nil {
-    	log.Debugf("MsgID[%s] ShouldBind error: %s", msgID, err.Error())
+    	log.Debugf("ShouldBind error: %s", err.Error())
     }
     return err
 }
@@ -54,15 +54,15 @@ type {{.ClassName}}Control struct {
 }
 
 func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
-    msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := logger.GetRequestLogger(ctx)
     err := ctx.ShouldBindUri(s)
     if err != nil {
-        log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+        log.Debugf("ShouldBindUri error: %s", err.Error())
         return err
     }
     err = ctx.ShouldBind(s)
     if err != nil {
-        log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+        log.Debugf("ShouldBind error: %s", err.Error())
     }
     return err
 }
@@ -105,15 +105,15 @@ func (s *{{.ClassName}}ById) GetId() interface{} {
 }
 
 func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := logger.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }

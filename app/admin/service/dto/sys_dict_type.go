@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-admin/app/admin/models/system"
 
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	common "go-admin/common/models"
 	"go-admin/tools"
 )

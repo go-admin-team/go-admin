@@ -1,13 +1,11 @@
 package config
 
 type Logger struct {
-	Path       string
-	Level      string
-	Stdout     bool
-	EnabledBUS bool
-	EnabledREQ bool
-	EnabledDB  bool
-	EnabledJOB bool `default:"false"`
+	Type      string
+	Path      string
+	Level     string
+	Stdout    string
+	EnabledDB bool
 }
 
 var LoggerConfig = new(Logger)

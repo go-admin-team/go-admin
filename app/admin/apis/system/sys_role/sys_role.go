@@ -1,15 +1,16 @@
 package sys_role
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
 	"go-admin/common/global"
-	"go-admin/common/log"
 	"go-admin/tools"
-	"net/http"
 )
 
 type SysRole struct {
@@ -28,11 +29,12 @@ type SysRole struct {
 // @Router /api/v1/role [get]
 // @Security Bearer
 func (e *SysRole) GetSysRoleList(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	d := new(dto.SysRoleSearch)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -45,10 +47,10 @@ func (e *SysRole) GetSysRoleList(c *gin.Context) {
 
 	list := make([]system.SysRole, 0)
 	var count int64
-	serviceStudent := service.SysRole{}
-	serviceStudent.MsgID = msgID
-	serviceStudent.Orm = db
-	err = serviceStudent.GetSysRolePage(d, &list, &count)
+	s := service.SysRole{}
+	s.Log = log
+	s.Orm = db
+	err = s.GetSysRolePage(d, &list, &count)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -66,14 +68,15 @@ func (e *SysRole) GetSysRoleList(c *gin.Context) {
 // @Router /api/v1/role/{id} [get]
 // @Security Bearer
 func (e *SysRole) GetSysRole(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysRoleById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
@@ -82,10 +85,10 @@ func (e *SysRole) GetSysRole(c *gin.Context) {
 	}
 	var object system.SysRole
 
-	serviceSysOperlog := service.SysRole{}
-	serviceSysOperlog.MsgID = msgID
-	serviceSysOperlog.Orm = db
-	err = serviceSysOperlog.GetSysRole(control, &object)
+	s := service.SysRole{}
+	s.Log = log
+	s.Orm = db
+	err = s.GetSysRole(control, &object)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -105,14 +108,15 @@ func (e *SysRole) GetSysRole(c *gin.Context) {
 // @Router /api/v1/role [post]
 // @Security Bearer
 func (e *SysRole) InsertSysRole(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysRoleControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
@@ -132,7 +136,7 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 
 	s := service.SysRole{}
 	s.Orm = db
-	s.MsgID = msgID
+	s.Log = log
 	err = s.InsertSysRole(object)
 	if err != nil {
 		log.Error(err)
@@ -158,14 +162,15 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 // @Router /api/v1/role/{id} [put]
 // @Security Bearer
 func (e *SysRole) UpdateSysRole(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysRoleControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
@@ -181,7 +186,7 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 
 	s := service.SysRole{}
 	s.Orm = db
-	s.MsgID = msgID
+	s.Log = log
 	err = s.UpdateSysRole(object)
 	if err != nil {
 		log.Error(err)
@@ -204,25 +209,26 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 // @Router /api/v1/role [delete]
 // @Security Bearer
 func (e *SysRole) DeleteSysRole(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysRoleById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//删除操作
 	err = control.Bind(c)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+		log.Errorf("Bind error: %s", err)
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
 	s := service.SysRole{}
 	s.Orm = db
-	s.MsgID = msgID
+	s.Log = log
 	err = s.RemoveSysRole(control)
 	if err != nil {
 		log.Error(err)
@@ -238,18 +244,19 @@ func (e *SysRole) DeleteSysRole(c *gin.Context) {
 }
 
 func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.RoleDataScopeReq)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//更新操作
 	err = c.Bind(control)
 	if err != nil {
-		log.Errorf("msgID[%s] request bind error, %s", msgID, err.Error())
+		log.Errorf("request bind error, %s", err.Error())
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -261,7 +268,7 @@ func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
 	data.UpdateBy = tools.GetUserId(c)
 	s := &service.SysRole{}
 	s.Orm = db
-	s.MsgID = msgID
+	s.Log = log
 	err = s.UpdateDataScope(data)
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "")

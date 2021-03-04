@@ -2,16 +2,22 @@ package apis
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"go-admin/common/log"
-	"gorm.io/gorm"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go-admin/pkg/logger"
+	"gorm.io/gorm"
 
 	"go-admin/common/models"
 	"go-admin/tools"
 )
 
 type Api struct {
+}
+
+// GetLogger 获取上下文提供的日志
+func (e *Api) GetLogger(c *gin.Context) logger.Logger {
+	return logger.GetRequestLogger(c)
 }
 
 // GetOrm 获取Orm DB
@@ -30,7 +36,7 @@ func (e *Api) Error(c *gin.Context, code int, err error, msg string) {
 	}
 	res.RequestId = tools.GenerateMsgIDFromContext(c)
 	Return := res.ReturnError(code)
-	setResult(c, Return, res.RequestId, code)
+	e.setResult(c, Return, res.RequestId, code)
 	c.AbortWithStatusJSON(http.StatusOK, Return)
 }
 
@@ -43,7 +49,7 @@ func (e *Api) OK(c *gin.Context, data interface{}, msg string) {
 	}
 	res.RequestId = tools.GenerateMsgIDFromContext(c)
 	Return := res.ReturnOK()
-	setResult(c, Return, res.RequestId, 200)
+	e.setResult(c, Return, res.RequestId, 200)
 	c.AbortWithStatusJSON(http.StatusOK, Return)
 }
 
@@ -61,15 +67,15 @@ func (e *Api) PageOK(c *gin.Context, result interface{}, count int, pageIndex in
 func (e *Api) Custom(c *gin.Context, data gin.H) {
 	msgID := tools.GenerateMsgIDFromContext(c)
 	Return := data
-	setResult(c, Return, msgID, 200)
+	e.setResult(c, Return, msgID, 200)
 	c.AbortWithStatusJSON(http.StatusOK, Return)
 }
 
-func setResult(c *gin.Context, Return interface{}, msgID string, status int) {
-	var jsonStr []byte
+func (e *Api) setResult(c *gin.Context, Return interface{}, msgID string, status int) {
+	requestLogger := e.GetLogger(c)
 	jsonStr, err := json.Marshal(Return)
 	if err != nil {
-		log.Debugf("MsgID[%s] setResult error: %#v", msgID, err.Error())
+		requestLogger.Debugf("setResult error: %#v", msgID, err.Error())
 	}
 	c.Set("result", string(jsonStr))
 	c.Set("status", status)

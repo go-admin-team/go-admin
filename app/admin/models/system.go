@@ -1,7 +1,6 @@
 package models
 
 import (
-	orm "go-admin/common/global"
 	"go-admin/common/models"
 )
 
@@ -21,22 +20,22 @@ func (s *SysSetting) GetId() interface{} {
 }
 
 //查询
-func (s *SysSetting) Get() (create SysSetting, err error) {
-	result := orm.Eloquent.Table("sys_setting").First(&create)
-	if result.Error != nil {
-		err = result.Error
-		return
-	}
-	return create, nil
-}
+//func (s *SysSetting) Get() (create SysSetting, err error) {
+//	result := orm.Eloquent.Table("sys_setting").First(&create)
+//	if result.Error != nil {
+//		err = result.Error
+//		return
+//	}
+//	return create, nil
+//}
 
 //修改
-func (s *SysSetting) Update() (update SysSetting, err error) {
-	if err = orm.Eloquent.Table("sys_setting").Model(&update).Where("settings_id = ?", s.SettingsId).Updates(&s).Error; err != nil {
-		return
-	}
-	return
-}
+//func (s *SysSetting) Update() (update SysSetting, err error) {
+//	if err = orm.Eloquent.Table("sys_setting").Model(&update).Where("settings_id = ?", s.SettingsId).Updates(&s).Error; err != nil {
+//		return
+//	}
+//	return
+//}
 
 type ResponseSystemConfig struct {
 	Name       string `json:"name" binding:"required"`        // 名称

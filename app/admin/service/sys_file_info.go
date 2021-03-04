@@ -2,13 +2,14 @@ package service
 
 import (
 	"errors"
+
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/service"
-	"gorm.io/gorm"
 )
 
 type SysFileInfo struct {
@@ -19,7 +20,6 @@ type SysFileInfo struct {
 func (e *SysFileInfo) GetSysFileInfoPage(c *dto.SysFileInfoSearch, p *actions.DataPermission, list *[]models.SysFileInfo, count *int64) error {
 	var err error
 	var data models.SysFileInfo
-	msgID := e.MsgID
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -30,7 +30,7 @@ func (e *SysFileInfo) GetSysFileInfoPage(c *dto.SysFileInfoSearch, p *actions.Da
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil
@@ -40,7 +40,6 @@ func (e *SysFileInfo) GetSysFileInfoPage(c *dto.SysFileInfoSearch, p *actions.Da
 func (e *SysFileInfo) GetSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPermission, model *models.SysFileInfo) error {
 	var err error
 	var data models.SysFileInfo
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Scopes(
@@ -50,11 +49,11 @@ func (e *SysFileInfo) GetSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPerm
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	if db.Error != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil
@@ -64,18 +63,17 @@ func (e *SysFileInfo) GetSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPerm
 func (e *SysFileInfo) InsertSysFileInfo(model *dto.SysFileInfoControl) error {
 	var err error
 	var data *models.SysFileInfo
-	msgID := e.MsgID
 
 	data, err = model.Generate()
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 
 	err = e.Orm.Model(&data).
 		Create(data).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	return nil
@@ -85,11 +83,10 @@ func (e *SysFileInfo) InsertSysFileInfo(model *dto.SysFileInfoControl) error {
 func (e *SysFileInfo) UpdateSysFileInfo(c *dto.SysFileInfoControl, p *actions.DataPermission) error {
 	var err error
 	var data *models.SysFileInfo
-	msgID := e.MsgID
 
 	data, err = c.Generate()
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	err = e.Orm.Debug().Model(&data).
@@ -97,7 +94,7 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *dto.SysFileInfoControl, p *actions.Da
 			actions.Permission(data.TableName(), p),
 		).Where("id = ?", c.ID).Updates(&data).Error
 	if err != nil {
-		log.Errorf("msgID[%s] db error:%s", msgID, err)
+		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	if err == gorm.ErrRecordNotFound {
@@ -111,7 +108,6 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *dto.SysFileInfoControl, p *actions.Da
 func (e *SysFileInfo) RemoveSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysFileInfo
-	msgID := e.MsgID
 
 	db := e.Orm.Model(&data).
 		Scopes(
@@ -119,7 +115,7 @@ func (e *SysFileInfo) RemoveSysFileInfo(d *dto.SysFileInfoById, p *actions.DataP
 		).Where(d.GetId()).Delete(&data)
 	if db.Error != nil {
 		err = db.Error
-		log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
+		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {

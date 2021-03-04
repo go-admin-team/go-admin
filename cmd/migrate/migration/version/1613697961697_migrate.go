@@ -1,7 +1,6 @@
 package version
 
 import (
-	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 
 	//"go-admin/app/admin/models"
@@ -21,11 +20,11 @@ func _1613697961697Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		//修改字段类型
-		err := tx.Migrator().AlterColumn(&models.SysMenu{}, "create_by")
+		err := tx.Migrator().AlterColumn(&system.SysMenu{}, "create_by")
 		if err != nil {
 			return err
 		}
-		err = tx.Migrator().AlterColumn(&models.SysMenu{}, "update_by")
+		err = tx.Migrator().AlterColumn(&system.SysMenu{}, "update_by")
 		if err != nil {
 			return err
 		}

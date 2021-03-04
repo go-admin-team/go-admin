@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/global"
-	"go-admin/common/log"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/tools"
 	toolsConfig "go-admin/tools/config"
@@ -61,9 +61,9 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 
 	e := mycasbin.Setup(db, "sys_")
 
-	if host == "*" {
-		global.Eloquent = db
-	}
+	//if host == "*" {
+	//	global.Eloquent = db
+	//}
 
 	global.Cfg.SetDb(host, db)
 	global.Cfg.SetCasbin(host, e)

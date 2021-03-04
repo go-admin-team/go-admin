@@ -1,16 +1,15 @@
 package sys_login_log
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/models/system"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
+
+	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/common/log"
 	"go-admin/tools"
-
-	"net/http"
 )
 
 type SysLoginLog struct {
@@ -18,11 +17,12 @@ type SysLoginLog struct {
 }
 
 func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	d := new(dto.SysLoginLogSearch)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -36,7 +36,7 @@ func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 	list := make([]system.SysLoginLog, 0)
 	var count int64
 	serviceStudent := service.SysLoginLog{}
-	serviceStudent.MsgID = msgID
+	serviceStudent.Log = log
 	serviceStudent.Orm = db
 	err = serviceStudent.GetSysLoginLogPage(d, &list, &count)
 	if err != nil {
@@ -48,14 +48,15 @@ func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 }
 
 func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
@@ -65,7 +66,7 @@ func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
 	var object system.SysLoginLog
 
 	serviceSysLoginLog := service.SysLoginLog{}
-	serviceSysLoginLog.MsgID = msgID
+	serviceSysLoginLog.Log = log
 	serviceSysLoginLog.Orm = db
 	err = serviceSysLoginLog.GetSysLoginLog(control, &object)
 	if err != nil {
@@ -77,14 +78,15 @@ func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
 }
 
 func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
@@ -101,10 +103,10 @@ func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.MsgID = msgID
+	serviceSysLoginLog.Log = log
 	err = serviceSysLoginLog.InsertSysLoginLog(object)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("InsertSysLoginLog error, %s", err)
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
 		return
 	}
@@ -113,14 +115,15 @@ func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 }
 
 func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogControl)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
@@ -136,28 +139,30 @@ func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.MsgID = msgID
+	serviceSysLoginLog.Log = log
 	err = serviceSysLoginLog.UpdateSysLoginLog(object)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("UpdateSysLoginLog error, %s", err)
+		e.Error(c, http.StatusInternalServerError, err, "更新失败")
 		return
 	}
 	e.OK(c, object.GetId(), "更新成功")
 }
 
 func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
+	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogById)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	msgID := tools.GenerateMsgIDFromContext(c)
 	//删除操作
 	err = control.Bind(c)
 	if err != nil {
-		log.Errorf("MsgID[%s] Bind error: %s", msgID, err)
+		log.Errorf("Bind error: %s", err)
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
@@ -172,10 +177,11 @@ func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.MsgID = msgID
+	serviceSysLoginLog.Log = log
 	err = serviceSysLoginLog.RemoveSysLoginLog(control, object)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("RemoveSysLoginLog error, %s", err)
+		e.Error(c, http.StatusInternalServerError, err, "删除失败")
 		return
 	}
 	e.OK(c, object.GetId(), "删除成功")

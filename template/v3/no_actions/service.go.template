@@ -5,7 +5,7 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/common/log"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	common "go-admin/common/models"
 	"go-admin/common/service"
 	"gorm.io/gorm"

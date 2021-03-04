@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 
@@ -74,7 +74,7 @@ func (s *SysPostControl) Generate() (*system.SysPost, error) {
 		PostCode: s.PostCode,
 		Sort:     s.Sort,
 		Status:   s.Status,
-		Remark:    s.Remark,
+		Remark:   s.Remark,
 	}, nil
 }
 

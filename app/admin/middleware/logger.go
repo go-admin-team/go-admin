@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -10,18 +11,23 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
-	"go-admin/common/log"
+	"go-admin/pkg/logger"
 	"go-admin/tools"
+	"go-admin/tools/app"
 	"go-admin/tools/config"
 )
 
 // LoggerToFile 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		defer c.Next()
+		if c.Request.Method == http.MethodOptions {
+			return
+		}
+		log := logger.GetRequestLogger(c)
 		// 开始时间
 		startTime := time.Now()
 		// 处理请求
-		c.Next()
 
 		bd, bl := c.Get("body")
 		var body = ""
@@ -62,6 +68,8 @@ func LoggerToFile() gin.HandlerFunc {
 			"uri":         reqUri,
 		}
 		log.Info(logData)
+		//l := logger.Logger{Logger: log.Fields(logData)}
+		//l.Info(logData)
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, statusBus)
 		}
@@ -70,10 +78,18 @@ func LoggerToFile() gin.HandlerFunc {
 
 // SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
 func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) {
+	log := logger.GetRequestLogger(c)
+	db, err := tools.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	menu := models.Menu{}
 	menu.Path = reqUri
 	menu.Action = reqMethod
-	menuList, _ := menu.Get()
+	menuList, _ := menu.Get(db)
 	sysOperaLog := system.SysOperaLog{}
 	sysOperaLog.OperIp = clientIP
 	sysOperaLog.OperLocation = tools.GetLocation(clientIP)
@@ -114,11 +130,6 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 		sysOperaLog.Status = "2"
 	} else {
 		sysOperaLog.Status = "1"
-	}
-	msgID := tools.GenerateMsgIDFromContext(c)
-	db, err := tools.GetOrm(c)
-	if err != nil {
-		log.Errorf("msgID[%s] 获取Orm失败, error:%s", msgID, err)
 	}
 	serviceOperaLog := service.SysOperaLog{}
 	serviceOperaLog.Orm = db

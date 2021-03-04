@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/models"
+	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/app"
 )
@@ -15,13 +15,13 @@ import (
 // CreateAction 通用新增动作
 func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log := logger.GetRequestLogger(c)
 		db, err := tools.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
 		//新增操作
 		req := control.Generate()
 		err = req.Bind(c)
@@ -38,7 +38,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		object.SetCreateBy(tools.GetUserId(c))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
-			log.Errorf("MsgID[%s] Create error: %s", msgID, err)
+			log.Errorf("Create error: %s", err)
 			app.Error(c, http.StatusInternalServerError, err, "创建失败")
 			return
 		}

@@ -13,7 +13,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const TrafficKey = "X-Request-Id"
+const (
+	TrafficKey = "X-Request-Id"
+	LoggerKey  = "_go-admin-logger-request"
+)
 
 func CompareHashAndPassword(e string, p string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(e), []byte(p))

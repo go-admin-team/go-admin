@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models/tools"
+	"go-admin/pkg/logger"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 )
@@ -19,6 +20,7 @@ import (
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/columns/page [get]
 func GetDBColumnList(c *gin.Context) {
+	log := logger.GetRequestLogger(c)
 	var data tools.DBColumns
 	var err error
 	var pageSize = 10
@@ -32,9 +34,16 @@ func GetDBColumnList(c *gin.Context) {
 		pageIndex, err = tools2.StringToInt(index)
 	}
 
+	db, err := tools2.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	data.TableName = c.Request.FormValue("tableName")
 	tools2.Assert(data.TableName == "", "table name cannot be empty！", 500)
-	result, count, err := data.GetPage(pageSize, pageIndex)
+	result, count, err := data.GetPage(db, pageSize, pageIndex)
 	tools2.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)

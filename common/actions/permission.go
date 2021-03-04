@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"go-admin/common/log"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"

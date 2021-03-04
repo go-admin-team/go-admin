@@ -3,8 +3,8 @@ package dto
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 

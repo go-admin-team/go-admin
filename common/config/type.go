@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/casbin/casbin/v2"
+	"github.com/robfig/cron/v3"
 	"net/http"
 
 	"github.com/go-admin-team/go-admin-core/logger"
@@ -24,4 +25,9 @@ type Conf interface {
 	//使用go-admin定义的logger，参考来源go-micro
 	SetLogger(logger logger.Logger)
 	GetLogger() logger.Logger
+
+	//crontab
+	SetCrontab(key string, crontab *cron.Cron)
+	GetCrontab() map[string]*cron.Cron
+	GetCrontabKey(key string) *cron.Cron
 }

@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/global"
-	"go-admin/common/log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/tools/transfer"

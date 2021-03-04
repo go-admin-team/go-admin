@@ -6,13 +6,11 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	"go-admin/common/global"
-	mycasbin "go-admin/pkg/casbin"
-	"go-admin/pkg/logger"
-	"go-admin/tools/config"
+	myCasbin "go-admin/pkg/casbin"
+	"gorm.io/driver/mysql"
 )
 
 func main() {
@@ -20,11 +18,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	_ = mycasbin.Setup(db, "sys_")
-	global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
-	global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
-	global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
-	global.GinEngine = gin.Default()
-	//router.InitRouter()
-	log.Fatal(global.GinEngine.Run(":8000"))
+	syncEnforce := myCasbin.Setup(db, "sys_")
+	global.Cfg.SetDb("*", db)
+	global.Cfg.SetCasbin("*", syncEnforce)
+
+	e := gin.Default()
+	global.Cfg.SetEngine(e)
+	log.Fatal(e.Run(":8000"))
 }

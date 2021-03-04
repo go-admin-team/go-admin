@@ -9,12 +9,14 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
+	"go-admin/pkg/logger"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
 )
 
 func Preview(c *gin.Context) {
+	log := logger.GetRequestLogger(c)
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
@@ -31,7 +33,15 @@ func Preview(c *gin.Context) {
 	tools2.HasError(err, "", -1)
 	t6, err := template.ParseFiles("template/v3/dto.go.template")
 	tools2.HasError(err, "", -1)
-	tab, _ := table.Get()
+
+	db, err := tools2.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
+	tab, _ := table.Get(db)
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -59,11 +69,20 @@ func Preview(c *gin.Context) {
 }
 
 func GenCodeV3(c *gin.Context) {
+	log := logger.GetRequestLogger(c)
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
+
+	db, err := tools2.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	table.TableId = id
-	tab, _ := table.Get()
+	tab, _ := table.Get(db)
 
 	if tab.IsActions == 1 {
 		ActionsGenV3(tab)
@@ -173,13 +192,22 @@ func ActionsGenV3(tab tools.SysTables) {
 }
 
 func GenMenuAndApi(c *gin.Context) {
+	log := logger.GetRequestLogger(c)
 
 	table := tools.SysTables{}
 	timeNow := tools2.GetCurrentTime()
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
+
+	db, err := tools2.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	table.TableId = id
-	tab, _ := table.Get()
+	tab, _ := table.Get(db)
 	Mmenu := models.Menu{}
 	Mmenu.MenuName = tab.TBName + "Manage"
 	Mmenu.Title = tab.TableComment
@@ -197,7 +225,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.UpdateBy = "1"
 	Mmenu.CreatedAt = timeNow
 	Mmenu.UpdatedAt = timeNow
-	Mmenu.MenuId, err = Mmenu.Create()
+	Mmenu.MenuId, err = Mmenu.Create(db)
 
 	Cmenu := models.Menu{}
 	Cmenu.MenuName = tab.TBName
@@ -217,7 +245,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Cmenu.UpdateBy = "1"
 	Cmenu.CreatedAt = timeNow
 	Cmenu.UpdatedAt = timeNow
-	Cmenu.MenuId, err = Cmenu.Create()
+	Cmenu.MenuId, err = Cmenu.Create(db)
 
 	MList := models.Menu{}
 	MList.MenuName = ""
@@ -236,7 +264,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.UpdateBy = "1"
 	MList.CreatedAt = timeNow
 	MList.UpdatedAt = timeNow
-	MList.MenuId, err = MList.Create()
+	MList.MenuId, err = MList.Create(db)
 
 	MCreate := models.Menu{}
 	MCreate.MenuName = ""
@@ -255,7 +283,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.UpdateBy = "1"
 	MCreate.CreatedAt = timeNow
 	MCreate.UpdatedAt = timeNow
-	MCreate.MenuId, err = MCreate.Create()
+	MCreate.MenuId, err = MCreate.Create(db)
 
 	MUpdate := models.Menu{}
 	MUpdate.MenuName = ""
@@ -274,7 +302,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.UpdateBy = "1"
 	MUpdate.CreatedAt = timeNow
 	MUpdate.UpdatedAt = timeNow
-	MUpdate.MenuId, err = MUpdate.Create()
+	MUpdate.MenuId, err = MUpdate.Create(db)
 
 	MDelete := models.Menu{}
 	MDelete.MenuName = ""
@@ -293,7 +321,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MDelete.UpdateBy = "1"
 	MDelete.CreatedAt = timeNow
 	MDelete.UpdatedAt = timeNow
-	MDelete.MenuId, err = MDelete.Create()
+	MDelete.MenuId, err = MDelete.Create(db)
 
 	var InterfaceId = 63
 	Amenu := models.Menu{}
@@ -312,7 +340,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Amenu.UpdateBy = "1"
 	Amenu.CreatedAt = timeNow
 	Amenu.UpdatedAt = timeNow
-	Amenu.MenuId, err = Amenu.Create()
+	Amenu.MenuId, err = Amenu.Create(db)
 
 	AList := models.Menu{}
 	AList.MenuName = ""
@@ -330,7 +358,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AList.UpdateBy = "1"
 	AList.CreatedAt = timeNow
 	AList.UpdatedAt = timeNow
-	AList.MenuId, err = AList.Create()
+	AList.MenuId, err = AList.Create(db)
 
 	AGet := models.Menu{}
 	AGet.MenuName = ""
@@ -348,7 +376,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AGet.UpdateBy = "1"
 	AGet.CreatedAt = timeNow
 	AGet.UpdatedAt = timeNow
-	AGet.MenuId, err = AGet.Create()
+	AGet.MenuId, err = AGet.Create(db)
 
 	ACreate := models.Menu{}
 	ACreate.MenuName = ""
@@ -366,7 +394,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ACreate.UpdateBy = "1"
 	ACreate.CreatedAt = timeNow
 	ACreate.UpdatedAt = timeNow
-	ACreate.MenuId, err = ACreate.Create()
+	ACreate.MenuId, err = ACreate.Create(db)
 
 	AUpdate := models.Menu{}
 	AUpdate.MenuName = ""
@@ -384,7 +412,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AUpdate.UpdateBy = "1"
 	AUpdate.CreatedAt = timeNow
 	AUpdate.UpdatedAt = timeNow
-	AUpdate.MenuId, err = AUpdate.Create()
+	AUpdate.MenuId, err = AUpdate.Create(db)
 
 	ADelete := models.Menu{}
 	ADelete.MenuName = ""
@@ -402,7 +430,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ADelete.UpdateBy = "1"
 	ADelete.CreatedAt = timeNow
 	ADelete.UpdatedAt = timeNow
-	ADelete.MenuId, err = ADelete.Create()
+	ADelete.MenuId, err = ADelete.Create(db)
 
 	app.OK(c, "", "数据生成成功！")
 }

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go-admin/app/admin/models"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/tools"
 )
 
@@ -73,8 +73,8 @@ func (s *SysDeptControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysDeptControl) Generate() (*models.SysDept, error) {
-	return &models.SysDept{
+func (s *SysDeptControl) Generate() (*system.SysDept, error) {
+	return &system.SysDept{
 		DeptId:   s.DeptId,
 		DeptName: s.DeptName,
 		ParentId: s.ParentId,
@@ -121,8 +121,8 @@ func (s *SysDeptById) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysDeptById) GenerateM() (*models.SysDept, error) {
-	return &models.SysDept{}, nil
+func (s *SysDeptById) GenerateM() (*system.SysDept, error) {
+	return &system.SysDept{}, nil
 }
 
 type DeptLabel struct {

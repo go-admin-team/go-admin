@@ -2,16 +2,15 @@ package system
 
 import (
 	"fmt"
-	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
-	"go-admin/common/apis"
-	"go-admin/common/log"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service"
+	"go-admin/app/admin/service/dto"
+	"go-admin/common/apis"
 	"go-admin/tools"
 )
 
@@ -26,20 +25,21 @@ type SysSetting struct {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/setting [get]
 func (e *SysSetting) GetSetting(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
 	sysSettingService := service.SysSetting{}
-	sysSettingService.MsgID=msgID
-	sysSettingService.Orm=db
+	sysSettingService.Log = log
+	sysSettingService.Orm = db
 	var model = models.SysSetting{}
 	err = sysSettingService.GetSysSetting(&model)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -61,10 +61,11 @@ func (e *SysSetting) GetSetting(c *gin.Context) {
 // @Router /api/v1/system/setting [post]
 func (e *SysSetting) CreateOrUpdateSetting(c *gin.Context) {
 	control := new(dto.SysSettingControl)
-	msgID := tools.GenerateMsgIDFromContext(c)
+	log := e.GetLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -81,14 +82,13 @@ func (e *SysSetting) CreateOrUpdateSetting(c *gin.Context) {
 	}
 
 	sysSettingService := service.SysSetting{}
-	sysSettingService.MsgID=msgID
-	sysSettingService.Orm=db
+	sysSettingService.Log = log
+	sysSettingService.Orm = db
 	err = sysSettingService.UpdateSysSetting(object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "更新失败")
+		e.Error(c, http.StatusInternalServerError, err, "更新失败")
 		return
 	}
-
 
 	if object.Logo != "" {
 		if !strings.HasPrefix(object.Logo, "http") {
