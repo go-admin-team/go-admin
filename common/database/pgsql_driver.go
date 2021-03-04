@@ -15,6 +15,8 @@ import (
 	"go-admin/common/global"
 	"go-admin/tools"
 	toolsConfig "go-admin/tools/config"
+
+	_ "github.com/lib/pq"
 )
 
 type PgSql struct {
