@@ -27,7 +27,7 @@ func (e *PgSql) Setup() {
 
 	global.Source = e.GetConnect()
 	log.Println(global.Source)
-	db, err := sql.Open("postgresql", global.Source)
+	db, err := sql.Open("postgres", global.Source)
 	if err != nil {
 		global.Logger.Fatal(tools.Red(e.GetDriver()+" connect error :"), err)
 	}
