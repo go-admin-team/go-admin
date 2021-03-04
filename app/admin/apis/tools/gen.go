@@ -21,17 +21,17 @@ func Preview(c *gin.Context) {
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
-	t1, err := template.ParseFiles("template/v3/model.go.template")
+	t1, err := template.ParseFiles("template/v4/model.go.template")
 	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/v3/no_actions/apis.go.template")
+	t2, err := template.ParseFiles("template/v4/no_actions/apis.go.template")
 	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles("template/v3/js.go.template")
+	t3, err := template.ParseFiles("template/v4/js.go.template")
 	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/v3/vue.go.template")
+	t4, err := template.ParseFiles("template/v4/vue.go.template")
 	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
+	t5, err := template.ParseFiles("template/v4/no_actions/router_check_role.go.template")
 	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v3/dto.go.template")
+	t6, err := template.ParseFiles("template/v4/dto.go.template")
 	tools2.HasError(err, "", -1)
 
 	db, err := tools2.GetOrm(c)
@@ -95,7 +95,7 @@ func GenCodeV3(c *gin.Context) {
 
 func NOActionsGenV3(tab tools.SysTables) {
 
-	basePath := "template/v3/"
+	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {
@@ -149,7 +149,7 @@ func NOActionsGenV3(tab tools.SysTables) {
 }
 
 func ActionsGenV3(tab tools.SysTables) {
-	basePath := "template/v3/"
+	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {
@@ -234,7 +234,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Cmenu.Path = tab.TBName
 	Cmenu.MenuType = "C"
 	Cmenu.Action = "无"
-	Cmenu.Permission = tab.ModuleName + ":" + tab.BusinessName + ":list"
+	Cmenu.Permission = tab.PackageName + ":" + tab.BusinessName + ":list"
 	Cmenu.ParentId = Mmenu.MenuId
 	Cmenu.NoCache = false
 	Cmenu.Component = "/" + tab.BusinessName + "/index"
@@ -254,7 +254,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.Path = tab.TBName
 	MList.MenuType = "F"
 	MList.Action = "无"
-	MList.Permission = tab.ModuleName + ":" + tab.BusinessName + ":query"
+	MList.Permission = tab.PackageName + ":" + tab.BusinessName + ":query"
 	MList.ParentId = Cmenu.MenuId
 	MList.NoCache = false
 	MList.Sort = 0
@@ -273,7 +273,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.Path = tab.TBName
 	MCreate.MenuType = "F"
 	MCreate.Action = "无"
-	MCreate.Permission = tab.ModuleName + ":" + tab.BusinessName + ":add"
+	MCreate.Permission = tab.PackageName + ":" + tab.BusinessName + ":add"
 	MCreate.ParentId = Cmenu.MenuId
 	MCreate.NoCache = false
 	MCreate.Sort = 0
@@ -292,7 +292,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.Path = tab.TBName
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
-	MUpdate.Permission = tab.ModuleName + ":" + tab.BusinessName + ":edit"
+	MUpdate.Permission = tab.PackageName + ":" + tab.BusinessName + ":edit"
 	MUpdate.ParentId = Cmenu.MenuId
 	MUpdate.NoCache = false
 	MUpdate.Sort = 0
@@ -311,7 +311,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MDelete.Path = tab.TBName
 	MDelete.MenuType = "F"
 	MDelete.Action = "无"
-	MDelete.Permission = tab.ModuleName + ":" + tab.BusinessName + ":remove"
+	MDelete.Permission = tab.PackageName + ":" + tab.BusinessName + ":remove"
 	MDelete.ParentId = Cmenu.MenuId
 	MDelete.NoCache = false
 	MDelete.Sort = 0

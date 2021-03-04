@@ -46,7 +46,7 @@
                 <el-row :gutter="10" class="mb8">
                     <el-col :span="1.5">
                         <el-button
-                                v-permisaction="['{{.PackageName}}:{{.ModuleName}}:add']"
+                                v-permisaction="['{{.PackageName}}:{{.BusinessName}}:add']"
                                 type="primary"
                                 icon="el-icon-plus"
                                 size="mini"
@@ -56,7 +56,7 @@
                     </el-col>
                     <el-col :span="1.5">
                         <el-button
-                                v-permisaction="['{{.PackageName}}:{{.ModuleName}}:edit']"
+                                v-permisaction="['{{.PackageName}}:{{.BusinessName}}:edit']"
                                 type="success"
                                 icon="el-icon-edit"
                                 size="mini"
@@ -67,7 +67,7 @@
                     </el-col>
                     <el-col :span="1.5">
                         <el-button
-                                v-permisaction="['{{.PackageName}}:{{.ModuleName}}:remove']"
+                                v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']"
                                 type="danger"
                                 icon="el-icon-delete"
                                 size="mini"
@@ -111,7 +111,7 @@
                     <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                         <template slot-scope="scope">
                             <el-button
-                                    v-permisaction="['{{.PackageName}}:{{.ModuleName}}:edit']"
+                                    v-permisaction="['{{.PackageName}}:{{.BusinessName}}:edit']"
                                     size="mini"
                                     type="text"
                                     icon="el-icon-edit"
@@ -119,7 +119,7 @@
                             >修改
                             </el-button>
                             <el-button
-                                    v-permisaction="['{{.PackageName}}:{{.ModuleName}}:remove']"
+                                    v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']"
                                     size="mini"
                                     type="text"
                                     icon="el-icon-delete"
@@ -145,11 +145,11 @@
                             {{- $x := .IsInsert -}}
                             {{- if (eq $x "1") -}}
                                 {{- if (.Pk) }}
-                                {{- else if eq .GoField "CreatedAt" -}}
-                                {{- else if eq .GoField "UpdatedAt" -}}
-                                {{- else if eq .GoField "DeletedAt" -}}
-                                {{- else if eq .GoField "UpdateBy" -}}
-                                {{- else if eq .GoField "CreateBy" -}}
+                                {{- else if eq .GoField "createdAt" -}}
+                                {{- else if eq .GoField "updatedAt" -}}
+                                {{- else if eq .GoField "deletedAt" -}}
+                                {{- else if eq .GoField "updateBy" -}}
+                                {{- else if eq .GoField "createBy" -}}
                                 {{- else }}
                                     <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
                                         {{ if eq "input" .HtmlType -}}

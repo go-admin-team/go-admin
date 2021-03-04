@@ -35,7 +35,7 @@ func (m *SysCategorySearch) Generate() dto.Index {
 }
 
 type SysCategoryControl struct {
-	ID int `uri:"ID" comment:"标识"` // 标识
+	ID int `uri:"Id" comment:"标识"` // 标识
 
 	Name string `json:"name" comment:"名称"`
 
@@ -69,7 +69,7 @@ func (s *SysCategoryControl) Generate() dto.Control {
 
 func (s *SysCategoryControl) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysCategory{
-		Model:  common.Model{ID: s.ID},
+		Model:  common.Model{Id: s.ID},
 		Name:   s.Name,
 		Img:    s.Img,
 		Sort:   s.Sort,

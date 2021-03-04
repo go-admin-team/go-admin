@@ -29,9 +29,9 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list4 := []system.SysConfig{
-			{Model: common.Model{ID: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow"},
-			{Model: common.Model{ID: 2}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456"},
-			{Model: common.Model{ID: 3}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light"},
+			{Model: common.Model{Id: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow"},
+			{Model: common.Model{Id: 2}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456"},
+			{Model: common.Model{Id: 3}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light"},
 		}
 
 		list5 := []Post{

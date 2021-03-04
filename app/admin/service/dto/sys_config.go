@@ -35,7 +35,7 @@ func (m *SysConfigSearch) Bind(ctx *gin.Context) error {
 
 // SysConfigControl 增、改使用的结构体
 type SysConfigControl struct {
-	ID          int    `uri:"ID" comment:"编码"` // 编码
+	ID          int    `uri:"Id" comment:"编码"` // 编码
 	ConfigName  string `json:"configName" comment:""`
 	ConfigKey   string `uri:"configKey" json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
@@ -67,7 +67,7 @@ func (s *SysConfigControl) Bind(ctx *gin.Context) error {
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
 func (s *SysConfigControl) Generate() (*system.SysConfig, error) {
 	return &system.SysConfig{
-		Model:       common.Model{ID: s.ID},
+		Model:       common.Model{Id: s.ID},
 		ConfigName:  s.ConfigName,
 		ConfigKey:   s.ConfigKey,
 		ConfigValue: s.ConfigValue,

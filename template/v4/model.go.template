@@ -1,13 +1,13 @@
 package models
 
 import (
-    "gorm.io/gorm"
+   // "gorm.io/gorm"
 
 	"go-admin/common/models"
 )
 
 type {{.ClassName}} struct {
-    gorm.Model
+    models.Model
     models.ControlBy
     {{ range .Columns -}}
     {{$x := .Pk}}

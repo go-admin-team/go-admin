@@ -36,5 +36,5 @@ func (e *SysFileDir) Generate() models.ActiveRecord {
 }
 
 func (e *SysFileDir) GetId() interface{} {
-	return e.ID
+	return e.Id
 }

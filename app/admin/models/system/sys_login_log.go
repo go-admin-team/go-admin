@@ -33,5 +33,5 @@ func (e *SysLoginLog) Generate() models.ActiveRecord {
 }
 
 func (e *SysLoginLog) GetId() interface{} {
-	return e.ID
+	return e.Id
 }

@@ -144,11 +144,11 @@ func SysFileDirCall(list *[]models.SysFileDirL, m models.SysFileDirL) models.Sys
 	listGroup := *list
 	min := make([]models.SysFileDirL, 0)
 	for j := 0; j < len(listGroup); j++ {
-		if m.ID != listGroup[j].PId {
+		if m.Id != listGroup[j].PId {
 			continue
 		}
 		mi := models.SysFileDirL{}
-		mi.ID = listGroup[j].ID
+		mi.Id = listGroup[j].Id
 		mi.PId = listGroup[j].PId
 		mi.Label = listGroup[j].Label
 		//mi.Sort = listGroup[j].Sort
