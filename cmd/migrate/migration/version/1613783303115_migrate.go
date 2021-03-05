@@ -20,19 +20,19 @@ func _1613783303115Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		//修改字段类型
-		err := tx.Model(&system.SysDictType{}).Select("create_by").Not("create_by  > 0").Update("create_by", 0).Error
+		err := tx.Model(&system.SysDictType{}).Select("create_by").Not("create_by  > 0").Update("create_by", "0").Error
 		if err != nil {
 			return err
 		}
-		err = tx.Model(&system.SysDictType{}).Select("update_by").Not("update_by > 0").Update("update_by", 0).Error
+		err = tx.Model(&system.SysDictType{}).Select("update_by").Not("update_by > 0").Update("update_by", "0").Error
 		if err != nil {
 			return err
 		}
-		err = tx.Model(&system.SysDictData{}).Select("create_by").Not("create_by > 0").Update("create_by", 0).Error
+		err = tx.Model(&system.SysDictData{}).Select("create_by").Not("create_by > 0").Update("create_by", "0").Error
 		if err != nil {
 			return err
 		}
-		err = tx.Model(&system.SysDictData{}).Select("update_by").Not("update_by > 0").Update("update_by", 0).Error
+		err = tx.Model(&system.SysDictData{}).Select("update_by").Not("update_by > 0").Update("update_by", "0").Error
 		if err != nil {
 			return err
 		}
