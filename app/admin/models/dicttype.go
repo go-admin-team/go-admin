@@ -3,8 +3,6 @@ package models
 import (
 	"errors"
 
-	"gorm.io/gorm"
-
 	orm "go-admin/common/global"
 	"go-admin/tools"
 )
@@ -87,14 +85,13 @@ func (e *DictType) GetList() ([]DictType, error) {
 
 func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error) {
 	var doc []DictType
-	var db *gorm.DB
 
 	table := orm.Eloquent.Table(e.TableName())
 	if e.DictId != 0 {
-		db = db.Where("dict_id = ?", e.DictId)
+		table = table.Where("dict_id = ?", e.DictId)
 	}
 	if e.DictName != "" {
-		db = db.Where("dict_name = ?", e.DictName)
+		table = table.Where("dict_name = ?", e.DictName)
 	}
 
 	// 数据权限控制
