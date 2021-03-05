@@ -91,7 +91,7 @@ func (e *DictType) GetPage(pageSize int, pageIndex int) ([]DictType, int, error)
 
 	table := orm.Eloquent.Table(e.TableName())
 	if e.DictId != 0 {
-		db = db.Where("dict_id = ?", e.DictId)
+		db = table.Where("dict_id = ?", e.DictId)
 	}
 	if e.DictName != "" {
 		db = db.Where("dict_name = ?", e.DictName)
