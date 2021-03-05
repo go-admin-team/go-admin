@@ -1,12 +1,12 @@
 package tools
 
 import (
+	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models/tools"
-	"go-admin/pkg/logger"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
@@ -26,7 +26,7 @@ func GetDBTableList(c *gin.Context) {
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	if config.DatabaseConfig.Driver == "sqlite3" || config.DatabaseConfig.Driver == "postgres" {
 		res.Msg = "对不起，sqlite3 或 postgres 不支持代码生成！"
 		c.JSON(http.StatusOK, res.ReturnError(500))

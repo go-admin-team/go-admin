@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,6 @@ import (
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	jwt "go-admin/pkg/jwtauth"
-	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
@@ -59,7 +59,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db error, %s", err.Error())
@@ -106,7 +106,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 
 // LoginLogToDB Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	if config.LoggerConfig.EnabledDB {
 		var loginLog system.SysLoginLog
 		db, err := tools.GetOrm(c)
@@ -142,7 +142,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Router /logout [post]
 // @Security Bearer
 func LogOut(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	var loginLog system.SysLoginLog
 	ua := user_agent.New(c.Request.UserAgent())
 	loginLog.Ipaddr = c.ClientIP()

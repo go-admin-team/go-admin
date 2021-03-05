@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models/system"
+	"go-admin/common/apis"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
-	"go-admin/tools"
 )
 
 // SysConfigSearch 列表或者搜索使用结构体
@@ -25,10 +24,10 @@ func (m *SysConfigSearch) GetNeedSearch() interface{} {
 
 // Bind 映射上下文中的结构体数据
 func (m *SysConfigSearch) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %s", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
@@ -45,20 +44,20 @@ type SysConfigControl struct {
 
 // Bind 映射上下文中的结构体数据
 func (s *SysConfigControl) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBindBodyWith(s, binding.JSON)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	var jsonStr []byte
 	jsonStr, err = json.Marshal(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	ctx.Set("body", string(jsonStr))
 	return err
@@ -97,15 +96,15 @@ func (s *SysConfigById) GetId() interface{} {
 }
 
 func (s *SysConfigById) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }

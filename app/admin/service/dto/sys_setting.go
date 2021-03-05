@@ -2,10 +2,11 @@ package dto
 
 import (
 	"encoding/json"
+	"go-admin/common/apis"
+
 	"github.com/gin-gonic/gin"
-	log "github.com/go-admin-team/go-admin-core/logger"
+
 	"go-admin/app/admin/models"
-	"go-admin/tools"
 )
 
 // SysConfigControl 增、改使用的结构体
@@ -17,23 +18,23 @@ type SysSettingControl struct {
 
 // Bind 映射上下文中的结构体数据
 func (s *SysSettingControl) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 
 	err := ctx.ShouldBind(s)
 	if err != nil {
-		log.Errorf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Errorf("ShouldBind error: %s", err.Error())
 		return err
 	}
 
 	err = ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Errorf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Errorf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	var jsonStr []byte
 	jsonStr, err = json.Marshal(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	ctx.Set("body", string(jsonStr))
 	return err
@@ -69,15 +70,15 @@ func (s *SysSettingById) GetId() interface{} {
 }
 
 func (s *SysSettingById) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }

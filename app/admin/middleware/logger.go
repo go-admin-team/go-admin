@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"go-admin/common/apis"
 	"net/http"
 	"strings"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
-	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
@@ -24,7 +24,7 @@ func LoggerToFile() gin.HandlerFunc {
 		if c.Request.Method == http.MethodOptions {
 			return
 		}
-		log := logger.GetRequestLogger(c)
+		log := apis.GetRequestLogger(c)
 		// 开始时间
 		startTime := time.Now()
 		// 处理请求
@@ -78,7 +78,7 @@ func LoggerToFile() gin.HandlerFunc {
 
 // SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
 func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())

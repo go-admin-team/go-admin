@@ -1,14 +1,14 @@
 package dto
 
 import (
+	"go-admin/common/apis"
+	"time"
+
 	"github.com/gin-gonic/gin"
-	log "github.com/go-admin-team/go-admin-core/logger"
+
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
-	"go-admin/tools"
-
-	"time"
 )
 
 type SysLoginLogSearch struct {
@@ -24,10 +24,10 @@ func (m *SysLoginLogSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysLoginLogSearch) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %s", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
@@ -47,15 +47,15 @@ type SysLoginLogControl struct {
 }
 
 func (s *SysLoginLogControl) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
@@ -90,15 +90,15 @@ func (s *SysLoginLogById) GetId() interface{} {
 }
 
 func (s *SysLoginLogById) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(&s.Ids)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }

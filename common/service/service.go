@@ -9,5 +9,5 @@ type Service struct {
 	Orm   *gorm.DB
 	Msg   string
 	MsgID string
-	Log   logger.Logger
+	Log   *logger.Logger
 }

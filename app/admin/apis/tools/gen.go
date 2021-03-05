@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"go-admin/common/apis"
 	"net/http"
 	"text/template"
 
@@ -9,14 +10,13 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
-	"go-admin/pkg/logger"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 	"go-admin/tools/config"
 )
 
 func Preview(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
@@ -69,7 +69,7 @@ func Preview(c *gin.Context) {
 }
 
 func GenCodeV3(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
@@ -192,7 +192,7 @@ func ActionsGenV3(tab tools.SysTables) {
 }
 
 func GenMenuAndApi(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 
 	table := tools.SysTables{}
 	timeNow := tools2.GetCurrentTime()

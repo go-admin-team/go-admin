@@ -1,12 +1,12 @@
 package tools
 
 import (
+	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models/tools"
-	"go-admin/pkg/logger"
 	tools2 "go-admin/tools"
 	"go-admin/tools/app"
 )
@@ -20,7 +20,7 @@ import (
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/columns/page [get]
 func GetDBColumnList(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	var data tools.DBColumns
 	var err error
 	var pageSize = 10

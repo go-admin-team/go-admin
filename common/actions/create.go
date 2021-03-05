@@ -1,13 +1,13 @@
 package actions
 
 import (
+	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/common/dto"
 	"go-admin/common/models"
-	"go-admin/pkg/logger"
 	"go-admin/tools"
 	"go-admin/tools/app"
 )
@@ -15,7 +15,7 @@ import (
 // CreateAction 通用新增动作
 func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		log := logger.GetRequestLogger(c)
+		log := apis.GetRequestLogger(c)
 		db, err := tools.GetOrm(c)
 		if err != nil {
 			log.Error(err)

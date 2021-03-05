@@ -10,8 +10,8 @@ require (
 	github.com/casbin/gorm-adapter/v3 v3.0.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-admin-team/go-admin-core v1.2.3-0.20210305034835-b289a9f0f173
-	github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210304081332-24763d77c51b
+	github.com/go-admin-team/go-admin-core v1.2.3-0.20210305064904-6d101c8bc904
+	github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210305064904-6d101c8bc904
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2

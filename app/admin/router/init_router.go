@@ -1,6 +1,7 @@
 package router
 
 import (
+	"go-admin/tools/app"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -8,7 +9,6 @@ import (
 
 	"go-admin/app/admin/middleware"
 	"go-admin/app/admin/middleware/handler"
-	"go-admin/common/global"
 	common "go-admin/common/middleware"
 	//_ "go-admin/pkg/jwtauth"
 	"go-admin/tools"
@@ -18,10 +18,10 @@ import (
 // InitRouter 路由初始化，不要怀疑，这里用到了
 func InitRouter() {
 	var r *gin.Engine
-	h := global.Runtime.GetEngine()
+	h := app.Runtime.GetEngine()
 	if h == nil {
 		h = gin.New()
-		global.Runtime.SetEngine(h)
+		app.Runtime.SetEngine(h)
 	}
 	switch h.(type) {
 	case *gin.Engine:
@@ -35,7 +35,7 @@ func InitRouter() {
 	}
 
 	r.Use(common.Sentinel()).
-		Use(common.RequestIdLogger(tools.TrafficKey, tools.LoggerKey))
+		Use(common.RequestId(tools.TrafficKey))
 	middleware.InitMiddleware(r)
 	// the jwt middleware
 	authMiddleware, err := middleware.AuthInit()

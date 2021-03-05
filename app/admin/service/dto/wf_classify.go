@@ -2,9 +2,7 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/pkg/logger"
-
-	//"gorm.io/gorm"
+	"go-admin/common/apis"
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
@@ -21,7 +19,7 @@ func (m *WfProcessClassifySearch) GetNeedSearch() interface{} {
 }
 
 func (m *WfProcessClassifySearch) Bind(ctx *gin.Context) error {
-	log := logger.GetRequestLogger(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -36,7 +34,7 @@ type WfProcessClassifyControl struct {
 }
 
 func (s *WfProcessClassifyControl) Bind(ctx *gin.Context) error {
-	log := logger.GetRequestLogger(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())
@@ -44,7 +42,7 @@ func (s *WfProcessClassifyControl) Bind(ctx *gin.Context) error {
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("ShouldBind error: %#v", err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
@@ -75,7 +73,7 @@ func (s *WfProcessClassifyById) GetId() interface{} {
 }
 
 func (s *WfProcessClassifyById) Bind(ctx *gin.Context) error {
-	log := logger.GetRequestLogger(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())
@@ -83,7 +81,7 @@ func (s *WfProcessClassifyById) Bind(ctx *gin.Context) error {
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("ShouldBind error: %#v", err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }

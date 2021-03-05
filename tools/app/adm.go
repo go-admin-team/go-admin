@@ -1,4 +1,4 @@
-package global
+package app
 
 import (
 	"github.com/go-admin-team/go-admin-core/tools/runtime"

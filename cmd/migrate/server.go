@@ -3,6 +3,7 @@ package migrate
 import (
 	"bytes"
 	"fmt"
+	"go-admin/tools/app"
 	"strconv"
 	"text/template"
 	"time"
@@ -14,7 +15,6 @@ import (
 	_ "go-admin/cmd/migrate/migration/version"
 	_ "go-admin/cmd/migrate/migration/version-local"
 	"go-admin/common/database"
-	"go-admin/common/global"
 	"go-admin/common/models"
 	"go-admin/pkg/logger"
 	"go-admin/tools"
@@ -51,7 +51,7 @@ func run() {
 		//1. 读取配置
 		config.Setup(file.NewSource, file.WithPath(configYml))
 		//2. 设置日志
-		global.Runtime.SetLogger(
+		app.Runtime.SetLogger(
 			logger.SetupLogger(
 				config.LoggerConfig.Type,
 				config.LoggerConfig.Path,
@@ -68,7 +68,7 @@ func migrateModel() error {
 	if host == "" {
 		host = "*"
 	}
-	db := global.Runtime.GetDbByKey(host)
+	db := app.Runtime.GetDbByKey(host)
 	if config.DatabasesConfig[host].Driver == "mysql" {
 		//初始化数据库时候用
 		db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")

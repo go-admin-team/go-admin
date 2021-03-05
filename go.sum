@@ -179,10 +179,10 @@ github.com/git-chglog/git-chglog v0.0.0-20190611050339-63a4e637021f/go.mod h1:Dc
 github.com/gliderlabs/ssh v0.2.2/go.mod h1:U7qILu1NlMHj9FlMhZLlkCdDnU1DBEAqr0aevW3Awn0=
 github.com/go-acme/lego/v3 v3.4.0/go.mod h1:xYbLDuxq3Hy4bMUT1t9JIuz6GWIWb3m5X+TeTHYaT7M=
 github.com/go-admin-team/go-admin-core v1.2.3-0.20210225031955-e373f5bcdf3f/go.mod h1:hNfmIFc75XLFdfWGeGV1ted94FGnozbKfXXVLTDJKMM=
-github.com/go-admin-team/go-admin-core v1.2.3-0.20210305034835-b289a9f0f173 h1:7N87rJTMylXxO+hI1khNTlwRFcuUbO2R+OXanyZ+2rY=
-github.com/go-admin-team/go-admin-core v1.2.3-0.20210305034835-b289a9f0f173/go.mod h1:ovPTQZXwSsq8Hd/brQsPPD/vwL7/altQa+l+78AJjhE=
-github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210304081332-24763d77c51b h1:weBy1iEvCNnowYIRvy66eFNaroZv8jB9G4bCNHWqklc=
-github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210304081332-24763d77c51b/go.mod h1:U4GEXHDPRUv6Z5OQWzdkwrIZUZ8JIpWPPfyYsUICXWo=
+github.com/go-admin-team/go-admin-core v1.2.3-0.20210305064904-6d101c8bc904 h1:/ceH+zpFwLzuEpn0uvvG3BVXKxbYvO4TU5b1AnP237Y=
+github.com/go-admin-team/go-admin-core v1.2.3-0.20210305064904-6d101c8bc904/go.mod h1:ovPTQZXwSsq8Hd/brQsPPD/vwL7/altQa+l+78AJjhE=
+github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210305064904-6d101c8bc904 h1:tRfUHqpG/GldzthSDMrHN+oWRmqZRlIyMooizskHAzE=
+github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210305064904-6d101c8bc904/go.mod h1:U4GEXHDPRUv6Z5OQWzdkwrIZUZ8JIpWPPfyYsUICXWo=
 github.com/go-cmd/cmd v1.0.5/go.mod h1:y8q8qlK5wQibcw63djSl/ntiHUHXHGdCkPk0j4QeW4s=
 github.com/go-errors/errors v1.0.1/go.mod h1:f4zRHt4oKfwPJE5k8C9vpYG+aDHdBFUsgrm6/TyX73Q=
 github.com/go-git/gcfg v1.5.0/go.mod h1:5m20vg6GwYabIxaOonVkTdrILxQMpEShl1xiMF4ua+E=

@@ -2,18 +2,17 @@ package models
 
 import (
 	"fmt"
+	"go-admin/tools/app"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
 	"strings"
-
-	"go-admin/common/global"
 )
 
 func InitDb(db *gorm.DB) (err error) {
 	filePath := "config/db.sql"
 	err = ExecSql(db, filePath)
-	if global.Driver == "postgres" {
+	if app.Driver == "postgres" {
 		filePath = "config/pg.sql"
 		err = ExecSql(db, filePath)
 	}

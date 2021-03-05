@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"go-admin/tools/app"
 	"log"
 	"net/http"
 	"os"
@@ -53,7 +54,7 @@ func setup() {
 	config.Setup(file.NewSource, file.WithPath(configYml))
 	go config.Watch()
 	//2. 设置日志
-	global.Runtime.SetLogger(
+	app.Runtime.SetLogger(
 		logger.SetupLogger(
 			config.LoggerConfig.Type,
 			config.LoggerConfig.Path,
@@ -72,7 +73,7 @@ func run() error {
 	if config.ApplicationConfig.Mode == tools.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	engine := global.Runtime.GetEngine()
+	engine := app.Runtime.GetEngine()
 	if engine == nil {
 		engine = gin.New()
 	}
@@ -88,11 +89,11 @@ func run() error {
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
-		Handler: global.Runtime.GetEngine(),
+		Handler: app.Runtime.GetEngine(),
 	}
 	go func() {
 		jobs.InitJob()
-		jobs.Setup(global.Runtime.GetDb())
+		jobs.Setup(app.Runtime.GetDb())
 
 	}()
 
@@ -135,6 +136,6 @@ func run() error {
 }
 
 func tip() {
-	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+app.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
 	fmt.Printf("%s \n\n", usageStr)
 }

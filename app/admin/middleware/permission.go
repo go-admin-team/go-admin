@@ -1,12 +1,11 @@
 package middleware
 
 import (
-	"go-admin/pkg/logger"
+	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
-	"go-admin/common/global"
 	"go-admin/pkg/jwtauth"
 	"go-admin/tools/app"
 )
@@ -14,10 +13,10 @@ import (
 //权限检查中间件
 func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		log := logger.GetRequestLogger(c)
+		log := apis.GetRequestLogger(c)
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := global.Runtime.GetCasbinKey(c.Request.Host)
+		e := app.Runtime.GetCasbinKey(c.Request.Host)
 		var res bool
 		var err error
 		//检查权限

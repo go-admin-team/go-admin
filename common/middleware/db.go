@@ -2,11 +2,10 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-
-	"go-admin/common/global"
+	"go-admin/tools/app"
 )
 
 func WithContextDb(c *gin.Context) {
-	c.Set("db", global.Runtime.GetDbByKey(c.Request.Host))
+	c.Set("db", app.Runtime.GetDbByKey(c.Request.Host))
 	c.Next()
 }

@@ -1,7 +1,7 @@
 package tools
 
 import (
-	"go-admin/pkg/logger"
+	"go-admin/common/apis"
 	"gorm.io/gorm"
 	"net/http"
 	"strings"
@@ -22,7 +22,7 @@ import (
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/page [get]
 func GetSysTableList(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	var data tools.SysTables
 	var err error
 	var pageSize = 10
@@ -68,7 +68,7 @@ func GetSysTableList(c *gin.Context) {
 // @Router /api/v1/sys/tables/info/{tableId} [get]
 // @Security Bearer
 func GetSysTables(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools2.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
@@ -91,7 +91,7 @@ func GetSysTables(c *gin.Context) {
 }
 
 func GetSysTablesInfo(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools2.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
@@ -116,7 +116,7 @@ func GetSysTablesInfo(c *gin.Context) {
 }
 
 func GetSysTablesTree(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools2.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
@@ -144,7 +144,7 @@ func GetSysTablesTree(c *gin.Context) {
 // @Router /api/v1/sys/tables/info [post]
 // @Security Bearer
 func InsertSysTable(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools2.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
@@ -246,7 +246,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 		if strings.Contains(dbcolumn[i].ColumnType, "int") {
 			if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
 				column.GoType = "int"
-			}  else {
+			} else {
 				column.GoType = "string"
 			}
 			column.HtmlType = "input"
@@ -281,7 +281,7 @@ func UpdateSysTable(c *gin.Context) {
 	err := c.Bind(&data)
 	tools2.HasError(err, "数据解析失败", 500)
 
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools2.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
@@ -307,7 +307,7 @@ func UpdateSysTable(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
 func DeleteSysTables(c *gin.Context) {
-	log := logger.GetRequestLogger(c)
+	log := apis.GetRequestLogger(c)
 	db, err := tools2.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())

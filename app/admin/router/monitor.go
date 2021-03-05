@@ -1,22 +1,21 @@
 package router
 
 import (
+	"go-admin/tools/app"
 	"net/http"
 
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"go-admin/common/global"
-
 	"github.com/gin-gonic/gin"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/tools/transfer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func Monitor() {
 	var r *gin.Engine
-	h := global.Runtime.GetEngine()
+	h := app.Runtime.GetEngine()
 	if h == nil {
 		h = gin.New()
-		global.Runtime.SetEngine(h)
+		app.Runtime.SetEngine(h)
 	}
 	switch h.(type) {
 	case *gin.Engine:

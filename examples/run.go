@@ -3,12 +3,12 @@
 package main
 
 import (
+	"go-admin/tools/app"
 	"log"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"go-admin/common/global"
 	myCasbin "go-admin/pkg/casbin"
 	"gorm.io/driver/mysql"
 )
@@ -19,10 +19,10 @@ func main() {
 		panic(err)
 	}
 	syncEnforce := myCasbin.Setup(db, "sys_")
-	global.Runtime.SetDb("*", db)
-	global.Runtime.SetCasbin("*", syncEnforce)
+	app.Runtime.SetDb("*", db)
+	app.Runtime.SetCasbin("*", syncEnforce)
 
 	e := gin.Default()
-	global.Runtime.SetEngine(e)
+	app.Runtime.SetEngine(e)
 	log.Fatal(e.Run(":8000"))
 }

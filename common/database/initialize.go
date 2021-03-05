@@ -1,6 +1,7 @@
 package database
 
 import (
+	"go-admin/tools/app"
 	. "log"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"gorm.io/gorm/schema"
 
 	log "github.com/go-admin-team/go-admin-core/logger"
-	"go-admin/common/global"
 	mycasbin "go-admin/pkg/casbin"
 	"go-admin/tools"
 	toolsConfig "go-admin/tools/config"
@@ -25,8 +25,8 @@ func Setup() {
 }
 
 func setupSimpleDatabase(host string, c *toolsConfig.Database) {
-	if global.Driver == "" {
-		global.Driver = c.Driver
+	if app.Driver == "" {
+		app.Driver = c.Driver
 	}
 	log.Infof("%s => %s", host, tools.Green(c.Source))
 	registers := make([]toolsDB.ResolverConfigure, len(c.Registers))
@@ -65,6 +65,6 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 	//	global.Eloquent = db
 	//}
 
-	global.Runtime.SetDb(host, db)
-	global.Runtime.SetCasbin(host, e)
+	app.Runtime.SetDb(host, db)
+	app.Runtime.SetCasbin(host, e)
 }

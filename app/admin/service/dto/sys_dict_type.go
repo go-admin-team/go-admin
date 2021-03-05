@@ -2,12 +2,11 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/models/system"
+	"go-admin/common/apis"
 
-	log "github.com/go-admin-team/go-admin-core/logger"
+	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
-	"go-admin/tools"
 )
 
 type SysDictTypeSearch struct {
@@ -23,10 +22,10 @@ func (m *SysDictTypeSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysDictTypeSearch) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %s", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
@@ -49,15 +48,15 @@ type SysDictTypeControl struct {
 }
 
 func (s *SysDictTypeControl) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
