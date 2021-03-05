@@ -18,10 +18,9 @@ type {{.ClassName}} struct {
 
 func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
     log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -54,10 +53,9 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 
 func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+    db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -90,10 +88,9 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 
 func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+    db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -130,10 +127,9 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 
 func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+    db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -171,10 +167,9 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 
 func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+    db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

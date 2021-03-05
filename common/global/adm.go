@@ -1,7 +1,7 @@
 package global
 
 import (
-	"go-admin/common/config"
+	"github.com/go-admin-team/go-admin-core/tools/runtime"
 )
 
 const (
@@ -9,7 +9,7 @@ const (
 	Version = "1.2.3"
 )
 
-var Cfg config.Conf = config.NewConfig()
+var Runtime runtime.Runtime = runtime.NewConfig()
 
 var (
 	Source string

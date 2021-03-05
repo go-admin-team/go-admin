@@ -29,10 +29,9 @@ type SysPost struct {
 func (e *SysPost) GetSysPostList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysPostSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -67,10 +66,9 @@ func (e *SysPost) GetSysPostList(c *gin.Context) {
 func (e *SysPost) GetSysPost(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysPostById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -107,10 +105,9 @@ func (e *SysPost) GetSysPost(c *gin.Context) {
 func (e *SysPost) InsertSysPost(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysPostControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -154,10 +151,9 @@ func (e *SysPost) InsertSysPost(c *gin.Context) {
 func (e *SysPost) UpdateSysPost(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysPostControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -195,10 +191,9 @@ func (e *SysPost) UpdateSysPost(c *gin.Context) {
 func (e *SysPost) DeleteSysPost(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysPostById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

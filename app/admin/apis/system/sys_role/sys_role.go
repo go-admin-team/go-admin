@@ -31,10 +31,9 @@ type SysRole struct {
 func (e *SysRole) GetSysRoleList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysRoleSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -70,10 +69,9 @@ func (e *SysRole) GetSysRoleList(c *gin.Context) {
 func (e *SysRole) GetSysRole(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysRoleById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -110,10 +108,9 @@ func (e *SysRole) GetSysRole(c *gin.Context) {
 func (e *SysRole) InsertSysRole(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysRoleControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -164,10 +161,9 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 func (e *SysRole) UpdateSysRole(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysRoleControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -211,10 +207,9 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 func (e *SysRole) DeleteSysRole(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysRoleById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -246,10 +241,9 @@ func (e *SysRole) DeleteSysRole(c *gin.Context) {
 func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.RoleDataScopeReq)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

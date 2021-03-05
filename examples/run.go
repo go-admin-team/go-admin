@@ -19,10 +19,10 @@ func main() {
 		panic(err)
 	}
 	syncEnforce := myCasbin.Setup(db, "sys_")
-	global.Cfg.SetDb("*", db)
-	global.Cfg.SetCasbin("*", syncEnforce)
+	global.Runtime.SetDb("*", db)
+	global.Runtime.SetCasbin("*", syncEnforce)
 
 	e := gin.Default()
-	global.Cfg.SetEngine(e)
+	global.Runtime.SetEngine(e)
 	log.Fatal(e.Run(":8000"))
 }

@@ -30,10 +30,9 @@ type SysDictData struct {
 // @Security Bearer
 func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -71,10 +70,9 @@ func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
 // @Security Bearer
 func (e *SysDictData) GetSysDictData(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -113,10 +111,9 @@ func (e *SysDictData) GetSysDictData(c *gin.Context) {
 // @Security Bearer
 func (e *SysDictData) InsertSysDictData(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -157,10 +154,9 @@ func (e *SysDictData) InsertSysDictData(c *gin.Context) {
 // @Security Bearer
 func (e *SysDictData) UpdateSysDictData(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -196,10 +192,9 @@ func (e *SysDictData) UpdateSysDictData(c *gin.Context) {
 // @Router /api/v1/dict/data/{dictCode} [delete]
 func (e *SysDictData) DeleteSysDictData(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -236,10 +231,9 @@ func (e *SysDictData) DeleteSysDictData(c *gin.Context) {
 
 func (e *SysDictData) GetSysDictDataAll(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

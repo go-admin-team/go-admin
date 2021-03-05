@@ -30,10 +30,9 @@ type SysDictType struct {
 // @Security Bearer
 func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -69,10 +68,9 @@ func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
 // @Security Bearer
 func (e *SysDictType) GetSysDictType(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -109,10 +107,9 @@ func (e *SysDictType) GetSysDictType(c *gin.Context) {
 // @Security Bearer
 func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -152,10 +149,9 @@ func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 // @Security Bearer
 func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -189,10 +185,9 @@ func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [delete]
 func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -236,10 +231,9 @@ func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 // @Security Bearer
 func (e *SysDictType) GetSysDictTypeAll(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

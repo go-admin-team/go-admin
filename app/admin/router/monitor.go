@@ -13,10 +13,10 @@ import (
 
 func Monitor() {
 	var r *gin.Engine
-	h := global.Cfg.GetEngine()
+	h := global.Runtime.GetEngine()
 	if h == nil {
 		h = gin.New()
-		global.Cfg.SetEngine(h)
+		global.Runtime.SetEngine(h)
 	}
 	switch h.(type) {
 	case *gin.Engine:

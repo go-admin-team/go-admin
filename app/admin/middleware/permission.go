@@ -17,7 +17,7 @@ func AuthCheckRole() gin.HandlerFunc {
 		log := logger.GetRequestLogger(c)
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := global.Cfg.GetCasbinKey(c.Request.Host)
+		e := global.Runtime.GetCasbinKey(c.Request.Host)
 		var res bool
 		var err error
 		//检查权限

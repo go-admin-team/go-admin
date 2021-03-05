@@ -19,10 +19,9 @@ type SysConfig struct {
 func (e *SysConfig) GetSysConfigList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysConfigSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -51,11 +50,9 @@ func (e *SysConfig) GetSysConfigList(c *gin.Context) {
 func (e *SysConfig) GetSysConfig(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysConfigById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "Orm获取失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		log.Error(err)
 		return
 	}
 	//查看详情
@@ -85,11 +82,9 @@ func (e *SysConfig) GetSysConfig(c *gin.Context) {
 func (e *SysConfig) InsertSysConfig(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysConfigControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "Orm获取失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -129,11 +124,9 @@ func (e *SysConfig) InsertSysConfig(c *gin.Context) {
 func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysConfigControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "Orm获取失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -171,11 +164,9 @@ func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
 func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysConfigById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "Orm获取失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -217,8 +208,7 @@ func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	log := e.GetLogger(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("error:%s", err)
-		app.Error(c, 500, err, "")
+		log.Error(err)
 		return
 	}
 	var v dto.SysConfigControl

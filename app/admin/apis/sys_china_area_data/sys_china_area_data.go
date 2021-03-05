@@ -20,10 +20,9 @@ type SysChinaAreaData struct {
 func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysChinaAreaDataSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -54,10 +53,9 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
 func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -87,10 +85,9 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
 func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -124,10 +121,9 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -161,10 +157,9 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 func (e *SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysChinaAreaDataById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

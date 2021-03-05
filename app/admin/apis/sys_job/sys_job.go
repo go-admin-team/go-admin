@@ -20,8 +20,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 	log := e.GetLogger(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 	var v dto.GeneralDelDto
@@ -34,7 +33,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 	s := service.SysJob{}
 	s.Log = log
 	s.Orm = db
-	s.Cron = global.Cfg.GetCrontabKey(c.Request.Host)
+	s.Cron = global.Runtime.GetCrontabKey(c.Request.Host)
 	err = s.RemoveJob(&v)
 	if err != nil {
 		log.Errorf("RemoveJob error, %s", err.Error())
@@ -49,8 +48,7 @@ func (e *SysJob) StartJobForService(c *gin.Context) {
 	log := e.GetLogger(c)
 	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 	var v dto.GeneralGetDto
@@ -63,7 +61,7 @@ func (e *SysJob) StartJobForService(c *gin.Context) {
 	s := service.SysJob{}
 	s.Orm = db
 	s.Log = log
-	s.Cron = global.Cfg.GetCrontabKey(c.Request.Host)
+	s.Cron = global.Runtime.GetCrontabKey(c.Request.Host)
 	err = s.StartJob(&v)
 	if err != nil {
 		log.Errorf("GetCrontabKey error, %s", err.Error())

@@ -22,7 +22,12 @@ func (e *Api) GetLogger(c *gin.Context) logger.Logger {
 
 // GetOrm 获取Orm DB
 func (e *Api) GetOrm(c *gin.Context) (*gorm.DB, error) {
-	return tools.GetOrm(c)
+	db, err := tools.GetOrm(c)
+	if err != nil {
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return nil, err
+	}
+	return db, nil
 }
 
 // Error 通常错误数据处理

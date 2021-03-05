@@ -6,11 +6,11 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alibaba/sentinel-golang v0.6.1
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190307165228-86c17b95fcd5
-	github.com/casbin/casbin/v2 v2.11.2
+	github.com/casbin/casbin/v2 v2.24.0
 	github.com/casbin/gorm-adapter/v3 v3.0.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-admin-team/go-admin-core v1.2.3-0.20210304081332-24763d77c51b
+	github.com/go-admin-team/go-admin-core v1.2.3-0.20210305034835-b289a9f0f173
 	github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210304081332-24763d77c51b
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/google/uuid v1.1.2

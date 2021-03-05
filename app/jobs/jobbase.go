@@ -101,13 +101,13 @@ func Setup(dbs map[string]*gorm.DB) {
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
 
 	for k, db := range dbs {
-		global.Cfg.SetCrontab(k, cronjob.NewWithSeconds())
+		global.Runtime.SetCrontab(k, cronjob.NewWithSeconds())
 		setup(k, db)
 	}
 }
 
 func setup(key string, db *gorm.DB) {
-	crontab := global.Cfg.GetCrontabKey(key)
+	crontab := global.Runtime.GetCrontabKey(key)
 	sysJob := models.SysJob{}
 	jobList := make([]models.SysJob, 0)
 	err := sysJob.GetList(db, &jobList)

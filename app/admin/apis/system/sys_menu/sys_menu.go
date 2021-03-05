@@ -28,10 +28,9 @@ type SysMenu struct {
 func (e *SysMenu) GetSysMenuList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysMenuSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -68,10 +67,9 @@ func (e *SysMenu) GetSysMenu(c *gin.Context) {
 
 	log := e.GetLogger(c)
 
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -115,10 +113,9 @@ func (e *SysMenu) InsertSysMenu(c *gin.Context) {
 
 	log := e.GetLogger(c)
 
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -165,10 +162,9 @@ func (e *SysMenu) UpdateSysMenu(c *gin.Context) {
 
 	log := e.GetLogger(c)
 
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -208,10 +204,9 @@ func (e *SysMenu) DeleteSysMenu(c *gin.Context) {
 
 	log := e.GetLogger(c)
 
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -245,10 +240,9 @@ func (e *SysMenu) DeleteSysMenu(c *gin.Context) {
 // @Security Bearer
 func (e *SysMenu) GetMenuRole(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -275,10 +269,9 @@ func (e *SysMenu) GetMenuRole(c *gin.Context) {
 // @Security Bearer
 func (e *SysMenu) GetMenuIDS(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 	var data models.RoleMenu
@@ -331,10 +324,9 @@ func (e *SysMenu) GetMenuIDS(c *gin.Context) {
 // @Security Bearer
 func (e *SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

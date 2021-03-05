@@ -28,10 +28,9 @@ type SysDept struct {
 func (e *SysDept) GetSysDeptList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysDeptSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -66,10 +65,9 @@ func (e *SysDept) GetSysDeptList(c *gin.Context) {
 func (e *SysDept) GetSysDept(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysDeptById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -106,10 +104,9 @@ func (e *SysDept) GetSysDept(c *gin.Context) {
 func (e *SysDept) InsertSysDept(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysDeptControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -154,10 +151,9 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 func (e *SysDept) UpdateSysDept(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysDeptControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -195,10 +191,9 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 func (e *SysDept) DeleteSysDept(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysDeptById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -226,10 +221,9 @@ func (e *SysDept) DeleteSysDept(c *gin.Context) {
 func (e *SysDept) GetDeptTree(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysDeptSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

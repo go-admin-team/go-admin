@@ -19,10 +19,9 @@ type WfProcessClassify struct {
 func (e *WfProcessClassify) GetWfProcessClassifyList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.WfProcessClassifySearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -54,10 +53,9 @@ func (e *WfProcessClassify) GetWfProcessClassifyList(c *gin.Context) {
 func (e *WfProcessClassify) GetWfProcessClassify(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -88,10 +86,9 @@ func (e *WfProcessClassify) GetWfProcessClassify(c *gin.Context) {
 func (e *WfProcessClassify) InsertWfProcessClassify(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -125,10 +122,9 @@ func (e *WfProcessClassify) InsertWfProcessClassify(c *gin.Context) {
 func (e *WfProcessClassify) UpdateWfProcessClassify(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -163,10 +159,9 @@ func (e *WfProcessClassify) UpdateWfProcessClassify(c *gin.Context) {
 func (e *WfProcessClassify) DeleteWfProcessClassify(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.WfProcessClassifyById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

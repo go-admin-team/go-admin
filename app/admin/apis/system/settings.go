@@ -11,7 +11,6 @@ import (
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type SysSetting struct {
@@ -26,10 +25,9 @@ type SysSetting struct {
 // @Router /api/v1/setting [get]
 func (e *SysSetting) GetSetting(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -62,10 +60,9 @@ func (e *SysSetting) GetSetting(c *gin.Context) {
 func (e *SysSetting) CreateOrUpdateSetting(c *gin.Context) {
 	control := new(dto.SysSettingControl)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

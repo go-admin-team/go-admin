@@ -20,10 +20,9 @@ type SysFileInfo struct {
 func (e *SysFileInfo) GetSysFileInfoList(c *gin.Context) {
 	log := e.GetLogger(c)
 	search := new(dto.SysFileInfoSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 	err = c.ShouldBind(search)
@@ -54,10 +53,9 @@ func (e *SysFileInfo) GetSysFileInfoList(c *gin.Context) {
 func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoById)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -90,10 +88,9 @@ func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
 func (e *SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoControl)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -129,10 +126,9 @@ func (e *SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoControl)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -169,10 +165,9 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoById)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

@@ -36,6 +36,7 @@ var (
 	}
 )
 
+// fixme 在您看不见代码的时候运行迁移，我觉得是不安全的，所以编译后将不包含所有迁移文件
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().BoolVarP(&generate, "generate", "g", false, "generate migration file")
@@ -50,7 +51,7 @@ func run() {
 		//1. 读取配置
 		config.Setup(file.NewSource, file.WithPath(configYml))
 		//2. 设置日志
-		global.Cfg.SetLogger(
+		global.Runtime.SetLogger(
 			logger.SetupLogger(
 				config.LoggerConfig.Type,
 				config.LoggerConfig.Path,
@@ -67,7 +68,7 @@ func migrateModel() error {
 	if host == "" {
 		host = "*"
 	}
-	db := global.Cfg.GetDbByKey(host)
+	db := global.Runtime.GetDbByKey(host)
 	if config.DatabasesConfig[host].Driver == "mysql" {
 		//初始化数据库时候用
 		db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")

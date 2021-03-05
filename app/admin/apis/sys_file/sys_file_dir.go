@@ -20,10 +20,9 @@ type SysFileDir struct {
 func (e *SysFileDir) GetSysFileDirList(c *gin.Context) {
 	log := e.GetLogger(c)
 	search := new(dto.SysFileDirSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -49,10 +48,9 @@ func (e *SysFileDir) GetSysFileDirList(c *gin.Context) {
 func (e *SysFileDir) GetSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirById)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -81,10 +79,9 @@ func (e *SysFileDir) GetSysFileDir(c *gin.Context) {
 func (e *SysFileDir) InsertSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirControl)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -120,10 +117,9 @@ func (e *SysFileDir) InsertSysFileDir(c *gin.Context) {
 func (e *SysFileDir) UpdateSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirControl)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -158,10 +154,9 @@ func (e *SysFileDir) UpdateSysFileDir(c *gin.Context) {
 func (e *SysFileDir) DeleteSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirById)
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

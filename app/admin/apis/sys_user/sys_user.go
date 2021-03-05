@@ -31,10 +31,9 @@ type SysUser struct {
 func (e *SysUser) GetSysUserList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysUserSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -75,10 +74,9 @@ func (e *SysUser) GetSysUserList(c *gin.Context) {
 func (e *SysUser) GetSysUser(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysUserById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -118,10 +116,9 @@ func (e *SysUser) GetSysUser(c *gin.Context) {
 func (e *SysUser) InsertSysUser(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysUserControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -167,10 +164,9 @@ func (e *SysUser) UpdateSysUser(c *gin.Context) {
 	control := new(dto.SysUserControl)
 
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -214,10 +210,9 @@ func (e *SysUser) DeleteSysUser(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysUserById)
 
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -263,10 +258,9 @@ func (e *SysUser) DeleteSysUser(c *gin.Context) {
 // @Router /api/v1/user/avatar [post]
 func (e *SysUser) InsetSysUserAvatar(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -314,10 +308,9 @@ func (e *SysUser) InsetSysUserAvatar(c *gin.Context) {
 // @Security Bearer
 func (e *SysUser) SysUserUpdatePwd(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -355,10 +348,9 @@ func (e *SysUser) SysUserUpdatePwd(c *gin.Context) {
 // @Security Bearer
 func (e *SysUser) GetSysUserProfile(c *gin.Context) {
 	log := e.GetLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -416,10 +408,9 @@ func (e *SysUser) GetSysUserProfile(c *gin.Context) {
 func (e *SysUser) GetInfo(c *gin.Context) {
 	log := e.GetLogger(c)
 
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

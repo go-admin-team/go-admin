@@ -7,6 +7,6 @@ import (
 )
 
 func WithContextDb(c *gin.Context) {
-	c.Set("db", global.Cfg.GetDbByKey(c.Request.Host))
+	c.Set("db", global.Runtime.GetDbByKey(c.Request.Host))
 	c.Next()
 }

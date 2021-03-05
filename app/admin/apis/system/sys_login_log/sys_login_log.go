@@ -19,10 +19,9 @@ type SysLoginLog struct {
 func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 	log := e.GetLogger(c)
 	d := new(dto.SysLoginLogSearch)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -50,10 +49,9 @@ func (e *SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -80,10 +78,9 @@ func (e *SysLoginLog) GetSysLoginLog(c *gin.Context) {
 func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -117,10 +114,9 @@ func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogControl)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 
@@ -152,10 +148,9 @@ func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
 func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysLoginLogById)
-	db, err := tools.GetOrm(c)
+	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		log.Error(err)
 		return
 	}
 

@@ -65,6 +65,6 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 	//	global.Eloquent = db
 	//}
 
-	global.Cfg.SetDb(host, db)
-	global.Cfg.SetCasbin(host, e)
+	global.Runtime.SetDb(host, db)
+	global.Runtime.SetCasbin(host, e)
 }

@@ -53,7 +53,7 @@ func setup() {
 	config.Setup(file.NewSource, file.WithPath(configYml))
 	go config.Watch()
 	//2. 设置日志
-	global.Cfg.SetLogger(
+	global.Runtime.SetLogger(
 		logger.SetupLogger(
 			config.LoggerConfig.Type,
 			config.LoggerConfig.Path,
@@ -72,7 +72,7 @@ func run() error {
 	if config.ApplicationConfig.Mode == tools.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	engine := global.Cfg.GetEngine()
+	engine := global.Runtime.GetEngine()
 	if engine == nil {
 		engine = gin.New()
 	}
@@ -88,11 +88,11 @@ func run() error {
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
-		Handler: global.Cfg.GetEngine(),
+		Handler: global.Runtime.GetEngine(),
 	}
 	go func() {
 		jobs.InitJob()
-		jobs.Setup(global.Cfg.GetDb())
+		jobs.Setup(global.Runtime.GetDb())
 
 	}()
 

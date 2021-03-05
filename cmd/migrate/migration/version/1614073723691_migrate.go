@@ -1,3 +1,5 @@
+// +build ignore
+
 package version
 
 import (
@@ -18,7 +20,7 @@ func init() {
 func _1614073723691Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-	    // TODO: 这里开始写入要变更的内容
+		// TODO: 这里开始写入要变更的内容
 
 		err := tx.Model(&models.Menu{}).Where("path = ?", "/api/v1/syscontentList").Update("path", "/api/v1/syscontent").Error
 		if err != nil {
