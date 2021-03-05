@@ -36,7 +36,7 @@ var (
 	}
 )
 
-// fixme 在您看不见代码的时候运行迁移，我觉得是不安全的，所以编译后将不包含所有迁移文件
+// fixme 在您看不见代码的时候运行迁移，我觉得是不安全的，所以编译后最好不要去执行迁移
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().BoolVarP(&generate, "generate", "g", false, "generate migration file")

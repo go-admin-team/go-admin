@@ -1,5 +1,3 @@
-// +build ignore
-
 package version
 
 import (
@@ -43,7 +41,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list6 := []models.SysRole{
-			{1, "系统管理员", "2", "admin", 1, "", "1", "", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
+			{1, "系统管理员", "2", "admin", 1, "", "1", "0", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
 		}
 
 		list7 := []DictType{
@@ -71,7 +69,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 				},
 				UserId:   1,
 				Username: "admin",
-				Password: "$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2",
+				Password: "123456",
 				NickName: "zhangwj",
 				Phone:    "13818888888",
 				RoleId:   1,
