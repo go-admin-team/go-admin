@@ -330,9 +330,9 @@ func (e *SysMenu) GetMenuTreeSelect(c *gin.Context) {
 		return
 	}
 
-	d := new(dto.SysMenuSearch)
+	d := new(dto.SelectRole)
 
-	err = d.Bind(c)
+	err = c.BindUri(d)
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
@@ -341,11 +341,22 @@ func (e *SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	serviceSysMenu := service.SysMenu{}
 	serviceSysMenu.Log = log
 	serviceSysMenu.Orm = db
-	result, err := serviceSysMenu.SetSysMenuLabel(d)
-
+	result, err := serviceSysMenu.SetSysMenuLabel()
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
-	e.OK(c, result, "")
+	s := service.SysRole{}
+	s.Log = log
+	s.Orm = db
+	menuIds, err := s.GetRoleMenuId(db, d.RoleId)
+	if err != nil {
+		log.Errorf("GetIDS error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "")
+		return
+	}
+	e.OK(c, gin.H{
+		"menus":       result,
+		"checkedKeys": menuIds,
+	}, "获取成功")
 }

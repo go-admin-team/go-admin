@@ -30,7 +30,7 @@ func registerSysMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 		r.DELETE("/:id", api.DeleteSysMenu)
 	}
 
-	r1 := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	r1 := v1.Group("").Use(authMiddleware.MiddlewareFunc())
 	{
 		r1.GET("/menurole", api.GetMenuRole)
 		r1.GET("/menuids", api.GetMenuIDS)

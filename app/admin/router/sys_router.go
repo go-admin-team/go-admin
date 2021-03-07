@@ -163,7 +163,6 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 
-		dicts.GET("/data-all", dataApi.GetSysDictDataAll)
 		dicts.GET("/data", dataApi.GetSysDictDataList)
 		dicts.GET("/data/:dictCode", dataApi.GetSysDictData)
 		dicts.POST("/data", dataApi.InsertSysDictData)
@@ -177,6 +176,7 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		dicts.PUT("/type/:id", dictApi.UpdateSysDictType)
 		dicts.DELETE("/type", dictApi.DeleteSysDictType)
 	}
+	v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).GET("/data-all", dataApi.GetSysDictDataAll)
 }
 
 //func registerDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {

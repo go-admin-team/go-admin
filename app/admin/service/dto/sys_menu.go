@@ -149,3 +149,7 @@ type MenuRole struct {
 	system.SysMenus
 	IsSelect bool `json:"is_select" gorm:"-"`
 }
+
+type SelectRole struct {
+	RoleId int `uri:"roleId"`
+}

@@ -38,10 +38,8 @@ func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]system.SysRole, c
 // GetSysRole 获取SysRole对象
 func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *system.SysRole) error {
 	var err error
-	var data system.SysRole
 
-	db := e.Orm.Model(&data).
-		First(model, d.GetId())
+	db := e.Orm.First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
@@ -52,7 +50,7 @@ func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *system.SysRole) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	data.MenuIds, err = e.GetRoleMenuId(e.Orm, data.RoleId)
+	model.MenuIds, err = e.GetRoleMenuId(e.Orm, model.RoleId)
 	if err != nil {
 		e.Log.Errorf("get menuIds error, %s", err.Error())
 		return err

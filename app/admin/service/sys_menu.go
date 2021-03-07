@@ -156,9 +156,9 @@ func (e *SysMenu) GetSysMenuList(c *dto.SysMenuSearch, list *[]system.SysMenu) e
 }
 
 // SetSysMenuTree 设置菜单数据
-func (e *SysMenu) SetSysMenuLabel(c *dto.SysMenuSearch) (m []dto.MenuLabel, err error) {
+func (e *SysMenu) SetSysMenuLabel() (m []dto.MenuLabel, err error) {
 	var list []system.SysMenu
-	err = e.GetSysMenuList(c, &list)
+	err = e.GetSysMenuList(&dto.SysMenuSearch{}, &list)
 
 	m = make([]dto.MenuLabel, 0)
 	for i := 0; i < len(list); i++ {

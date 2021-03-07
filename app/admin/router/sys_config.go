@@ -23,7 +23,7 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 		r.DELETE("/:id", api.DeleteSysConfig)
 	}
 
-	r1 := v1.Group("/configKey").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	r1 := v1.Group("/configKey").Use(authMiddleware.MiddlewareFunc())
 	{
 		api := &sys_config.SysConfig{}
 		r1.GET("/:configKey", api.GetSysConfigByKEYForService)
