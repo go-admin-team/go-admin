@@ -6,7 +6,7 @@ import (
 
 const (
 	// go-admin Version Info
-	Version = "1.2.3"
+	Version = "1.3.0-rc.0"
 )
 
 var Runtime runtime.Runtime = runtime.NewConfig()
