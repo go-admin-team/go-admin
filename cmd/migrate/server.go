@@ -3,17 +3,18 @@ package migrate
 import (
 	"bytes"
 	"fmt"
+	"go-admin/tools/app"
 	"strconv"
 	"text/template"
 	"time"
 
+	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/spf13/cobra"
 
 	"go-admin/cmd/migrate/migration"
 	_ "go-admin/cmd/migrate/migration/version"
 	_ "go-admin/cmd/migrate/migration/version-local"
 	"go-admin/common/database"
-	"go-admin/common/global"
 	"go-admin/common/models"
 	"go-admin/pkg/logger"
 	"go-admin/tools"
@@ -24,6 +25,7 @@ var (
 	configYml string
 	generate  bool
 	goAdmin   bool
+	host      string
 	StartCmd  = &cobra.Command{
 		Use:     "migrate",
 		Short:   "Initialize the database",
@@ -34,44 +36,54 @@ var (
 	}
 )
 
+// fixme 在您看不见代码的时候运行迁移，我觉得是不安全的，所以编译后最好不要去执行迁移
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
 	StartCmd.PersistentFlags().BoolVarP(&generate, "generate", "g", false, "generate migration file")
 	StartCmd.PersistentFlags().BoolVarP(&goAdmin, "goAdmin", "a", false, "generate go-admin migration file")
+	StartCmd.PersistentFlags().StringVarP(&host, "domain", "d", "*", "select tenant host")
 }
 
 func run() {
-	usage := `start init`
-	fmt.Println(usage)
 
 	if !generate {
+		fmt.Println(`start init`)
 		//1. 读取配置
-		config.Setup(configYml)
+		config.Setup(file.NewSource, file.WithPath(configYml))
 		//2. 设置日志
-		global.Logger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "bus")
-		global.JobLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "job")
-		global.RequestLogger.Logger = logger.SetupLogger(config.LoggerConfig.Path, "request")
+		app.Runtime.SetLogger(
+			logger.SetupLogger(
+				config.LoggerConfig.Type,
+				config.LoggerConfig.Path,
+				config.LoggerConfig.Level,
+				config.LoggerConfig.Stdout))
 		_ = initDB()
 	} else {
+		fmt.Println(`generate migration file`)
 		_ = genFile()
 	}
 }
 
 func migrateModel() error {
-	if config.DatabaseConfig.Driver == "mysql" {
-		global.Eloquent.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+	if host == "" {
+		host = "*"
 	}
-	err := global.Eloquent.Debug().AutoMigrate(&models.Migration{})
+	db := app.Runtime.GetDbByKey(host)
+	if config.DatabasesConfig[host].Driver == "mysql" {
+		//初始化数据库时候用
+		db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
+	}
+	err := db.Debug().AutoMigrate(&models.Migration{})
 	if err != nil {
 		return err
 	}
-	migration.Migrate.SetDb(global.Eloquent.Debug())
+	migration.Migrate.SetDb(db.Debug())
 	migration.Migrate.Migrate()
 	return err
 }
 func initDB() error {
 	//3. 初始化数据库链接
-	database.Setup(config.DatabaseConfig.Driver)
+	database.Setup()
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()

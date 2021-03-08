@@ -1,29 +1,53 @@
 package logger
 
 import (
-	"go-admin/tools"
-	"path/filepath"
+	"io"
+	"os"
 
 	"github.com/go-admin-team/go-admin-core/debug/writer"
 	"github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/plugins/logger/zap"
 
-	"go-admin/common/log"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"go-admin/tools"
 )
 
 // SetupLogger 日志
-func SetupLogger(path string, subPath string) logger.Logger {
+func SetupLogger(logType, path, levelStr, outputType string) logger.Logger {
 	var setLogger logger.Logger
-	fullPath := filepath.Join(path, subPath)
-	if !tools.PathExist(fullPath) {
-		err := tools.PathCreate(fullPath)
+	if !tools.PathExist(path) {
+		err := tools.PathCreate(path)
 		if err != nil {
-			log.Fatal("create dir error: %s", err.Error())
+			log.Fatalf("create dir error: %s", err.Error())
 		}
 	}
-	output, err := writer.NewFileWriter(fullPath, "log")
-	if err != nil {
-		log.Fatal("%s logger setup error: %s", subPath, err.Error())
+	var err error
+	var output io.Writer
+	switch outputType {
+	case "file":
+		output, err = writer.NewFileWriter(path, "log")
+		if err != nil {
+			log.Fatal("logger setup error: %s", err.Error())
+		}
+	default:
+		output = os.Stdout
 	}
-	setLogger = logger.NewHelper(logger.NewLogger(logger.WithOutput(output)))
+	var level logger.Level
+	level, err = logger.GetLevel(levelStr)
+	if err != nil {
+		log.Fatalf("get logger level error, %s", err.Error())
+	}
+
+	switch logType {
+	case "zap":
+		setLogger, err = zap.NewLogger(logger.WithLevel(level), logger.WithOutput(output), zap.WithCallerSkip(2))
+		if err != nil {
+			log.Fatalf("new zap logger error, %s", err.Error())
+		}
+	//case "logrus":
+	//	setLogger = logrus.NewLogger(logger.WithLevel(level), logger.WithOutput(output), logrus.ReportCaller())
+	default:
+		setLogger = logger.NewLogger(logger.WithLevel(level), logger.WithOutput(output))
+	}
 	return setLogger
 }

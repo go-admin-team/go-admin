@@ -1,9 +1,12 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"encoding/json"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go-admin/pkg/logger"
+	"gorm.io/gorm"
 
 	"go-admin/common/models"
 	"go-admin/tools"
@@ -12,9 +15,19 @@ import (
 type Api struct {
 }
 
+// GetLogger 获取上下文提供的日志
+func (e *Api) GetLogger(c *gin.Context) *logger.Logger {
+	return GetRequestLogger(c)
+}
+
 // GetOrm 获取Orm DB
 func (e *Api) GetOrm(c *gin.Context) (*gorm.DB, error) {
-	return tools.GetOrm(c)
+	db, err := tools.GetOrm(c)
+	if err != nil {
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return nil, err
+	}
+	return db, nil
 }
 
 // Error 通常错误数据处理
@@ -27,7 +40,9 @@ func (e *Api) Error(c *gin.Context, code int, err error, msg string) {
 		res.Msg = msg
 	}
 	res.RequestId = tools.GenerateMsgIDFromContext(c)
-	c.AbortWithStatusJSON(http.StatusOK, res.ReturnError(code))
+	Return := res.ReturnError(code)
+	e.setResult(c, Return, res.RequestId, code)
+	c.AbortWithStatusJSON(http.StatusOK, Return)
 }
 
 // OK 通常成功数据处理
@@ -38,7 +53,9 @@ func (e *Api) OK(c *gin.Context, data interface{}, msg string) {
 		res.Msg = msg
 	}
 	res.RequestId = tools.GenerateMsgIDFromContext(c)
-	c.AbortWithStatusJSON(http.StatusOK, res.ReturnOK())
+	Return := res.ReturnOK()
+	e.setResult(c, Return, res.RequestId, 200)
+	c.AbortWithStatusJSON(http.StatusOK, Return)
 }
 
 // PageOK 分页数据处理
@@ -53,5 +70,18 @@ func (e *Api) PageOK(c *gin.Context, result interface{}, count int, pageIndex in
 
 // Custom 兼容函数
 func (e *Api) Custom(c *gin.Context, data gin.H) {
-	c.AbortWithStatusJSON(http.StatusOK, data)
+	msgID := tools.GenerateMsgIDFromContext(c)
+	Return := data
+	e.setResult(c, Return, msgID, 200)
+	c.AbortWithStatusJSON(http.StatusOK, Return)
+}
+
+func (e *Api) setResult(c *gin.Context, Return interface{}, msgID string, status int) {
+	requestLogger := e.GetLogger(c)
+	jsonStr, err := json.Marshal(Return)
+	if err != nil {
+		requestLogger.Debugf("setResult error: %#v", msgID, err.Error())
+	}
+	c.Set("result", string(jsonStr))
+	c.Set("status", status)
 }

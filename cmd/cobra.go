@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"go-admin/tools/app"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -11,7 +12,6 @@ import (
 	"go-admin/cmd/config"
 	"go-admin/cmd/migrate"
 	"go-admin/cmd/version"
-	"go-admin/common/global"
 	"go-admin/tools"
 )
 
@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 }
 
 func tip() {
-	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+app.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
 	usageStr1 := `也可以参考 http://doc.zhangwj.com/go-admin-site/guide/ksks.html 里边的【启动】章节`
 	fmt.Printf("%s\n", usageStr)
 	fmt.Printf("%s\n", usageStr1)

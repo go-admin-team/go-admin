@@ -6,7 +6,7 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
-	"go-admin/common/log"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	common "go-admin/common/models"
 	"go-admin/tools"
 )
@@ -45,7 +45,7 @@ type {{.ClassName}}Control struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} uint `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}

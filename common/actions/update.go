@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/models"
 	"go-admin/tools"
 	"go-admin/tools/app"
@@ -35,7 +35,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 			return
 		}
-		object.SetUpdateBy(tools.GetUserIdUint(c))
+		object.SetUpdateBy(tools.GetUserId(c))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)

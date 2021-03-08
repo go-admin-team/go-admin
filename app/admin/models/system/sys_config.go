@@ -1,19 +1,18 @@
 package system
 
 import (
-	"gorm.io/gorm"
-
 	"go-admin/common/models"
 )
 
 type SysConfig struct {
-	gorm.Model
-	models.ControlBy
+	models.Model
 	ConfigName  string `json:"configName" gorm:"type:varchar(128);comment:ConfigName"`   //
 	ConfigKey   string `json:"configKey" gorm:"type:varchar(128);comment:ConfigKey"`     //
 	ConfigValue string `json:"configValue" gorm:"type:varchar(255);comment:ConfigValue"` //
 	ConfigType  string `json:"configType" gorm:"type:varchar(64);comment:ConfigType"`    //
 	Remark      string `json:"remark" gorm:"type:varchar(128);comment:Remark"`           //
+	models.ControlBy
+	models.ModelTime
 }
 
 func (SysConfig) TableName() string {
@@ -26,5 +25,5 @@ func (e *SysConfig) Generate() models.ActiveRecord {
 }
 
 func (e *SysConfig) GetId() interface{} {
-	return e.ID
+	return e.Id
 }

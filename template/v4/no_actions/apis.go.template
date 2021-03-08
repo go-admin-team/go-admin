@@ -1,0 +1,202 @@
+package {{.ModuleName}}
+
+import (
+	"github.com/gin-gonic/gin"
+	"go-admin/app/admin/service"
+	"net/http"
+
+	"go-admin/app/admin/models"
+	"go-admin/app/admin/service/dto"
+	"go-admin/common/actions"
+	"go-admin/common/apis"
+	"go-admin/tools"
+)
+
+type {{.ClassName}} struct {
+	apis.Api
+}
+
+func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
+    log := e.GetLogger(c)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	d := new(dto.{{.ClassName}}Search)
+	//查询列表
+	err = d.Bind(c)
+	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+
+	//数据权限检查
+	p := actions.GetPermissionFromContext(c)
+
+	list := make([]models.{{.ClassName}}, 0)
+	var count int64
+	service{{.ClassName}} := service.{{.ClassName}}{}
+	service{{.ClassName}}.Log = log
+	service{{.ClassName}}.Orm = db
+	err = service{{.ClassName}}.Get{{.ClassName}}Page(d, p, &list, &count)
+	if err != nil {
+		log.Errorf("Get {{.ClassName}} Page error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		return
+	}
+
+	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+}
+
+func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
+    log := e.GetLogger(c)
+    db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	control := new(dto.{{.ClassName}}ById)
+
+	//查看详情
+	err = control.Bind(c)
+	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+	var object models.{{.ClassName}}
+
+	//数据权限检查
+	p := actions.GetPermissionFromContext(c)
+
+	service{{.ClassName}} := service.{{.ClassName}}{}
+	service{{.ClassName}}.Log = log
+	service{{.ClassName}}.Orm = db
+	err = service{{.ClassName}}.Get{{.ClassName}}(control, p, &object)
+	if err != nil {
+		log.Errorf("Get {{.ClassName}} error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		return
+	}
+
+	e.OK(c, object, "查看成功")
+}
+
+func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
+    log := e.GetLogger(c)
+    db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	control := new(dto.{{.ClassName}}Control)
+
+	//新增操作
+	err = control.Bind(c)
+	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+	object, err := control.Generate()
+	if err != nil {
+		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		return
+	}
+	// 设置创建人
+	object.SetCreateBy(tools.GetUserId(c))
+
+	service{{.ClassName}} := service.{{.ClassName}}{}
+	service{{.ClassName}}.Orm = db
+	service{{.ClassName}}.Log = log
+	err = service{{.ClassName}}.Insert{{.ClassName}}(object)
+	if err != nil {
+		log.Errorf("Insert {{.ClassName}} error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		return
+	}
+
+	e.OK(c, object.GetId(), "创建成功")
+}
+
+func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
+    log := e.GetLogger(c)
+    db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	control := new(dto.{{.ClassName}}Control)
+
+	//更新操作
+	err = control.Bind(c)
+	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+	object, err := control.Generate()
+	if err != nil {
+		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		return
+	}
+	object.SetUpdateBy(tools.GetUserId(c))
+
+	//数据权限检查
+	p := actions.GetPermissionFromContext(c)
+
+	service{{.ClassName}} := service.{{.ClassName}}{}
+	service{{.ClassName}}.Orm = db
+	service{{.ClassName}}.Log = log
+	err = service{{.ClassName}}.Update{{.ClassName}}(object, p)
+	if err != nil {
+		log.Errorf("Update {{.ClassName}} error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "更新失败")
+		return
+	}
+	e.OK(c, object.GetId(), "更新成功")
+}
+
+func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
+    log := e.GetLogger(c)
+    db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	control := new(dto.{{.ClassName}}ById)
+
+	//删除操作
+	err = control.Bind(c)
+	if err != nil {
+	    log.Warnf("request body bind error, %s", err.Error())
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+
+	// 设置编辑人
+	control.SetUpdateBy(tools.GetUserId(c))
+
+	// 数据权限检查
+	p := actions.GetPermissionFromContext(c)
+
+	service{{.ClassName}} := service.{{.ClassName}}{}
+	service{{.ClassName}}.Orm = db
+	service{{.ClassName}}.Log = log
+	err = service{{.ClassName}}.Remove{{.ClassName}}(control, p)
+	if err != nil {
+		log.Errorf("Remove {{.ClassName}} error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "删除失败")
+		return
+	}
+	e.OK(c, control.GetId(), "删除成功")
+}

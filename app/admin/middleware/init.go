@@ -2,10 +2,13 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"go-admin/common/middleware"
 )
 
 func InitMiddleware(r *gin.Engine) {
+	// 数据库链接
+	r.Use(middleware.WithContextDb)
 	// 日志处理
 	r.Use(LoggerToFile())
 	// 自定义错误处理
@@ -17,5 +20,5 @@ func InitMiddleware(r *gin.Engine) {
 	// Secure is a middleware function that appends security
 	r.Use(Secure)
 	// 链路追踪
-	r.Use(middleware.Trace())
+	//r.Use(middleware.Trace())
 }

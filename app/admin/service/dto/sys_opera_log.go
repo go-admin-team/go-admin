@@ -1,16 +1,14 @@
 package dto
 
 import (
+	"go-admin/common/apis"
+	"time"
+
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	common "go-admin/common/models"
-	"go-admin/tools"
-
-	"time"
 )
 
 type SysOperaLogSearch struct {
@@ -28,21 +26,16 @@ func (m *SysOperaLogSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysOperaLogSearch) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %s", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
 
-func (m *SysOperaLogSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
 type SysOperaLogControl struct {
-	ID            uint      `uri:"ID" comment:"编码"` // 编码
+	ID            int       `uri:"Id" comment:"编码"` // 编码
 	Title         string    `json:"title" comment:"操作模块"`
 	BusinessType  string    `json:"businessType" comment:"操作类型"`
 	BusinessTypes string    `json:"businessTypes" comment:""`
@@ -64,27 +57,22 @@ type SysOperaLogControl struct {
 }
 
 func (s *SysOperaLogControl) Bind(ctx *gin.Context) error {
-	msgID := tools.GenerateMsgIDFromContext(ctx)
+	log := apis.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
+		log.Debugf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
+		log.Debugf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
 
-func (s *SysOperaLogControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysOperaLogControl) GenerateM() (common.ActiveRecord, error) {
+func (s *SysOperaLogControl) Generate() (*system.SysOperaLog, error) {
 	return &system.SysOperaLog{
-		Model:         gorm.Model{ID: s.ID},
+		Model:         common.Model{Id: s.ID},
 		Title:         s.Title,
 		BusinessType:  s.BusinessType,
 		BusinessTypes: s.BusinessTypes,
@@ -111,14 +99,32 @@ func (s *SysOperaLogControl) GetId() interface{} {
 }
 
 type SysOperaLogById struct {
-	dto.ObjectById
+	Id  int   `uri:"id"`
+	Ids []int `json:"ids"`
 }
 
-func (s *SysOperaLogById) Generate() dto.Control {
-	cp := *s
-	return &cp
+func (s *SysOperaLogById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
+	return s.Id
 }
 
-func (s *SysOperaLogById) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysOperaLog{}, nil
+func (s *SysOperaLogById) Bind(ctx *gin.Context) error {
+	log := apis.GetRequestLogger(ctx)
+	err := ctx.ShouldBindUri(s)
+	if err != nil {
+		log.Debugf("ShouldBindUri error: %s", err.Error())
+		return err
+	}
+	err = ctx.ShouldBind(&s.Ids)
+	if err != nil {
+		log.Debugf("ShouldBind error: %s", err.Error())
+	}
+	return err
+}
+
+func (s *SysOperaLogById) SetUpdateBy(id int) {
+
 }

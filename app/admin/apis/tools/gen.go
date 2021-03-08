@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"go-admin/common/apis"
 	"net/http"
 	"text/template"
 
@@ -15,23 +16,32 @@ import (
 )
 
 func Preview(c *gin.Context) {
+	log := apis.GetRequestLogger(c)
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
 	table.TableId = id
-	t1, err := template.ParseFiles("template/v3/model.go.template")
+	t1, err := template.ParseFiles("template/v4/model.go.template")
 	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/v3/no_actions/apis.go.template")
+	t2, err := template.ParseFiles("template/v4/no_actions/apis.go.template")
 	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles("template/v3/js.go.template")
+	t3, err := template.ParseFiles("template/v4/js.go.template")
 	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/v3/vue.go.template")
+	t4, err := template.ParseFiles("template/v4/vue.go.template")
 	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
+	t5, err := template.ParseFiles("template/v4/no_actions/router_check_role.go.template")
 	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v3/dto.go.template")
+	t6, err := template.ParseFiles("template/v4/dto.go.template")
 	tools2.HasError(err, "", -1)
-	tab, _ := table.Get()
+
+	db, err := tools2.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
+	tab, _ := table.Get(db)
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -59,11 +69,20 @@ func Preview(c *gin.Context) {
 }
 
 func GenCodeV3(c *gin.Context) {
+	log := apis.GetRequestLogger(c)
 	table := tools.SysTables{}
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
+
+	db, err := tools2.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	table.TableId = id
-	tab, _ := table.Get()
+	tab, _ := table.Get(db)
 
 	if tab.IsActions == 1 {
 		ActionsGenV3(tab)
@@ -76,7 +95,7 @@ func GenCodeV3(c *gin.Context) {
 
 func NOActionsGenV3(tab tools.SysTables) {
 
-	basePath := "template/v3/"
+	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {
@@ -130,7 +149,7 @@ func NOActionsGenV3(tab tools.SysTables) {
 }
 
 func ActionsGenV3(tab tools.SysTables) {
-	basePath := "template/v3/"
+	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {
@@ -173,13 +192,22 @@ func ActionsGenV3(tab tools.SysTables) {
 }
 
 func GenMenuAndApi(c *gin.Context) {
+	log := apis.GetRequestLogger(c)
 
 	table := tools.SysTables{}
 	timeNow := tools2.GetCurrentTime()
 	id, err := tools2.StringToInt(c.Param("tableId"))
 	tools2.HasError(err, "", -1)
+
+	db, err := tools2.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	table.TableId = id
-	tab, _ := table.Get()
+	tab, _ := table.Get(db)
 	Mmenu := models.Menu{}
 	Mmenu.MenuName = tab.TBName + "Manage"
 	Mmenu.Title = tab.TableComment
@@ -197,7 +225,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.UpdateBy = "1"
 	Mmenu.CreatedAt = timeNow
 	Mmenu.UpdatedAt = timeNow
-	Mmenu.MenuId, err = Mmenu.Create()
+	Mmenu.MenuId, err = Mmenu.Create(db)
 
 	Cmenu := models.Menu{}
 	Cmenu.MenuName = tab.TBName
@@ -206,7 +234,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Cmenu.Path = tab.TBName
 	Cmenu.MenuType = "C"
 	Cmenu.Action = "无"
-	Cmenu.Permission = tab.ModuleName + ":" + tab.BusinessName + ":list"
+	Cmenu.Permission = tab.PackageName + ":" + tab.BusinessName + ":list"
 	Cmenu.ParentId = Mmenu.MenuId
 	Cmenu.NoCache = false
 	Cmenu.Component = "/" + tab.BusinessName + "/index"
@@ -217,7 +245,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Cmenu.UpdateBy = "1"
 	Cmenu.CreatedAt = timeNow
 	Cmenu.UpdatedAt = timeNow
-	Cmenu.MenuId, err = Cmenu.Create()
+	Cmenu.MenuId, err = Cmenu.Create(db)
 
 	MList := models.Menu{}
 	MList.MenuName = ""
@@ -226,7 +254,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.Path = tab.TBName
 	MList.MenuType = "F"
 	MList.Action = "无"
-	MList.Permission = tab.ModuleName + ":" + tab.BusinessName + ":query"
+	MList.Permission = tab.PackageName + ":" + tab.BusinessName + ":query"
 	MList.ParentId = Cmenu.MenuId
 	MList.NoCache = false
 	MList.Sort = 0
@@ -236,7 +264,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.UpdateBy = "1"
 	MList.CreatedAt = timeNow
 	MList.UpdatedAt = timeNow
-	MList.MenuId, err = MList.Create()
+	MList.MenuId, err = MList.Create(db)
 
 	MCreate := models.Menu{}
 	MCreate.MenuName = ""
@@ -245,7 +273,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.Path = tab.TBName
 	MCreate.MenuType = "F"
 	MCreate.Action = "无"
-	MCreate.Permission = tab.ModuleName + ":" + tab.BusinessName + ":add"
+	MCreate.Permission = tab.PackageName + ":" + tab.BusinessName + ":add"
 	MCreate.ParentId = Cmenu.MenuId
 	MCreate.NoCache = false
 	MCreate.Sort = 0
@@ -255,7 +283,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.UpdateBy = "1"
 	MCreate.CreatedAt = timeNow
 	MCreate.UpdatedAt = timeNow
-	MCreate.MenuId, err = MCreate.Create()
+	MCreate.MenuId, err = MCreate.Create(db)
 
 	MUpdate := models.Menu{}
 	MUpdate.MenuName = ""
@@ -264,7 +292,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.Path = tab.TBName
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
-	MUpdate.Permission = tab.ModuleName + ":" + tab.BusinessName + ":edit"
+	MUpdate.Permission = tab.PackageName + ":" + tab.BusinessName + ":edit"
 	MUpdate.ParentId = Cmenu.MenuId
 	MUpdate.NoCache = false
 	MUpdate.Sort = 0
@@ -274,7 +302,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.UpdateBy = "1"
 	MUpdate.CreatedAt = timeNow
 	MUpdate.UpdatedAt = timeNow
-	MUpdate.MenuId, err = MUpdate.Create()
+	MUpdate.MenuId, err = MUpdate.Create(db)
 
 	MDelete := models.Menu{}
 	MDelete.MenuName = ""
@@ -283,7 +311,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MDelete.Path = tab.TBName
 	MDelete.MenuType = "F"
 	MDelete.Action = "无"
-	MDelete.Permission = tab.ModuleName + ":" + tab.BusinessName + ":remove"
+	MDelete.Permission = tab.PackageName + ":" + tab.BusinessName + ":remove"
 	MDelete.ParentId = Cmenu.MenuId
 	MDelete.NoCache = false
 	MDelete.Sort = 0
@@ -293,7 +321,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MDelete.UpdateBy = "1"
 	MDelete.CreatedAt = timeNow
 	MDelete.UpdatedAt = timeNow
-	MDelete.MenuId, err = MDelete.Create()
+	MDelete.MenuId, err = MDelete.Create(db)
 
 	var InterfaceId = 63
 	Amenu := models.Menu{}
@@ -312,7 +340,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Amenu.UpdateBy = "1"
 	Amenu.CreatedAt = timeNow
 	Amenu.UpdatedAt = timeNow
-	Amenu.MenuId, err = Amenu.Create()
+	Amenu.MenuId, err = Amenu.Create(db)
 
 	AList := models.Menu{}
 	AList.MenuName = ""
@@ -330,7 +358,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AList.UpdateBy = "1"
 	AList.CreatedAt = timeNow
 	AList.UpdatedAt = timeNow
-	AList.MenuId, err = AList.Create()
+	AList.MenuId, err = AList.Create(db)
 
 	AGet := models.Menu{}
 	AGet.MenuName = ""
@@ -348,7 +376,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AGet.UpdateBy = "1"
 	AGet.CreatedAt = timeNow
 	AGet.UpdatedAt = timeNow
-	AGet.MenuId, err = AGet.Create()
+	AGet.MenuId, err = AGet.Create(db)
 
 	ACreate := models.Menu{}
 	ACreate.MenuName = ""
@@ -366,7 +394,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ACreate.UpdateBy = "1"
 	ACreate.CreatedAt = timeNow
 	ACreate.UpdatedAt = timeNow
-	ACreate.MenuId, err = ACreate.Create()
+	ACreate.MenuId, err = ACreate.Create(db)
 
 	AUpdate := models.Menu{}
 	AUpdate.MenuName = ""
@@ -384,7 +412,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AUpdate.UpdateBy = "1"
 	AUpdate.CreatedAt = timeNow
 	AUpdate.UpdatedAt = timeNow
-	AUpdate.MenuId, err = AUpdate.Create()
+	AUpdate.MenuId, err = AUpdate.Create(db)
 
 	ADelete := models.Menu{}
 	ADelete.MenuName = ""
@@ -402,7 +430,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ADelete.UpdateBy = "1"
 	ADelete.CreatedAt = timeNow
 	ADelete.UpdatedAt = timeNow
-	ADelete.MenuId, err = ADelete.Create()
+	ADelete.MenuId, err = ADelete.Create(db)
 
 	app.OK(c, "", "数据生成成功！")
 }

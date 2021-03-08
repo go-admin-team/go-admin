@@ -44,7 +44,8 @@ func UploadFile(c *gin.Context) {
 	} else {
 		switch tag {
 		case "1": // 单图
-			fileResponse, done := singleFile(c, fileResponse, urlPerfix)
+			var done bool
+			fileResponse, done = singleFile(c, fileResponse, urlPerfix)
 			if done {
 				return
 			}

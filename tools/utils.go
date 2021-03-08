@@ -2,16 +2,19 @@ package tools
 
 import (
 	"errors"
-	"fmt"
-	"gorm.io/gorm"
 	"log"
 	"runtime"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/spf13/cast"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
+const (
+	TrafficKey = "X-Request-Id"
+	LoggerKey  = "_go-admin-logger-request"
 )
 
 func CompareHashAndPassword(e string, p string) (bool, error) {
@@ -56,29 +59,25 @@ func HasError(err error, msg string, code ...int) {
 
 // GenerateMsgIDFromContext 生成msgID
 func GenerateMsgIDFromContext(c *gin.Context) string {
-	var msgID string
-	data, ok := c.Get("msgID")
-	if !ok {
-		msgID = uuid.New().String()
-		c.Set("msgID", msgID)
-		return msgID
+	requestId := c.GetHeader(TrafficKey)
+	if requestId == "" {
+		requestId = uuid.New().String()
+		c.Header(TrafficKey, requestId)
 	}
-	msgID = cast.ToString(data)
-	return msgID
+	return requestId
 }
 
 // GetOrm 获取orm连接
 func GetOrm(c *gin.Context) (*gorm.DB, error) {
-	msgID := GenerateMsgIDFromContext(c)
 	idb, exist := c.Get("db")
 	if !exist {
-		return nil, errors.New(fmt.Sprintf("msgID[%s], db connect not exist", msgID))
+		return nil, errors.New("db connect not exist")
 	}
 	switch idb.(type) {
 	case *gorm.DB:
 		//新增操作
 		return idb.(*gorm.DB), nil
 	default:
-		return nil, errors.New(fmt.Sprintf("msgID[%s], db connect not exist", msgID))
+		return nil, errors.New("db connect not exist")
 	}
 }

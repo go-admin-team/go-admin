@@ -1,19 +1,23 @@
 package config
 
-import "github.com/spf13/viper"
-
 type Database struct {
-	Driver string
-	Source string
+	Driver          string
+	Source          string
+	ConnMaxIdleTime int
+	ConnMaxLifetime int
+	MaxIdleConns    int
+	MaxOpenConns    int
+	Registers       []DBResolverConfig
 }
 
-func InitDatabase(cfg *viper.Viper) *Database {
-
-	db := &Database{
-		Driver: cfg.GetString("driver"),
-		Source: cfg.GetString("source"),
-	}
-	return db
+type DBResolverConfig struct {
+	Sources  []string
+	Replicas []string
+	Policy   string
+	Tables   []string
 }
 
-var DatabaseConfig = new(Database)
+var (
+	DatabaseConfig  = new(Database)
+	DatabasesConfig = make(map[string]*Database)
+)

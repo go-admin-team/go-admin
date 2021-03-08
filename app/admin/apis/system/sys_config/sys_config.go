@@ -2,11 +2,12 @@ package sys_config
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 
+	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/common/log"
 	"go-admin/tools"
 	"go-admin/tools/app"
 )
@@ -15,27 +16,214 @@ type SysConfig struct {
 	apis.Api
 }
 
-// GetSysConfigByKEYForService 根据Key获取SysConfig的Service
-func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+func (e *SysConfig) GetSysConfigList(c *gin.Context) {
+	log := e.GetLogger(c)
+	d := new(dto.SysConfigSearch)
 	db, err := e.GetOrm(c)
 	if err != nil {
-		log.Errorf("msgID[%s] error:%s", msgID, err)
-		app.Error(c, 500, err, "")
+		log.Error(err)
+		return
+	}
+
+	//查询列表
+	err = d.Bind(c)
+	if err != nil {
+		log.Errorf("参数验证失败, error:%s", err)
+		app.Error(c, 500, err, "参数验证失败")
+		return
+	}
+
+	list := make([]system.SysConfig, 0)
+	var count int64
+	s := service.SysConfig{}
+	s.Log = log
+	s.Orm = db
+	err = s.GetSysConfigPage(d, &list, &count)
+	if err != nil {
+		log.Errorf("GetSysConfigPage 查询失败, error:%s", err)
+		app.Error(c, 500, err, "查询失败")
+		return
+	}
+	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+}
+
+func (e *SysConfig) GetSysConfig(c *gin.Context) {
+	log := e.GetLogger(c)
+	control := new(dto.SysConfigById)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	//查看详情
+	err = control.Bind(c)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	var object system.SysConfig
+
+	serviceSysLoginLog := service.SysConfig{}
+	serviceSysLoginLog.Log = log
+	serviceSysLoginLog.Orm = db
+	err = serviceSysLoginLog.GetSysConfig(control, &object)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+
+	e.OK(c, object, "查看成功")
+}
+
+func (e *SysConfig) InsertSysConfig(c *gin.Context) {
+	log := e.GetLogger(c)
+	control := new(dto.SysConfigControl)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	//新增操作
+	err = control.Bind(c)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	object, err := control.Generate()
+	if err != nil {
+		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	// 设置创建人
+	object.SetCreateBy(tools.GetUserId(c))
+
+	serviceSysLoginLog := service.SysConfig{}
+	serviceSysLoginLog.Orm = db
+	serviceSysLoginLog.Log = log
+	err = serviceSysLoginLog.InsertSysConfig(object)
+	if err != nil {
+		log.Error(err)
+		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+
+	e.OK(c, object.GetId(), "创建成功")
+}
+
+func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
+	log := e.GetLogger(c)
+	control := new(dto.SysConfigControl)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	//更新操作
+	err = control.Bind(c)
+
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	object, err := control.Generate()
+	if err != nil {
+		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	object.SetUpdateBy(tools.GetUserId(c))
+
+	serviceSysLoginLog := service.SysConfig{}
+	serviceSysLoginLog.Orm = db
+	serviceSysLoginLog.Log = log
+	err = serviceSysLoginLog.UpdateSysConfig(object)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "更新失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	e.OK(c, object.GetId(), "更新成功")
+}
+
+func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
+	log := e.GetLogger(c)
+	control := new(dto.SysConfigById)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	//删除操作
+	err = control.Bind(c)
+	if err != nil {
+		log.Errorf("Bind error: %s", err)
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	object, err := control.GenerateM()
+	if err != nil {
+		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+
+	// 设置编辑人
+	object.SetUpdateBy(tools.GetUserId(c))
+
+	serviceSysLoginLog := service.SysConfig{}
+	serviceSysLoginLog.Orm = db
+	serviceSysLoginLog.Log = log
+	err = serviceSysLoginLog.RemoveSysConfig(control, object)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "删除失败")
+		log.Errorf("Orm获取失败, error:%s", err)
+		app.Error(c, 500, err, "Orm获取失败")
+		return
+	}
+	e.OK(c, object.GetId(), "删除成功")
+}
+
+// GetSysConfigByKEYForService 根据Key获取SysConfig的Service
+func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
+	log := e.GetLogger(c)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
 		return
 	}
 	var v dto.SysConfigControl
-	err = c.Bind(&v)
+	err = v.Bind(c)
 	if err != nil {
-		log.Errorf("msgID[%s] 参数验证错误, error:%s", msgID, err)
+		log.Errorf("参数验证错误, error:%s", err)
 		app.Error(c, 422, err, "参数验证失败")
 		return
 	}
 	s := service.SysConfig{}
-	s.MsgID = msgID
+	s.Log = log
 	s.Orm = db
 	err = s.GetSysConfigByKEY(&v)
 	if err != nil {
+		log.Errorf("通过Key获取配置失败, error:%s", err)
 		app.Error(c, 500, err, "")
 		return
 	}

@@ -5,9 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	orm "go-admin/common/global"
 	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	"go-admin/tools/config"
 )
 
 type DBColumns struct {
@@ -25,14 +24,14 @@ type DBColumns struct {
 	ColumnComment          string `gorm:"column:COLUMN_COMMENT" json:"columnComment"`
 }
 
-func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, error) {
+func (e *DBColumns) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBColumns, int, error) {
 	var doc []DBColumns
 	var count int64
 	table := new(gorm.DB)
 
-	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Table("information_schema.`COLUMNS`")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+	if config.DatabaseConfig.Driver == "mysql" {
+		table = tx.Table("information_schema.`COLUMNS`")
+		table = table.Where("table_schema= ? ", config.GenConfig.DBName)
 
 		if e.TableName != "" {
 			return nil, 0, errors.New("table name cannot be empty！")
@@ -49,7 +48,7 @@ func (e *DBColumns) GetPage(pageSize int, pageIndex int) ([]DBColumns, int, erro
 
 }
 
-func (e *DBColumns) GetList() ([]DBColumns, error) {
+func (e *DBColumns) GetList(tx *gorm.DB) ([]DBColumns, error) {
 	var doc []DBColumns
 	table := new(gorm.DB)
 
@@ -57,9 +56,9 @@ func (e *DBColumns) GetList() ([]DBColumns, error) {
 		return nil, errors.New("table name cannot be empty！")
 	}
 
-	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Table("information_schema.columns")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+	if config.DatabaseConfig.Driver == "mysql" {
+		table = tx.Table("information_schema.columns")
+		table = table.Where("table_schema= ? ", config.GenConfig.DBName)
 
 		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
 	} else {
