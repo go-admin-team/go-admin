@@ -3,7 +3,7 @@ package models
 import (
 	"gorm.io/gorm"
 
-	"go-admin/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 )
 
 // BaseUser 密码登录基础用户

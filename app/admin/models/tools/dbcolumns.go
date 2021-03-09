@@ -2,11 +2,11 @@ package tools
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"gorm.io/gorm"
 
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 )
 
 type DBColumns struct {
@@ -62,7 +62,7 @@ func (e *DBColumns) GetList(tx *gorm.DB) ([]DBColumns, error) {
 
 		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
+		pkg.Assert(true, "目前只支持mysql数据库", 500)
 	}
 	if err := table.Find(&doc).Error; err != nil {
 		return doc, err

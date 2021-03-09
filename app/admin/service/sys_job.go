@@ -8,7 +8,6 @@ import (
 	"go-admin/app/jobs"
 	"go-admin/common/dto"
 	"go-admin/common/service"
-	"go-admin/tools/app/msg"
 )
 
 type SysJob struct {
@@ -38,7 +37,7 @@ func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 			return err
 		}
 	case <-time.After(time.Second * 1):
-		e.Msg = msg.TimeOut
+		e.Msg = "操作超时！"
 		return nil
 	}
 	return nil

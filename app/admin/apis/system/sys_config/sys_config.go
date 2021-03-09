@@ -1,15 +1,16 @@
 package sys_config
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 type SysConfig struct {
@@ -104,7 +105,7 @@ func (e *SysConfig) InsertSysConfig(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceSysLoginLog := service.SysConfig{}
 	serviceSysLoginLog.Orm = db
@@ -146,7 +147,7 @@ func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
 		app.Error(c, 500, err, "Orm获取失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysLoginLog := service.SysConfig{}
 	serviceSysLoginLog.Orm = db
@@ -188,7 +189,7 @@ func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysLoginLog := service.SysConfig{}
 	serviceSysLoginLog.Orm = db

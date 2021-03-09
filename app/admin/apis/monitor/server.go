@@ -4,12 +4,11 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 const (
@@ -33,8 +32,8 @@ func ServerInfo(c *gin.Context) {
 	osDic["compiler"] = runtime.Compiler
 	osDic["version"] = runtime.Version()
 	osDic["numGoroutine"] = runtime.NumGoroutine()
-	osDic["ip"] = tools.GetLocaHonst()
-	osDic["projectDir"] = tools.GetCurrentPath()
+	osDic["ip"] = pkg.GetLocaHonst()
+	osDic["projectDir"] = pkg.GetCurrentPath()
 
 	dis, _ := disk.Usage("/")
 	diskTotalGB := int(dis.Total) / GB
@@ -57,7 +56,7 @@ func ServerInfo(c *gin.Context) {
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuInfo"], _ = cpu.Info()
 	percent, _ := cpu.Percent(0, false)
-	cpuDic["Percent"] = tools.Round(percent[0], 2)
+	cpuDic["Percent"] = pkg.Round(percent[0], 2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
 	app.Custum(c, gin.H{

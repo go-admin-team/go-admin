@@ -1,13 +1,15 @@
 package sys_job
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/service"
 	"go-admin/common/apis"
 	"go-admin/common/dto"
-	"go-admin/tools/app"
 )
 
 type SysJob struct {
@@ -32,7 +34,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 	s := service.SysJob{}
 	s.Log = log
 	s.Orm = db
-	s.Cron = app.Runtime.GetCrontabKey(c.Request.Host)
+	s.Cron = sdk.Runtime.GetCrontabKey(c.Request.Host)
 	err = s.RemoveJob(&v)
 	if err != nil {
 		log.Errorf("RemoveJob error, %s", err.Error())
@@ -60,7 +62,7 @@ func (e *SysJob) StartJobForService(c *gin.Context) {
 	s := service.SysJob{}
 	s.Orm = db
 	s.Log = log
-	s.Cron = app.Runtime.GetCrontabKey(c.Request.Host)
+	s.Cron = sdk.Runtime.GetCrontabKey(c.Request.Host)
 	err = s.StartJob(&v)
 	if err != nil {
 		log.Errorf("GetCrontabKey error, %s", err.Error())

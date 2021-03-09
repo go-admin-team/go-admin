@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	"github.com/google/uuid"
 
 	"go-admin/app/admin/models"
@@ -13,7 +14,6 @@ import (
 	"go-admin/common/actions"
 	"go-admin/common/apis"
 	common "go-admin/common/models"
-	"go-admin/tools"
 )
 
 type SysUser struct {
@@ -136,7 +136,7 @@ func (e *SysUser) InsertSysUser(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceSysUser := service.SysUser{}
 	serviceSysUser.Orm = db
@@ -183,7 +183,7 @@ func (e *SysUser) UpdateSysUser(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -232,7 +232,7 @@ func (e *SysUser) DeleteSysUser(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -354,7 +354,7 @@ func (e *SysUser) GetSysUserProfile(c *gin.Context) {
 		return
 	}
 
-	id := tools.GetUserId(c)
+	id := user.GetUserId(c)
 	serviceSysUser := service.SysUser{}
 	serviceSysUser.Log = log
 	serviceSysUser.Orm = db
@@ -418,7 +418,7 @@ func (e *SysUser) GetInfo(c *gin.Context) {
 	p := actions.GetPermissionFromContext(c)
 
 	var roles = make([]string, 1)
-	roles[0] = tools.GetRoleName(c)
+	roles[0] = user.GetRoleName(c)
 
 	var permissions = make([]string, 1)
 	permissions[0] = "*:*:*"
@@ -427,11 +427,11 @@ func (e *SysUser) GetInfo(c *gin.Context) {
 	buttons[0] = "*:*:*"
 
 	RoleMenu := models.RoleMenu{}
-	RoleMenu.RoleId = tools.GetRoleId(c)
+	RoleMenu.RoleId = user.GetRoleId(c)
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
-	if tools.GetRoleName(c) == "admin" || tools.GetRoleName(c) == "系统管理员" {
+	if user.GetRoleName(c) == "admin" || user.GetRoleName(c) == "系统管理员" {
 		mp["permissions"] = permissions
 		mp["buttons"] = buttons
 	} else {
@@ -440,13 +440,13 @@ func (e *SysUser) GetInfo(c *gin.Context) {
 		mp["buttons"] = list
 	}
 
-	var user system.SysUser
+	var sysUser system.SysUser
 	req := new(dto.SysUserById)
-	req.Id = tools.GetUserId(c)
+	req.Id = user.GetUserId(c)
 	serviceSysUser := service.SysUser{}
 	serviceSysUser.Log = log
 	serviceSysUser.Orm = db
-	err = serviceSysUser.GetSysUser(req, p, &user)
+	err = serviceSysUser.GetSysUser(req, p, &sysUser)
 	if err != nil {
 		e.Error(c, http.StatusUnauthorized, err, "登录失败")
 		return
@@ -455,12 +455,12 @@ func (e *SysUser) GetInfo(c *gin.Context) {
 	mp["introduction"] = " am a super administrator"
 
 	mp["avatar"] = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
-	if user.Avatar != "" {
-		mp["avatar"] = user.Avatar
+	if sysUser.Avatar != "" {
+		mp["avatar"] = sysUser.Avatar
 	}
-	mp["userName"] = user.NickName
-	mp["userId"] = user.UserId
-	mp["deptId"] = user.DeptId
-	mp["name"] = user.NickName
+	mp["userName"] = sysUser.NickName
+	mp["userId"] = sysUser.UserId
+	mp["deptId"] = sysUser.DeptId
+	mp["name"] = sysUser.NickName
 	e.OK(c, mp, "")
 }

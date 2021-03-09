@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type SysFileInfo struct {
@@ -108,7 +108,7 @@ func (e *SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	control.CreateBy = tools.GetUserId(c)
+	control.CreateBy = user.GetUserId(c)
 
 	serviceSysFileInfo := service.SysFileInfo{}
 	serviceSysFileInfo.Orm = db
@@ -145,7 +145,7 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	control.UpdateBy = tools.GetUserId(c)
+	control.UpdateBy = user.GetUserId(c)
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -186,7 +186,7 @@ func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	control.UpdateBy = tools.GetUserId(c)
+	control.UpdateBy = user.GetUserId(c)
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)

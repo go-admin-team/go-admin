@@ -1,16 +1,17 @@
 package tools
 
 import (
-	"go-admin/common/apis"
-	"gorm.io/gorm"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/tools"
-	tools2 "go-admin/tools"
-	"go-admin/tools/app"
+	"go-admin/common/apis"
 )
 
 // @Summary 分页列表数据
@@ -29,14 +30,14 @@ func GetSysTableList(c *gin.Context) {
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools2.StringToInt(size)
+		pageSize, err = pkg.StringToInt(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools2.StringToInt(index)
+		pageIndex, err = pkg.StringToInt(index)
 	}
 
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -46,7 +47,7 @@ func GetSysTableList(c *gin.Context) {
 	data.TBName = c.Request.FormValue("tableName")
 	data.TableComment = c.Request.FormValue("tableComment")
 	result, count, err := data.GetPage(db, pageSize, pageIndex)
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result
@@ -69,7 +70,7 @@ func GetSysTableList(c *gin.Context) {
 // @Security Bearer
 func GetSysTables(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -77,9 +78,9 @@ func GetSysTables(c *gin.Context) {
 	}
 
 	var data tools.SysTables
-	data.TableId, _ = tools2.StringToInt(c.Param("tableId"))
+	data.TableId, _ = pkg.StringToInt(c.Param("tableId"))
 	result, err := data.Get(db)
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 
 	var res app.Response
 	res.Data = result
@@ -92,7 +93,7 @@ func GetSysTables(c *gin.Context) {
 
 func GetSysTablesInfo(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -104,7 +105,7 @@ func GetSysTablesInfo(c *gin.Context) {
 		data.TBName = c.Request.FormValue("tableName")
 	}
 	result, err := data.Get(db)
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 
 	var res app.Response
 	res.Data = result
@@ -117,7 +118,7 @@ func GetSysTablesInfo(c *gin.Context) {
 
 func GetSysTablesTree(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -126,7 +127,7 @@ func GetSysTablesTree(c *gin.Context) {
 
 	var data tools.SysTables
 	result, err := data.GetTree(db)
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
+	pkg.HasError(err, "抱歉未找到相关信息", -1)
 
 	var res app.Response
 	res.Data = result
@@ -145,7 +146,7 @@ func GetSysTablesTree(c *gin.Context) {
 // @Security Bearer
 func InsertSysTable(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -158,7 +159,7 @@ func InsertSysTable(c *gin.Context) {
 		data, err := genTableInit(db, tablesList, i, c)
 
 		_, err = data.Create(db)
-		tools2.HasError(err, "", -1)
+		pkg.HasError(err, "", -1)
 	}
 	var res app.Response
 	res.Msg = "添加成功！"
@@ -171,7 +172,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.CreateBy = tools2.GetUserIdStr(c)
+	data.CreateBy = user.GetUserIdStr(c)
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get(tx)
@@ -190,7 +191,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList(tx)
-	data.CreateBy = tools2.GetUserIdStr(c)
+	data.CreateBy = user.GetUserIdStr(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -279,19 +280,19 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 func UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
-	tools2.HasError(err, "数据解析失败", 500)
+	pkg.HasError(err, "数据解析失败", 500)
 
 	log := apis.GetRequestLogger(c)
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
-	data.UpdateBy = tools2.GetUserIdStr(c)
+	data.UpdateBy = user.GetUserIdStr(c)
 	result, err := data.Update(db)
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 
 	var res app.Response
 	res.Data = result
@@ -308,7 +309,7 @@ func UpdateSysTable(c *gin.Context) {
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
 func DeleteSysTables(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -316,9 +317,9 @@ func DeleteSysTables(c *gin.Context) {
 	}
 
 	var data tools.SysTables
-	IDS := tools2.IdsStrToIdsIntGroup("tableId", c)
+	IDS := pkg.IdsStrToIdsIntGroup("tableId", c)
 	_, err = data.BatchDelete(db, IDS)
-	tools2.HasError(err, "删除失败", 500)
+	pkg.HasError(err, "删除失败", 500)
 	var res app.Response
 	res.Msg = "删除成功"
 	c.JSON(http.StatusOK, res.ReturnOK())

@@ -1,15 +1,15 @@
 package tools
 
 import (
-	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/tools"
-	tools2 "go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/config"
+	"go-admin/common/apis"
 )
 
 // @Summary 分页列表数据 / page list data
@@ -34,14 +34,14 @@ func GetDBTableList(c *gin.Context) {
 	}
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools2.StringToInt(size)
+		pageSize, err = pkg.StringToInt(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools2.StringToInt(index)
+		pageIndex, err = pkg.StringToInt(index)
 	}
 
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -50,7 +50,7 @@ func GetDBTableList(c *gin.Context) {
 
 	data.TableName = c.Request.FormValue("tableName")
 	result, count, err := data.GetPage(db, pageSize, pageIndex)
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 
 	var mp = make(map[string]interface{}, 3)
 	mp["list"] = result

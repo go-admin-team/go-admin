@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"gorm.io/gorm"
 
@@ -9,7 +10,6 @@ import (
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
-	"go-admin/tools"
 )
 
 type SysDept struct {
@@ -64,7 +64,7 @@ func (e *SysDept) InsertSysDept(model *system.SysDept) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	deptPath := "/" + tools.IntToString(model.DeptId)
+	deptPath := "/" + pkg.IntToString(model.DeptId)
 	if model.ParentId != 0 {
 		var deptP system.SysDept
 		e.Orm.Model(&data).First(&deptP, model.ParentId)

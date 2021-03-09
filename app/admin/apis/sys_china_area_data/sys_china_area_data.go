@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type SysChinaAreaData struct {
@@ -103,7 +103,7 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceSysChinaAreaData := service.SysChinaAreaData{}
 	serviceSysChinaAreaData.Orm = db
@@ -138,7 +138,7 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -172,7 +172,7 @@ func (e *SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	control.SetUpdateBy(tools.GetUserId(c))
+	control.SetUpdateBy(user.GetUserId(c))
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)

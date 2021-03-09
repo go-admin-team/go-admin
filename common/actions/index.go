@@ -5,25 +5,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
 
-	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/common/dto"
 	"go-admin/common/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 // IndexAction 通用查询动作
 func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := pkg.GenerateMsgIDFromContext(c)
 		list := f()
 		object := m.Generate()
 		req := d.Generate()

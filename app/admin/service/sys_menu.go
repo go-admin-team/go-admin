@@ -2,11 +2,11 @@ package service
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
-	"go-admin/tools"
 	"gorm.io/gorm"
 )
 
@@ -93,9 +93,9 @@ func (e *SysMenu) initPaths(menu *system.SysMenu) error {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return err
 		}
-		menu.Paths = parentMenu.Paths + "/" + tools.IntToString(menu.MenuId)
+		menu.Paths = parentMenu.Paths + "/" + pkg.IntToString(menu.MenuId)
 	} else {
-		menu.Paths = "/0/" + tools.IntToString(menu.MenuId)
+		menu.Paths = "/0/" + pkg.IntToString(menu.MenuId)
 	}
 	e.Orm.Model(&data).Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return err

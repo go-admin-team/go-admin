@@ -2,9 +2,8 @@ package version
 
 import (
 	"fmt"
-	"go-admin/tools/app"
-
 	"github.com/spf13/cobra"
+	"go-admin/common/global"
 )
 
 var (
@@ -22,6 +21,6 @@ var (
 )
 
 func run() error {
-	fmt.Println(app.Version)
+	fmt.Println(global.Version)
 	return nil
 }

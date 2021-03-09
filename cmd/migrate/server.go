@@ -3,7 +3,8 @@ package migrate
 import (
 	"bytes"
 	"fmt"
-	"go-admin/tools/app"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"strconv"
 	"text/template"
 	"time"
@@ -11,14 +12,13 @@ import (
 	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/spf13/cobra"
 
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"go-admin/cmd/migrate/migration"
 	_ "go-admin/cmd/migrate/migration/version"
 	_ "go-admin/cmd/migrate/migration/version-local"
 	"go-admin/common/database"
 	"go-admin/common/models"
-	"go-admin/pkg/logger"
-	"go-admin/tools"
-	"go-admin/tools/config"
 )
 
 var (
@@ -51,7 +51,7 @@ func run() {
 		//1. 读取配置
 		config.Setup(file.NewSource, file.WithPath(configYml))
 		//2. 设置日志
-		app.Runtime.SetLogger(
+		sdk.Runtime.SetLogger(
 			logger.SetupLogger(
 				config.LoggerConfig.Type,
 				config.LoggerConfig.Path,
@@ -68,7 +68,7 @@ func migrateModel() error {
 	if host == "" {
 		host = "*"
 	}
-	db := app.Runtime.GetDbByKey(host)
+	db := sdk.Runtime.GetDbByKey(host)
 	if config.DatabasesConfig[host].Driver == "mysql" {
 		//初始化数据库时候用
 		db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
@@ -105,9 +105,9 @@ func genFile() error {
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, m)
 	if goAdmin {
-		tools.FileCreate(b1, "./cmd/migrate/migration/version/"+m["GenerateTime"]+"_migrate.go")
+		pkg.FileCreate(b1, "./cmd/migrate/migration/version/"+m["GenerateTime"]+"_migrate.go")
 	} else {
-		tools.FileCreate(b1, "./cmd/migrate/migration/version-local/"+m["GenerateTime"]+"_migrate.go")
+		pkg.FileCreate(b1, "./cmd/migrate/migration/version-local/"+m["GenerateTime"]+"_migrate.go")
 	}
 	return nil
 }

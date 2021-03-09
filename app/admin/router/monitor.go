@@ -1,7 +1,7 @@
 package router
 
 import (
-	"go-admin/tools/app"
+	"github.com/go-admin-team/go-admin-core/sdk"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,10 +12,10 @@ import (
 
 func Monitor() {
 	var r *gin.Engine
-	h := app.Runtime.GetEngine()
+	h := sdk.Runtime.GetEngine()
 	if h == nil {
 		h = gin.New()
-		app.Runtime.SetEngine(h)
+		sdk.Runtime.SetEngine(h)
 	}
 	switch h.(type) {
 	case *gin.Engine:

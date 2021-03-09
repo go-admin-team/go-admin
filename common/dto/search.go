@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/go-admin-team/go-admin-core/tools/search"
-	"go-admin/tools/app"
+	"go-admin/common/global"
 	"gorm.io/gorm"
 )
 
@@ -44,7 +44,7 @@ func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
 			GormPublic: search.GormPublic{},
 			Join:       make([]*search.GormJoin, 0),
 		}
-		search.ResolveSearchQuery(app.Driver, q, condition)
+		search.ResolveSearchQuery(global.Driver, q, condition)
 		for _, join := range condition.Join {
 			if join == nil {
 				continue

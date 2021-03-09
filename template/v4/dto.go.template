@@ -7,7 +7,7 @@ import (
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/common/dto"
 	"go-admin/tools"
-	"go-admin/pkg/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 )
 
 type {{.ClassName}}Search struct {

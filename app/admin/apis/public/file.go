@@ -4,17 +4,16 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"go-admin/common/file_store"
 	"io/ioutil"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/utils"
 	"github.com/google/uuid"
-	//imgType "github.com/shamsher31/goimgtype"
 
-	"go-admin/pkg/utils"
-	"go-admin/tools"
-	"go-admin/tools/app"
+	"go-admin/common/file_store"
 )
 
 type FileResponse struct {
@@ -72,7 +71,7 @@ func baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix string) FileRe
 	_ = ioutil.WriteFile(base64File, ddd, 0666)
 	typeStr := strings.Replace(strings.Replace(file2list[0], "data:", "", -1), ";base64", "", -1)
 	fileResponse = FileResponse{
-		Size:     tools.GetFileSize(base64File),
+		Size:     pkg.GetFileSize(base64File),
 		Path:     base64File,
 		FullPath: urlPerfix + base64File,
 		Name:     "",
@@ -107,7 +106,7 @@ func multipleFile(c *gin.Context, urlPerfix string) []FileResponse {
 				app.Error(c, 200, errors.New(""), "上传第三方失败")
 			} else {
 				fileResponse := FileResponse{
-					Size:     tools.GetFileSize(multipartFileName),
+					Size:     pkg.GetFileSize(multipartFileName),
 					Path:     multipartFileName,
 					FullPath: urlPerfix + multipartFileName,
 					Name:     f.Filename,
@@ -139,7 +138,7 @@ func singleFile(c *gin.Context, fileResponse FileResponse, urlPerfix string) (Fi
 	_ = c.SaveUploadedFile(files, singleFile)
 	fileType, _ := utils.GetType(singleFile)
 	fileResponse = FileResponse{
-		Size:     tools.GetFileSize(singleFile),
+		Size:     pkg.GetFileSize(singleFile),
 		Path:     singleFile,
 		FullPath: urlPerfix + singleFile,
 		Name:     files.Filename,

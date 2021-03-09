@@ -1,15 +1,17 @@
 package {{.ModuleName}}
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/service"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type {{.ClassName}} struct {
@@ -110,7 +112,7 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.Orm = db
@@ -148,7 +150,7 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -184,7 +186,7 @@ func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	control.SetUpdateBy(tools.GetUserId(c))
+	control.SetUpdateBy(user.GetUserId(c))
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)

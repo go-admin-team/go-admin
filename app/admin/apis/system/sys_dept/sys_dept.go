@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type SysDept struct {
@@ -122,7 +122,7 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceSysDept := service.SysDept{}
 	serviceSysDept.Orm = db
@@ -168,7 +168,7 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysDept := service.SysDept{}
 	serviceSysDept.Orm = db

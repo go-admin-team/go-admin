@@ -2,19 +2,20 @@ package middleware
 
 import (
 	"fmt"
-	"go-admin/common/apis"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
-	"go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/config"
+	"go-admin/common/apis"
 )
 
 // LoggerToFile 日志记录到文件
@@ -79,7 +80,7 @@ func LoggerToFile() gin.HandlerFunc {
 // SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
 func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) {
 	log := apis.GetRequestLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -92,9 +93,9 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	menuList, _ := menu.Get(db)
 	sysOperaLog := system.SysOperaLog{}
 	sysOperaLog.OperIp = clientIP
-	sysOperaLog.OperLocation = tools.GetLocation(clientIP)
-	sysOperaLog.Status = tools.IntToString(statusCode)
-	sysOperaLog.OperName = tools.GetUserName(c)
+	sysOperaLog.OperLocation = pkg.GetLocation(clientIP)
+	sysOperaLog.Status = pkg.IntToString(statusCode)
+	sysOperaLog.OperName = user.GetUserName(c)
 	sysOperaLog.RequestMethod = c.Request.Method
 	sysOperaLog.OperUrl = reqUri
 	sysOperaLog.OperParam = body
@@ -120,8 +121,8 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	if len(menuList) > 0 {
 		sysOperaLog.Title = menuList[0].Title
 	}
-	sysOperaLog.CreateBy = tools.GetUserId(c)
-	sysOperaLog.OperTime = tools.GetCurrentTime()
+	sysOperaLog.CreateBy = user.GetUserId(c)
+	sysOperaLog.OperTime = pkg.GetCurrentTime()
 	sysOperaLog.LatencyTime = fmt.Sprintf("%v", latencyTime)
 
 	sysOperaLog.JsonResult = result
