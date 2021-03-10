@@ -124,7 +124,7 @@ INSERT INTO sys_menu VALUES (256, '', '必开接口', '', '', '/0/63/256', 'M', 
 INSERT INTO sys_menu VALUES (257, '', '通过key获取参数', 'bug', '/api/v1/configKey/:id', '/0/63/256/257', 'A', 'GET', '', 256, 0, '', '', 1, '1', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO sys_menu VALUES (258, '', '退出登录', '', '/api/v1/logout', '/0/63/256/258', 'A', 'POST', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO sys_menu VALUES (259, '', '头像上传', '', '/api/v1/user/avatar', '/0/63/256/267/259', 'A', 'POST', '', 267, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', '2020-05-03 20:50:05', NULL);
-INSERT INTO sys_menu VALUES (260, '', '修改密码', '', '/api/v1/user/pwd', '/0/63/256/260', 'A', 'PUT', '', 256, 0, '', '', 0, '1', '1', '', '0', '2020-04-11 15:52:48', NULL, NULL);
+INSERT INTO sys_menu VALUES (260, '', '修改密码', '', '/api/v1/user/pwd', '/0/63/256/260', 'A', 'PUT', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);
 INSERT INTO sys_menu VALUES (261, 'Gen', '代码生成', 'code', 'gen', '/0/60/261', 'C', '', '', 60, 0, '', '/tools/gen/index', 2, '0', '1', '1', '0', '2020-04-11 15:52:48', '2020-04-12 11:18:12', NULL);
 INSERT INTO sys_menu VALUES (262, 'EditTable', '代码生成修改', 'build', 'editTable', '/0/60/262', 'C', '', '', 60, 0, '', '/tools/gen/editTable', 100, '1', '1', '1', '0', '2020-04-11 15:52:48', '2020-05-03 20:38:36', NULL);
 INSERT INTO sys_menu VALUES (263, '', '字典类型下拉框【生成功能】', '', '/api/v1/dict/typeoptionselect', '/0/63/256/263', 'A', 'GET', '', 256, 0, '', '', 0, '1', '1', '1', '0', '2020-04-11 15:52:48', NULL, NULL);

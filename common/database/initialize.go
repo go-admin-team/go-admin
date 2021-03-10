@@ -1,21 +1,20 @@
 package database
 
 import (
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"go-admin/common/global"
-	. "log"
 	"time"
 
-	logCore "github.com/go-admin-team/go-admin-core/logger"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	toolsConfig "github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	mycasbin "github.com/go-admin-team/go-admin-core/sdk/pkg/casbin"
 	toolsDB "github.com/go-admin-team/go-admin-core/tools/database"
+	. "github.com/go-admin-team/go-admin-core/tools/gorm/logger"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
-	log "github.com/go-admin-team/go-admin-core/logger"
-	toolsConfig "github.com/go-admin-team/go-admin-core/sdk/config"
-	mycasbin "github.com/go-admin-team/go-admin-core/sdk/pkg/casbin"
+	"go-admin/common/global"
 )
 
 // Setup 配置数据库
@@ -43,13 +42,12 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
-		Logger: logger.New(
-			New(logCore.DefaultLogger.Options().Out, "\r\n", LstdFlags),
+		Logger: New(
 			logger.Config{
 				SlowThreshold: time.Second,
 				Colorful:      true,
 				LogLevel: logger.LogLevel(
-					logCore.DefaultLogger.Options().Level.LevelForGorm()),
+					log.DefaultLogger.Options().Level.LevelForGorm()),
 			},
 		),
 	}, opens[c.Driver])
