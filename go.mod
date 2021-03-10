@@ -10,7 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-admin-team/go-admin-core v1.3.0-rc.0.0.20210309094332-92435b42cec0
 	github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210309094332-92435b42cec0 // indirect
-	github.com/go-admin-team/go-admin-core/sdk v0.0.0-20210309094332-92435b42cec0
+	github.com/go-admin-team/go-admin-core/sdk v0.0.0-20210310033039-117243556307
 	github.com/google/uuid v1.2.0
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2
