@@ -2,11 +2,10 @@ package system
 
 import (
 	"fmt"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"github.com/casbin/casbin/v2"
 	"gorm.io/gorm"
-
-	"go-admin/tools"
 )
 
 type RoleMenu struct {
@@ -159,7 +158,7 @@ func (rm *RoleMenu) Insert(tx *gorm.DB, enforcer *casbin.SyncedEnforcer, roleId 
 }
 
 func (rm *RoleMenu) Delete(tx *gorm.DB, RoleId string, MenuID string) (bool, error) {
-	rm.RoleId, _ = tools.StringToInt(RoleId)
+	rm.RoleId, _ = pkg.StringToInt(RoleId)
 	table := tx.Table("sys_role_menu").Where("role_id = ?", RoleId)
 	if MenuID != "" {
 		table = table.Where("menu_id = ?", MenuID)

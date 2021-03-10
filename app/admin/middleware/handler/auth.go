@@ -1,19 +1,20 @@
 package handler
 
 import (
-	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
-	jwt "go-admin/pkg/jwtauth"
-	"go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/config"
+	"go-admin/common/apis"
 )
 
 var store = base64Captcha.DefaultMemStore
@@ -60,7 +61,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
 	log := apis.GetRequestLogger(c)
-	db, err := tools.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -109,16 +110,16 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	log := apis.GetRequestLogger(c)
 	if config.LoggerConfig.EnabledDB {
 		var loginLog system.SysLoginLog
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Errorf("获取Orm失败, error:%s", err)
 		}
 		ua := user_agent.New(c.Request.UserAgent())
 		loginLog.Ipaddr = c.ClientIP()
 		loginLog.Username = username
-		location := tools.GetLocation(c.ClientIP())
+		location := pkg.GetLocation(c.ClientIP())
 		loginLog.LoginLocation = location
-		loginLog.LoginTime = tools.GetCurrentTime()
+		loginLog.LoginTime = pkg.GetCurrentTime()
 		loginLog.Status = status
 		loginLog.Remark = c.Request.UserAgent()
 		browserName, browserVersion := ua.Browser()
@@ -146,18 +147,18 @@ func LogOut(c *gin.Context) {
 	var loginLog system.SysLoginLog
 	ua := user_agent.New(c.Request.UserAgent())
 	loginLog.Ipaddr = c.ClientIP()
-	location := tools.GetLocation(c.ClientIP())
+	location := pkg.GetLocation(c.ClientIP())
 	loginLog.LoginLocation = location
-	loginLog.LoginTime = tools.GetCurrentTime()
+	loginLog.LoginTime = pkg.GetCurrentTime()
 	loginLog.Status = "2"
 	loginLog.Remark = c.Request.UserAgent()
 	browserName, browserVersion := ua.Browser()
 	loginLog.Browser = browserName + " " + browserVersion
 	loginLog.Os = ua.OS()
 	loginLog.Platform = ua.Platform()
-	loginLog.Username = tools.GetUserName(c)
+	loginLog.Username = user.GetUserName(c)
 	loginLog.Msg = "退出成功"
-	db, err := tools.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("获取Orm失败, error:%s", err)
 	}

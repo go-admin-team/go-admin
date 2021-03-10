@@ -1,22 +1,23 @@
 package actions
 
 import (
-	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
+	"go-admin/common/apis"
 	"go-admin/common/dto"
 	"go-admin/common/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 // CreateAction 通用新增动作
 func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := apis.GetRequestLogger(c)
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
@@ -35,7 +36,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 			return
 		}
-		object.SetCreateBy(tools.GetUserId(c))
+		object.SetCreateBy(user.GetUserId(c))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
 			log.Errorf("Create error: %s", err)

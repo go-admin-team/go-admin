@@ -5,25 +5,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 
-	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"go-admin/common/dto"
 	"go-admin/common/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 // ViewAction 通用详情动作
 func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := pkg.GenerateMsgIDFromContext(c)
 		//查看详情
 		req := control.Generate()
 		err = req.Bind(c)

@@ -3,16 +3,16 @@ package jobs
 import (
 	"fmt"
 	log "github.com/go-admin-team/go-admin-core/logger"
-	"go-admin/tools/app"
+	"github.com/go-admin-team/go-admin-core/sdk"
 	"gorm.io/gorm"
 	"sync"
 	"time"
 
 	"github.com/robfig/cron/v3"
 
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/cronjob"
 	"go-admin/app/admin/models"
-	"go-admin/pkg"
-	"go-admin/pkg/cronjob"
 )
 
 var timeFormat = "2006-01-02 15:04:05"
@@ -101,13 +101,13 @@ func Setup(dbs map[string]*gorm.DB) {
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
 
 	for k, db := range dbs {
-		app.Runtime.SetCrontab(k, cronjob.NewWithSeconds())
+		sdk.Runtime.SetCrontab(k, cronjob.NewWithSeconds())
 		setup(k, db)
 	}
 }
 
 func setup(key string, db *gorm.DB) {
-	crontab := app.Runtime.GetCrontabKey(key)
+	crontab := sdk.Runtime.GetCrontabKey(key)
 	sysJob := models.SysJob{}
 	jobList := make([]models.SysJob, 0)
 	err := sysJob.GetList(db, &jobList)

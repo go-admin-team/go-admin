@@ -3,7 +3,7 @@ package system
 import (
 	"fmt"
 	log "github.com/go-admin-team/go-admin-core/logger"
-	"go-admin/tools"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +21,7 @@ func (u *Login) GetUser(tx *gorm.DB) (user SysUser, role SysRole, err error) {
 		return
 	}
 	fmt.Println(user.Password, u.Password)
-	_, err = tools.CompareHashAndPassword(user.Password, u.Password)
+	_, err = pkg.CompareHashAndPassword(user.Password, u.Password)
 	if err != nil {
 		log.Errorf("user login error, %s", err.Error())
 		return

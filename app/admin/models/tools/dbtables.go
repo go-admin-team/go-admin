@@ -2,11 +2,11 @@ package tools
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"gorm.io/gorm"
 
-	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	config2 "github.com/go-admin-team/go-admin-core/sdk/config"
 )
 
 type DBTables struct {
@@ -36,7 +36,7 @@ func (e *DBTables) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBTables
 			return nil, 0, err
 		}
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
+		pkg.Assert(true, "目前只支持mysql数据库", 500)
 	}
 
 	//table.Count(&count)
@@ -56,7 +56,7 @@ func (e *DBTables) Get(tx *gorm.DB) (DBTables, error) {
 			return doc, err
 		}
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
+		pkg.Assert(true, "目前只支持mysql数据库", 500)
 	}
 	return doc, nil
 }

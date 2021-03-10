@@ -2,9 +2,9 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/apis/system/sys_config"
-	"go-admin/app/admin/middleware"
-	jwt "go-admin/pkg/jwtauth"
+	middleware2 "go-admin/common/middleware"
 )
 
 func init() {
@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	r := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	r := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		api := &sys_config.SysConfig{}
 		r.GET("", api.GetSysConfigList)

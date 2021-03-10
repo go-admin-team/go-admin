@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
 	"go-admin/common/global"
-	"go-admin/tools"
 )
 
 type SysRole struct {
@@ -126,7 +126,7 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.CreateBy = tools.GetUserId(c)
+	object.CreateBy = user.GetUserId(c)
 	if object.Status == "" {
 		object.Status = "2"
 	}
@@ -178,7 +178,7 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.UpdateBy = tools.GetUserId(c)
+	object.UpdateBy = user.GetUserId(c)
 
 	s := service.SysRole{}
 	s.Orm = db
@@ -259,7 +259,7 @@ func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
 		DataScope: control.DataScope,
 		DeptIds:   control.DeptIds,
 	}
-	data.UpdateBy = tools.GetUserId(c)
+	data.UpdateBy = user.GetUserId(c)
 	s := &service.SysRole{}
 	s.Orm = db
 	s.Log = log

@@ -2,11 +2,11 @@ package system
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 
 	log "github.com/go-admin-team/go-admin-core/logger"
-	"go-admin/tools"
-	"go-admin/tools/config"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 )
 
 type DataPermission struct {
@@ -19,7 +19,7 @@ type DataPermission struct {
 func (e *DataPermission) GetDataScope(tableName string, db *gorm.DB) (*gorm.DB, error) {
 
 	if !config.ApplicationConfig.EnableDP {
-		usageStr := `数据权限已经为您` + tools.Green(`关闭`) + `，如需开启请参考配置文件字段说明`
+		usageStr := `数据权限已经为您` + pkg.Green(`关闭`) + `，如需开启请参考配置文件字段说明`
 		log.Debug("%s\n", usageStr)
 		return db, nil
 	}
@@ -40,7 +40,7 @@ func (e *DataPermission) GetDataScope(tableName string, db *gorm.DB) (*gorm.DB, 
 		db = db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", user.DeptId)
 	}
 	if role.DataScope == "4" {
-		db = db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+tools.IntToString(user.DeptId)+"%")
+		db = db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+pkg.IntToString(user.DeptId)+"%")
 	}
 	if role.DataScope == "5" || role.DataScope == "" {
 		db = db.Where(tableName+".create_by = ?", e.UserId)
@@ -71,7 +71,7 @@ func DataScopes(tableName string, userId int) func(db *gorm.DB) *gorm.DB {
 			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", user.DeptId)
 		}
 		if role.DataScope == "4" {
-			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+tools.IntToString(user.DeptId)+"%")
+			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+pkg.IntToString(user.DeptId)+"%")
 		}
 		if role.DataScope == "5" || role.DataScope == "" {
 			return db.Where(tableName+".create_by = ?", userId)

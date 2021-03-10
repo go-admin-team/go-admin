@@ -2,14 +2,14 @@ package apis
 
 import (
 	"encoding/json"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go-admin/pkg/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"gorm.io/gorm"
 
 	"go-admin/common/models"
-	"go-admin/tools"
 )
 
 type Api struct {
@@ -22,7 +22,7 @@ func (e *Api) GetLogger(c *gin.Context) *logger.Logger {
 
 // GetOrm 获取Orm DB
 func (e *Api) GetOrm(c *gin.Context) (*gorm.DB, error) {
-	db, err := tools.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return nil, err
@@ -39,7 +39,7 @@ func (e *Api) Error(c *gin.Context, code int, err error, msg string) {
 	if msg != "" {
 		res.Msg = msg
 	}
-	res.RequestId = tools.GenerateMsgIDFromContext(c)
+	res.RequestId = pkg.GenerateMsgIDFromContext(c)
 	Return := res.ReturnError(code)
 	e.setResult(c, Return, res.RequestId, code)
 	c.AbortWithStatusJSON(http.StatusOK, Return)
@@ -52,7 +52,7 @@ func (e *Api) OK(c *gin.Context, data interface{}, msg string) {
 	if msg != "" {
 		res.Msg = msg
 	}
-	res.RequestId = tools.GenerateMsgIDFromContext(c)
+	res.RequestId = pkg.GenerateMsgIDFromContext(c)
 	Return := res.ReturnOK()
 	e.setResult(c, Return, res.RequestId, 200)
 	c.AbortWithStatusJSON(http.StatusOK, Return)
@@ -70,7 +70,7 @@ func (e *Api) PageOK(c *gin.Context, result interface{}, count int, pageIndex in
 
 // Custom 兼容函数
 func (e *Api) Custom(c *gin.Context, data gin.H) {
-	msgID := tools.GenerateMsgIDFromContext(c)
+	msgID := pkg.GenerateMsgIDFromContext(c)
 	Return := data
 	e.setResult(c, Return, msgID, 200)
 	c.AbortWithStatusJSON(http.StatusOK, Return)

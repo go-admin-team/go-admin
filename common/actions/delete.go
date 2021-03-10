@@ -4,24 +4,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
 	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+
 	"go-admin/common/dto"
 	"go-admin/common/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 // DeleteAction 通用删除动作
 func DeleteAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := pkg.GenerateMsgIDFromContext(c)
 		//删除操作
 		req := control.Generate()
 		err = req.Bind(c)
@@ -37,7 +38,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 			return
 		}
 
-		object.SetUpdateBy(tools.GetUserId(c))
+		object.SetUpdateBy(user.GetUserId(c))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)

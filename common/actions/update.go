@@ -4,24 +4,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
 	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+
 	"go-admin/common/dto"
 	"go-admin/common/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 // UpdateAction 通用更新动作
 func UpdateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := pkg.GenerateMsgIDFromContext(c)
 		req := control.Generate()
 		//更新操作
 		err = req.Bind(c)
@@ -35,7 +36,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 			return
 		}
-		object.SetUpdateBy(tools.GetUserId(c))
+		object.SetUpdateBy(user.GetUserId(c))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)

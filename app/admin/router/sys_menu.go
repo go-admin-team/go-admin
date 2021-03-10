@@ -2,9 +2,9 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/apis/system/sys_menu"
-	"go-admin/app/admin/middleware"
-	jwt "go-admin/pkg/jwtauth"
+	middleware2 "go-admin/common/middleware"
 )
 
 func init() {
@@ -21,7 +21,7 @@ func registerSysMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	//	menu.PUT("", system.UpdateMenu)
 	//	menu.DELETE("/:id", system.DeleteMenu)
 	//}
-	r := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	r := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		r.GET("", api.GetSysMenuList)
 		r.GET("/:id", api.GetSysMenu)

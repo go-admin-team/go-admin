@@ -7,7 +7,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/spf13/cobra"
 
-	"go-admin/tools/config"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 )
 
 var (

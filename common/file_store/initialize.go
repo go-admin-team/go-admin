@@ -1,7 +1,6 @@
 package file_store
 
 type FileStore struct {
-
 }
 
 // Setup 配置数据库

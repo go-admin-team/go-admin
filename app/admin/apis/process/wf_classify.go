@@ -1,15 +1,16 @@
 package process
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-admin/app/admin/service"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type WfProcessClassify struct {
@@ -104,7 +105,7 @@ func (e *WfProcessClassify) InsertWfProcessClassify(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceWfProcessClassify := service.WfProcessClassify{}
 	serviceWfProcessClassify.Orm = db
@@ -139,7 +140,7 @@ func (e *WfProcessClassify) UpdateWfProcessClassify(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -174,7 +175,7 @@ func (e *WfProcessClassify) DeleteWfProcessClassify(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	control.SetUpdateBy(tools.GetUserId(c))
+	control.SetUpdateBy(user.GetUserId(c))
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)

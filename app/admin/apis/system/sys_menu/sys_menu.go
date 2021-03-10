@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type SysMenu struct {
@@ -131,7 +131,7 @@ func (e *SysMenu) InsertSysMenu(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceSysMenu := service.SysMenu{}
 	serviceSysMenu.Orm = db
@@ -179,7 +179,7 @@ func (e *SysMenu) UpdateSysMenu(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysMenu := service.SysMenu{}
 	serviceSysMenu.Orm = db
@@ -249,7 +249,7 @@ func (e *SysMenu) GetMenuRole(c *gin.Context) {
 	serviceSysMenu := service.SysMenu{}
 	serviceSysMenu.Log = log
 	serviceSysMenu.Orm = db
-	result, err := serviceSysMenu.SetMenuRole(tools.GetRoleName(c))
+	result, err := serviceSysMenu.SetMenuRole(user.GetRoleName(c))
 
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "查询失败")
@@ -276,7 +276,7 @@ func (e *SysMenu) GetMenuIDS(c *gin.Context) {
 	}
 	var data models.RoleMenu
 	data.RoleName = c.GetString("role")
-	data.UpdateBy = tools.GetUserIdStr(c)
+	data.UpdateBy = user.GetUserIdStr(c)
 	result, err := data.GetIDS(db)
 	if err != nil {
 		log.Errorf("GetIDS error, %s", err.Error())

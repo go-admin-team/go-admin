@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type SysOperaLog struct {
@@ -96,7 +96,7 @@ func (e *SysOperaLog) InsertSysOperaLog(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceSysOperaLog := service.SysOperaLog{}
 	serviceSysOperaLog.Orm = db
@@ -131,7 +131,7 @@ func (e *SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysOperaLog := service.SysOperaLog{}
 	serviceSysOperaLog.Orm = db

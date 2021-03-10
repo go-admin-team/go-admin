@@ -1,13 +1,14 @@
 package middleware
 
 import (
-	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/pkg/jwtauth"
-	"go-admin/tools/app"
+	"go-admin/common/apis"
 )
 
 //权限检查中间件
@@ -16,7 +17,7 @@ func AuthCheckRole() gin.HandlerFunc {
 		log := apis.GetRequestLogger(c)
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := app.Runtime.GetCasbinKey(c.Request.Host)
+		e := sdk.Runtime.GetCasbinKey(c.Request.Host)
 		var res bool
 		var err error
 		//检查权限

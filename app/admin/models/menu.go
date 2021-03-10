@@ -2,11 +2,11 @@ package models
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/system"
-	"go-admin/tools"
 )
 
 type Menu struct {
@@ -274,7 +274,7 @@ func (e *Menu) GetPage(tx *gorm.DB) (Menus []Menu, err error) {
 
 	// 数据权限控制
 	dataPermission := new(system.DataPermission)
-	dataPermission.UserId, _ = tools.StringToInt(e.DataScope)
+	dataPermission.UserId, _ = pkg.StringToInt(e.DataScope)
 	table, err = dataPermission.GetDataScope("sys_menu", table)
 	if err != nil {
 		return nil, err
@@ -307,9 +307,9 @@ func InitPaths(tx *gorm.DB, menu *Menu) (err error) {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return
 		}
-		menu.Paths = parentMenu.Paths + "/" + tools.IntToString(menu.MenuId)
+		menu.Paths = parentMenu.Paths + "/" + pkg.IntToString(menu.MenuId)
 	} else {
-		menu.Paths = "/0/" + tools.IntToString(menu.MenuId)
+		menu.Paths = "/0/" + pkg.IntToString(menu.MenuId)
 	}
 	tx.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return

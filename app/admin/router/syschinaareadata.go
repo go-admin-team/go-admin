@@ -2,9 +2,9 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/apis/sys_china_area_data"
-	"go-admin/app/admin/middleware"
-	jwt "go-admin/pkg/jwtauth"
+	middleware2 "go-admin/common/middleware"
 )
 
 func init() {
@@ -14,7 +14,7 @@ func init() {
 // 需认证的路由代码
 func registerSysChinaAreaDataRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	api := &sys_china_area_data.SysChinaAreaData{}
-	r := v1.Group("/sys_china_area_data").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	r := v1.Group("/sys_china_area_data").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		r.GET("", api.GetSysChinaAreaDataList)
 		r.GET("/:id", api.GetSysChinaAreaData)

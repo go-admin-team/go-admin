@@ -1,7 +1,7 @@
 package service
 
 import (
-	"go-admin/pkg/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"gorm.io/gorm"
 )
 

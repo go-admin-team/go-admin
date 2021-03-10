@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
-	"go-admin/tools"
 )
 
 type SysLoginLog struct {
@@ -96,7 +96,7 @@ func (e *SysLoginLog) InsertSysLoginLog(c *gin.Context) {
 		return
 	}
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
@@ -131,7 +131,7 @@ func (e *SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db
@@ -168,7 +168,7 @@ func (e *SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Orm = db

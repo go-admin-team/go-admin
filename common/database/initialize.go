@@ -1,7 +1,9 @@
 package database
 
 import (
-	"go-admin/tools/app"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"go-admin/common/global"
 	. "log"
 	"time"
 
@@ -12,9 +14,8 @@ import (
 	"gorm.io/gorm/schema"
 
 	log "github.com/go-admin-team/go-admin-core/logger"
-	mycasbin "go-admin/pkg/casbin"
-	"go-admin/tools"
-	toolsConfig "go-admin/tools/config"
+	toolsConfig "github.com/go-admin-team/go-admin-core/sdk/config"
+	mycasbin "github.com/go-admin-team/go-admin-core/sdk/pkg/casbin"
 )
 
 // Setup 配置数据库
@@ -25,10 +26,10 @@ func Setup() {
 }
 
 func setupSimpleDatabase(host string, c *toolsConfig.Database) {
-	if app.Driver == "" {
-		app.Driver = c.Driver
+	if global.Driver == "" {
+		global.Driver = c.Driver
 	}
-	log.Infof("%s => %s", host, tools.Green(c.Source))
+	log.Infof("%s => %s", host, pkg.Green(c.Source))
 	registers := make([]toolsDB.ResolverConfigure, len(c.Registers))
 	for i := range c.Registers {
 		registers[i] = toolsDB.NewResolverConfigure(
@@ -54,9 +55,9 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 	}, opens[c.Driver])
 
 	if err != nil {
-		log.Fatal(tools.Red(c.Driver+" connect error :"), err)
+		log.Fatal(pkg.Red(c.Driver+" connect error :"), err)
 	} else {
-		log.Info(tools.Green(c.Driver + " connect success !"))
+		log.Info(pkg.Green(c.Driver + " connect success !"))
 	}
 
 	e := mycasbin.Setup(db, "sys_")
@@ -65,6 +66,6 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 	//	global.Eloquent = db
 	//}
 
-	app.Runtime.SetDb(host, db)
-	app.Runtime.SetCasbin(host, e)
+	sdk.Runtime.SetDb(host, db)
+	sdk.Runtime.SetCasbin(host, e)
 }

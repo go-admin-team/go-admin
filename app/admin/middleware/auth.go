@@ -3,9 +3,9 @@ package middleware
 import (
 	"time"
 
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/middleware/handler"
-	jwt "go-admin/pkg/jwtauth"
-	"go-admin/tools/config"
 )
 
 // AuthInit jwt验证new

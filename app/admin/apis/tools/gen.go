@@ -2,39 +2,39 @@ package tools
 
 import (
 	"bytes"
-	"go-admin/common/apis"
 	"net/http"
 	"text/template"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
-	tools2 "go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/config"
+	"go-admin/common/apis"
 )
 
 func Preview(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
 	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	pkg.HasError(err, "", -1)
 	table.TableId = id
 	t1, err := template.ParseFiles("template/v4/model.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t2, err := template.ParseFiles("template/v4/no_actions/apis.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t3, err := template.ParseFiles("template/v4/js.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t4, err := template.ParseFiles("template/v4/vue.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t5, err := template.ParseFiles("template/v4/no_actions/router_check_role.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t6, err := template.ParseFiles("template/v4/dto.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -71,10 +71,10 @@ func Preview(c *gin.Context) {
 func GenCodeV3(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
 	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	pkg.HasError(err, "", -1)
 
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
@@ -103,26 +103,26 @@ func NOActionsGenV3(tab tools.SysTables) {
 	}
 
 	t1, err := template.ParseFiles(basePath + "model.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t2, err := template.ParseFiles(basePath + "no_actions/apis.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t3, err := template.ParseFiles(routerFile)
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t4, err := template.ParseFiles(basePath + "js.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -138,13 +138,13 @@ func NOActionsGenV3(tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
-	tools2.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
+	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
+	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
+	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
+	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
+	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
 
 }
 
@@ -157,21 +157,21 @@ func ActionsGenV3(tab tools.SysTables) {
 	}
 
 	t1, err := template.ParseFiles(basePath + "model.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t3, err := template.ParseFiles(routerFile)
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t4, err := template.ParseFiles(basePath + "js.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "", -1)
 
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -184,22 +184,22 @@ func ActionsGenV3(tab tools.SysTables) {
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
 
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
+	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
+	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
+	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
 }
 
 func GenMenuAndApi(c *gin.Context) {
 	log := apis.GetRequestLogger(c)
 
 	table := tools.SysTables{}
-	timeNow := tools2.GetCurrentTime()
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	timeNow := pkg.GetCurrentTime()
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	pkg.HasError(err, "", -1)
 
-	db, err := tools2.GetOrm(c)
+	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
 		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")

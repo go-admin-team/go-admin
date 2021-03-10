@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
 	common "go-admin/common/models"
-	"go-admin/tools"
 )
 
 type SysDictType struct {
@@ -122,7 +122,7 @@ func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 	}
 	object, _ := req.GenerateM()
 	// 设置创建人
-	object.SetCreateBy(tools.GetUserId(c))
+	object.SetCreateBy(user.GetUserId(c))
 
 	s := service.SysDictType{}
 	s.Orm = db
@@ -163,7 +163,7 @@ func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 		return
 	}
 	object, _ := req.GenerateM()
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	s := service.SysDictType{}
 	s.Orm = db
@@ -207,7 +207,7 @@ func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(tools.GetUserId(c))
+	object.SetUpdateBy(user.GetUserId(c))
 
 	s := service.SysDictType{}
 	s.Orm = db
