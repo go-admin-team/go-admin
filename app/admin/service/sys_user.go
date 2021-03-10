@@ -27,6 +27,7 @@ func (e *SysUser) GetSysUserPage(c cDto.Index, p *actions.DataPermission, list *
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
 			actions.Permission(data.TableName(), p),
 		).
+		Preload("Dept").
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
