@@ -33,6 +33,8 @@ func Preview(c *gin.Context) {
 	pkg.HasError(err, "", -1)
 	t6, err := template.ParseFiles("template/v4/dto.go.template")
 	pkg.HasError(err, "", -1)
+	t7, err := template.ParseFiles("template/v4/no_actions/service.go.template")
+	pkg.HasError(err, "", -1)
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
@@ -54,6 +56,8 @@ func Preview(c *gin.Context) {
 	err = t5.Execute(&b5, tab)
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
+	var b7 bytes.Buffer
+	err = t7.Execute(&b7, tab)
 
 	mp := make(map[string]interface{})
 	mp["template/model.go.template"] = b1.String()
@@ -62,6 +66,7 @@ func Preview(c *gin.Context) {
 	mp["template/vue.go.template"] = b4.String()
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
+	mp["template/service.go.template"] = b7.String()
 	var res app.Response
 	res.Data = mp
 

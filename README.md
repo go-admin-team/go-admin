@@ -231,6 +231,15 @@ npm run dev
   </tr>
 </table>
 
+## 💎 主要成员
+
+<a href="https://github.com/wenjianzhang"> <img src="https://avatars.githubusercontent.com/u/3890175?s=460&u=20eac63daef81588fbac611da676b99859319251&v=4" width="80px"></a>
+<a href="https://github.com/lwnmengjing"> <img src="https://avatars.githubusercontent.com/u/12806223?s=400&u=a89272dce50100b77b4c0d5c81c718bf78ebb580&v=4" width="80px"></a>
+<a href="https://github.com/chengxiao"> <img src="https://avatars.githubusercontent.com/u/1379545?s=460&u=557da5503d0ac4a8628df6b4075b17853d5edcd9&v=4" width="80px"></a>
+<a href="https://github.com/bing127"> <img src="https://avatars.githubusercontent.com/u/31166183?s=460&u=c085bff88df10bb7676c8c0351ba9dcd031d1fb3&v=4" width="80px"></a>
+
+
+
 ## JetBrains 开源证书支持
 
 `go-admin` 项目一直以来都是在 JetBrains 公司旗下的 GoLand 集成开发环境中进行开发，基于 **free JetBrains Open Source license(s)** 正版免费授权，在此表达我的谢意。
@@ -262,7 +271,7 @@ npm run dev
 
 zhuqiyun LLL狐 星星之火 cjj770 Sam 唐*i 晓聪 aLong *渊 海马 魏镇坪 + 111 *哥 我的宇哥哥 *声 *节
 
-## 🤝友情链接
+## 🤝 链接
 [Go开发者成长线路图](http://www.golangroadmap.com/)
 
 ## 🔑 License
@@ -270,4 +279,3 @@ zhuqiyun LLL狐 星星之火 cjj770 Sam 唐*i 晓聪 aLong *渊 海马 魏镇坪
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
 Copyright (c) 2020 wenjianzhang
-

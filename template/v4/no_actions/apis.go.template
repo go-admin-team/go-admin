@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
@@ -18,6 +17,22 @@ type {{.ClassName}} struct {
 	apis.Api
 }
 
+// @Summary 获取{{.TableComment}}列表
+// @Description 获取{{.TableComment}}列表
+// @Tags {{.TableComment}}
+{{ $tablename := .TBName -}}
+{{ range .Columns -}}
+{{$z := .IsQuery}}
+{{- if ($z) -}}
+// @Param {{.JsonField}} query {{.GoType}} false "{{.ColumnComment}}"
+{{ end -}}
+{{- end }}
+// @Param pageSize query int false "页条数"
+// @Param pageIndex query int false "页码"
+// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/{{.ModuleName}} [get]
+// @Security Bearer
+// Get{{.ClassName}}List 获取{{.TableComment}}列表
 func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
     log := e.GetLogger(c)
 	db, err := e.GetOrm(c)
@@ -53,6 +68,15 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
+// @Summary 获取{{.TableComment}}
+// @Description 获取{{.TableComment}}
+// @Tags {{.TableComment}}
+// @Param id path string false "id"
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/{{.ModuleName}} [get]
+// @Security Bearer
+// Get{{.ClassName}} 获取{{.TableComment}}
 func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
     db, err := e.GetOrm(c)
@@ -88,6 +112,16 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 	e.OK(c, object, "查看成功")
 }
 
+// @Summary 创建{{.TableComment}}
+// @Description 创建{{.TableComment}}
+// @Tags {{.TableComment}}
+// @Accept  application/json
+// @Product application/json
+// @Param data body dto.{{.ClassName}}Control true "data"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/{{.ClassName}} [post]
+// Insert{{.ClassName}} 创建{{.TableComment}}
 func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
     db, err := e.GetOrm(c)
@@ -127,6 +161,16 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 	e.OK(c, object.GetId(), "创建成功")
 }
 
+// @Summary 修改{{.TableComment}}
+// @Description 修改{{.TableComment}}
+// @Tags {{.TableComment}}
+// @Accept  application/json
+// @Product application/json
+// @Param data body dto.{{.ClassName}}Control true "body"
+// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @Router /api/v1/{{.ClassName}} [put]
+// Update{{.ClassName}} 修改{{.TableComment}}
 func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
     db, err := e.GetOrm(c)
@@ -167,6 +211,15 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 	e.OK(c, object.GetId(), "更新成功")
 }
 
+// @Summary 删除{{.TableComment}}
+// @Description 删除{{.TableComment}}
+// @Tags {{.TableComment}}
+// @Param id path int false "id"
+// @Param ids body string false "ids"
+// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Router /api/v1/{{.ClassName}}/{id} [delete]
+// Delete{{.ClassName}} 删除{{.TableComment}}
 func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
     db, err := e.GetOrm(c)
