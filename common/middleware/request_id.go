@@ -18,6 +18,7 @@ func RequestId(trafficKey string) gin.HandlerFunc {
 			requestId = uuid.New().String()
 		}
 		c.Header(trafficKey, requestId)
+		c.Set(trafficKey, requestId)
 		c.Next()
 	}
 }
