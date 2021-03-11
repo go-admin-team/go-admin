@@ -139,7 +139,7 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	object, err := control.Generate()
+	object, err := control.GenerateM()
 	if err != nil {
 		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
@@ -151,7 +151,7 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.Orm = db
 	service{{.ClassName}}.Log = log
-	err = service{{.ClassName}}.Insert{{.ClassName}}(object)
+	err = service{{.ClassName}}.Insert{{.ClassName}}(object.(*(models.{{.ClassName}})))
 	if err != nil {
 		log.Errorf("Insert {{.ClassName}} error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
@@ -188,7 +188,7 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	object, err := control.Generate()
+	object, err := control.GenerateM()
 	if err != nil {
 		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
@@ -202,7 +202,7 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.Orm = db
 	service{{.ClassName}}.Log = log
-	err = service{{.ClassName}}.Update{{.ClassName}}(object, p)
+	err = service{{.ClassName}}.Update{{.ClassName}}(object.(*models.{{.ClassName}}), p)
 	if err != nil {
 		log.Errorf("Update {{.ClassName}} error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "更新失败")

@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/{{.PackageName}}/models"
-	common "go-admin/common/models"
 	"go-admin/common/dto"
 	"go-admin/common/apis"
+	common "go-admin/common/models"
 )
 
 type {{.ClassName}}Search struct {
@@ -22,6 +22,11 @@ type {{.ClassName}}Search struct {
 
 func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
 	return *m
+}
+
+func (m *{{.ClassName}}Search) Generate() dto.Index {
+	o := *m
+	return &o
 }
 
 func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
@@ -49,6 +54,11 @@ type {{.ClassName}}Control struct {
     {{- end }}
 }
 
+func (s *{{.ClassName}}Control) Generate() dto.Control {
+	o := *s
+	return &o
+}
+
 func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
 	log := apis.GetRequestLogger(ctx)
     err := ctx.ShouldBindUri(s)
@@ -63,7 +73,7 @@ func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
     return err
 }
 
-func (s *{{.ClassName}}Control) Generate() (*models.{{.ClassName}}, error) {
+func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
 	return &models.{{.ClassName}}{
 	{{ range .Columns -}}
         {{$x := .Pk}}
@@ -86,8 +96,7 @@ func (s *{{.ClassName}}Control) GetId() interface{} {
 }
 
 type {{.ClassName}}ById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
+	dto.ObjectById
 }
 
 func (s *{{.ClassName}}ById) GetId() interface{} {
@@ -114,4 +123,13 @@ func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
 
 func (s *{{.ClassName}}ById) SetUpdateBy(id int) {
 
+}
+
+func (s *{{.ClassName}}ById) Generate() dto.Control {
+	o := *s
+	return &o
+}
+
+func (s *{{.ClassName}}ById) GenerateM() (common.ActiveRecord, error) {
+	return &models.{{.ClassName}}{}, nil
 }

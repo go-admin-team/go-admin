@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"go-admin/common/apis"
 )
 
 type ObjectById struct {
@@ -13,13 +15,16 @@ type ObjectById struct {
 
 func (s *ObjectById) Bind(ctx *gin.Context) error {
 	var err error
+	log := apis.GetRequestLogger(ctx)
 	err = ctx.ShouldBindUri(s)
 	if err != nil {
+		log.Warnf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	if ctx.Request.Method == http.MethodDelete {
 		err = ctx.ShouldBind(&s.Ids)
 		if err != nil {
+			log.Warnf("ShouldBind error: %s", err.Error())
 			return err
 		}
 		if len(s.Ids) > 0 {
@@ -37,6 +42,7 @@ func (s *ObjectById) Bind(ctx *gin.Context) error {
 
 func (s *ObjectById) GetId() interface{} {
 	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
 		return s.Ids
 	}
 	return s.Id
