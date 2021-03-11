@@ -134,5 +134,6 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	}
 	serviceOperaLog := service.SysOperaLog{}
 	serviceOperaLog.Orm = db
+	serviceOperaLog.Log = log
 	_ = serviceOperaLog.InsertSysOperaLog(&sysOperaLog)
 }
