@@ -8,9 +8,8 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190307165228-86c17b95fcd5
 	github.com/casbin/casbin/v2 v2.25.1
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-admin-team/go-admin-core v1.3.0-rc.0.0.20210309094332-92435b42cec0
-	github.com/go-admin-team/go-admin-core/plugins/logger/zap v0.0.0-20210309094332-92435b42cec0 // indirect
-	github.com/go-admin-team/go-admin-core/sdk v1.3.0
+	github.com/go-admin-team/go-admin-core v1.3.0
+	github.com/go-admin-team/go-admin-core/sdk v1.3.0-rc.2
 	github.com/google/uuid v1.2.0
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2
@@ -25,6 +24,7 @@ require (
 	github.com/unrolled/secure v1.0.8
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
+	golang.org/x/tools v0.0.0-20210115202250-e0d201561e39 // indirect
 	gorm.io/driver/mysql v1.0.4-0.20201206014609-ae5fd10184f6
 	gorm.io/driver/postgres v1.0.6-0.20201208020313-1ed927cfab53
 	gorm.io/driver/sqlite v1.1.5-0.20201206014648-c84401fbe3ba
