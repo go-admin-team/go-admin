@@ -8,11 +8,9 @@ import (
 
 type {{.ClassName}} struct {
     models.Model
-    models.ControlBy
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
@@ -21,6 +19,8 @@ type {{.ClassName}} struct {
     {{- else }}
     {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"type:{{.ColumnType}};comment:{{- if eq .ColumnComment "" -}}{{.GoField}}{{- else -}}{{.ColumnComment}}{{end -}}"` {{end -}}
     {{- end }}
+    models.ModelTime
+    models.ControlBy
 }
 
 func ({{.ClassName}}) TableName() string {
