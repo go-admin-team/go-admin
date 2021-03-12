@@ -2,9 +2,9 @@ package dto
 
 import (
 	"encoding/json"
-	"go-admin/common/apis"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models"
 )
@@ -18,7 +18,7 @@ type SysSettingControl struct {
 
 // Bind 映射上下文中的结构体数据
 func (s *SysSettingControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 
 	err := ctx.ShouldBind(s)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *SysSettingById) GetId() interface{} {
 }
 
 func (s *SysSettingById) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())

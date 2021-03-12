@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/common/apis"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
@@ -24,7 +24,7 @@ func (m *SysJobSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysJobSearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)

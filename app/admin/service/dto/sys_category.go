@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/common/apis"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
@@ -21,7 +21,7 @@ func (m *SysCategorySearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysCategorySearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -49,7 +49,7 @@ type SysCategoryControl struct {
 }
 
 func (s *SysCategoryControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())

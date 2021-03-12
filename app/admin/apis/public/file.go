@@ -9,10 +9,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/utils"
 	"github.com/google/uuid"
 
+	"go-admin/common/apis"
 	"go-admin/common/file_store"
 )
 
@@ -24,6 +24,10 @@ type FileResponse struct {
 	Type     string `json:"type"`
 }
 
+type File struct {
+	apis.Api
+}
+
 // @Summary 上传图片
 // @Description 获取JSON
 // @Tags 公共接口
@@ -33,35 +37,36 @@ type FileResponse struct {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/public/uploadFile [post]
-func UploadFile(c *gin.Context) {
+func (e *File) UploadFile(c *gin.Context) {
 	tag, _ := c.GetPostForm("type")
 	urlPerfix := fmt.Sprintf("http://%s/", c.Request.Host)
 	var fileResponse FileResponse
 	if tag == "" {
-		app.Error(c, 200, errors.New(""), "缺少标识")
+		e.Error(c, 500, nil, "缺少标识")
+		//app.Error(c, 200, errors.New(""), "缺少标识")
 		return
 	} else {
 		switch tag {
 		case "1": // 单图
 			var done bool
-			fileResponse, done = singleFile(c, fileResponse, urlPerfix)
+			fileResponse, done = e.singleFile(c, fileResponse, urlPerfix)
 			if done {
 				return
 			}
-			app.OK(c, fileResponse, "上传成功")
+			e.OK(c, fileResponse, "上传成功")
 			return
 		case "2": // 多图
-			multipartFile := multipleFile(c, urlPerfix)
-			app.OK(c, multipartFile, "上传成功")
+			multipartFile := e.multipleFile(c, urlPerfix)
+			e.OK(c, multipartFile, "上传成功")
 			return
 		case "3": // base64
-			fileResponse = baseImg(c, fileResponse, urlPerfix)
-			app.OK(c, fileResponse, "上传成功")
+			fileResponse = e.baseImg(c, fileResponse, urlPerfix)
+			e.OK(c, fileResponse, "上传成功")
 		}
 	}
 }
 
-func baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix string) FileResponse {
+func (e *File) baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix string) FileResponse {
 	files, _ := c.GetPostForm("file")
 	file2list := strings.Split(files, ",")
 	ddd, _ := base64.StdEncoding.DecodeString(file2list[1])
@@ -80,7 +85,7 @@ func baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix string) FileRe
 	source, _ := c.GetPostForm("source")
 	err := thirdUpload(source, fileName, base64File)
 	if err != nil {
-		app.Error(c, 200, errors.New(""), "上传第三方失败")
+		e.Error(c, 200, errors.New(""), "上传第三方失败")
 		return fileResponse
 	}
 	if source != "1" {
@@ -90,7 +95,7 @@ func baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix string) FileRe
 	return fileResponse
 }
 
-func multipleFile(c *gin.Context, urlPerfix string) []FileResponse {
+func (e *File) multipleFile(c *gin.Context, urlPerfix string) []FileResponse {
 	files := c.Request.MultipartForm.File["file"]
 	source, _ := c.GetPostForm("source")
 	var multipartFile []FileResponse
@@ -98,12 +103,12 @@ func multipleFile(c *gin.Context, urlPerfix string) []FileResponse {
 		guid := uuid.New().String()
 		fileName := guid + utils.GetExt(f.Filename)
 		multipartFileName := "static/uploadfile/" + fileName
-		e := c.SaveUploadedFile(f, multipartFileName)
+		err1 := c.SaveUploadedFile(f, multipartFileName)
 		fileType, _ := utils.GetType(multipartFileName)
-		if e == nil {
+		if err1 == nil {
 			err := thirdUpload(source, fileName, multipartFileName)
 			if err != nil {
-				app.Error(c, 200, errors.New(""), "上传第三方失败")
+				e.Error(c, 500, errors.New(""), "上传第三方失败")
 			} else {
 				fileResponse := FileResponse{
 					Size:     pkg.GetFileSize(multipartFileName),
@@ -123,11 +128,11 @@ func multipleFile(c *gin.Context, urlPerfix string) []FileResponse {
 	return multipartFile
 }
 
-func singleFile(c *gin.Context, fileResponse FileResponse, urlPerfix string) (FileResponse, bool) {
+func (e *File) singleFile(c *gin.Context, fileResponse FileResponse, urlPerfix string) (FileResponse, bool) {
 	files, err := c.FormFile("file")
 
 	if err != nil {
-		app.Error(c, 200, errors.New(""), "图片不能为空")
+		e.Error(c, 200, errors.New(""), "图片不能为空")
 		return FileResponse{}, true
 	}
 	// 上传文件至指定目录
@@ -147,7 +152,7 @@ func singleFile(c *gin.Context, fileResponse FileResponse, urlPerfix string) (Fi
 	source, _ := c.GetPostForm("source")
 	err = thirdUpload(source, fileName, singleFile)
 	if err != nil {
-		app.Error(c, 200, errors.New(""), "上传第三方失败")
+		e.Error(c, 200, errors.New(""), "上传第三方失败")
 		return FileResponse{}, true
 	}
 	fileResponse.Path = "https://youshikeji.oss-cn-shanghai.aliyuncs.com/img/" + fileName

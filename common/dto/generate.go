@@ -4,8 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	"go-admin/common/apis"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 )
 
 type ObjectById struct {
@@ -15,7 +14,7 @@ type ObjectById struct {
 
 func (s *ObjectById) Bind(ctx *gin.Context) error {
 	var err error
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err = ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Warnf("ShouldBindUri error: %s", err.Error())

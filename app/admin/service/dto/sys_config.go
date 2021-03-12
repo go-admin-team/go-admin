@@ -2,10 +2,12 @@ package dto
 
 import (
 	"encoding/json"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
+
 	"go-admin/app/admin/models/system"
-	"go-admin/common/apis"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -24,7 +26,7 @@ func (m *SysConfigSearch) GetNeedSearch() interface{} {
 
 // Bind 映射上下文中的结构体数据
 func (m *SysConfigSearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -44,7 +46,7 @@ type SysConfigControl struct {
 
 // Bind 映射上下文中的结构体数据
 func (s *SysConfigControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())
@@ -96,7 +98,7 @@ func (s *SysConfigById) GetId() interface{} {
 }
 
 func (s *SysConfigById) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())

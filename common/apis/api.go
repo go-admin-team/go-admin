@@ -2,10 +2,11 @@ package apis
 
 import (
 	"encoding/json"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"gorm.io/gorm"
 
@@ -17,7 +18,7 @@ type Api struct {
 
 // GetLogger 获取上下文提供的日志
 func (e *Api) GetLogger(c *gin.Context) *logger.Logger {
-	return GetRequestLogger(c)
+	return api.GetRequestLogger(c)
 }
 
 // GetOrm 获取Orm DB

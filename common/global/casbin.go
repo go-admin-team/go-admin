@@ -4,11 +4,11 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk"
-	"go-admin/common/apis"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 )
 
 func LoadPolicy(c *gin.Context) (*casbin.SyncedEnforcer, error) {
-	log := apis.GetRequestLogger(c)
+	log := api.GetRequestLogger(c)
 	if err := sdk.Runtime.GetCasbinKey(c.Request.Host).LoadPolicy(); err == nil {
 		return sdk.Runtime.GetCasbinKey(c.Request.Host), err
 	} else {

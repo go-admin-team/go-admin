@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
@@ -14,7 +15,6 @@ import (
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
-	"go-admin/common/apis"
 )
 
 var store = base64Captcha.DefaultMemStore
@@ -60,11 +60,11 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
-	log := apis.GetRequestLogger(c)
+	log := api.GetRequestLogger(c)
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db error, %s", err.Error())
-		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		response.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return nil, jwt.ErrFailedAuthentication
 	}
 
@@ -107,7 +107,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 
 // LoginLogToDB Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
-	log := apis.GetRequestLogger(c)
+	log := api.GetRequestLogger(c)
 	if config.LoggerConfig.EnabledDB {
 		var loginLog system.SysLoginLog
 		db, err := pkg.GetOrm(c)
@@ -143,7 +143,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Router /logout [post]
 // @Security Bearer
 func LogOut(c *gin.Context) {
-	log := apis.GetRequestLogger(c)
+	log := api.GetRequestLogger(c)
 	var loginLog system.SysLoginLog
 	ua := user_agent.New(c.Request.UserAgent())
 	loginLog.Ipaddr = c.ClientIP()

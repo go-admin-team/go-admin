@@ -1,15 +1,14 @@
 package tools
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/tools"
-	"go-admin/common/apis"
 )
 
 // @Summary 分页列表数据 / page list data
@@ -20,16 +19,18 @@ import (
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
-func GetDBTableList(c *gin.Context) {
-	var res app.Response
+func (e *Gen) GetDBTableList(c *gin.Context) {
+	//var res app.Response
 	var data tools.DBTables
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
-	log := apis.GetRequestLogger(c)
+	log := e.GetLogger(c)
 	if config.DatabaseConfig.Driver == "sqlite3" || config.DatabaseConfig.Driver == "postgres" {
-		res.Msg = "对不起，sqlite3 或 postgres 不支持代码生成！"
-		c.JSON(http.StatusOK, res.ReturnError(500))
+		err = errors.New("对不起，sqlite3 或 postgres 不支持代码生成！")
+		log.Warn(err)
+		e.Error(c, 403, err, "")
+		//c.JSON(http.StatusOK, res.ReturnError(500))
 		return
 	}
 
@@ -44,21 +45,16 @@ func GetDBTableList(c *gin.Context) {
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
 	result, count, err := data.GetPage(db, pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
-
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
-
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	if err != nil {
+		log.Errorf("GetPage error, %s", err.Error())
+		e.Error(c, 500, err, "")
+		return
+	}
+	e.PageOK(c, result, count, pageIndex, pageSize, "查询成功")
 }

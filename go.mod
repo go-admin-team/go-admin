@@ -9,7 +9,7 @@ require (
 	github.com/casbin/casbin/v2 v2.25.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-admin-team/go-admin-core v1.3.0
-	github.com/go-admin-team/go-admin-core/sdk v1.3.0-rc.2
+	github.com/go-admin-team/go-admin-core/sdk v1.3.0-rc.2.0.20210312075832-894c7ed987f2
 	github.com/google/uuid v1.2.0
 	github.com/mojocn/base64Captcha v1.3.1
 	github.com/mssola/user_agent v0.5.2

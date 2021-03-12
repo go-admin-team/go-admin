@@ -1,11 +1,11 @@
 package monitor
 
 import (
+	"go-admin/common/apis"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
@@ -18,12 +18,16 @@ const (
 	GB = 1024 * MB
 )
 
+type Monitor struct {
+	apis.Api
+}
+
 // @Summary 系统信息
 // @Description 获取JSON
 // @Tags 系统信息
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/settings/serverInfo [get]
-func ServerInfo(c *gin.Context) {
+func (e *Monitor) ServerInfo(c *gin.Context) {
 
 	osDic := make(map[string]interface{}, 0)
 	osDic["goOs"] = runtime.GOOS
@@ -59,7 +63,7 @@ func ServerInfo(c *gin.Context) {
 	cpuDic["Percent"] = pkg.Round(percent[0], 2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
-	app.Custum(c, gin.H{
+	e.Custom(c, gin.H{
 		"code": 200,
 		"os":   osDic,
 		"mem":  memDic,

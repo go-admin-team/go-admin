@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
@@ -30,7 +29,7 @@ func (e *SysConfig) GetSysConfigList(c *gin.Context) {
 	err = d.Bind(c)
 	if err != nil {
 		log.Errorf("参数验证失败, error:%s", err)
-		app.Error(c, 500, err, "参数验证失败")
+		e.Error(c, 500, err, "参数验证失败")
 		return
 	}
 
@@ -42,7 +41,7 @@ func (e *SysConfig) GetSysConfigList(c *gin.Context) {
 	err = s.GetSysConfigPage(d, &list, &count)
 	if err != nil {
 		log.Errorf("GetSysConfigPage 查询失败, error:%s", err)
-		app.Error(c, 500, err, "查询失败")
+		e.Error(c, 500, err, "查询失败")
 		return
 	}
 	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
@@ -61,7 +60,7 @@ func (e *SysConfig) GetSysConfig(c *gin.Context) {
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	var object system.SysConfig
@@ -73,7 +72,7 @@ func (e *SysConfig) GetSysConfig(c *gin.Context) {
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 
@@ -94,14 +93,14 @@ func (e *SysConfig) InsertSysConfig(c *gin.Context) {
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	// 设置创建人
@@ -115,7 +114,7 @@ func (e *SysConfig) InsertSysConfig(c *gin.Context) {
 		log.Error(err)
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 
@@ -137,14 +136,14 @@ func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -156,7 +155,7 @@ func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "更新失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	e.OK(c, object.GetId(), "更新成功")
@@ -177,14 +176,14 @@ func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
 		log.Errorf("Bind error: %s", err)
 		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	object, err := control.GenerateM()
 	if err != nil {
 		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 
@@ -198,7 +197,7 @@ func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
 	if err != nil {
 		e.Error(c, http.StatusUnprocessableEntity, err, "删除失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		app.Error(c, 500, err, "Orm获取失败")
+		e.Error(c, 500, err, "Orm获取失败")
 		return
 	}
 	e.OK(c, object.GetId(), "删除成功")
@@ -216,7 +215,7 @@ func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	err = v.Bind(c)
 	if err != nil {
 		log.Errorf("参数验证错误, error:%s", err)
-		app.Error(c, 422, err, "参数验证失败")
+		e.Error(c, 422, err, "参数验证失败")
 		return
 	}
 	s := service.SysConfig{}
@@ -225,8 +224,8 @@ func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	err = s.GetSysConfigByKEY(&v)
 	if err != nil {
 		log.Errorf("通过Key获取配置失败, error:%s", err)
-		app.Error(c, 500, err, "")
+		e.Error(c, 500, err, "")
 		return
 	}
-	app.OK(c, v, s.Msg)
+	e.OK(c, v, s.Msg)
 }

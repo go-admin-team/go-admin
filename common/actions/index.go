@@ -32,7 +32,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		//查询列表
 		err = req.Bind(c)
 		if err != nil {
-			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			response.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 			return
 		}
 
@@ -49,10 +49,10 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Errorf("MsgID[%s] Index error: %s", msgID, err)
-			app.Error(c, http.StatusInternalServerError, err, "查询失败")
+			response.Error(c, http.StatusInternalServerError, err, "查询失败")
 			return
 		}
-		app.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+		response.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 		c.Next()
 	}
 }

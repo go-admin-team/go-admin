@@ -1,10 +1,10 @@
 package dto
 
 import (
-	"go-admin/common/apis"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
@@ -24,7 +24,7 @@ func (m *SysLoginLogSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysLoginLogSearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -47,7 +47,7 @@ type SysLoginLogControl struct {
 }
 
 func (s *SysLoginLogControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())
@@ -90,7 +90,7 @@ func (s *SysLoginLogById) GetId() interface{} {
 }
 
 func (s *SysLoginLogById) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())
