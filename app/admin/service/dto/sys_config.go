@@ -18,6 +18,7 @@ type SysConfigSearch struct {
 	ConfigName     string `form:"configName" search:"type:contains;column:config_name;table:sys_config" comment:""`
 	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config" comment:""`
 	ConfigType     string `form:"configType" search:"type:exact;column:config_type;table:sys_config" comment:""`
+	IsFrontend     int    `json:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config" comment:""`
 }
 
 func (m *SysConfigSearch) GetNeedSearch() interface{} {
@@ -41,6 +42,7 @@ type SysConfigControl struct {
 	ConfigKey   string `uri:"configKey" json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
 	ConfigType  string `json:"configType" comment:""`
+	IsFrontend  int    `json:"isFrontend"`
 	Remark      string `json:"remark" comment:""`
 }
 
@@ -73,6 +75,7 @@ func (s *SysConfigControl) Generate() (*system.SysConfig, error) {
 		ConfigKey:   s.ConfigKey,
 		ConfigValue: s.ConfigValue,
 		ConfigType:  s.ConfigType,
+		IsFrontend:  s.IsFrontend,
 		Remark:      s.Remark,
 	}, nil
 }

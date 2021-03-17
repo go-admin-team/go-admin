@@ -56,12 +56,16 @@ func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	d.ConfigKey = "sys_app_"
+	err = d.Bind(c)
 	if err != nil {
 		log.Errorf("参数验证失败, error:%s", err)
 		e.Error(c, 500, err, "参数验证失败")
 		return
 	}
+	
+	// 控制只读前台的数据
+	d.IsFrontend = 1
+
 
 	list := make([]system.SysConfig, 0)
 	s := service.SysConfig{}
@@ -73,7 +77,7 @@ func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 		e.Error(c, 500, err, "查询失败")
 		return
 	}
-	 mp :=make(map[string]string)
+	mp := make(map[string]string)
 	for i := 0; i < len(list); i++ {
 		key := list[i].ConfigKey
 		if key != "" {
