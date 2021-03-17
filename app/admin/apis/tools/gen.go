@@ -3,7 +3,9 @@ package tools
 import (
 	"bytes"
 	"net/http"
+	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
@@ -135,6 +137,30 @@ func (e *Gen) GenCodeV3(c *gin.Context) {
 	e.OK(c, "", "Code generated successfully！")
 }
 
+func (e *Gen) GenApiToFile(c *gin.Context) {
+	log := e.GetLogger(c)
+	table := tools.SysTables{}
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	if err != nil {
+		log.Error(err)
+		e.Error(c, 500, err, "")
+		return
+	}
+
+	db, err := pkg.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
+	table.TableId = id
+	tab, _ := table.Get(db)
+	e.genApiToFile(c, tab)
+
+	e.OK(c, "", "Code generated successfully！")
+}
+
 func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	log := e.GetLogger(c)
 
@@ -216,6 +242,29 @@ func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
 	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
 	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
+
+}
+
+
+func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
+	log := e.GetLogger(c)
+
+	basePath := "template/"
+
+	t1, err := template.ParseFiles(basePath + "api_migrate.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(c, 500, err, "")
+		return
+	}
+	i := strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
+	var b1 bytes.Buffer
+	err = t1.Execute(&b1, struct {
+		tools.SysTables
+		GenerateTime string
+	}{tab,i} )
+
+	pkg.FileCreate(b1, "./cmd/migrate/migration/version/"+i+"_migrate.go")
 
 }
 
