@@ -2,6 +2,7 @@ package router
 
 import (
 	"go-admin/app/admin/apis/system/sys_menu"
+	//"go-admin/app/admin/models/tools"
 	middleware2 "go-admin/common/middleware"
 	"mime"
 
@@ -11,7 +12,7 @@ import (
 	"go-admin/app/admin/apis/public"
 	"go-admin/app/admin/apis/system"
 	"go-admin/app/admin/apis/system/dict"
-	. "go-admin/app/admin/apis/tools"
+	"go-admin/app/admin/apis/tools"
 	"go-admin/app/admin/middleware/handler"
 	_ "go-admin/docs"
 
@@ -57,12 +58,16 @@ func sysSwaggerRouter(r *gin.RouterGroup) {
 func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 
-	v1.GET("/monitor/server", monitor.ServerInfo)
-	v1.GET("/getCaptcha", system.GenerateCaptchaHandler)
-	v1.GET("/gen/preview/:tableId", Preview)
-	v1.GET("/gen/toproject/:tableId", GenCodeV3)
-	v1.GET("/gen/todb/:tableId", GenMenuAndApi)
-	v1.GET("/gen/tabletree", GetSysTablesTree)
+	m := &monitor.Monitor{}
+	v1.GET("/monitor/server", m.ServerInfo)
+	sys := &system.System{}
+	v1.GET("/getCaptcha", sys.GenerateCaptchaHandler)
+	gen := &tools.Gen{}
+	v1.GET("/gen/preview/:tableId", gen.Preview)
+	v1.GET("/gen/toproject/:tableId", gen.GenCodeV3)
+	v1.GET("/gen/todb/:tableId", gen.GenMenuAndApi)
+	sysTable := &tools.SysTable{}
+	v1.GET("/gen/tabletree", sysTable.GetSysTablesTree)
 
 	registerDBRouter(v1)
 	registerSysTableRouter(v1)
@@ -73,22 +78,24 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 func registerDBRouter(api *gin.RouterGroup) {
 	db := api.Group("/db")
 	{
-		db.GET("/tables/page", GetDBTableList)
-		db.GET("/columns/page", GetDBColumnList)
+		gen := &tools.Gen{}
+		db.GET("/tables/page", gen.GetDBTableList)
+		db.GET("/columns/page", gen.GetDBColumnList)
 	}
 }
 
 func registerSysTableRouter(v1 *gin.RouterGroup) {
 	systables := v1.Group("/sys/tables")
 	{
-		systables.GET("/page", GetSysTableList)
+		sysTable := &tools.SysTable{}
+		systables.GET("/page", sysTable.GetSysTableList)
 		tablesinfo := systables.Group("/info")
 		{
-			tablesinfo.POST("", InsertSysTable)
-			tablesinfo.PUT("", UpdateSysTable)
-			tablesinfo.DELETE("/:tableId", DeleteSysTables)
-			tablesinfo.GET("/:tableId", GetSysTables)
-			tablesinfo.GET("", GetSysTablesInfo)
+			tablesinfo.POST("", sysTable.InsertSysTable)
+			tablesinfo.PUT("", sysTable.UpdateSysTable)
+			tablesinfo.DELETE("/:tableId", sysTable.DeleteSysTables)
+			tablesinfo.GET("/:tableId", sysTable.GetSysTables)
+			tablesinfo.GET("", sysTable.GetSysTablesInfo)
 		}
 	}
 }
@@ -190,17 +197,19 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 //}
 func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	api := system.SysSetting{}
+	m := &monitor.Monitor{}
 	setting := v1.Group("/setting")
 	{
 		setting.GET("", api.GetSetting)
 		setting.POST("", api.CreateOrUpdateSetting)
-		setting.GET("/serverInfo", monitor.ServerInfo)
+		setting.GET("/serverInfo", m.ServerInfo)
 	}
 }
 
 func registerPublicRouter(v1 *gin.RouterGroup) {
 	p := v1.Group("/public")
 	{
-		p.POST("/uploadFile", public.UploadFile)
+		file := &public.File{}
+		p.POST("/uploadFile", file.UploadFile)
 	}
 }

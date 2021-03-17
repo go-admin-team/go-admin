@@ -2,10 +2,10 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/common/dto"
-	"go-admin/common/apis"
 	common "go-admin/common/models"
 )
 
@@ -30,7 +30,7 @@ func (m *{{.ClassName}}Search) Generate() dto.Index {
 }
 
 func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
     err := ctx.ShouldBind(m)
     if err != nil {
     	log.Debugf("ShouldBind error: %s", err.Error())
@@ -60,7 +60,7 @@ func (s *{{.ClassName}}Control) Generate() dto.Control {
 }
 
 func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
     err := ctx.ShouldBindUri(s)
     if err != nil {
         log.Debugf("ShouldBindUri error: %s", err.Error())
@@ -108,7 +108,7 @@ func (s *{{.ClassName}}ById) GetId() interface{} {
 }
 
 func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())

@@ -5,10 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/tools"
-	"go-admin/common/apis"
 )
 
 // @Summary 分页列表数据 / page list data
@@ -19,8 +17,8 @@ import (
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/columns/page [get]
-func GetDBColumnList(c *gin.Context) {
-	log := apis.GetRequestLogger(c)
+func (e *Gen) GetDBColumnList(c *gin.Context) {
+	log := e.GetLogger(c)
 	var data tools.DBColumns
 	var err error
 	var pageSize = 10
@@ -37,23 +35,17 @@ func GetDBColumnList(c *gin.Context) {
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		app.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
 	pkg.Assert(data.TableName == "", "table name cannot be empty！", 500)
 	result, count, err := data.GetPage(db, pageSize, pageIndex)
-	pkg.HasError(err, "", -1)
-
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
-
-	var res app.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	if err != nil {
+		log.Errorf("GetPage error, %s", err.Error())
+		e.Error(c, 500, err, "")
+		return
+	}
+	e.PageOK(c, result, count, pageIndex, pageSize, "查询成功")
 }

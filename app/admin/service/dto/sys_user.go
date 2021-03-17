@@ -2,7 +2,7 @@ package dto
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-admin/common/apis"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
@@ -28,7 +28,7 @@ func (m *SysUserSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysUserSearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -58,7 +58,7 @@ type SysUserControl struct {
 }
 
 func (s *SysUserControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	//err := ctx.ShouldBindUri(s)
 	//if err != nil {
 	//	log.Debugf("ShouldBindUri error: %s", err.Error())

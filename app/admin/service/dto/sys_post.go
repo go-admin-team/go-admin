@@ -2,10 +2,10 @@ package dto
 
 import (
 	"encoding/json"
-	"go-admin/common/apis"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
@@ -28,7 +28,7 @@ func (m *SysPostSearch) GetNeedSearch() interface{} {
 
 // Bind 映射上下文中的结构体数据
 func (m *SysPostSearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -48,7 +48,7 @@ type SysPostControl struct {
 
 // Bind 映射上下文中的结构体数据
 func (s *SysPostControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())
@@ -100,7 +100,7 @@ func (s *SysPostById) GetId() interface{} {
 }
 
 func (s *SysPostById) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())

@@ -1,10 +1,10 @@
 package dto
 
 import (
-	"go-admin/common/apis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
@@ -25,7 +25,7 @@ func (m *SysDictDataSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysDictDataSearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -53,7 +53,7 @@ type SysDictDataControl struct {
 }
 
 func (s *SysDictDataControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())

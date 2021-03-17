@@ -13,9 +13,10 @@ func init() {
 
 // 需认证的路由代码
 func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	api := &sys_config.SysConfig{}
 	r := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
-		api := &sys_config.SysConfig{}
+
 		r.GET("", api.GetSysConfigList)
 		r.GET("/:id", api.GetSysConfig)
 		r.POST("", api.InsertSysConfig)
@@ -25,7 +26,13 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 
 	r1 := v1.Group("/configKey").Use(authMiddleware.MiddlewareFunc())
 	{
-		api := &sys_config.SysConfig{}
 		r1.GET("/:configKey", api.GetSysConfigByKEYForService)
 	}
+
+	r2 := v1.Group("/app-config")
+	{
+		r2.GET("", api.GetSysConfigBySysApp)
+	}
+
+
 }

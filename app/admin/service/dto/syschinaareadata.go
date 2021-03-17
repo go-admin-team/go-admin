@@ -1,10 +1,10 @@
 package dto
 
 import (
-	"go-admin/common/apis"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
@@ -22,7 +22,7 @@ func (m *SysChinaAreaDataSearch) GetNeedSearch() interface{} {
 }
 
 func (m *SysChinaAreaDataSearch) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -40,7 +40,7 @@ type SysChinaAreaDataControl struct {
 }
 
 func (s *SysChinaAreaDataControl) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())
@@ -83,7 +83,7 @@ func (s *SysChinaAreaDataById) GetId() interface{} {
 }
 
 func (s *SysChinaAreaDataById) Bind(ctx *gin.Context) error {
-	log := apis.GetRequestLogger(ctx)
+	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
 		log.Debugf("ShouldBindUri error: %s", err.Error())

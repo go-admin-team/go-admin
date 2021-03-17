@@ -27,13 +27,13 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		//更新操作
 		err = req.Bind(c)
 		if err != nil {
-			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			response.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 			return
 		}
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			response.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 			return
 		}
 		object.SetUpdateBy(user.GetUserId(c))
@@ -46,14 +46,14 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
 			log.Errorf("MsgID[%s] Update error: %s", msgID, err)
-			app.Error(c, http.StatusInternalServerError, err, "更新失败")
+			response.Error(c, http.StatusInternalServerError, err, "更新失败")
 			return
 		}
 		if db.RowsAffected == 0 {
-			app.Error(c, http.StatusForbidden, nil, "无权更新该数据")
+			response.Error(c, http.StatusForbidden, nil, "无权更新该数据")
 			return
 		}
-		app.OK(c, object.GetId(), "更新成功")
+		response.OK(c, object.GetId(), "更新成功")
 		c.Next()
 	}
 }

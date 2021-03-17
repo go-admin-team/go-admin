@@ -62,6 +62,8 @@ func setup() {
 			config.LoggerConfig.Stdout))
 	//3. 初始化数据库链接
 	database.Setup()
+	//4. 设置缓存
+	sdk.Runtime.SetCacheAdapter(config.CacheConfig.Setup())
 
 	usageStr := `starting api server...`
 	log.Println(usageStr)
