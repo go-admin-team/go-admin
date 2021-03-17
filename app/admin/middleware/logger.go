@@ -21,7 +21,7 @@ import (
 // LoggerToFile 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		defer c.Next()
+		c.Next()
 		if c.Request.Method == http.MethodOptions {
 			return
 		}
