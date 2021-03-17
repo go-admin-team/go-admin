@@ -16,12 +16,12 @@ func init() {
 func _1615950701614Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-		err := tx.Exec("UPDATE test1db.sys_dict_data t SET t.dict_value = '2' WHERE t.dict_code = 16").Error
+		err := tx.Exec("UPDATE sys_dict_data t SET t.dict_value = '2' WHERE t.dict_code = 16").Error
 		if err != nil {
 			return err
 		}
 
-		err = tx.Exec("UPDATE test1db.sys_opera_log t SET t.status = '2' WHERE t.status = '0'").Error
+		err = tx.Exec("UPDATE sys_opera_log t SET t.status = '2' WHERE t.status = '0'").Error
 		if err != nil {
 			return err
 		}
