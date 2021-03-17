@@ -1,16 +1,14 @@
 package apis
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
-
-	"go-admin/common/models"
 )
 
 type Api struct {
@@ -33,56 +31,20 @@ func (e *Api) GetOrm(c *gin.Context) (*gorm.DB, error) {
 
 // Error 通常错误数据处理
 func (e *Api) Error(c *gin.Context, code int, err error, msg string) {
-	var res models.Response
-	if err != nil {
-		res.Msg = err.Error()
-	}
-	if msg != "" {
-		res.Msg = msg
-	}
-	res.RequestId = pkg.GenerateMsgIDFromContext(c)
-	Return := res.ReturnError(code)
-	e.setResult(c, Return, res.RequestId, code)
-	c.AbortWithStatusJSON(http.StatusOK, Return)
+	response.Error(c, code, err, msg)
 }
 
 // OK 通常成功数据处理
 func (e *Api) OK(c *gin.Context, data interface{}, msg string) {
-	var res models.Response
-	res.Data = data
-	if msg != "" {
-		res.Msg = msg
-	}
-	res.RequestId = pkg.GenerateMsgIDFromContext(c)
-	Return := res.ReturnOK()
-	e.setResult(c, Return, res.RequestId, 200)
-	c.AbortWithStatusJSON(http.StatusOK, Return)
+	response.OK(c, data, msg)
 }
 
 // PageOK 分页数据处理
 func (e *Api) PageOK(c *gin.Context, result interface{}, count int, pageIndex int, pageSize int, msg string) {
-	var res models.Page
-	res.List = result
-	res.Count = count
-	res.PageIndex = pageIndex
-	res.PageSize = pageSize
-	e.OK(c, res, msg)
+	response.PageOK(c, result, count, pageIndex, pageSize, msg)
 }
 
 // Custom 兼容函数
 func (e *Api) Custom(c *gin.Context, data gin.H) {
-	msgID := pkg.GenerateMsgIDFromContext(c)
-	Return := data
-	e.setResult(c, Return, msgID, 200)
-	c.AbortWithStatusJSON(http.StatusOK, Return)
-}
-
-func (e *Api) setResult(c *gin.Context, Return interface{}, msgID string, status int) {
-	requestLogger := e.GetLogger(c)
-	jsonStr, err := json.Marshal(Return)
-	if err != nil {
-		requestLogger.Debugf("setResult error: %#v", msgID, err.Error())
-	}
-	c.Set("result", string(jsonStr))
-	c.Set("status", status)
+	response.Custum(c, data)
 }
