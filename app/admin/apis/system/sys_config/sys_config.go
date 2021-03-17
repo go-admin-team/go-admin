@@ -47,6 +47,42 @@ func (e *SysConfig) GetSysConfigList(c *gin.Context) {
 	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
+// GetSysConfigBySysApp 获取系统配置信息，主要注意这里不在验证数据权限
+func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
+	log := e.GetLogger(c)
+	d := new(dto.SysConfigSearch)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	d.ConfigKey = "sys_app_"
+	if err != nil {
+		log.Errorf("参数验证失败, error:%s", err)
+		e.Error(c, 500, err, "参数验证失败")
+		return
+	}
+
+	list := make([]system.SysConfig, 0)
+	s := service.SysConfig{}
+	s.Log = log
+	s.Orm = db
+	err = s.GetSysConfigByKey(d, &list)
+	if err != nil {
+		log.Errorf("GetSysConfigPage 查询失败, error:%s", err)
+		e.Error(c, 500, err, "查询失败")
+		return
+	}
+	 mp :=make(map[string]string)
+	for i := 0; i < len(list); i++ {
+		key := list[i].ConfigKey
+		if key != "" {
+			mp[key] = list[i].ConfigValue
+		}
+	}
+	e.OK(c, mp, "查询成功")
+}
+
 func (e *SysConfig) GetSysConfig(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.SysConfigById)

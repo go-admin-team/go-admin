@@ -15,8 +15,8 @@ import (
 // SysConfigSearch 列表或者搜索使用结构体
 type SysConfigSearch struct {
 	dto.Pagination `search:"-"`
-	ConfigName     string `form:"configName" search:"type:exact;column:config_name;table:sys_config" comment:""`
-	ConfigKey      string `form:"configKey" search:"type:exact;column:config_key;table:sys_config" comment:""`
+	ConfigName     string `form:"configName" search:"type:contains;column:config_name;table:sys_config" comment:""`
+	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config" comment:""`
 	ConfigType     string `form:"configType" search:"type:exact;column:config_type;table:sys_config" comment:""`
 }
 

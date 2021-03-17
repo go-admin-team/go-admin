@@ -32,6 +32,22 @@ func (e *SysConfig) GetSysConfigPage(c *dto.SysConfigSearch, list *[]system.SysC
 	return nil
 }
 
+func (e *SysConfig) GetSysConfigByKey(c *dto.SysConfigSearch, list *[]system.SysConfig) error {
+	var err error
+	var data system.SysConfig
+
+	err = e.Orm.Model(&data).
+		Scopes(
+			cDto.MakeCondition(c.GetNeedSearch()),
+		).
+		Find(list).Error
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	return nil
+}
+
 // GetSysConfig 获取SysConfig对象
 func (e *SysConfig) GetSysConfig(d *dto.SysConfigById, model *system.SysConfig) error {
 	var err error
