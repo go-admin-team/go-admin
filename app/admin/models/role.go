@@ -26,6 +26,9 @@ func (SysRole) TableName() string {
 type MenuIdList struct {
 	MenuId int `json:"menuId"`
 }
+type DeptIdList struct {
+	DeptId int `json:"deptId"`
+}
 
 //func (role *SysRole) GetById(tx *gorm.DB, id interface{}) error {
 //	return tx.First(role, id).Error

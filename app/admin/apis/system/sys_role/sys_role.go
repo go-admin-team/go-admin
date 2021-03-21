@@ -242,6 +242,7 @@ func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
 	log := e.GetLogger(c)
 	control := new(dto.RoleDataScopeReq)
 	db, err := e.GetOrm(c)
+
 	if err != nil {
 		log.Error(err)
 		return

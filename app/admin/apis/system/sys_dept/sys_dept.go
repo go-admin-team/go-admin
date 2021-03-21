@@ -253,6 +253,55 @@ func (e *SysDept) GetDeptTree(c *gin.Context) {
 	e.OK(c, list, "")
 }
 
+//// GetDeptTree 角色管理 获取选择的部门树
+func (e *SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
+	log := e.GetLogger(c)
+	d := new(dto.SysDeptSearch)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	r := new(dto.SelectRole)
+
+	err = c.BindUri(r)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+
+	//查询列表
+	err = d.Bind(c)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+
+	list := make([]dto.DeptLabel, 0)
+	serviceStudent := service.SysDept{}
+	serviceStudent.Log = log
+	serviceStudent.Orm = db
+	list, err = serviceStudent.SetDeptTree(d)
+	if err != nil {
+		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		return
+	}
+	s := service.SysRole{}
+	s.Log = log
+	s.Orm = db
+	//fmt.Println(", r.RoleId================", r.RoleId)
+	deptIds, err := s.GetRoleDeptId(db, r.RoleId)
+	if err != nil {
+		log.Errorf("GetIDS error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "")
+		return
+	}
+	e.OK(c, gin.H{
+		"depts":       list,
+		"checkedKeys": deptIds,
+	}, "获取成功")
+}
+
 //func (e *SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
 //	log := e.GetLogger(c)
 //	db, err := tools.GetOrm(c)

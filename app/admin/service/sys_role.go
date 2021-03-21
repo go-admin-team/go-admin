@@ -188,8 +188,28 @@ func (e *SysRole) GetRoleMenuId(tx *gorm.DB, roleId int) ([]int, error) {
 	return menuIds, nil
 }
 
+// 获取角色对应的 部门ids
+func (e *SysRole) GetRoleDeptId(tx *gorm.DB, roleId int) ([]int, error) {
+	deptIds := make([]int, 0)
+	deptList := make([]models.DeptIdList, 0)
+	if err := tx.Table("sys_role_dept").
+		Select("sys_role_dept.dept_id").
+		Where("role_id = ? ", roleId).
+		Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept "+
+			"LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =?  and parent_id is not null)", roleId).
+		Find(&deptList).Error; err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(deptList); i++ {
+		deptIds = append(deptIds, deptList[i].DeptId)
+	}
+	return deptIds, nil
+}
+
 func (e *SysRole) UpdateDataScope(c *system.SysRole) (err error) {
 	tx := e.Orm.Begin()
+	var data system.SysRole
 	defer func() {
 		if err != nil {
 			tx.Rollback()
@@ -197,7 +217,11 @@ func (e *SysRole) UpdateDataScope(c *system.SysRole) (err error) {
 			tx.Commit()
 		}
 	}()
-	err = tx.Model(&system.SysRole{}).Where("role_id = ?", c.RoleId).Select("data_scope, update_by").Updates(c).Error
+
+	//e.Orm.Model(&data).
+	//	Where("role_id = ?", c.RoleId).Updates(c)
+	//err = tx.Model(&data).Where("role_id = ?", c.RoleId).Select("data_scope, update_by").Updates(c).Error
+	err = tx.Model(&data).Where("role_id = ?", c.RoleId).Updates(c).Error
 	if err != nil {
 		return err
 	}
