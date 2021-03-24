@@ -5,10 +5,10 @@ import (
 
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
+	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/{{.PackageName}}/service/dto"
 	"go-admin/common/service"
 )
 

@@ -7,9 +7,9 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/{{.PackageName}}/models"
+	"go-admin/app/{{.PackageName}}/service"
+	"go-admin/app/{{.PackageName}}/service/dto"
 	"go-admin/common/actions"
 	"go-admin/common/apis"
 )
@@ -209,10 +209,9 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 // @Summary 删除{{.TableComment}}
 // @Description 删除{{.TableComment}}
 // @Tags {{.TableComment}}
-// @Param id path int false "id"
-// @Param ids body string false "ids"
+// @Param ids body []int false "ids"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
-// @Router /api/v1/{{.ModuleName}}/{id} [delete]
+// @Router /api/v1/{{.ModuleName}} [delete]
 // Delete{{.ClassName}} 删除{{.TableComment}}
 func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
     log := e.GetLogger(c)
