@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
@@ -22,7 +23,7 @@ type SysDept struct {
 // @Param name query string false "name"
 // @Param id query string false "id"
 // @Param position query string false "position"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept [get]
 // @Security Bearer
 func (e *SysDept) GetSysDeptList(c *gin.Context) {
@@ -59,7 +60,7 @@ func (e *SysDept) GetSysDeptList(c *gin.Context) {
 // @Tags 部门
 // @Param deptId path string false "deptId"
 // @Param position query string false "position"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept/{deptId} [get]
 // @Security Bearer
 func (e *SysDept) GetSysDept(c *gin.Context) {
@@ -96,7 +97,7 @@ func (e *SysDept) GetSysDept(c *gin.Context) {
 // @Tags 部门
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysDept true "data"
+// @Param data body dto.SysDeptControl true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept [post]
@@ -143,7 +144,7 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param id path int true "id"
-// @Param data body models.SysDept true "body"
+// @Param data body dto.SysDeptControl true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept/{deptId} [put]
@@ -184,7 +185,7 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 // @Summary 删除部门
 // @Description 删除数据
 // @Tags 部门
-// @Param data body []int true "body"
+// @Param data body dto.SysDeptById true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dept [delete]

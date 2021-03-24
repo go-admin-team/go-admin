@@ -245,7 +245,6 @@ func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
 
 }
 
-
 func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 	log := e.GetLogger(c)
 
@@ -262,7 +261,7 @@ func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 	err = t1.Execute(&b1, struct {
 		tools.SysTables
 		GenerateTime string
-	}{tab,i} )
+	}{tab, i})
 
 	pkg.FileCreate(b1, "./cmd/migrate/migration/version/"+i+"_migrate.go")
 

@@ -16,7 +16,7 @@ import (
 //	var Rm models.RoleMenu
 //	err := c.ShouldBind(&Rm)
 //	result, err := Rm.Get()
-//	var res app.Response
+//	var res response.Response
 //	if err != nil {
 //		res.Msg = "抱歉未找到相关信息"
 //		c.JSON(http.StatusOK, res.ReturnError(200))
@@ -33,7 +33,7 @@ type RoleMenuPost struct {
 
 //func InsertRoleMenu(c *gin.Context) {
 //
-//	var res app.Response
+//	var res response.Response
 //	res.Msg = "添加成功"
 //	c.JSON(http.StatusOK, res.ReturnOK())
 //	return
@@ -55,12 +55,12 @@ type RoleMenuPost struct {
 //	fmt.Println(menuId)
 //	_, err := t.Delete(id, menuId)
 //	if err != nil {
-//		var res app.Response
+//		var res response.Response
 //		res.Msg = "删除失败"
 //		c.JSON(http.StatusOK, res.ReturnError(200))
 //		return
 //	}
-//	var res app.Response
+//	var res response.Response
 //	res.Msg = "删除成功"
 //	c.JSON(http.StatusOK, res.ReturnOK())
 //	return

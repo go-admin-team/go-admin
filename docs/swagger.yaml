@@ -1,232 +1,34 @@
 definitions:
-  app.Response:
+  dto.PassWord:
     properties:
-      code:
-        description: 代码
-        example: 200
-        type: integer
-      data:
-        description: 数据集
-        type: object
-      msg:
-        description: 消息
-        type: string
-      requestId:
-        type: string
-    type: object
-  models.DictType:
-    properties:
-      createBy:
-        description: 创建者
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
-      dictId:
-        type: integer
-      dictName:
-        description: 字典名称
-        type: string
-      dictType:
-        description: 字典类型
-        type: string
-      params:
-        type: string
-      remark:
-        description: 备注
-        type: string
-      status:
-        description: 状态
-        type: string
-      updateBy:
-        description: 更新者
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.Login:
-    properties:
-      code:
-        type: string
       password:
         type: string
-      username:
-        type: string
-      uuid:
-        type: string
-    required:
-    - code
-    - password
-    - username
-    - uuid
     type: object
-  models.Menu:
+  dto.SysDeptById:
     properties:
-      action:
-        type: string
-      breadcrumb:
-        type: string
-      children:
-        items:
-          $ref: '#/definitions/models.Menu'
-        type: array
-      component:
-        type: string
-      createBy:
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
-      icon:
-        type: string
-      is_select:
-        type: boolean
-      isFrame:
-        type: string
-      menuId:
-        type: integer
-      menuName:
-        type: string
-      menuType:
-        type: string
-      noCache:
-        type: boolean
-      params:
-        type: string
-      parentId:
-        type: integer
-      path:
-        type: string
-      paths:
-        type: string
-      permission:
-        type: string
-      roleId:
-        type: integer
-      sort:
-        type: integer
-      title:
-        type: string
-      updateBy:
-        type: string
-      updatedAt:
-        type: string
-      visible:
-        type: string
-    type: object
-  models.Post:
-    properties:
-      createBy:
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
-      params:
-        type: string
-      postCode:
-        description: 岗位代码
-        type: string
-      postId:
-        description: 岗位编号
-        type: integer
-      postName:
-        description: 岗位名称
-        type: string
-      remark:
-        description: 描述
-        type: string
-      sort:
-        description: 岗位排序
-        type: integer
-      status:
-        description: 状态
-        type: string
-      updateBy:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.SysContent:
-    properties:
-      cateId:
-        description: 分类id
-        type: string
-      content:
-        description: 内容
-        type: string
-      createBy:
-        description: 创建者
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
       id:
-        description: id
         type: integer
-      img:
-        description: 图片
-        type: string
-      name:
-        description: 名称
-        type: string
-      params:
-        type: string
-      remark:
-        description: 备注
-        type: string
-      sort:
-        description: 排序
-        type: string
-      status:
-        description: 状态
-        type: string
-      updateBy:
-        description: 更新者
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  models.SysDept:
-    properties:
-      children:
+      ids:
         items:
-          $ref: '#/definitions/models.SysDept'
+          type: integer
         type: array
-      createBy:
-        type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
-        type: string
+    type: object
+  dto.SysDeptControl:
+    properties:
       deptId:
-        description: 部门编码
+        description: 编码
         type: integer
       deptName:
         description: 部门名称
         type: string
       deptPath:
+        description: 路径
         type: string
       email:
         description: 邮箱
         type: string
       leader:
         description: 负责人
-        type: string
-      params:
         type: string
       parentId:
         description: 上级部门
@@ -240,35 +42,148 @@ definitions:
       status:
         description: 状态
         type: string
-      updateBy:
+    type: object
+  dto.SysDictDataControl:
+    properties:
+      cssClass:
         type: string
-      updatedAt:
+      default:
+        type: string
+      dictLabel:
+        type: string
+      dictSort:
+        type: integer
+      dictType:
+        type: string
+      dictValue:
+        type: string
+      id:
+        type: integer
+      isDefault:
+        type: string
+      listClass:
+        type: string
+      remark:
+        type: string
+      status:
         type: string
     type: object
-  models.SysRole:
+  dto.SysDictTypeControl:
     properties:
-      admin:
-        type: boolean
-      createBy:
+      dictName:
         type: string
-      createdAt:
+      dictType:
         type: string
-      dataScope:
+      id:
+        type: integer
+      remark:
         type: string
-      deletedAt:
+      status:
         type: string
-      deptIds:
+    type: object
+  dto.SysMenuById:
+    properties:
+      id:
+        type: integer
+      ids:
         items:
           type: integer
         type: array
+    type: object
+  dto.SysMenuControl:
+    properties:
+      action:
+        description: 请求方式
+        type: string
+      breadcrumb:
+        description: 是否面包屑
+        type: string
+      component:
+        description: 组件
+        type: string
+      icon:
+        description: 图标
+        type: string
+      isFrame:
+        description: 是否frame
+        type: string
+      menuId:
+        description: 编码
+        type: integer
+      menuName:
+        description: 菜单name
+        type: string
+      menuType:
+        description: 菜单类型
+        type: string
+      noCache:
+        description: 是否缓存
+        type: boolean
+      parentId:
+        description: 上级菜单
+        type: integer
+      path:
+        description: 路径
+        type: string
+      paths:
+        description: id路径
+        type: string
+      permission:
+        description: 权限编码
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      title:
+        description: 显示名称
+        type: string
+      visible:
+        description: 是否显示
+        type: string
+    type: object
+  dto.SysPostControl:
+    properties:
+      postCode:
+        description: 编码
+        type: string
+      postId:
+        description: id
+        type: integer
+      postName:
+        description: 名称
+        type: string
+      remark:
+        description: 备注
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      status:
+        description: 状态
+        type: integer
+    type: object
+  dto.SysRoleById:
+    properties:
+      id:
+        type: integer
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.SysRoleControl:
+    properties:
+      admin:
+        type: boolean
+      dataScope:
+        type: string
       flag:
+        description: 标记
         type: string
       menuIds:
         items:
           type: integer
         type: array
-      params:
-        type: string
       remark:
         description: 备注
         type: string
@@ -285,68 +200,81 @@ definitions:
         description: 角色排序
         type: integer
       status:
-        type: string
-      updateBy:
-        type: string
-      updatedAt:
+        description: 状态
         type: string
     type: object
-  models.SysUser:
+  dto.SysSettingControl:
     properties:
-      avatar:
+      logo:
         description: 头像
         type: string
-      createBy:
+      name:
+        description: 名称
         type: string
-      createdAt:
-        type: string
-      dataScope:
-        type: string
-      deletedAt:
+      settings_id:
+        description: 头像
+        type: integer
+    required:
+    - logo
+    - name
+    - settings_id
+    type: object
+  dto.SysUserControl:
+    properties:
+      avatar:
         type: string
       deptId:
-        description: 部门编码
         type: integer
       email:
-        description: 邮箱
         type: string
       nickName:
-        description: 昵称
-        type: string
-      params:
         type: string
       password:
-        description: 密码
         type: string
       phone:
-        description: 手机号
         type: string
       postId:
-        description: 职位编码
         type: integer
       remark:
-        description: 备注
         type: string
       roleId:
-        description: 角色编码
         type: integer
-      salt:
-        description: 盐
-        type: string
       sex:
-        description: 性别
         type: string
       status:
         type: string
-      updateBy:
-        type: string
-      updatedAt:
-        type: string
       userId:
-        description: 编码
+        description: 用户ID
         type: integer
       username:
         type: string
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      requestId:
+        type: string
+      status:
+        type: string
+    type: object
+  system.Login:
+    properties:
+      code:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+      uuid:
+        type: string
+    required:
+    - code
+    - password
+    - username
+    - uuid
     type: object
   tools.Params:
     properties:
@@ -532,7 +460,7 @@ info:
     name: MIT
     url: https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md
   title: go-admin API
-  version: 1.0.1
+  version: 1.3.1
 paths:
   /api/v1/db/columns/page:
     get:
@@ -554,7 +482,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       summary: 分页列表数据 / page list data
       tags:
       - 工具 / Tools
@@ -578,89 +506,20 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       summary: 分页列表数据 / page list data
       tags:
       - 工具 / Tools
   /api/v1/dept:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
+    delete:
+      description: 删除数据
       parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.SysDept'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 添加部门
-      tags:
-      - 部门
-    put:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: integer
       - description: body
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.SysDept'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 修改部门
-      tags:
-      - 部门
-  /api/v1/dept/{deptId}:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: deptId
-        in: path
-        name: deptId
-        type: string
-      - description: position
-        in: query
-        name: position
-        type: string
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 部门列表数据
-      tags:
-      - 部门
-  /api/v1/dept/{id}:
-    delete:
-      description: 删除数据
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: integer
+          $ref: '#/definitions/dto.SysDeptById'
       responses:
         "200":
           description: '{"code": -1, "message": "删除失败"}'
@@ -669,7 +528,6 @@ paths:
       summary: 删除部门
       tags:
       - 部门
-  /api/v1/deptList:
     get:
       description: 分页列表
       parameters:
@@ -689,13 +547,12 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 分页部门列表数据
       tags:
       - 部门
-  /api/v1/dict/data:
     post:
       consumes:
       - application/json
@@ -706,7 +563,110 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.DictType'
+          $ref: '#/definitions/dto.SysDeptControl'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 添加部门
+      tags:
+      - 部门
+  /api/v1/dept/{deptId}:
+    get:
+      description: 获取JSON
+      parameters:
+      - description: deptId
+        in: path
+        name: deptId
+        type: string
+      - description: position
+        in: query
+        name: position
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 部门列表数据
+      tags:
+      - 部门
+    put:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysDeptControl'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 修改部门
+      tags:
+      - 部门
+  /api/v1/dict/data:
+    get:
+      description: 获取JSON
+      parameters:
+      - description: status
+        in: query
+        name: status
+        type: string
+      - description: dictCode
+        in: query
+        name: dictCode
+        type: string
+      - description: dictType
+        in: query
+        name: dictType
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 字典数据列表
+      tags:
+      - 字典数据
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysDictDataControl'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -715,27 +675,6 @@ paths:
       security:
       - Bearer: []
       summary: 添加字典数据
-      tags:
-      - 字典数据
-    put:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: body
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.DictType'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 修改字典数据
       tags:
       - 字典数据
   /api/v1/dict/data/{dictCode}:
@@ -767,23 +706,44 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 通过编码获取字典数据
       tags:
       - 字典数据
-  /api/v1/dict/data/list:
+    put:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysDictDataControl'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 修改字典数据
+      tags:
+      - 字典数据
+  /api/v1/dict/type:
     get:
       description: 获取JSON
       parameters:
-      - description: status
+      - description: dictName
         in: query
-        name: status
+        name: dictName
         type: string
-      - description: dictCode
+      - description: dictId
         in: query
-        name: dictCode
+        name: dictId
         type: string
       - description: dictType
         in: query
@@ -801,32 +761,12 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: 字典数据列表
+      summary: 字典类型列表数据
       tags:
-      - 字典数据
-  /api/v1/dict/databyType/{dictType}:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: dictType
-        in: path
-        name: dictType
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 通过字典类型获取字典数据
-      tags:
-      - 字典数据
-  /api/v1/dict/type:
+      - 字典类型
     post:
       consumes:
       - application/json
@@ -837,7 +777,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.DictType'
+          $ref: '#/definitions/dto.SysDictTypeControl'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -848,25 +788,30 @@ paths:
       summary: 添加字典类型
       tags:
       - 字典类型
-    put:
-      consumes:
-      - application/json
+  /api/v1/dict/type-option-select:
+    get:
       description: 获取JSON
       parameters:
-      - description: body
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.DictType'
+      - description: dictName
+        in: query
+        name: dictName
+        type: string
+      - description: dictId
+        in: query
+        name: dictId
+        type: string
+      - description: dictType
+        in: query
+        name: dictType
+        type: string
       responses:
         "200":
-          description: '{"code": -1, "message": "添加失败"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: 修改字典类型
+      summary: 字典类型全部数据
       tags:
       - 字典类型
   /api/v1/dict/type/{dictId}:
@@ -898,64 +843,34 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 通过字典id获取字典类型
       tags:
       - 字典类型
-  /api/v1/dict/type/list:
-    get:
+    put:
+      consumes:
+      - application/json
       description: 获取JSON
       parameters:
-      - description: dictName
-        in: query
-        name: dictName
-        type: string
-      - description: dictId
-        in: query
-        name: dictId
-        type: string
-      - description: dictType
-        in: query
-        name: dictType
-        type: string
-      - description: 页条数
-        in: query
-        name: pageSize
-        type: integer
-      - description: 页码
-        in: query
-        name: pageIndex
-        type: integer
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysDictTypeControl'
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 字典类型列表数据
-      tags:
-      - 字典类型
-  /api/v1/menu:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: menuName
-        in: query
-        name: menuName
-        type: string
-      responses:
-        "200":
-          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          description: '{"code": -1, "message": "添加失败"}'
           schema:
             type: string
       security:
       - Bearer: []
-      summary: Menu列表数据
+      summary: 修改字典类型
       tags:
-      - 菜单
+      - 字典类型
+  /api/v1/menu:
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -1000,21 +915,40 @@ paths:
       summary: 创建菜单
       tags:
       - 菜单
-  /api/v1/menu/{id}:
+  /api/v1/menu/:
     delete:
       description: 删除数据
       parameters:
-      - description: id
-        in: path
-        name: id
+      - description: body
+        in: body
+        name: data
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/dto.SysMenuById'
       responses:
         "200":
           description: '{"code": -1, "message": "删除失败"}'
           schema:
             type: string
       summary: 删除菜单
+      tags:
+      - 菜单
+  /api/v1/menu/{id}:
+    get:
+      description: 获取JSON
+      parameters:
+      - description: menuName
+        in: query
+        name: menuName
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Menu详情数据
       tags:
       - 菜单
     put:
@@ -1032,7 +966,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Menu'
+          $ref: '#/definitions/dto.SysMenuControl'
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -1138,7 +1072,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 岗位列表数据
@@ -1154,7 +1088,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Post'
+          $ref: '#/definitions/dto.SysPostControl'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1176,7 +1110,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Post'
+          $ref: '#/definitions/dto.SysPostControl'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1220,7 +1154,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 获取岗位信息
@@ -1251,79 +1185,25 @@ paths:
       tags:
       - 公共接口
   /api/v1/role:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: roleId
-        in: path
-        name: roleId
-        type: string
-      responses:
-        "200":
-          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 获取Role数据
-      tags:
-      - 角色/Role
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.SysRole'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      summary: 创建角色
-      tags:
-      - 角色/Role
-    put:
-      consumes:
-      - application/json
-      description: 获取JSON
+    delete:
+      description: 删除数据
       parameters:
       - description: body
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.SysRole'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "修改失败"}'
-          schema:
-            type: string
-      summary: 修改用户角色
-      tags:
-      - 角色/Role
-  /api/v1/role/{roleId}:
-    delete:
-      description: 删除数据
-      parameters:
-      - description: roleId
-        in: path
-        name: roleId
-        required: true
-        type: integer
+          $ref: '#/definitions/dto.SysRoleById'
       responses:
         "200":
           description: '{"code": -1, "message": "删除失败"}'
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 删除用户角色
       tags:
       - 角色/Role
-  /api/v1/rolelist:
     get:
       description: Get JSON
       parameters:
@@ -1351,19 +1231,40 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 角色列表数据
       tags:
       - 角色/Role
-  /api/v1/rolemenu:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysRoleControl'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 创建角色
+      tags:
+      - 角色/Role
+  /api/v1/role/{id}:
     get:
       description: 获取JSON
       parameters:
-      - description: RoleId
-        in: query
-        name: RoleId
+      - description: roleId
+        in: path
+        name: roleId
         type: string
       responses:
         "200":
@@ -1372,30 +1273,30 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: RoleMenu列表数据
+      summary: 获取Role数据
       tags:
-      - 角色菜单
-  /api/v1/rolemenu/{id}:
-    delete:
-      description: 删除数据
+      - 角色/Role
+    put:
+      consumes:
+      - application/json
+      description: 获取JSON
       parameters:
-      - description: id
-        in: path
-        name: id
+      - description: body
+        in: body
+        name: data
         required: true
-        type: string
-      - description: menu_id
-        in: query
-        name: menu_id
-        type: string
+        schema:
+          $ref: '#/definitions/dto.SysRoleControl'
       responses:
         "200":
-          description: '{"code": -1, "message": "删除失败"}'
+          description: '{"code": -1, "message": "修改失败"}'
           schema:
             type: string
-      summary: 删除用户菜单数据
+      security:
+      - Bearer: []
+      summary: 修改用户角色
       tags:
-      - 角色菜单
+      - 角色/Role
   /api/v1/setting:
     get:
       description: 获取JSON
@@ -1414,7 +1315,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       summary: 系统信息
       tags:
       - 系统信息
@@ -1488,7 +1389,7 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 获取配置
@@ -1514,21 +1415,26 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       summary: 分页列表数据
       tags:
       - 工具 - 生成表
   /api/v1/sysUser:
     get:
       description: 获取JSON
+      parameters:
+      - description: username
+        in: query
+        name: username
+        type: string
       responses:
         "200":
-          description: '{"code": 200, "data": [...]}'
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
           schema:
-            $ref: '#/definitions/app.Response'
+            type: string
       security:
       - Bearer: []
-      summary: 获取用户角色和职位
+      summary: 列表用户信息数据
       tags:
       - 用户
     post:
@@ -1541,7 +1447,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.SysUser'
+          $ref: '#/definitions/dto.SysUserControl'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1563,50 +1469,12 @@ paths:
         "200":
           description: '{"code": 200, "data": [...]}'
           schema:
-            $ref: '#/definitions/app.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 获取用户
       tags:
       - 用户
-  /api/v1/sysUserList:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: username
-        in: query
-        name: username
-        type: string
-      responses:
-        "200":
-          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: 列表用户信息数据
-      tags:
-      - 用户
-  /api/v1/syscontent:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.SysContent'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      summary: 添加内容管理
-      tags:
-      - 内容管理
   /api/v1/system/setting:
     post:
       description: 获取JSON
@@ -1616,7 +1484,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.SysUser'
+          $ref: '#/definitions/dto.SysSettingControl'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1652,7 +1520,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.SysUser'
+          $ref: '#/definitions/dto.SysUserControl'
       responses:
         "200":
           description: '{"code": -1, "message": "修改失败"}'
@@ -1661,20 +1529,7 @@ paths:
       summary: 修改用户数据
       tags:
       - 用户
-  /api/v1/user/profile:
-    get:
-      description: 获取JSON
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/app.Response'
-      security:
-      - Bearer: []
-      summary: 获取个人中心用户
-      tags:
-      - 个人中心
-  /api/v1/user/profileAvatar:
+  /api/v1/user/avatar:
     post:
       consumes:
       - multipart/form-data
@@ -1691,6 +1546,41 @@ paths:
           schema:
             type: string
       summary: 修改头像
+      tags:
+      - 用户
+  /api/v1/user/profile:
+    get:
+      description: 获取JSON
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 获取个人中心用户
+      tags:
+      - 个人中心
+  /api/v1/user/pwd:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PassWord'
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 重置密码
       tags:
       - 用户
   /login:
@@ -1710,7 +1600,7 @@ paths:
         name: account
         required: true
         schema:
-          $ref: '#/definitions/models.Login'
+          $ref: '#/definitions/system.Login'
       responses:
         "200":
           description: '{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token":

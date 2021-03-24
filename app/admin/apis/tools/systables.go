@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/tools"
@@ -23,7 +24,7 @@ type SysTable struct {
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/page [get]
 func (e *SysTable) GetSysTableList(c *gin.Context) {
 	log := e.GetLogger(c)
@@ -62,7 +63,7 @@ func (e *SysTable) GetSysTableList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 工具 - 生成表
 // @Param configKey path int true "configKey"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/info/{tableId} [get]
 // @Security Bearer
 func (e *SysTable) GetSysTables(c *gin.Context) {

@@ -1,14 +1,16 @@
 package monitor
 
 import (
-	"go-admin/common/apis"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+
+	"go-admin/common/apis"
 )
 
 const (
@@ -25,7 +27,7 @@ type Monitor struct {
 // @Summary 系统信息
 // @Description 获取JSON
 // @Tags 系统信息
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/settings/serverInfo [get]
 func (e *Monitor) ServerInfo(c *gin.Context) {
 

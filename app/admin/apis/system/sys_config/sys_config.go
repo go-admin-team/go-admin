@@ -62,10 +62,9 @@ func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 		e.Error(c, 500, err, "参数验证失败")
 		return
 	}
-	
+
 	// 控制只读前台的数据
 	d.IsFrontend = 1
-
 
 	list := make([]system.SysConfig, 0)
 	s := service.SysConfig{}
