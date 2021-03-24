@@ -34,5 +34,4 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 		r2.GET("", api.GetSysConfigBySysApp)
 	}
 
-
 }

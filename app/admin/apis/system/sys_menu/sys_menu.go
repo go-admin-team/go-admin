@@ -152,7 +152,7 @@ func (e *SysMenu) InsertSysMenu(c *gin.Context) {
 // @Accept  application/x-www-form-urlencoded
 // @Product application/x-www-form-urlencoded
 // @Param id path int true "id"
-// @Param data body models.Menu true "body"
+// @Param data body dto.SysMenuControl true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/menu/{id} [put]
@@ -195,7 +195,7 @@ func (e *SysMenu) UpdateSysMenu(c *gin.Context) {
 // @Summary 删除菜单
 // @Description 删除数据
 // @Tags 菜单
-// @Param data body []int true "body"
+// @Param data body dto.SysMenuById true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/menu/ [delete]

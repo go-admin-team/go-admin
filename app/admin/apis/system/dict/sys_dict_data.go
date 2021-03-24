@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
@@ -25,7 +26,7 @@ type SysDictData struct {
 // @Param dictType query string false "dictType"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data [get]
 // @Security Bearer
 func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
@@ -65,7 +66,7 @@ func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 字典数据
 // @Param dictCode path int true "字典编码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data/{dictCode} [get]
 // @Security Bearer
 func (e *SysDictData) GetSysDictData(c *gin.Context) {
@@ -104,7 +105,7 @@ func (e *SysDictData) GetSysDictData(c *gin.Context) {
 // @Tags 字典数据
 // @Accept  application/json
 // @Product application/json
-// @Param data body system.DictType true "data"
+// @Param data body dto.SysDictDataControl true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data [post]
@@ -147,7 +148,7 @@ func (e *SysDictData) InsertSysDictData(c *gin.Context) {
 // @Tags 字典数据
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.DictType true "body"
+// @Param data body dto.SysDictDataControl true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data/{dictCode} [put]

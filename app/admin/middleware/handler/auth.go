@@ -56,7 +56,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Description 注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
 // @Accept  application/json
 // @Product application/json
-// @Param account body models.Login  true "account"
+// @Param account body system.Login  true "account"
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {

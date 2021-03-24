@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
@@ -23,7 +24,7 @@ type SysPost struct {
 // @Param postCode query string false "postCode"
 // @Param postId query string false "postId"
 // @Param status query string false "status"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
 // @Security Bearer
 func (e *SysPost) GetSysPostList(c *gin.Context) {
@@ -60,7 +61,7 @@ func (e *SysPost) GetSysPostList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 岗位
 // @Param postId path int true "postId"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
 // @Security Bearer
 func (e *SysPost) GetSysPost(c *gin.Context) {
@@ -97,7 +98,7 @@ func (e *SysPost) GetSysPost(c *gin.Context) {
 // @Tags 岗位
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Post true "data"
+// @Param data body dto.SysPostControl true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/post [post]
@@ -143,7 +144,7 @@ func (e *SysPost) InsertSysPost(c *gin.Context) {
 // @Tags 岗位
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.Post true "body"
+// @Param data body dto.SysPostControl true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/post/ [put]

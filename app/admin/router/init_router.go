@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"os"
 
@@ -35,7 +36,8 @@ func InitRouter() {
 	}
 
 	r.Use(common.Sentinel()).
-		Use(common.RequestId(pkg.TrafficKey))
+		Use(common.RequestId(pkg.TrafficKey)).
+		Use(api.SetRequestLogger)
 	middleware.InitMiddleware(r)
 	// the jwt middleware
 	authMiddleware, err := middleware.AuthInit()

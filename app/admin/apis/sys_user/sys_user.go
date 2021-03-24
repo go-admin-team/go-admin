@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/google/uuid"
 
 	"go-admin/app/admin/models"
@@ -68,7 +69,7 @@ func (e *SysUser) GetSysUserList(c *gin.Context) {
 // @Description 获取JSON
 // @Tags 用户
 // @Param userId path int true "用户编码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sysUser/{userId} [get]
 // @Security Bearer
 func (e *SysUser) GetSysUser(c *gin.Context) {
@@ -109,7 +110,7 @@ func (e *SysUser) GetSysUser(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysUser true "用户数据"
+// @Param data body dto.SysUserControl true "用户数据"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sysUser [post]
@@ -156,7 +157,7 @@ func (e *SysUser) InsertSysUser(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body models.SysUser true "body"
+// @Param data body dto.SysUserControl true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/sysuser/{userId} [put]
@@ -303,7 +304,7 @@ func (e *SysUser) InsetSysUserAvatar(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param data body dto.PassWord true "body"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/pwd [post]
 // @Security Bearer
 func (e *SysUser) SysUserUpdatePwd(c *gin.Context) {
@@ -343,7 +344,7 @@ func (e *SysUser) SysUserUpdatePwd(c *gin.Context) {
 // @Summary 获取个人中心用户
 // @Description 获取JSON
 // @Tags 个人中心
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/profile [get]
 // @Security Bearer
 func (e *SysUser) GetSysUserProfile(c *gin.Context) {

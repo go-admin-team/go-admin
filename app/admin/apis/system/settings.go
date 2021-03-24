@@ -53,7 +53,7 @@ func (e *SysSetting) GetSetting(c *gin.Context) {
 // @Summary 更新或提交系统信息
 // @Description 获取JSON
 // @Tags 系统信息
-// @Param data body models.SysUser true "body"
+// @Param data body dto.SysSettingControl true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [post]
