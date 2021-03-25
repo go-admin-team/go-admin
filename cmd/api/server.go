@@ -3,8 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"log"
 	"net/http"
 	"os"
@@ -13,10 +11,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/config/source/file"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/spf13/cobra"
 
-	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
+	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
 	"go-admin/common/database"
@@ -63,10 +64,17 @@ func setup() {
 	//3. 初始化数据库链接
 	database.Setup()
 	//4. 设置缓存
-	sdk.Runtime.SetCacheAdapter(config.CacheConfig.Setup())
+	cacheAdapter, err := config.CacheConfig.Setup()
+	if err != nil {
+		log.Fatalf("cache setup error, %s\n", err.Error())
+	}
+	sdk.Runtime.SetCacheAdapter(cacheAdapter)
 
 	usageStr := `starting api server...`
 	log.Println(usageStr)
+	//注册监听函数
+	sdk.Runtime.GetCacheAdapter().Register(global.LoginLog, system.SaveLoginLog)
+	sdk.Runtime.GetCacheAdapter().Register(global.OperateLog, system.SaveOperaLog)
 }
 
 func run() error {

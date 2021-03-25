@@ -1,9 +1,15 @@
 package system
 
 import (
-	"go-admin/common/models"
-
+	"encoding/json"
+	"errors"
 	"time"
+
+	"github.com/go-admin-team/go-admin-core/cache"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk"
+
+	"go-admin/common/models"
 )
 
 type SysLoginLog struct {
@@ -34,4 +40,33 @@ func (e *SysLoginLog) Generate() models.ActiveRecord {
 
 func (e *SysLoginLog) GetId() interface{} {
 	return e.Id
+}
+
+// SaveLoginLog 从队列中获取登录日志
+func SaveLoginLog(message cache.Message) (err error) {
+	//准备db
+	db := sdk.Runtime.GetDbByKey(message.GetPrefix())
+	if db == nil {
+		err = errors.New("db not exist")
+		log.Errorf("host[%s]'s %s", message.GetPrefix(), err.Error())
+		return err
+	}
+	var rb []byte
+	rb, err = json.Marshal(message.GetValues())
+	if err != nil {
+		log.Errorf("json Marshal error, %s", err.Error())
+		return err
+	}
+	var l SysLoginLog
+	err = json.Unmarshal(rb, &l)
+	if err != nil {
+		log.Errorf("json Unmarshal error, %s", err.Error())
+		return err
+	}
+	err = db.Create(&l).Error
+	if err != nil {
+		log.Errorf("db create error, %s", err.Error())
+		return err
+	}
+	return nil
 }

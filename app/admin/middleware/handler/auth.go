@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
@@ -14,7 +15,7 @@ import (
 	"github.com/mssola/user_agent"
 
 	"go-admin/app/admin/models/system"
-	"go-admin/app/admin/service"
+	"go-admin/common/global"
 )
 
 var store = base64Captcha.DefaultMemStore
@@ -107,29 +108,35 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 
 // LoginLogToDB Write log to database
 func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
+	if !config.LoggerConfig.EnabledDB {
+		return
+	}
 	log := api.GetRequestLogger(c)
-	if config.LoggerConfig.EnabledDB {
-		var loginLog system.SysLoginLog
-		db, err := pkg.GetOrm(c)
+	l := make(map[string]interface{})
+
+	ua := user_agent.New(c.Request.UserAgent())
+	l["ipaddr"] = c.ClientIP()
+	l["loginLocation"] = pkg.GetLocation(c.ClientIP())
+	l["loginTime"] = pkg.GetCurrentTime()
+	l["status"] = status
+	l["remark"] = c.Request.UserAgent()
+	browserName, browserVersion := ua.Browser()
+	l["browser"] = browserName + " " + browserVersion
+	l["os"] = ua.OS()
+	l["platform"] = ua.Platform()
+	l["username"] = username
+	l["msg"] = msg
+
+	q := sdk.Runtime.GetCachePrefix(c.Request.Host)
+	message, err := sdk.Runtime.GetStreamMessage("", global.LoginLog, l)
+	if err != nil {
+		log.Errorf("GetStreamMessage error, %s", err.Error())
+		//日志报错错误，不中断请求
+	} else {
+		err = q.Append(message)
 		if err != nil {
-			log.Errorf("获取Orm失败, error:%s", err)
+			log.Errorf("Append message error, %s", err.Error())
 		}
-		ua := user_agent.New(c.Request.UserAgent())
-		loginLog.Ipaddr = c.ClientIP()
-		loginLog.Username = username
-		location := pkg.GetLocation(c.ClientIP())
-		loginLog.LoginLocation = location
-		loginLog.LoginTime = pkg.GetCurrentTime()
-		loginLog.Status = status
-		loginLog.Remark = c.Request.UserAgent()
-		browserName, browserVersion := ua.Browser()
-		loginLog.Browser = browserName + " " + browserVersion
-		loginLog.Os = ua.OS()
-		loginLog.Msg = msg
-		loginLog.Platform = ua.Platform()
-		serviceLoginLog := service.SysLoginLog{}
-		serviceLoginLog.Orm = db
-		_ = serviceLoginLog.InsertSysLoginLog(loginLog.Generate())
 	}
 }
 
@@ -143,28 +150,27 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Router /logout [post]
 // @Security Bearer
 func LogOut(c *gin.Context) {
-	log := api.GetRequestLogger(c)
-	var loginLog system.SysLoginLog
-	ua := user_agent.New(c.Request.UserAgent())
-	loginLog.Ipaddr = c.ClientIP()
-	location := pkg.GetLocation(c.ClientIP())
-	loginLog.LoginLocation = location
-	loginLog.LoginTime = pkg.GetCurrentTime()
-	loginLog.Status = "2"
-	loginLog.Remark = c.Request.UserAgent()
-	browserName, browserVersion := ua.Browser()
-	loginLog.Browser = browserName + " " + browserVersion
-	loginLog.Os = ua.OS()
-	loginLog.Platform = ua.Platform()
-	loginLog.Username = user.GetUserName(c)
-	loginLog.Msg = "退出成功"
-	db, err := pkg.GetOrm(c)
-	if err != nil {
-		log.Errorf("获取Orm失败, error:%s", err)
-	}
-	serviceLoginLog := service.SysLoginLog{}
-	serviceLoginLog.Orm = db
-	_ = serviceLoginLog.InsertSysLoginLog(loginLog.Generate())
+	LoginLogToDB(c, "2", "退出成功", user.GetUserName(c))
+	//var loginLog system.SysLoginLog
+	//loginLog.Ipaddr = c.ClientIP()
+	//location := pkg.GetLocation(c.ClientIP())
+	//loginLog.LoginLocation = location
+	//loginLog.LoginTime = pkg.GetCurrentTime()
+	//loginLog.Status = "2"
+	//loginLog.Remark = c.Request.UserAgent()
+	//browserName, browserVersion := ua.Browser()
+	//loginLog.Browser = browserName + " " + browserVersion
+	//loginLog.Os = ua.OS()
+	//loginLog.Platform = ua.Platform()
+	//loginLog.Username = user.GetUserName(c)
+	//loginLog.Msg = "退出成功"
+	//db, err := pkg.GetOrm(c)
+	//if err != nil {
+	//	log.Errorf("获取Orm失败, error:%s", err)
+	//}
+	//serviceLoginLog := service.SysLoginLog{}
+	//serviceLoginLog.Orm = db
+	//_ = serviceLoginLog.InsertSysLoginLog(loginLog.Generate())
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
