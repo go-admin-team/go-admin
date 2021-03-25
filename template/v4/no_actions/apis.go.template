@@ -147,7 +147,7 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 	service{{.ClassName}} := service.{{.ClassName}}{}
 	service{{.ClassName}}.Orm = db
 	service{{.ClassName}}.Log = log
-	err = service{{.ClassName}}.Insert{{.ClassName}}(object.(*(models.{{.ClassName}})))
+	err = service{{.ClassName}}.Insert{{.ClassName}}(object.(*models.{{.ClassName}}))
 	if err != nil {
 		log.Errorf("Insert {{.ClassName}} error, %s", err.Error())
 		e.Error(c, http.StatusInternalServerError, err, "创建失败")

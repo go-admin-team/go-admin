@@ -326,16 +326,13 @@ func (e *SysUser) SysUserUpdatePwd(c *gin.Context) {
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	object := &system.SysUser{
-		UserId:   p.UserId,
-		Password: pwd.Password,
-	}
 	serviceSysUser := service.SysUser{}
 	serviceSysUser.Orm = db
 	serviceSysUser.Log = log
-	err = serviceSysUser.UpdateSysUser(object, p)
+	err = serviceSysUser.UpdateSysUserPwd(user.GetUserId(c), pwd.OldPassword, pwd.NewPassword, p)
 	if err != nil {
 		log.Error(err)
+		e.Error(c, http.StatusForbidden, err, "密码修改失败")
 		return
 	}
 	e.OK(c, nil, "密码修改成功")

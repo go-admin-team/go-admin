@@ -33,7 +33,7 @@ func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
     err := ctx.ShouldBind(m)
     if err != nil {
-    	log.Debugf("ShouldBind error: %s", err.Error())
+    	log.Warnf("ShouldBind error: %s", err.Error())
     }
     return err
 }
@@ -63,12 +63,12 @@ func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
     err := ctx.ShouldBindUri(s)
     if err != nil {
-        log.Debugf("ShouldBindUri error: %s", err.Error())
+        log.Warnf("ShouldBindUri error: %s", err.Error())
         return err
     }
     err = ctx.ShouldBind(s)
     if err != nil {
-        log.Debugf("ShouldBind error: %s", err.Error())
+        log.Warnf("ShouldBind error: %s", err.Error())
     }
     return err
 }
@@ -111,12 +111,12 @@ func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
+		log.Warnf("ShouldBindUri error: %s", err.Error())
 		return err
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
+		log.Warnf("ShouldBind error: %s", err.Error())
 	}
 	return err
 }
