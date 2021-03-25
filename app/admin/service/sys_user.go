@@ -3,6 +3,8 @@ package service
 import (
 	"errors"
 
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/system"
@@ -115,29 +117,46 @@ func (e *SysUser) RemoveSysUser(d cDto.Control, c common.ActiveRecord, p *action
 }
 
 // UpdateSysUserPwd 修改SysUser对象密码
-func (e *SysUser) UpdateSysUserPwd(c *system.SysUser, p *actions.DataPermission) error {
+func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *actions.DataPermission) error {
 	var err error
 
-	if c.Password == "" {
+	if newPassword == "" {
 		return nil
 	}
+	c := &system.SysUser{}
 
-	err = c.Encrypt()
-	if err != nil {
-		return err
-	}
-
-	db := e.Orm.Model(c).
+	err = e.Orm.Model(c).
 		Scopes(
 			actions.Permission(c.TableName(), p),
-		).Where(c.GetId()).Updates(c)
-	if db.Error != nil {
+		).Where(id).Select("UserId", "Password", "Salt").First(c).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("无权更新该数据")
+		}
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
+	var ok bool
+	ok, err = pkg.CompareHashAndPassword(c.Password, oldPassword)
+	if err != nil {
+		e.Log.Errorf("CompareHashAndPassword error, %s", err.Error())
+		return err
+	}
+	if !ok {
+		err = errors.New("incorrect Password")
+		e.Log.Warnf("user[%d] %s", id, err.Error())
+		return err
+	}
+	c.Password = newPassword
+	db := e.Orm.Model(c).Where(id).Select("Password", "Salt").Updates(c)
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
-		return errors.New("无权更新该数据")
-
+		err = errors.New("set password error")
+		log.Warnf("db update error")
+		return err
 	}
 	return nil
 }

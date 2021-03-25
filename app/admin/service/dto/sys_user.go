@@ -113,5 +113,6 @@ func (s *SysUserById) GenerateM() (common.ActiveRecord, error) {
 
 // PassWord 密码
 type PassWord struct {
-	Password string `json:"password"`
+	NewPassword string `json:"newPassword" binding:"required"`
+	OldPassword string `json:"oldPassword" binding:"required"`
 }
