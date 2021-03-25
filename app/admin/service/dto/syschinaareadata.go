@@ -59,9 +59,6 @@ func (s *SysChinaAreaDataControl) Generate() (*models.SysChinaAreaData, error) {
 		Model:      common.Model{Id: s.Id},
 		PId:        s.PId,
 		Name:       s.Name,
-		CreateTime: s.CreateTime,
-		UpdateTime: s.UpdateTime,
-		DeleteTime: s.DeleteTime,
 	}, nil
 }
 
