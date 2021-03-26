@@ -8,8 +8,8 @@ type SysCategory struct {
 	models.Model
 	Name   string `json:"name" gorm:"type:varchar(255);comment:名称"`   //
 	Img    string `json:"img" gorm:"type:varchar(255);comment:图标"`    //
-	Sort   string `json:"sort" gorm:"type:int(4);comment:排序"`         //
-	Status string `json:"status" gorm:"type:int(1);comment:状态"`       //
+	Sort   int    `json:"sort" gorm:"type:int(4);comment:排序"`         //
+	Status int    `json:"status" gorm:"type:int(1);comment:状态"`       //
 	Remark string `json:"remark" gorm:"type:varchar(255);comment:备注"` //
 	models.ControlBy
 	models.ModelTime

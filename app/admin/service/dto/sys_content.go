@@ -11,6 +11,8 @@ import (
 
 type SysContentSearch struct {
 	dto.Pagination `search:"-"`
+	Name           string `form:"name" search:"type:exact;column:name;table:sys_category" comment:"名称"`
+	Status         string `form:"status" search:"type:exact;column:status;table:sys_category" comment:"状态"`
 }
 
 func (m *SysContentSearch) GetNeedSearch() interface{} {
@@ -33,13 +35,13 @@ func (m *SysContentSearch) Generate() dto.Index {
 
 type SysContentControl struct {
 	ID      int    `uri:"ID" comment:""` //
-	CateId  string `json:"cateId" comment:""`
+	CateId  int    `json:"cateId" comment:""`
 	Name    string `json:"name" comment:""`
-	Status  string `json:"status" comment:""`
+	Status  int    `json:"status" comment:""`
 	Img     string `json:"img" comment:""`
 	Content string `json:"content" comment:""`
 	Remark  string `json:"remark" comment:""`
-	Sort    string `json:"sort" comment:""`
+	Sort    int    `json:"sort" comment:""`
 }
 
 func (s *SysContentControl) Bind(ctx *gin.Context) error {
@@ -63,7 +65,7 @@ func (s *SysContentControl) Generate() dto.Control {
 
 func (s *SysContentControl) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysContent{
-		Id:      s.ID,
+		Model:   common.Model{s.ID},
 		CateId:  s.CateId,
 		Name:    s.Name,
 		Status:  s.Status,
