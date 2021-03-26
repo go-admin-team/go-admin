@@ -103,7 +103,7 @@ vi ./config/setting.yml
 
 
 # Start the project, you can also debug with IDE
-./go-admin server -c config/settings.yml -p 8000
+./go-admin server -c config/settings.yml
 
 ```
 
@@ -114,7 +114,8 @@ vi ./config/setting.yml
 docker build -t go-admin .
 
 # Start the container. The first go admin is the container name and the second go admin is the image name
-docker run --name go-admin -p 8000:8000 -d go-admin
+docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin
+
 ```
 
 

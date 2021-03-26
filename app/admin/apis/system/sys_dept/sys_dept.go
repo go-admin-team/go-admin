@@ -1,6 +1,7 @@
 package sys_dept
 
 import (
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -254,30 +255,33 @@ func (e *SysDept) GetDeptTree(c *gin.Context) {
 	e.OK(c, list, "")
 }
 
-//func (e *SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
-//	log := e.GetLogger(c)
-//	db, err := tools.GetOrm(c)
-//	if err != nil {
-//		log.Error(err)
-//		return
-//	}
-//
-//	s := service.SysDept{}
-//	s.Orm = db
-//	s.MsgID = msgID
-//	id, err := tools.StringToInt(c.Param("roleId"))
-//	result, err := s.SetDeptLabel()
-//	if err != nil {
-//		log.Errorf("SetDeptLabel error, %s", msgID, err.Error())
-//		e.Error(c, http.StatusInternalServerError, err, "")
-//	}
-//	menuIds := make([]int, 0)
-//	if id != 0 {
-//		menuIds, err = s.GetRoleDeptId(id)
-//		tools.HasError(err, "抱歉未找到相关信息", -1)
-//	}
-//	e.OK(c, gin.H{
-//		"depts":       result,
-//		"checkedKeys": menuIds,
-//	}, "")
-//}
+func (e *SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
+	log := e.GetLogger(c)
+	db, err := e.GetOrm(c)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	s := service.SysDept{}
+	s.Orm = db
+	s.Log = log
+	id, err := pkg.StringToInt(c.Param("roleId"))
+	result, err := s.SetDeptLabel()
+	if err != nil {
+		log.Errorf("SetDeptLabel error, %s", err.Error())
+		e.Error(c, http.StatusInternalServerError, err, "")
+	}
+	menuIds := make([]int, 0)
+	if id != 0 {
+		menuIds, err = s.GetRoleDeptId(id)
+		if err != nil {
+			log.Errorf("抱歉未找到相关信息, %s", err.Error())
+			e.Error(c, http.StatusInternalServerError, err, "")
+		}
+	}
+	e.OK(c, gin.H{
+		"depts":       result,
+		"checkedKeys": menuIds,
+	}, "")
+}

@@ -163,7 +163,7 @@ vi ./config/setting.yml
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin server -c config/settings.yml -p 8000
+./go-admin server -c config/settings.yml
 
 ```
 
@@ -174,7 +174,8 @@ vi ./config/setting.yml
 docker build -t go-admin .
 
 # 启动容器，第一个go-admin是容器名字，第二个go-admin是镜像名称
-docker run --name go-admin -p 8000:8000 -d go-admin
+# -v 映射配置文件 本地路径：容器路径
+docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin-server
 ```
 
 
