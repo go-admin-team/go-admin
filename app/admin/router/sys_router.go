@@ -1,6 +1,7 @@
 package router
 
 import (
+	"go-admin/app/admin/apis/system/sys_dept"
 	"go-admin/app/admin/apis/system/sys_menu"
 	//"go-admin/app/admin/models/tools"
 	middleware2 "go-admin/common/middleware"
@@ -119,12 +120,14 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	api := sys_menu.SysMenu{}
+	api2 := sys_dept.SysDept{}
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		//v1auth.GET("/getinfo", system.GetInfo)
 		v1auth.GET("/roleMenuTreeselect/:roleId", api.GetMenuTreeSelect)
 		v1.GET("/menuTreeselect", api.GetMenuTreeSelect)
-		//v1auth.GET("/roleDeptTreeselect/:roleId", system.GetDeptTreeRoleselect)
+		v1auth.GET("/roleDeptTreeselect/:roleId", api2.GetDeptTreeRoleSelect )
+		//GetDeptTreeRoleselect)
 		v1auth.POST("/logout", handler.LogOut)
 	}
 }

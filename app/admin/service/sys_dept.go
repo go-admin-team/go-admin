@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"gorm.io/gorm"
@@ -220,66 +221,66 @@ func (e *SysDept) deptPageCall(deptlist *[]system.SysDept, menu system.SysDept) 
 	return menu
 }
 
-//// GetRoleDeptId 获取角色的部门ID集合
-//func (e *SysDept) GetRoleDeptId(roleId int) ([]int, error) {
-//	deptIds := make([]int, 0)
-//	deptList := make([]dto.DeptIdList, 0)
-//	if err := e.Orm.Table("sys_role_dept").
-//		Select("sys_role_dept.dept_id").
-//		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").
-//		Where("role_id = ? ", roleId).
-//		Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", roleId).
-//		Find(&deptList).Error; err != nil {
-//		return nil, err
-//	}
-//
-//	for i := 0; i < len(deptList); i++ {
-//		deptIds = append(deptIds, deptList[i].DeptId)
-//	}
-//
-//	return deptIds, nil
-//}
-//
-//func (e *SysDept) SetDeptLabel() (m []dto.DeptLabel, err error) {
-//	list := make([]models.SysDept, 0)
-//	err = e.Orm.Find(&list).Error
-//	if err != nil {
-//		log.Error("find dept list error, %s", e.err)
-//		return
-//	}
-//
-//	m = make([]dto.DeptLabel, 0)
-//	var item dto.DeptLabel
-//	for i := range list {
-//		if list[i].ParentId != 0 {
-//			continue
-//		}
-//		item = dto.DeptLabel{}
-//		item.Id = list[i].DeptId
-//		item.Label = list[i].DeptName
-//		deptInfo := digitDeptLabel(&list, item)
-//
-//		m = append(m, deptInfo)
-//	}
-//	return
-//}
-//
-//// digitDeptLabel
-//func digitDeptLabel(deptList *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
-//	list := *deptList
-//
-//	var mi dto.DeptLabel
-//	min := make([]dto.DeptLabel, 0)
-//	for j := 0; j < len(list); j++ {
-//
-//		if dept.Id != list[j].ParentId {
-//			continue
-//		}
-//		mi = dto.DeptLabel{Id: list[j].DeptId, Label: list[j].DeptName, Children: []dto.DeptLabel{}}
-//		ms := digitDeptLabel(deptList, mi)
-//		min = append(min, ms)
-//
-//	}
-//	dept.Children = min
-//	return dept
-//}
+// GetRoleDeptId 获取角色的部门ID集合
+func (e *SysDept) GetRoleDeptId(roleId int) ([]int, error) {
+	deptIds := make([]int, 0)
+	deptList := make([]dto.DeptIdList, 0)
+	if err := e.Orm.Table("sys_role_dept").
+		Select("sys_role_dept.dept_id").
+		Joins("LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id").
+		Where("role_id = ? ", roleId).
+		Where(" sys_role_dept.dept_id not in(select sys_dept.parent_id from sys_role_dept LEFT JOIN sys_dept on sys_dept.dept_id=sys_role_dept.dept_id where role_id =? )", roleId).
+		Find(&deptList).Error; err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(deptList); i++ {
+		deptIds = append(deptIds, deptList[i].DeptId)
+	}
+
+	return deptIds, nil
+}
+
+func (e *SysDept) SetDeptLabel() (m []dto.DeptLabel, err error) {
+	list := make([]system.SysDept, 0)
+	err = e.Orm.Find(&list).Error
+	if err != nil {
+		log.Error("find dept list error, %s", err.Error())
+		return
+	}
+
+	m = make([]dto.DeptLabel, 0)
+	var item dto.DeptLabel
+	for i := range list {
+		if list[i].ParentId != 0 {
+			continue
+		}
+		item = dto.DeptLabel{}
+		item.Id = list[i].DeptId
+		item.Label = list[i].DeptName
+		deptInfo := digitDeptLabel(&list, item)
+
+		m = append(m, deptInfo)
+	}
+	return
+}
+
+// digitDeptLabel
+func digitDeptLabel(deptList *[]system.SysDept, dept dto.DeptLabel) dto.DeptLabel {
+	list := *deptList
+
+	var mi dto.DeptLabel
+	min := make([]dto.DeptLabel, 0)
+	for j := 0; j < len(list); j++ {
+
+		if dept.Id != list[j].ParentId {
+			continue
+		}
+		mi = dto.DeptLabel{Id: list[j].DeptId, Label: list[j].DeptName, Children: []dto.DeptLabel{}}
+		ms := digitDeptLabel(deptList, mi)
+		min = append(min, ms)
+
+	}
+	dept.Children = min
+	return dept
+}

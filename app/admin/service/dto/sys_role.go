@@ -50,7 +50,7 @@ type SysRoleControl struct {
 	Flag      string `form:"flag" comment:"标记"`       // 标记
 	Remark    string `form:"remark" comment:"备注"`     // 备注
 	Admin     bool   `form:"admin" comment:"是否管理员"`
-	DataScope string `form:"dataScope" comment:"是否管理员"`
+	DataScope string `form:"dataScope"`
 	MenuIds   []int  `json:"menuIds"`
 }
 
