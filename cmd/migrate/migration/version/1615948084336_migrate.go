@@ -3,6 +3,7 @@ package version
 import (
 	"gorm.io/gorm"
 	"runtime"
+	"strings"
 
 	"go-admin/cmd/migrate/migration"
 	common "go-admin/common/models"
@@ -17,7 +18,7 @@ func _1615948084336Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		err := tx.Exec("alter table sys_config add is_frontend int default 1 null comment '是否前台参数' after config_type").Error
-		if err != nil {
+		if err != nil && !strings.Contains(err.Error(),"Duplicate column name 'is_frontend'") {
 			return err
 		}
 

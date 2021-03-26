@@ -182,10 +182,7 @@ docker run --name go-admin -p 8000:8000 -d go-admin
 #### 文档生成
 
 ```bash
-swag init  
-
-# 如果没有swag命令 go get安装一下即可
-go get -u github.com/swaggo/swag/cmd/swag
+go generate
 ```
 
 #### 交叉编译

@@ -1866,8 +1866,15 @@ var doc = `{
     "definitions": {
         "dto.PassWord": {
             "type": "object",
+            "required": [
+                "newPassword",
+                "oldPassword"
+            ],
             "properties": {
-                "password": {
+                "newPassword": {
+                    "type": "string"
+                },
+                "oldPassword": {
                     "type": "string"
                 }
             }

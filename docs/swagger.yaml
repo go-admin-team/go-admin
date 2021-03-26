@@ -1,8 +1,13 @@
 definitions:
   dto.PassWord:
     properties:
-      password:
+      newPassword:
         type: string
+      oldPassword:
+        type: string
+    required:
+    - newPassword
+    - oldPassword
     type: object
   dto.SysDeptById:
     properties:
