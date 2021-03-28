@@ -1,19 +1,17 @@
 package router
 
 import (
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/go-admin-team/go-admin-core/logger"
-
-	"go-admin/app/admin/middleware"
-	"go-admin/app/admin/middleware/handler"
-	common "go-admin/common/middleware"
-
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+
+	common "go-admin/common/middleware"
+	"go-admin/common/middleware/handler"
 )
 
 // InitRouter 路由初始化，不要怀疑，这里用到了
@@ -38,9 +36,9 @@ func InitRouter() {
 	r.Use(common.Sentinel()).
 		Use(common.RequestId(pkg.TrafficKey)).
 		Use(api.SetRequestLogger)
-	middleware.InitMiddleware(r)
+	common.InitMiddleware(r)
 	// the jwt middleware
-	authMiddleware, err := middleware.AuthInit()
+	authMiddleware, err := common.AuthInit()
 	if err != nil {
 		log.Fatalf("JWT Init Error, %s", err.Error())
 	}
