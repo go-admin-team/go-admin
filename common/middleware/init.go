@@ -2,13 +2,11 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-
-	"go-admin/common/middleware"
 )
 
 func InitMiddleware(r *gin.Engine) {
 	// 数据库链接
-	r.Use(middleware.WithContextDb)
+	r.Use(WithContextDb)
 	// 日志处理
 	r.Use(LoggerToFile())
 	// 自定义错误处理

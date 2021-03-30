@@ -1,4 +1,4 @@
-package system
+package handler
 
 import (
 	log "github.com/go-admin-team/go-admin-core/logger"

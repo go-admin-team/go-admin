@@ -22,8 +22,8 @@ var store = base64Captcha.DefaultMemStore
 
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(system.SysUser)
-		r, _ := v["role"].(system.SysRole)
+		u, _ := v["user"].(SysUser)
+		r, _ := v["role"].(SysRole)
 		return jwt.MapClaims{
 			jwt.IdentityKey:  u.UserId,
 			jwt.RoleIdKey:    r.RoleId,
@@ -69,7 +69,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	var loginVals system.Login
+	var loginVals Login
 	var status = "2"
 	var msg = "登录成功"
 	var username = ""

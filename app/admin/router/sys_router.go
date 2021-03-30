@@ -1,25 +1,24 @@
 package router
 
 import (
-	"go-admin/app/admin/apis/system/sys_dept"
-	"go-admin/app/admin/apis/system/sys_menu"
-	//"go-admin/app/admin/models/tools"
-	middleware2 "go-admin/common/middleware"
 	"mime"
 
+	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/ws"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
+
 	"go-admin/app/admin/apis/monitor"
 	"go-admin/app/admin/apis/public"
 	"go-admin/app/admin/apis/system"
 	"go-admin/app/admin/apis/system/dict"
+	"go-admin/app/admin/apis/system/sys_dept"
+	"go-admin/app/admin/apis/system/sys_menu"
 	"go-admin/app/admin/apis/tools"
-	"go-admin/app/admin/middleware/handler"
+	"go-admin/common/middleware"
+	"go-admin/common/middleware/handler"
 	_ "go-admin/docs"
-
-	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
@@ -121,12 +120,12 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	api := sys_menu.SysMenu{}
 	api2 := sys_dept.SysDept{}
-	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
+	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		//v1auth.GET("/getinfo", system.GetInfo)
 		v1auth.GET("/roleMenuTreeselect/:roleId", api.GetMenuTreeSelect)
 		v1.GET("/menuTreeselect", api.GetMenuTreeSelect)
-		v1auth.GET("/roleDeptTreeselect/:roleId", api2.GetDeptTreeRoleSelect )
+		v1auth.GET("/roleDeptTreeselect/:roleId", api2.GetDeptTreeRoleSelect)
 		//GetDeptTreeRoleselect)
 		v1auth.POST("/logout", handler.LogOut)
 	}
@@ -172,7 +171,7 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	dictApi := &dict.SysDictType{}
 	dataApi := &dict.SysDictData{}
-	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
+	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 
 		dicts.GET("/data", dataApi.GetSysDictDataList)
