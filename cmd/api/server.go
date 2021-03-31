@@ -22,6 +22,7 @@ import (
 	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
+	ext "go-admin/config"
 )
 
 var (
@@ -50,7 +51,8 @@ func init() {
 }
 
 func setup() {
-
+	// 注入配置扩展项
+	config.ExtendConfig = &ext.ExtConfig
 	//1. 读取配置
 	config.Setup(file.NewSource, file.WithPath(configYml))
 	go config.Watch()
