@@ -24,6 +24,8 @@ type FileResponse struct {
 	Type     string `json:"type"`
 }
 
+const path = "static/uploadfile/"
+
 type File struct {
 	apis.Api
 }
@@ -72,7 +74,11 @@ func (e *File) baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix stri
 	ddd, _ := base64.StdEncoding.DecodeString(file2list[1])
 	guid := uuid.New().String()
 	fileName := guid + ".jpg"
-	base64File := "static/uploadfile/" + fileName
+	err := utils.IsNotExistMkDir(path)
+	if err != nil {
+		e.Error(c, 500, errors.New(""), "初始化文件路径失败")
+	}
+	base64File := path + fileName
 	_ = ioutil.WriteFile(base64File, ddd, 0666)
 	typeStr := strings.Replace(strings.Replace(file2list[0], "data:", "", -1), ";base64", "", -1)
 	fileResponse = FileResponse{
@@ -83,7 +89,7 @@ func (e *File) baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix stri
 		Type:     typeStr,
 	}
 	source, _ := c.GetPostForm("source")
-	err := thirdUpload(source, fileName, base64File)
+	err = thirdUpload(source, fileName, base64File)
 	if err != nil {
 		e.Error(c, 200, errors.New(""), "上传第三方失败")
 		return fileResponse
@@ -102,7 +108,12 @@ func (e *File) multipleFile(c *gin.Context, urlPerfix string) []FileResponse {
 	for _, f := range files {
 		guid := uuid.New().String()
 		fileName := guid + utils.GetExt(f.Filename)
-		multipartFileName := "static/uploadfile/" + fileName
+
+		err := utils.IsNotExistMkDir(path)
+		if err != nil {
+			e.Error(c, 500, errors.New(""), "初始化文件路径失败")
+		}
+		multipartFileName := path + fileName
 		err1 := c.SaveUploadedFile(f, multipartFileName)
 		fileType, _ := utils.GetType(multipartFileName)
 		if err1 == nil {
@@ -139,7 +150,12 @@ func (e *File) singleFile(c *gin.Context, fileResponse FileResponse, urlPerfix s
 	guid := uuid.New().String()
 
 	fileName := guid + utils.GetExt(files.Filename)
-	singleFile := "static/uploadfile/" + fileName
+
+	err = utils.IsNotExistMkDir(path)
+	if err != nil {
+		e.Error(c, 500, errors.New(""), "初始化文件路径失败")
+	}
+	singleFile := path + fileName
 	_ = c.SaveUploadedFile(files, singleFile)
 	fileType, _ := utils.GetType(singleFile)
 	fileResponse = FileResponse{
