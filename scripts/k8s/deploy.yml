@@ -15,14 +15,6 @@ spec:
   selector:
     app: go-admin
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: go-admin-go-admin
-  namespace: go-admin
-  labels:
-    account: go-admin
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,7 +38,7 @@ spec:
       serviceAccountName: go-admin-go-admin
       containers:
       - name: go-admin
-        image: registry.cn-shanghai.aliyuncs.com/go-admin-team/go-admin:v1.2.2
+        image: ${IMAGE}
         ports:
         - containerPort: 8000
         volumeMounts:
@@ -57,9 +49,6 @@ spec:
         - name: go-admin-config
           mountPath: /config/
           readOnly: true
-        env:
-        - name: COMMIT_TAG
-          value: "DRONE_COMMIT"
       volumes:
       - name: go-admin
         persistentVolumeClaim:
