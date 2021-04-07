@@ -20,6 +20,11 @@ import (
 
 var store = base64Captcha.DefaultMemStore
 
+// SetStore 设置store
+func SetStore(s base64Captcha.Store) {
+	store = s
+}
+
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(map[string]interface{}); ok {
 		u, _ := v["user"].(SysUser)
