@@ -1,6 +1,8 @@
 package dto
 
 import (
+    "errors"
+	vd "github.com/bytedance/go-tagexpr/v2/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
@@ -10,12 +12,12 @@ import (
 )
 
 type {{.ClassName}}Search struct {
-	dto.Pagination     `search:"-"`
+	dto.Pagination     `search:"-"  vd:"-"`
     {{ $tablename := .TBName -}}
     {{ range .Columns -}}
     {{$z := .IsQuery}}
     {{- if ($z) -}}
-    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  vd:"?" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
     {{ end -}}
     {{- end }}
 }
@@ -33,7 +35,11 @@ func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
     err := ctx.ShouldBind(m)
     if err != nil {
-    	log.Warnf("ShouldBind error: %s", err.Error())
+    	log.Errorf("ShouldBind error: %s", err.Error())
+    }
+    if err1 := vd.Validate(s); err != nil {
+        log.Errorf("Validate error: %s", err1.Error())
+        return err1
     }
     return err
 }
@@ -42,14 +48,14 @@ type {{.ClassName}}Control struct {
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}" vd:"?"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
     {{- else if eq .GoField "CreateBy" -}}
     {{- else if eq .GoField "UpdateBy" -}}
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}" vd:"?"`
     {{end -}}
     {{- end }}
 }
@@ -63,12 +69,17 @@ func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
     err := ctx.ShouldBindUri(s)
     if err != nil {
-        log.Warnf("ShouldBindUri error: %s", err.Error())
-        return err
+        log.Errorf("ShouldBindUri error: %s", err.Error())
+        return errors.New("数据绑定出错")
     }
     err = ctx.ShouldBind(s)
     if err != nil {
-        log.Warnf("ShouldBind error: %s", err.Error())
+        log.Errorf("ShouldBind error: %s", err.Error())
+        err = errors.New("数据绑定出错")
+    }
+    if err1 := vd.Validate(s); err != nil {
+        log.Errorf("Validate error: %s", err1.Error())
+        return err1
     }
     return err
 }
@@ -111,13 +122,18 @@ func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Warnf("ShouldBindUri error: %s", err.Error())
-		return err
+		log.Errorf("ShouldBindUri error: %s", err.Error())
+		return errors.New("数据绑定出错")
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Warnf("ShouldBind error: %s", err.Error())
+		log.Errorf("ShouldBind error: %s", err.Error())
+		err = errors.New("数据绑定出错")
 	}
+	if err1 := vd.Validate(s); err != nil {
+        log.Errorf("Validate error: %s", err1.Error())
+        return err1
+    }
 	return err
 }
 

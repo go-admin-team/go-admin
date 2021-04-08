@@ -1,6 +1,7 @@
 package dto
 
 import (
+	vd "github.com/bytedance/go-tagexpr/v2/validator"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,8 +9,8 @@ import (
 )
 
 type ObjectById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
+	Id  int   `uri:"id" vd:"($>0||len(Ids)$==0)"`
+	Ids []int `json:"ids" vd:"($==0||len(Ids)$>0)'"`
 }
 
 func (s *ObjectById) Bind(ctx *gin.Context) error {
@@ -35,6 +36,10 @@ func (s *ObjectById) Bind(ctx *gin.Context) error {
 		if s.Id != 0 {
 			s.Ids = append(s.Ids, s.Id)
 		}
+	}
+	if err = vd.Validate(s); err != nil {
+		log.Errorf("Validate error: %s", err.Error())
+		return err
 	}
 	return err
 }

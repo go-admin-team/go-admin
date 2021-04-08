@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alibaba/sentinel-golang v0.6.1
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190307165228-86c17b95fcd5
+	github.com/bytedance/go-tagexpr/v2 v2.7.10
 	github.com/casbin/casbin/v2 v2.25.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-admin-team/go-admin-core v1.3.3
@@ -27,5 +28,5 @@ require (
 	gorm.io/driver/mysql v1.0.4-0.20201206014609-ae5fd10184f6
 	gorm.io/driver/postgres v1.0.6-0.20201208020313-1ed927cfab53
 	gorm.io/driver/sqlite v1.1.5-0.20201206014648-c84401fbe3ba
-	gorm.io/gorm v1.21.3
+	gorm.io/gorm v1.21.6
 )
