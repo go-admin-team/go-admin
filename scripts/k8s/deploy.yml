@@ -36,6 +36,7 @@ spec:
       containers:
       - name: go-admin
         image: ${IMAGE}
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
         volumeMounts:
