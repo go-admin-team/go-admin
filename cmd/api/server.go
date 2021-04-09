@@ -3,8 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/go-admin-team/go-admin-core/tools/captcha"
-	"go-admin/common/middleware/handler"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +14,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/spf13/cobra"
 
@@ -74,7 +73,7 @@ func setup() {
 	}
 	sdk.Runtime.SetCacheAdapter(cacheAdapter)
 	//5. 设置验证码store
-	handler.SetStore(captcha.NewCacheStore(cacheAdapter, 600))
+	captcha.SetStore(captcha.NewCacheStore(cacheAdapter, 600))
 
 	usageStr := `starting api server...`
 	log.Println(usageStr)

@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: go-admin
-        image: ${IMAGE}
+        image: registry.cn-shanghai.aliyuncs.com/go-admin-team/go-admin
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000

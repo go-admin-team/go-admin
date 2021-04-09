@@ -8,22 +8,15 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
-	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
 
 	"go-admin/app/admin/models/system"
 	"go-admin/common/global"
 )
-
-var store = base64Captcha.DefaultMemStore
-
-// SetStore 设置store
-func SetStore(s base64Captcha.Store) {
-	store = s
-}
 
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(map[string]interface{}); ok {
@@ -90,7 +83,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrMissingLoginValues
 	}
 	if config.ApplicationConfig.Mode != "dev" {
-		if !store.Verify(loginVals.UUID, loginVals.Code, true) {
+		if !captcha.Verify(loginVals.UUID, loginVals.Code, true) {
 			username = loginVals.Username
 			msg = "验证码错误"
 			status = "1"

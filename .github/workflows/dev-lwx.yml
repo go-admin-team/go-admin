@@ -1,0 +1,60 @@
+name: build
+
+on:
+  push:
+    branches: [ dev-lwx ]
+  pull_request:
+    branches: [ dev-lwx ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.15
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.15
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+    - name: Build
+      run: |
+        CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o go-admin .
+        mv go-admin ./scripts
+
+    - uses: Azure/docker-login@v1
+      with:
+        login-server: registry.cn-shanghai.aliyuncs.com
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - run: |
+        docker build ./scripts -t registry.cn-shanghai.aliyuncs.com/go-admin-team/go-admin:${{ github.sha }}
+        docker push registry.cn-shanghai.aliyuncs.com/go-admin-team/go-admin:${{ github.sha }}
+    - uses: Azure/k8s-set-context@v1
+      with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+    - uses: Azure/k8s-create-secret@v1
+      with:
+        namespace: 'go-admin'
+        container-registry-url: registry.cn-shanghai.aliyuncs.com
+        container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        secret-name: aliyuncs-k8s-secret
+
+    - uses: Azure/k8s-deploy@v1
+      with:
+        namespace: 'go-admin'
+        manifests: 'scripts/k8s/deploy.yml'
+        images: 'registry.cn-shanghai.aliyuncs.com/go-admin-team/go-admin:${{ github.sha }}'
+        imagepullsecrets: 'aliyuncs-k8s-secret'
+        kubectl-version: 'latest'
