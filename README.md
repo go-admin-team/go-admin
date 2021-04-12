@@ -1,3 +1,5 @@
+go-admin已经从wenjianzhang/go-admin 迁移到go-admin-team/go-admin，为了您能够及时获取最新的代码，请关注 https://github.com/go-admin-team/go-admin 如果您觉得go-admin使用起来还不错，请帮我们star一下，谢谢对开源的支持！
+
 <p align="center">
   <img width="320" src="https://gitee.com/mydearzwj/image/raw/master/img/go-admin.svg">
 </p>
