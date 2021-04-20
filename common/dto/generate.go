@@ -9,8 +9,8 @@ import (
 )
 
 type ObjectById struct {
-	Id  int   `uri:"id" vd:"($>0||len(Ids)$==0)"`
-	Ids []int `json:"ids" vd:"($==0||len(Ids)$>0)'"`
+	Id  int   `uri:"id"`
+	Ids []int `json:"ids"`
 }
 
 func (s *ObjectById) Bind(ctx *gin.Context) error {

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/go-admin-team/go-admin-core/cache"
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/storage"
 
 	"go-admin/common/models"
 )
@@ -43,7 +43,7 @@ func (e *SysLoginLog) GetId() interface{} {
 }
 
 // SaveLoginLog 从队列中获取登录日志
-func SaveLoginLog(message cache.Message) (err error) {
+func SaveLoginLog(message storage.Messager) (err error) {
 	//准备db
 	db := sdk.Runtime.GetDbByKey(message.GetPrefix())
 	if db == nil {

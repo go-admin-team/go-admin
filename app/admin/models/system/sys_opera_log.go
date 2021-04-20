@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/go-admin-team/go-admin-core/cache"
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/storage"
 
 	"go-admin/common/models"
 )
@@ -51,7 +51,7 @@ func (e *SysOperaLog) GetId() interface{} {
 }
 
 // SaveOperaLog 从队列中获取操作日志
-func SaveOperaLog(message cache.Message) (err error) {
+func SaveOperaLog(message storage.Messager) (err error) {
 	//准备db
 	db := sdk.Runtime.GetDbByKey(message.GetPrefix())
 	if db == nil {

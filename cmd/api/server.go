@@ -75,11 +75,27 @@ func setup() {
 	//5. 设置验证码store
 	captcha.SetStore(captcha.NewCacheStore(cacheAdapter, 600))
 
+	//6. 设置队列
+	queueAdapter, err := config.QueueConfig.Setup()
+	if err != nil {
+		log.Fatalf("queue setup error, %s\n", err.Error())
+	}
+	sdk.Runtime.SetQueueAdapter(queueAdapter)
+
+	//7. 设置分布式锁
+	lockerAdapter, err := config.LockerConfig.Setup()
+	if err != nil {
+		log.Fatalf("locker setup error, %s\n", err.Error())
+	}
+	sdk.Runtime.SetLockerAdapter(lockerAdapter)
+
 	usageStr := `starting api server...`
 	log.Println(usageStr)
 	//注册监听函数
-	sdk.Runtime.GetCacheAdapter().Register(global.LoginLog, system.SaveLoginLog)
-	sdk.Runtime.GetCacheAdapter().Register(global.OperateLog, system.SaveOperaLog)
+	queue := sdk.Runtime.GetMemoryQueue("")
+	queue.Register(global.LoginLog, system.SaveLoginLog)
+	queue.Register(global.OperateLog, system.SaveOperaLog)
+	go queue.Run()
 }
 
 func run() error {

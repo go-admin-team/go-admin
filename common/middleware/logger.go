@@ -24,6 +24,10 @@ func LoggerToFile() gin.HandlerFunc {
 		// 处理请求
 
 		c.Next()
+		if strings.Index(c.Request.RequestURI, "/api/v1/logout") > -1 ||
+			strings.Index(c.Request.RequestURI, "/login") > -1 {
+			return
+		}
 		// 结束时间
 		endTime := time.Now()
 		if c.Request.Method == http.MethodOptions {
@@ -118,7 +122,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	} else {
 		l["status"] = "1"
 	}
-	q := sdk.Runtime.GetCachePrefix(c.Request.Host)
+	q := sdk.Runtime.GetMemoryQueue(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.OperateLog, l)
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())
