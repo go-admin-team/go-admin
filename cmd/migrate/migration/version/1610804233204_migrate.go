@@ -1,13 +1,12 @@
 package version
 
 import (
-	"go-admin/app/admin/models/system"
-
-	//"go-admin/app/admin/models"
-	"gorm.io/gorm"
 	"runtime"
 
+	"gorm.io/gorm"
+
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -20,13 +19,13 @@ func _1610804233204Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		// TODO: 这里开始写入要变更的内容
-		post := system.SysPost{}
+		post := models.Post{}
 		err := tx.Model(&post).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err
 		}
 
-		role := system.SysRole{}
+		role := models.SysRole{}
 		err = tx.Model(&role).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err

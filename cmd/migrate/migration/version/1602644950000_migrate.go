@@ -5,9 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/models/system"
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -18,13 +17,13 @@ func init() {
 
 func _1602644950000Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
-		if tx.Migrator().HasColumn(&system.SysConfig{}, "config_id") {
-			err := tx.Migrator().RenameColumn(&system.SysConfig{}, "config_id", "id")
+		if tx.Migrator().HasColumn(&models.SysConfig{}, "config_id") {
+			err := tx.Migrator().RenameColumn(&models.SysConfig{}, "config_id", "id")
 			if err != nil {
 				return err
 			}
 		}
-		list2 := []system.CasbinRule{
+		list2 := []models.CasbinRule{
 			{PType: "p", V0: "admin", V1: "/api/v1/config", V2: "GET"},
 		}
 		err := tx.Create(list2).Error
@@ -32,7 +31,7 @@ func _1602644950000Test(db *gorm.DB, version string) error {
 			return err
 		}
 
-		menu := models.Menu{MenuId: 86, Path: "/api/v1/config"}
+		menu := models.SysMenu{MenuId: 86, Path: "/api/v1/config"}
 		err = tx.Model(&menu).Where("menu_id = ?", 86).Update("Path", "/api/v1/config").Error
 		if err != nil {
 			return err

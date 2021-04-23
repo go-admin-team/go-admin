@@ -6,9 +6,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/models/system"
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -20,31 +19,31 @@ func init() {
 func _1599190683670Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-		list3 := []system.SysDept{
-			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 8, ParentId: 1, DeptPath: "/0/1/8", DeptName: "运维部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 9, ParentId: 1, DeptPath: "/0/1/9", DeptName: "客服部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DeptId: 10, ParentId: 1, DeptPath: "/0/1/10", DeptName: "人力资源", Sort: 3, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "1", ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+		list3 := []models.SysDept{
+			{DeptId: 1, ParentId: 0, DeptPath: "/0/1", DeptName: "爱拓科技", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 7, ParentId: 1, DeptPath: "/0/1/7", DeptName: "研发部", Sort: 1, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 8, ParentId: 1, DeptPath: "/0/1/8", DeptName: "运维部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 9, ParentId: 1, DeptPath: "/0/1/9", DeptName: "客服部", Sort: 0, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DeptId: 10, ParentId: 1, DeptPath: "/0/1/10", DeptName: "人力资源", Sort: 3, Leader: "aituo", Phone: "13782218188", Email: "atuo@aituo.com", Status: "1", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list4 := []system.SysConfig{
-			{Model: common.Model{Id: 1}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow"},
-			{Model: common.Model{Id: 2}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456"},
-			{Model: common.Model{Id: 3}, ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: common.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light"},
+		list4 := []models.SysConfig{
+			{Model: models.Model{Id: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-默认皮肤样式名称", ConfigKey: "sys_index_skinName", ConfigValue: "skin-blue", ConfigType: "Y", Remark: "蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow"},
+			{Model: models.Model{Id: 2}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "用户管理-账号初始密码", ConfigKey: "sys.user.initPassword", ConfigValue: "123456", ConfigType: "Y", Remark: "初始化密码 123456"},
+			{Model: models.Model{Id: 3}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ConfigName: "主框架页-侧边栏主题", ConfigKey: "sys_index_sideTheme", ConfigValue: "theme-dark", ConfigType: "Y", Remark: "深色主题theme-dark，浅色主题theme-light"},
 		}
 
-		list5 := []Post{
+		list5 := []models.Post{
 			{PostId: 1, PostName: "首席执行官", PostCode: "CEO", Sort: 0, Status: "2", Remark: "首席执行官", CreateBy: "1", UpdateBy: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 			{PostId: 2, PostName: "首席技术执行官", PostCode: "CTO", Sort: 2, Status: "2", Remark: "首席技术执行官", CreateBy: "1", UpdateBy: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 			{PostId: 3, PostName: "首席运营官", PostCode: "COO", Sort: 3, Status: "2", Remark: "测试工程师", CreateBy: "1", UpdateBy: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		}
 
 		list6 := []models.SysRole{
-			{1, "系统管理员", "2", "admin", 1, "", "1", "0", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", []int{}, []int{}},
+			{1, "系统管理员", "2", "admin", 1, "", "1", "0", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list7 := []DictType{
+		list7 := []models.DictType{
 			{DictId: 1, DictName: "系统开关", DictType: "sys_normal_disable", Status: "2", CreateBy: "1", UpdateBy: "1", Remark: "系统开关列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictId: 2, DictName: "用户性别", DictType: "sys_user_sex", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "用户性别列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictId: 3, DictName: "菜单状态", DictType: "sys_show_hide", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "菜单状态列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
@@ -57,13 +56,13 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			{DictId: 10, DictName: "通知状态", DictType: "sys_notice_status", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "通知状态列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
-		list8 := []system.SysUser{
+		list8 := []models.SysUser{
 			{
-				ControlBy: common.ControlBy{
+				ControlBy: models.ControlBy{
 					CreateBy: 1,
 					UpdateBy: 1,
 				},
-				ModelTime: common.ModelTime{
+				ModelTime: models.ModelTime{
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
@@ -85,7 +84,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 			//{models.SysUserId{1}, models.LoginM{models.UserName{"admin"}, models.PassWord{"$2a$10$cKFFTCzGOvaIHHJY2K45Zuwt8TD6oPzYi4s5MzYIBAWCLL6ZhouP2"}}, models.SysUserB{"zhangwj", "13818888888", 1, "", "", "0", "1@qq.com", 1, 1, "1", "1", "", "2", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, "", ""}},
 		}
 
-		list9 := []DictData{
+		list9 := []models.DictData{
 			{DictCode: 1, DictSort: 0, DictLabel: "正常", DictValue: "2", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统正常", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictCode: 2, DictSort: 0, DictLabel: "停用", DictValue: "1", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统停用", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 			{DictCode: 3, DictSort: 0, DictLabel: "男", DictValue: "0", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "性别男", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
@@ -120,7 +119,7 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list10 := []models.SysSetting{
-			{1, "go-admin管理系统", "https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png", common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{1, "go-admin管理系统", "https://gitee.com/mydearzwj/image/raw/master/img/go-admin.png", models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list11 := []models.SysJob{

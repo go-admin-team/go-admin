@@ -5,8 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -22,7 +22,7 @@ func _1600089797118Migrate(db *gorm.DB, version string) error {
 			PId:   0,
 			Sort:  "0",
 			Path:  "",
-			ControlBy: common.ControlBy{
+			ControlBy: models.ControlBy{
 				CreateBy: 1,
 				UpdateBy: 1,
 			},

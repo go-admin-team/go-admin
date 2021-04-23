@@ -1,13 +1,12 @@
 package version
 
 import (
-	"go-admin/app/admin/models/system"
-
-	//"go-admin/app/admin/models"
-	"gorm.io/gorm"
 	"runtime"
 
+	"gorm.io/gorm"
+
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -19,13 +18,13 @@ func init() {
 func _1606582844753Test(db *gorm.DB, version string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 
-		dept := system.SysDept{}
+		dept := models.SysDept{}
 		err := tx.Model(&dept).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err
 		}
 
-		dictData := DictData{}
+		dictData := models.DictData{}
 		err = tx.Model(&dictData).Where("status = ?", 0).Update("status", 2).Error
 		if err != nil {
 			return err
