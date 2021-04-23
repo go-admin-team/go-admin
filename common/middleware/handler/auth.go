@@ -55,7 +55,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Description 注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
 // @Accept  application/json
 // @Product application/json
-// @Param account body system.Login  true "account"
+// @Param account body Login  true "account"
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
 // @Router /login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
@@ -125,7 +125,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	l["username"] = username
 	l["msg"] = msg
 
-	q := sdk.Runtime.GetCachePrefix(c.Request.Host)
+	q := sdk.Runtime.GetMemoryQueue(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.LoginLog, l)
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())
@@ -149,27 +149,6 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Security Bearer
 func LogOut(c *gin.Context) {
 	LoginLogToDB(c, "2", "退出成功", user.GetUserName(c))
-	//var loginLog system.SysLoginLog
-	//loginLog.Ipaddr = c.ClientIP()
-	//location := pkg.GetLocation(c.ClientIP())
-	//loginLog.LoginLocation = location
-	//loginLog.LoginTime = pkg.GetCurrentTime()
-	//loginLog.Status = "2"
-	//loginLog.Remark = c.Request.UserAgent()
-	//browserName, browserVersion := ua.Browser()
-	//loginLog.Browser = browserName + " " + browserVersion
-	//loginLog.Os = ua.OS()
-	//loginLog.Platform = ua.Platform()
-	//loginLog.Username = user.GetUserName(c)
-	//loginLog.Msg = "退出成功"
-	//db, err := pkg.GetOrm(c)
-	//if err != nil {
-	//	log.Errorf("获取Orm失败, error:%s", err)
-	//}
-	//serviceLoginLog := service.SysLoginLog{}
-	//serviceLoginLog.Orm = db
-	//_ = serviceLoginLog.InsertSysLoginLog(loginLog.Generate())
-
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "退出成功",

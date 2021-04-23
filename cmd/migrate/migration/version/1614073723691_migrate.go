@@ -1,12 +1,12 @@
 package version
 
 import (
-	"go-admin/app/admin/models"
-	//"go-admin/app/admin/models"
-	"gorm.io/gorm"
 	"runtime"
 
+	"gorm.io/gorm"
+
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -20,7 +20,7 @@ func _1614073723691Test(db *gorm.DB, version string) error {
 
 		// TODO: 这里开始写入要变更的内容
 
-		err := tx.Model(&models.Menu{}).Where("path = ?", "/api/v1/syscontentList").Update("path", "/api/v1/syscontent").Error
+		err := tx.Model(&models.SysMenu{}).Where("path = ?", "/api/v1/syscontentList").Update("path", "/api/v1/syscontent").Error
 		if err != nil {
 			return err
 		}

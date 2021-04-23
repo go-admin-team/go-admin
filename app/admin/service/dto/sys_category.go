@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"errors"
+	vd "github.com/bytedance/go-tagexpr/v2/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
@@ -11,9 +13,9 @@ import (
 
 type SysCategorySearch struct {
 	dto.Pagination `search:"-"`
-	Name           string `form:"name" search:"type:exact;column:name;table:sys_category" comment:"名称"`
-	Status         string `form:"status" search:"type:exact;column:status;table:sys_category" comment:"状态"`
-	CateId         int    `form:"cateId" search:"type:exact;column:cate_id;table:sys_category" comment:"分类id"`
+	Name           string `form:"name" search:"type:exact;column:name;table:sys_category" comment:"名称" vd:"?"`
+	Status         string `form:"status" search:"type:exact;column:status;table:sys_category" comment:"状态" vd:"?"`
+	CateId         int    `form:"cateId" search:"type:exact;column:cate_id;table:sys_category" comment:"分类id" vd:"?"`
 }
 
 func (m *SysCategorySearch) GetNeedSearch() interface{} {
@@ -22,9 +24,15 @@ func (m *SysCategorySearch) GetNeedSearch() interface{} {
 
 func (m *SysCategorySearch) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
+
 	err := ctx.ShouldBind(m)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
+	}
+
+	if err = vd.Validate(m); err != nil {
+		log.Errorf("Validate error: %s", err.Error())
+		return err
 	}
 	return err
 }
@@ -36,23 +44,28 @@ func (m *SysCategorySearch) Generate() dto.Index {
 
 type SysCategoryControl struct {
 	ID     int    `uri:"Id" comment:"标识"`
-	Name   string `json:"name" comment:"名称"`
-	Img    string `json:"img" comment:"图标"`
-	Sort   int    `json:"sort" comment:"排序"`
-	Status int    `json:"status" comment:"状态"`
-	Remark string `json:"remark" comment:"备注"`
+	Name   string `json:"name" comment:"名称" vd:"len($)>0 && $!=' '; msg:'invalid name: 不能是空字符串'"`
+	Img    string `json:"img" comment:"图标" vd:"?"`
+	Sort   int    `json:"sort" comment:"排序" vd:"?"`
+	Status int    `json:"status" comment:"状态" vd:"$>0; msg:'invalid status: 状态无效'"`
+	Remark string `json:"remark" comment:"备注" vd:"?"`
 }
 
 func (s *SysCategoryControl) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
+		log.Errorf("ShouldBindUri error: %s", err.Error())
+		return errors.New("数据绑定出错")
 	}
 	err = ctx.ShouldBind(s)
 	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
+		log.Errorf("ShouldBind error: %s", err.Error())
+		err = errors.New("数据绑定出错")
+	}
+	if err1 := vd.Validate(s); err != nil {
+		log.Errorf("Validate error: %s", err1.Error())
+		return err1
 	}
 	return err
 }
@@ -78,7 +91,7 @@ func (s *SysCategoryControl) GetId() interface{} {
 }
 
 type SysCategoryById struct {
-	dto.ObjectById
+	dto.ObjectById `vd:"?"`
 }
 
 func (s *SysCategoryById) Generate() dto.Control {

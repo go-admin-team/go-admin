@@ -1,19 +1,13 @@
-package system
+package models
 
 import (
-	"encoding/json"
-	"errors"
 	"time"
-
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/storage"
 
 	"go-admin/common/models"
 )
 
 type SysOperaLog struct {
-	models.Model
+	Model
 	Title         string    `json:"title" gorm:"type:varchar(255);comment:操作模块"`
 	BusinessType  string    `json:"businessType" gorm:"type:varchar(128);comment:操作类型"`
 	BusinessTypes string    `json:"businessTypes" gorm:"type:varchar(128);comment:BusinessTypes"`
@@ -39,47 +33,4 @@ type SysOperaLog struct {
 
 func (SysOperaLog) TableName() string {
 	return "sys_opera_log"
-}
-
-func (e *SysOperaLog) Generate() models.ActiveRecord {
-	o := *e
-	return &o
-}
-
-func (e *SysOperaLog) GetId() interface{} {
-	return e.Id
-}
-
-// SaveOperaLog 从队列中获取操作日志
-func SaveOperaLog(message storage.Messager) (err error) {
-	//准备db
-	db := sdk.Runtime.GetDbByKey(message.GetPrefix())
-	if db == nil {
-		err = errors.New("db not exist")
-		log.Errorf("host[%s]'s %s", message.GetPrefix(), err.Error())
-		return err
-	}
-	var rb []byte
-	rb, err = json.Marshal(message.GetValues())
-	if err != nil {
-		log.Errorf("json Marshal error, %s", err.Error())
-		return err
-	}
-	var l SysOperaLog
-	err = json.Unmarshal(rb, &l)
-	if err != nil {
-		log.Errorf("json Unmarshal error, %s", err.Error())
-		return err
-	}
-	if l.Title == "" {
-		m := &SysMenu{}
-		db.Model(m).Select("Title").Where("action = ?", l.Method).Where("path = ?", message.GetValues()["_fullPath"]).First(m)
-		l.Title = m.Title
-	}
-	err = db.Create(&l).Error
-	if err != nil {
-		log.Errorf("db create error, %s", err.Error())
-		return err
-	}
-	return nil
 }

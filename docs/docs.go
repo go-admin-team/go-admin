@@ -1826,7 +1826,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/system.Login"
+                            "$ref": "#/definitions/handler.Login"
                         }
                     }
                 ],
@@ -2230,24 +2230,7 @@ var doc = `{
                 }
             }
         },
-        "response.Response": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "msg": {
-                    "type": "string"
-                },
-                "requestId": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "system.Login": {
+        "handler.Login": {
             "type": "object",
             "required": [
                 "code",
@@ -2266,6 +2249,23 @@ var doc = `{
                     "type": "string"
                 },
                 "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

@@ -4,7 +4,7 @@ import (
 	"go-admin/cmd"
 )
 
-//go:generate swag init --parseDependency
+//go:generate swag init --parseDependency --parseDepth=6
 
 // @title go-admin API
 // @version 1.3.1

@@ -254,18 +254,7 @@ definitions:
       username:
         type: string
     type: object
-  response.Response:
-    properties:
-      code:
-        type: integer
-      msg:
-        type: string
-      requestId:
-        type: string
-      status:
-        type: string
-    type: object
-  system.Login:
+  handler.Login:
     properties:
       code:
         type: string
@@ -280,6 +269,17 @@ definitions:
     - password
     - username
     - uuid
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      requestId:
+        type: string
+      status:
+        type: string
     type: object
   tools.Params:
     properties:
@@ -1605,7 +1605,7 @@ paths:
         name: account
         required: true
         schema:
-          $ref: '#/definitions/system.Login'
+          $ref: '#/definitions/handler.Login'
       responses:
         "200":
           description: '{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token":

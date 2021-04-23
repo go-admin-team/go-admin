@@ -1,6 +1,7 @@
 package dto
 
 import (
+	vd "github.com/bytedance/go-tagexpr/v2/validator"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,6 +36,10 @@ func (s *ObjectById) Bind(ctx *gin.Context) error {
 		if s.Id != 0 {
 			s.Ids = append(s.Ids, s.Id)
 		}
+	}
+	if err = vd.Validate(s); err != nil {
+		log.Errorf("Validate error: %s", err.Error())
+		return err
 	}
 	return err
 }

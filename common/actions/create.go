@@ -27,7 +27,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		req := control.Generate()
 		err = req.Bind(c)
 		if err != nil {
-			response.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			response.Error(c, http.StatusUnprocessableEntity, err, err.Error())
 			return
 		}
 		var object models.ActiveRecord

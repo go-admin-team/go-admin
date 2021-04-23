@@ -263,7 +263,7 @@ func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 		GenerateTime string
 	}{tab, i})
 
-	pkg.FileCreate(b1, "./cmd/migrate/migration/version/"+i+"_migrate.go")
+	pkg.FileCreate(b1, "./cmd/migrate/migration/version-local/"+i+"_migrate.go")
 
 }
 

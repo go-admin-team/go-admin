@@ -3,12 +3,10 @@ package version
 import (
 	"runtime"
 
-	"go-admin/app/admin/models/system"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/models/tools"
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -19,23 +17,23 @@ func init() {
 
 func _1599190683659Tables(db *gorm.DB, version string) error {
 	err := db.Debug().Migrator().AutoMigrate(
-		new(system.CasbinRule),
-		new(system.SysDept),
-		new(system.SysConfig),
-		new(tools.SysTables),
-		new(tools.SysColumns),
-		new(system.SysMenu),
-		new(system.SysLoginLog),
-		new(system.SysOperaLog),
+		new(models.CasbinRule),
+		new(models.SysDept),
+		new(models.SysConfig),
+		new(models.SysTables),
+		new(models.SysColumns),
+		new(models.SysMenu),
+		new(models.SysLoginLog),
+		new(models.SysOperaLog),
 		new(models.RoleMenu),
-		new(system.SysRoleDept),
-		new(system.SysUser),
-		new(system.SysRole),
-		new(Post),
-		new(DictData),
-		new(DictType),
+		new(models.SysRoleDept),
+		new(models.SysUser),
+		new(models.SysRole),
+		new(models.Post),
+		new(models.DictData),
+		new(models.DictType),
 		new(models.SysJob),
-		new(system.SysConfig),
+		new(models.SysConfig),
 		new(models.SysSetting),
 		new(models.SysFileDir),
 		new(models.SysFileInfo),

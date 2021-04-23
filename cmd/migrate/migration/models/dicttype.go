@@ -1,8 +1,4 @@
-package version
-
-import (
-	"go-admin/app/admin/models"
-)
+package models
 
 type DictType struct {
 	DictId   int    `gorm:"primaryKey;autoIncrement;" json:"dictId"`
@@ -12,7 +8,7 @@ type DictType struct {
 	CreateBy string `gorm:"size:11;" json:"createBy"`  //创建者
 	UpdateBy string `gorm:"size:11;" json:"updateBy"`  //更新者
 	Remark   string `gorm:"size:255;" json:"remark"`   //备注
-	models.BaseModel
+	BaseModel
 }
 
 func (DictType) TableName() string {

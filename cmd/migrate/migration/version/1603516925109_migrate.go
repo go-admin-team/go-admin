@@ -1,13 +1,13 @@
 package version
 
 import (
+	"runtime"
+
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
-
-	"runtime"
 )
 
 func init() {
@@ -20,15 +20,15 @@ func _1603516925109Test(db *gorm.DB, version string) error {
 		_ = tx.Migrator().RenameTable("sys_operlog", "sys_opera_log")
 		_ = tx.Migrator().RenameTable("sys_loginlog", "sys_login_log")
 
-		if tx.Migrator().HasColumn(&system.SysLoginLog{}, "info_id") {
-			err := tx.Migrator().RenameColumn(&system.SysLoginLog{}, "info_id", "id")
+		if tx.Migrator().HasColumn(&models.SysLoginLog{}, "info_id") {
+			err := tx.Migrator().RenameColumn(&models.SysLoginLog{}, "info_id", "id")
 			if err != nil {
 				return err
 			}
 		}
 
-		if tx.Migrator().HasColumn(&system.SysOperaLog{}, "oper_id") {
-			err := tx.Migrator().RenameColumn(&system.SysOperaLog{}, "oper_id", "id")
+		if tx.Migrator().HasColumn(&models.SysOperaLog{}, "oper_id") {
+			err := tx.Migrator().RenameColumn(&models.SysOperaLog{}, "oper_id", "id")
 			if err != nil {
 				return err
 			}

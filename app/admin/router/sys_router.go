@@ -103,13 +103,13 @@ func registerSysTableRouter(v1 *gin.RouterGroup) {
 }
 
 func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	r.POST("/login", authMiddleware.LoginHandler)
-	// Refresh time can be longer than token timeout
-	r.GET("/refresh_token", authMiddleware.RefreshHandler)
 	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
 	r.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
 	v1 := r.Group("/api/v1")
 
+	v1.POST("/login", authMiddleware.LoginHandler)
+	// Refresh time can be longer than token timeout
+	v1.GET("/refresh_token", authMiddleware.RefreshHandler)
 	//registerPageRouter(v1, authMiddleware)
 	registerBaseRouter(v1, authMiddleware)
 	registerDictRouter(v1, authMiddleware)
