@@ -1,5 +1,10 @@
 package models
 
+import (
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
 type SysUser struct {
 	ControlBy
 	ModelTime
@@ -25,4 +30,23 @@ type SysUser struct {
 
 func (SysUser) TableName() string {
 	return "sys_user"
+}
+
+//加密
+func (e *SysUser) Encrypt() (err error) {
+	if e.Password == "" {
+		return
+	}
+
+	var hash []byte
+	if hash, err = bcrypt.GenerateFromPassword([]byte(e.Password), bcrypt.DefaultCost); err != nil {
+		return
+	} else {
+		e.Password = string(hash)
+		return
+	}
+}
+
+func (e *SysUser) BeforeCreate(_ *gorm.DB) error {
+	return e.Encrypt()
 }
