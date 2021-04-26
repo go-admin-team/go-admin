@@ -12,11 +12,8 @@ type SysJob struct {
 	Concurrent     int    `json:"concurrent" gorm:"size:1;"`             // 是否并发
 	Status         int    `json:"status" gorm:"size:1;"`                 // 状态
 	EntryId        int    `json:"entry_id" gorm:"size:11;"`              // job启动时返回的id
-	CreateBy       string `json:"createBy" gorm:"size:128;"`             //
-	UpdateBy       string `json:"updateBy" gorm:"size:128;"`             //
-	BaseModel
-
-	DataScope string `json:"dataScope" gorm:"-"`
+	ModelTime
+	ControlBy
 }
 
 func (SysJob) TableName() string {

@@ -27,10 +27,8 @@ type SysTables struct {
 	IsLogicalDelete     string `gorm:"size:1;" json:"isLogicalDelete"`
 	LogicalDelete       bool   `gorm:"size:1;" json:"logicalDelete"`
 	LogicalDeleteColumn string `gorm:"size:128;" json:"logicalDeleteColumn"`
-	CreateBy            string `gorm:"size:128;" json:"createBy"`
-	UpdateBy            string `gorm:"size:128;" json:"updateBy"`
-
-	BaseModel
+	ModelTime
+	ControlBy
 }
 
 func (SysTables) TableName() string {

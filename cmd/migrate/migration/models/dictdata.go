@@ -11,10 +11,9 @@ type DictData struct {
 	IsDefault string `gorm:"size:8;" json:"isDefault"`                              //
 	Status    string `gorm:"size:4;" json:"status"`                                 //状态
 	Default   string `gorm:"size:8;" json:"default"`                                //
-	CreateBy  string `gorm:"size:64;" json:"createBy"`                              //
-	UpdateBy  string `gorm:"size:64;" json:"updateBy"`                              //
 	Remark    string `gorm:"size:255;" json:"remark"`                               //备注
-	BaseModel
+	ControlBy
+	ModelTime
 }
 
 func (DictData) TableName() string {

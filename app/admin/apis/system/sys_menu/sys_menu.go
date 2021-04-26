@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
-	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
@@ -274,9 +273,9 @@ func (e *SysMenu) GetMenuIDS(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	var data models.RoleMenu
+	var data system.RoleMenu
 	data.RoleName = c.GetString("role")
-	data.UpdateBy = user.GetUserIdStr(c)
+	data.UpdateBy = user.GetUserId(c)
 	result, err := data.GetIDS(db)
 	if err != nil {
 		log.Errorf("GetIDS error, %s", err.Error())

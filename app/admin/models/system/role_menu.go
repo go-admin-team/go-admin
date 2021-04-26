@@ -2,18 +2,19 @@ package system
 
 import (
 	"fmt"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
+
+	"go-admin/common/models"
 )
 
 type RoleMenu struct {
 	RoleId   int    `gorm:""`
 	MenuId   int    `gorm:""`
 	RoleName string `gorm:"size:128"`
-	CreateBy string `gorm:"size:128"`
-	UpdateBy string `gorm:"size:128"`
+	models.ControlBy
 }
 
 func (RoleMenu) TableName() string {

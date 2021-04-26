@@ -34,26 +34,38 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list5 := []models.Post{
-			{PostId: 1, PostName: "首席执行官", PostCode: "CEO", Sort: 0, Status: "2", Remark: "首席执行官", CreateBy: "1", UpdateBy: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
-			{PostId: 2, PostName: "首席技术执行官", PostCode: "CTO", Sort: 2, Status: "2", Remark: "首席技术执行官", CreateBy: "1", UpdateBy: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
-			{PostId: 3, PostName: "首席运营官", PostCode: "COO", Sort: 3, Status: "2", Remark: "测试工程师", CreateBy: "1", UpdateBy: "1", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			{PostId: 1, PostName: "首席执行官", PostCode: "CEO", Sort: 0, Status: "2", Remark: "首席执行官", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{PostId: 2, PostName: "首席技术执行官", PostCode: "CTO", Sort: 2, Status: "2", Remark: "首席技术执行官", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{PostId: 3, PostName: "首席运营官", PostCode: "COO", Sort: 3, Status: "2", Remark: "测试工程师", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list6 := []models.SysRole{
-			{1, "系统管理员", "2", "admin", 1, "", "1", "0", "", true, "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{
+				RoleId:    1,
+				RoleName:  "系统管理员",
+				Status:    "2",
+				RoleKey:   "admin",
+				RoleSort:  1,
+				Flag:      "",
+				Remark:    "",
+				Admin:     true,
+				DataScope: "",
+				ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()},
+				ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1},
+			},
 		}
 
 		list7 := []models.DictType{
-			{DictId: 1, DictName: "系统开关", DictType: "sys_normal_disable", Status: "2", CreateBy: "1", UpdateBy: "1", Remark: "系统开关列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 2, DictName: "用户性别", DictType: "sys_user_sex", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "用户性别列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 3, DictName: "菜单状态", DictType: "sys_show_hide", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "菜单状态列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 4, DictName: "系统是否", DictType: "sys_yes_no", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "系统是否列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 5, DictName: "任务状态", DictType: "sys_job_status", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "任务状态列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 6, DictName: "任务分组", DictType: "sys_job_group", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "任务分组列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 7, DictName: "通知类型", DictType: "sys_notice_type", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "通知类型列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 8, DictName: "系统状态", DictType: "sys_common_status", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "登录状态列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 9, DictName: "操作类型", DictType: "sys_oper_type", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "操作类型列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictId: 10, DictName: "通知状态", DictType: "sys_notice_status", Status: "2", CreateBy: "1", UpdateBy: "", Remark: "通知状态列表", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 1, DictName: "系统开关", DictType: "sys_normal_disable", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "系统开关列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 2, DictName: "用户性别", DictType: "sys_user_sex", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "用户性别列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 3, DictName: "菜单状态", DictType: "sys_show_hide", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "菜单状态列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 4, DictName: "系统是否", DictType: "sys_yes_no", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "系统是否列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 5, DictName: "任务状态", DictType: "sys_job_status", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "任务状态列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 6, DictName: "任务分组", DictType: "sys_job_group", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "任务分组列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 7, DictName: "通知类型", DictType: "sys_notice_type", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "通知类型列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 8, DictName: "系统状态", DictType: "sys_common_status", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "登录状态列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 9, DictName: "操作类型", DictType: "sys_oper_type", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "操作类型列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictId: 10, DictName: "通知状态", DictType: "sys_notice_status", Status: "2", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "通知状态列表", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list8 := []models.SysUser{
@@ -85,37 +97,37 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list9 := []models.DictData{
-			{DictCode: 1, DictSort: 0, DictLabel: "正常", DictValue: "2", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统正常", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 2, DictSort: 0, DictLabel: "停用", DictValue: "1", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统停用", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 3, DictSort: 0, DictLabel: "男", DictValue: "0", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "性别男", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 4, DictSort: 0, DictLabel: "女", DictValue: "1", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "性别女", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 5, DictSort: 0, DictLabel: "未知", DictValue: "2", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "性别未知", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 6, DictSort: 0, DictLabel: "显示", DictValue: "0", DictType: "sys_show_hide", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "显示菜单", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 7, DictSort: 0, DictLabel: "隐藏", DictValue: "1", DictType: "sys_show_hide", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "隐藏菜单", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 8, DictSort: 0, DictLabel: "是", DictValue: "Y", DictType: "sys_yes_no", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统默认是", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 9, DictSort: 0, DictLabel: "否", DictValue: "N", DictType: "sys_yes_no", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统默认否", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 10, DictSort: 0, DictLabel: "正常", DictValue: "2", DictType: "sys_job_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "正常状态", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 11, DictSort: 0, DictLabel: "停用", DictValue: "1", DictType: "sys_job_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "停用状态", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 12, DictSort: 0, DictLabel: "默认", DictValue: "DEFAULT", DictType: "sys_job_group", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "默认分组", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 13, DictSort: 0, DictLabel: "系统", DictValue: "SYSTEM", DictType: "sys_job_group", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "系统分组", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 14, DictSort: 0, DictLabel: "通知", DictValue: "1", DictType: "sys_notice_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "通知", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 15, DictSort: 0, DictLabel: "公告", DictValue: "2", DictType: "sys_notice_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "公告", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 16, DictSort: 0, DictLabel: "正常", DictValue: "0", DictType: "sys_common_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "正常状态", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 17, DictSort: 0, DictLabel: "关闭", DictValue: "1", DictType: "sys_common_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "关闭状态", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 18, DictSort: 0, DictLabel: "新增", DictValue: "1", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "新增操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 19, DictSort: 0, DictLabel: "修改", DictValue: "2", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "修改操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 20, DictSort: 0, DictLabel: "删除", DictValue: "3", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "删除操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 21, DictSort: 0, DictLabel: "授权", DictValue: "4", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "授权操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 22, DictSort: 0, DictLabel: "导出", DictValue: "5", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "导出操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 23, DictSort: 0, DictLabel: "导入", DictValue: "6", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "导入操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 24, DictSort: 0, DictLabel: "强退", DictValue: "7", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "强退操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 25, DictSort: 0, DictLabel: "生成代码", DictValue: "8", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "生成操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 26, DictSort: 0, DictLabel: "清空数据", DictValue: "9", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "清空操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 27, DictSort: 0, DictLabel: "成功", DictValue: "0", DictType: "sys_notice_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "成功状态", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 28, DictSort: 0, DictLabel: "失败", DictValue: "1", DictType: "sys_notice_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "", Remark: "失败状态", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 29, DictSort: 0, DictLabel: "登录", DictValue: "10", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "1", Remark: "登录操作", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 30, DictSort: 0, DictLabel: "退出", DictValue: "11", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "1", Remark: "", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
-			{DictCode: 31, DictSort: 0, DictLabel: "获取验证码", DictValue: "12", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", CreateBy: "1", UpdateBy: "1", Remark: "获取验证码", BaseModel: models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 1, DictSort: 0, DictLabel: "正常", DictValue: "2", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "系统正常", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 2, DictSort: 0, DictLabel: "停用", DictValue: "1", DictType: "sys_normal_disable", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "系统停用", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 3, DictSort: 0, DictLabel: "男", DictValue: "0", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "性别男", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 4, DictSort: 0, DictLabel: "女", DictValue: "1", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "性别女", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 5, DictSort: 0, DictLabel: "未知", DictValue: "2", DictType: "sys_user_sex", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "性别未知", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 6, DictSort: 0, DictLabel: "显示", DictValue: "0", DictType: "sys_show_hide", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "显示菜单", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 7, DictSort: 0, DictLabel: "隐藏", DictValue: "1", DictType: "sys_show_hide", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "隐藏菜单", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 8, DictSort: 0, DictLabel: "是", DictValue: "Y", DictType: "sys_yes_no", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "系统默认是", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 9, DictSort: 0, DictLabel: "否", DictValue: "N", DictType: "sys_yes_no", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "系统默认否", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 10, DictSort: 0, DictLabel: "正常", DictValue: "2", DictType: "sys_job_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "正常状态", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 11, DictSort: 0, DictLabel: "停用", DictValue: "1", DictType: "sys_job_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "停用状态", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 12, DictSort: 0, DictLabel: "默认", DictValue: "DEFAULT", DictType: "sys_job_group", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "默认分组", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 13, DictSort: 0, DictLabel: "系统", DictValue: "SYSTEM", DictType: "sys_job_group", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "系统分组", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 14, DictSort: 0, DictLabel: "通知", DictValue: "1", DictType: "sys_notice_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "通知", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 15, DictSort: 0, DictLabel: "公告", DictValue: "2", DictType: "sys_notice_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "公告", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 16, DictSort: 0, DictLabel: "正常", DictValue: "0", DictType: "sys_common_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "正常状态", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 17, DictSort: 0, DictLabel: "关闭", DictValue: "1", DictType: "sys_common_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "关闭状态", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 18, DictSort: 0, DictLabel: "新增", DictValue: "1", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "新增操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 19, DictSort: 0, DictLabel: "修改", DictValue: "2", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "修改操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 20, DictSort: 0, DictLabel: "删除", DictValue: "3", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "删除操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 21, DictSort: 0, DictLabel: "授权", DictValue: "4", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "授权操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 22, DictSort: 0, DictLabel: "导出", DictValue: "5", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "导出操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 23, DictSort: 0, DictLabel: "导入", DictValue: "6", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "导入操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 24, DictSort: 0, DictLabel: "强退", DictValue: "7", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "强退操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 25, DictSort: 0, DictLabel: "生成代码", DictValue: "8", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "生成操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 26, DictSort: 0, DictLabel: "清空数据", DictValue: "9", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "清空操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 27, DictSort: 0, DictLabel: "成功", DictValue: "0", DictType: "sys_notice_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "成功状态", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 28, DictSort: 0, DictLabel: "失败", DictValue: "1", DictType: "sys_notice_status", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "失败状态", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 29, DictSort: 0, DictLabel: "登录", DictValue: "10", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "登录操作", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 30, DictSort: 0, DictLabel: "退出", DictValue: "11", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
+			{DictCode: 31, DictSort: 0, DictLabel: "获取验证码", DictValue: "12", DictType: "sys_oper_type", CssClass: "", ListClass: "", IsDefault: "", Status: "2", Default: "", ControlBy: models.ControlBy{CreateBy: 1, UpdateBy: 1}, Remark: "获取验证码", ModelTime: models.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}},
 		}
 
 		list10 := []models.SysSetting{
@@ -123,8 +135,48 @@ func _1599190683670Test(db *gorm.DB, version string) error {
 		}
 
 		list11 := []models.SysJob{
-			{1, "接口测试", "DEFAULT", 1, "0/5 * * * * ", "http://localhost:8000", "", 1, 1, 1, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
-			{2, "函数测试", "DEFAULT", 2, "0/5 * * * * ", "ExamplesOne", "参数", 1, 1, 1, 0, "", "", models.BaseModel{CreatedAt: time.Now(), UpdatedAt: time.Now()}, ""},
+			{
+				JobId:          1,
+				JobName:        "接口测试",
+				JobGroup:       "DEFAULT",
+				JobType:        1,
+				CronExpression: "0/5 * * * * ",
+				InvokeTarget:   "http://localhost:8000",
+				Args:           "",
+				MisfirePolicy:  1,
+				Concurrent:     1,
+				Status:         1,
+				EntryId:        0,
+				ControlBy: models.ControlBy{
+					CreateBy: 1,
+					UpdateBy: 1,
+				},
+				ModelTime: models.ModelTime{
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			},
+			models.SysJob{
+				JobId:          2,
+				JobName:        "函数测试",
+				JobGroup:       "DEFAULT",
+				JobType:        2,
+				CronExpression: "0/5 * * * * ",
+				InvokeTarget:   "ExamplesOne",
+				Args:           "参数",
+				MisfirePolicy:  1,
+				Concurrent:     1,
+				Status:         1,
+				EntryId:        0,
+				ControlBy: models.ControlBy{
+					CreateBy: 1,
+					UpdateBy: 1,
+				},
+				ModelTime: models.ModelTime{
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			},
 		}
 
 		err := tx.Create(list3).Error

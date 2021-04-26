@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"go-admin/common/models"
 
 	"gorm.io/gorm"
 
@@ -33,7 +34,7 @@ type Menu struct {
 	RoleId     int    `gorm:"-"`
 	Children   []Menu `json:"children" gorm:"-"`
 	IsSelect   bool   `json:"is_select" gorm:"-"`
-	BaseModel
+	models.ModelTime
 }
 
 func (Menu) TableName() string {

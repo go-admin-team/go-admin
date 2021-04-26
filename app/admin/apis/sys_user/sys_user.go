@@ -8,7 +8,6 @@ import (
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/google/uuid"
 
-	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
@@ -424,7 +423,7 @@ func (e *SysUser) GetInfo(c *gin.Context) {
 	var buttons = make([]string, 1)
 	buttons[0] = "*:*:*"
 
-	RoleMenu := models.RoleMenu{}
+	RoleMenu := system.RoleMenu{}
 	RoleMenu.RoleId = user.GetRoleId(c)
 
 	var mp = make(map[string]interface{})

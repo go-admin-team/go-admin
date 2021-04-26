@@ -3,7 +3,6 @@ package models
 import (
 	"go-admin/common/models"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 type SysJob struct {
@@ -18,9 +17,8 @@ type SysJob struct {
 	Concurrent     int    `json:"concurrent" gorm:"size:1;"`             // 是否并发
 	Status         int    `json:"status" gorm:"size:1;"`                 // 状态
 	EntryId        int    `json:"entry_id" gorm:"size:11;"`              // job启动时返回的id
-	CreateBy       string `json:"createBy" gorm:"size:128;"`             //
-	UpdateBy       string `json:"updateBy" gorm:"size:128;"`             //
-	BaseModel
+	models.ControlBy
+	models.ModelTime
 
 	DataScope string `json:"dataScope" gorm:"-"`
 }
@@ -39,11 +37,11 @@ func (e *SysJob) GetId() interface{} {
 }
 
 func (e *SysJob) SetCreateBy(createBy int) {
-	e.CreateBy = strconv.Itoa(int(createBy))
+	e.CreateBy = createBy
 }
 
 func (e *SysJob) SetUpdateBy(updateBy int) {
-	e.UpdateBy = strconv.Itoa(int(updateBy))
+	e.UpdateBy = updateBy
 }
 
 // 创建SysJob
