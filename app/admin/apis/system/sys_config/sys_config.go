@@ -16,10 +16,11 @@ type SysConfig struct {
 	apis.Api
 }
 
-func (e *SysConfig) GetSysConfigList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysConfig) GetSysConfigList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysConfigSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -29,7 +30,7 @@ func (e *SysConfig) GetSysConfigList(c *gin.Context) {
 	err = d.Bind(c)
 	if err != nil {
 		log.Errorf("参数验证失败, error:%s", err)
-		e.Error(c, 500, err, "参数验证失败")
+		e.Error(500, err, "参数验证失败")
 		return
 	}
 
@@ -41,17 +42,18 @@ func (e *SysConfig) GetSysConfigList(c *gin.Context) {
 	err = s.GetSysConfigPage(d, &list, &count)
 	if err != nil {
 		log.Errorf("GetSysConfigPage 查询失败, error:%s", err)
-		e.Error(c, 500, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
 // GetSysConfigBySysApp 获取系统配置信息，主要注意这里不在验证数据权限
-func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysConfigSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -59,7 +61,7 @@ func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 	err = d.Bind(c)
 	if err != nil {
 		log.Errorf("参数验证失败, error:%s", err)
-		e.Error(c, 500, err, "参数验证失败")
+		e.Error(500, err, "参数验证失败")
 		return
 	}
 
@@ -73,7 +75,7 @@ func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 	err = s.GetSysConfigByKey(d, &list)
 	if err != nil {
 		log.Errorf("GetSysConfigPage 查询失败, error:%s", err)
-		e.Error(c, 500, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 	mp := make(map[string]string)
@@ -83,13 +85,14 @@ func (e *SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 			mp[key] = list[i].ConfigValue
 		}
 	}
-	e.OK(c, mp, "查询成功")
+	e.OK(mp, "查询成功")
 }
 
-func (e *SysConfig) GetSysConfig(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysConfig) GetSysConfig(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysConfigById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -97,9 +100,9 @@ func (e *SysConfig) GetSysConfig(c *gin.Context) {
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	var object system.SysConfig
@@ -109,19 +112,20 @@ func (e *SysConfig) GetSysConfig(c *gin.Context) {
 	serviceSysLoginLog.Orm = db
 	err = serviceSysLoginLog.GetSysConfig(control, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
-func (e *SysConfig) InsertSysConfig(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysConfig) InsertSysConfig(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysConfigControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -130,16 +134,16 @@ func (e *SysConfig) InsertSysConfig(c *gin.Context) {
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	// 设置创建人
@@ -151,19 +155,20 @@ func (e *SysConfig) InsertSysConfig(c *gin.Context) {
 	err = serviceSysLoginLog.InsertSysConfig(object)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
-func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysConfig) UpdateSysConfig(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysConfigControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -173,16 +178,16 @@ func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
 	err = control.Bind(c)
 
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -192,18 +197,19 @@ func (e *SysConfig) UpdateSysConfig(c *gin.Context) {
 	serviceSysLoginLog.Log = log
 	err = serviceSysLoginLog.UpdateSysConfig(object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "更新失败")
+		e.Error(http.StatusUnprocessableEntity, err, "更新失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
-func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysConfig) DeleteSysConfig(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysConfigById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -213,16 +219,16 @@ func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	object, err := control.GenerateM()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
 
@@ -234,18 +240,19 @@ func (e *SysConfig) DeleteSysConfig(c *gin.Context) {
 	serviceSysLoginLog.Log = log
 	err = serviceSysLoginLog.RemoveSysConfig(control, object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "删除失败")
+		e.Error(http.StatusUnprocessableEntity, err, "删除失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(c, 500, err, "Orm获取失败")
+		e.Error(500, err, "Orm获取失败")
 		return
 	}
-	e.OK(c, object.GetId(), "删除成功")
+	e.OK(object.GetId(), "删除成功")
 }
 
 // GetSysConfigByKEYForService 根据Key获取SysConfig的Service
-func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -254,7 +261,7 @@ func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	err = v.Bind(c)
 	if err != nil {
 		log.Errorf("参数验证错误, error:%s", err)
-		e.Error(c, 422, err, "参数验证失败")
+		e.Error(422, err, "参数验证失败")
 		return
 	}
 	s := service.SysConfig{}
@@ -263,8 +270,8 @@ func (e *SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	err = s.GetSysConfigByKEY(&v)
 	if err != nil {
 		log.Errorf("通过Key获取配置失败, error:%s", err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
-	e.OK(c, v, s.Msg)
+	e.OK(v, s.Msg)
 }

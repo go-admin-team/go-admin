@@ -17,10 +17,11 @@ type SysChinaAreaData struct {
 	apis.Api
 }
 
-func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysChinaAreaDataSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -29,7 +30,7 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -43,17 +44,18 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
 	serviceStudent.Orm = db
 	err = serviceStudent.GetSysChinaAreaDataPage(d, p, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
-func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -62,7 +64,7 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object models.SysChinaAreaData
@@ -75,17 +77,18 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
 	serviceSysChinaAreaData.Orm = db
 	err = serviceSysChinaAreaData.GetSysChinaAreaData(control, p, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
-func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -94,12 +97,12 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	// 设置创建人
@@ -111,17 +114,18 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 	err = serviceSysChinaAreaData.InsertSysChinaAreaData(object)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
-func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -130,12 +134,12 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -151,13 +155,14 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
-func (e *SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -167,7 +172,7 @@ func (e *SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -183,8 +188,8 @@ func (e *SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
 	err = serviceSysChinaAreaData.RemoveSysChinaAreaData(control, p)
 	if err != nil {
 		log.Errorf("RemoveSysChinaAreaData error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "删除失败")
+		e.Error(http.StatusInternalServerError, err, "删除失败")
 		return
 	}
-	e.OK(c, control.GetId(), "删除成功")
+	e.OK(control.GetId(), "删除成功")
 }

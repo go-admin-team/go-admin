@@ -24,10 +24,11 @@ type SysMenu struct {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menulist [get]
 // @Security Bearer
-func (e *SysMenu) GetSysMenuList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysMenu) GetSysMenuList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysMenuSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -36,7 +37,7 @@ func (e *SysMenu) GetSysMenuList(c *gin.Context) {
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -46,11 +47,11 @@ func (e *SysMenu) GetSysMenuList(c *gin.Context) {
 	serviceSysMenu.Orm = db
 	list, err = serviceSysMenu.GetSysMenuPage(d)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, list, "查询成功")
+	e.OK(list, "查询成功")
 }
 
 // @Summary Menu详情数据
@@ -61,12 +62,13 @@ func (e *SysMenu) GetSysMenuList(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menu/{id} [get]
 // @Security Bearer
-func (e *SysMenu) GetSysMenu(c *gin.Context) {
+func (e SysMenu) GetSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuById)
 
-	log := e.GetLogger(c)
+	e.Context = c
+	log := e.GetLogger()
 
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -75,7 +77,7 @@ func (e *SysMenu) GetSysMenu(c *gin.Context) {
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object system.SysMenu
@@ -85,11 +87,11 @@ func (e *SysMenu) GetSysMenu(c *gin.Context) {
 	serviceSysMenu.Orm = db
 	err = serviceSysMenu.GetSysMenu(control, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
 // @Summary 创建菜单
@@ -107,12 +109,13 @@ func (e *SysMenu) GetSysMenu(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/menu [post]
 // @Security Bearer
-func (e *SysMenu) InsertSysMenu(c *gin.Context) {
+func (e SysMenu) InsertSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
 
-	log := e.GetLogger(c)
+	e.Context = c
+	log := e.GetLogger()
 
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -121,12 +124,12 @@ func (e *SysMenu) InsertSysMenu(c *gin.Context) {
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	// 设置创建人
@@ -138,11 +141,11 @@ func (e *SysMenu) InsertSysMenu(c *gin.Context) {
 	err = serviceSysMenu.InsertSysMenu(object)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
 // @Summary 修改菜单
@@ -156,12 +159,13 @@ func (e *SysMenu) InsertSysMenu(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/menu/{id} [put]
 // @Security Bearer
-func (e *SysMenu) UpdateSysMenu(c *gin.Context) {
+func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
 
-	log := e.GetLogger(c)
+	e.Context = c
+	log := e.GetLogger()
 
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -170,12 +174,12 @@ func (e *SysMenu) UpdateSysMenu(c *gin.Context) {
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -188,7 +192,7 @@ func (e *SysMenu) UpdateSysMenu(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
 // @Summary 删除菜单
@@ -198,12 +202,13 @@ func (e *SysMenu) UpdateSysMenu(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/menu/ [delete]
-func (e *SysMenu) DeleteSysMenu(c *gin.Context) {
+func (e SysMenu) DeleteSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuById)
 
-	log := e.GetLogger(c)
+	e.Context = c
+	log := e.GetLogger()
 
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -213,7 +218,7 @@ func (e *SysMenu) DeleteSysMenu(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -223,10 +228,10 @@ func (e *SysMenu) DeleteSysMenu(c *gin.Context) {
 	err = serviceSysMenu.RemoveSysMenu(control)
 	if err != nil {
 		log.Errorf("RemoveSysMenu error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "删除失败")
+		e.Error(http.StatusInternalServerError, err, "删除失败")
 		return
 	}
-	e.OK(c, control.GetId(), "删除成功")
+	e.OK(control.GetId(), "删除成功")
 }
 
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）
@@ -237,9 +242,10 @@ func (e *SysMenu) DeleteSysMenu(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menurole [get]
 // @Security Bearer
-func (e *SysMenu) GetMenuRole(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysMenu) GetMenuRole(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -251,11 +257,11 @@ func (e *SysMenu) GetMenuRole(c *gin.Context) {
 	result, err := serviceSysMenu.SetMenuRole(user.GetRoleName(c))
 
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.OK(c, result, "")
+	e.OK(result, "")
 }
 
 // @Summary 获取角色对应的菜单id数组
@@ -266,9 +272,10 @@ func (e *SysMenu) GetMenuRole(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menuids/{id} [get]
 // @Security Bearer
-func (e *SysMenu) GetMenuIDS(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysMenu) GetMenuIDS(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -279,14 +286,14 @@ func (e *SysMenu) GetMenuIDS(c *gin.Context) {
 	result, err := data.GetIDS(db)
 	if err != nil {
 		log.Errorf("GetIDS error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "获取失败")
+		e.Error(http.StatusInternalServerError, err, "获取失败")
 		return
 	}
-	e.OK(c, result, "")
+	e.OK(result, "")
 }
 
 //// GetMenuTreeRoleselect 角色修改中的菜单列表
-//func (e *SysMenu) GetMenuTreeRoleselect(c *gin.Context) {
+//func (e SysMenu) GetMenuTreeRoleselect(c *gin.Context) {
 //	var Menu models.Menu
 //	var SysRole models.SysRole
 //
@@ -321,9 +328,10 @@ func (e *SysMenu) GetMenuIDS(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/menuTreeselect [get]
 // @Security Bearer
-func (e *SysMenu) GetMenuTreeSelect(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysMenu) GetMenuTreeSelect(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -333,7 +341,7 @@ func (e *SysMenu) GetMenuTreeSelect(c *gin.Context) {
 
 	err = c.BindUri(d)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -342,7 +350,7 @@ func (e *SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	serviceSysMenu.Orm = db
 	result, err := serviceSysMenu.SetSysMenuLabel()
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 	s := service.SysRole{}
@@ -351,10 +359,10 @@ func (e *SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	menuIds, err := s.GetRoleMenuId(db, d.RoleId)
 	if err != nil {
 		log.Errorf("GetIDS error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(c, gin.H{
+	e.OK(gin.H{
 		"menus":       result,
 		"checkedKeys": menuIds,
 	}, "获取成功")

@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSyPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &sys_post.SysPost{}
+	api := sys_post.SysPost{}
 	r := v1.Group("/post").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		r.GET("", api.GetSysPostList)

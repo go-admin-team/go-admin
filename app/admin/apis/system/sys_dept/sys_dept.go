@@ -27,10 +27,11 @@ type SysDept struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept [get]
 // @Security Bearer
-func (e *SysDept) GetSysDeptList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysDept) GetSysDeptList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysDeptSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -39,7 +40,7 @@ func (e *SysDept) GetSysDeptList(c *gin.Context) {
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -49,11 +50,11 @@ func (e *SysDept) GetSysDeptList(c *gin.Context) {
 	serviceStudent.Orm = db
 	list, err = serviceStudent.SetDeptPage(d)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, list, "查询成功")
+	e.OK(list, "查询成功")
 }
 
 // @Summary 部门列表数据
@@ -64,10 +65,11 @@ func (e *SysDept) GetSysDeptList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept/{deptId} [get]
 // @Security Bearer
-func (e *SysDept) GetSysDept(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysDept) GetSysDept(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysDeptById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -76,7 +78,7 @@ func (e *SysDept) GetSysDept(c *gin.Context) {
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object system.SysDept
@@ -86,11 +88,11 @@ func (e *SysDept) GetSysDept(c *gin.Context) {
 	serviceSysOperlog.Orm = db
 	err = serviceSysOperlog.GetSysDept(control, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
 // @Summary 添加部门
@@ -103,10 +105,11 @@ func (e *SysDept) GetSysDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept [post]
 // @Security Bearer
-func (e *SysDept) InsertSysDept(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysDept) InsertSysDept(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysDeptControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -115,12 +118,12 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	// 设置创建人
@@ -132,11 +135,11 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 	err = serviceSysDept.InsertSysDept(object)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
 // @Summary 修改部门
@@ -150,10 +153,11 @@ func (e *SysDept) InsertSysDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept/{deptId} [put]
 // @Security Bearer
-func (e *SysDept) UpdateSysDept(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysDept) UpdateSysDept(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysDeptControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -162,12 +166,12 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -180,7 +184,7 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
 // @Summary 删除部门
@@ -190,10 +194,11 @@ func (e *SysDept) UpdateSysDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dept [delete]
-func (e *SysDept) DeleteSysDept(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysDept) DeleteSysDept(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysDeptById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -203,7 +208,7 @@ func (e *SysDept) DeleteSysDept(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -213,17 +218,18 @@ func (e *SysDept) DeleteSysDept(c *gin.Context) {
 	err = serviceSysDept.RemoveSysDept(control)
 	if err != nil {
 		log.Errorf("RemoveSysDept error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "删除失败")
+		e.Error(http.StatusInternalServerError, err, "删除失败")
 		return
 	}
-	e.OK(c, control.GetId(), "删除成功")
+	e.OK(control.GetId(), "删除成功")
 }
 
 // GetDeptTree 用户管理 左侧部门树
-func (e *SysDept) GetDeptTree(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysDept) GetDeptTree(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysDeptSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -232,7 +238,7 @@ func (e *SysDept) GetDeptTree(c *gin.Context) {
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -242,7 +248,7 @@ func (e *SysDept) GetDeptTree(c *gin.Context) {
 	serviceStudent.Orm = db
 	list, err = serviceStudent.SetDeptTree(d)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
@@ -252,12 +258,13 @@ func (e *SysDept) GetDeptTree(c *gin.Context) {
 	//Dept.DeptId, _ = tools.StringToInt(c.Request.FormValue("deptId"))
 	//result, err := Dept.SetDept(false)
 	//tools.HasError(err, "抱歉未找到相关信息", -1)
-	e.OK(c, list, "")
+	e.OK(list, "")
 }
 
-func (e *SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -270,17 +277,17 @@ func (e *SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
 	result, err := s.SetDeptLabel()
 	if err != nil {
 		log.Errorf("SetDeptLabel error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 	}
 	menuIds := make([]int, 0)
 	if id != 0 {
 		menuIds, err = s.GetRoleDeptId(id)
 		if err != nil {
 			log.Errorf("抱歉未找到相关信息, %s", err.Error())
-			e.Error(c, http.StatusInternalServerError, err, "")
+			e.Error(http.StatusInternalServerError, err, "")
 		}
 	}
-	e.OK(c, gin.H{
+	e.OK(gin.H{
 		"depts":       result,
 		"checkedKeys": menuIds,
 	}, "")

@@ -58,17 +58,17 @@ func sysSwaggerRouter(r *gin.RouterGroup) {
 func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 
-	m := &monitor.Monitor{}
+	m := monitor.Monitor{}
 	v1.GET("/monitor/server", m.ServerInfo)
-	sys := &system.System{}
+	sys := system.System{}
 	v1.GET("/getCaptcha", sys.GenerateCaptchaHandler)
-	gen := &tools.Gen{}
+	gen := tools.Gen{}
 	v1.GET("/gen/preview/:tableId", gen.Preview)
 	v1.GET("/gen/toproject/:tableId", gen.GenCodeV3)
 	v1.GET("/gen/apitofile/:tableId", gen.GenApiToFile)
 
 	v1.GET("/gen/todb/:tableId", gen.GenMenuAndApi)
-	sysTable := &tools.SysTable{}
+	sysTable := tools.SysTable{}
 	v1.GET("/gen/tabletree", sysTable.GetSysTablesTree)
 
 	registerDBRouter(v1)
@@ -80,7 +80,7 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 func registerDBRouter(api *gin.RouterGroup) {
 	db := api.Group("/db")
 	{
-		gen := &tools.Gen{}
+		gen := tools.Gen{}
 		db.GET("/tables/page", gen.GetDBTableList)
 		db.GET("/columns/page", gen.GetDBColumnList)
 	}
@@ -89,7 +89,7 @@ func registerDBRouter(api *gin.RouterGroup) {
 func registerSysTableRouter(v1 *gin.RouterGroup) {
 	systables := v1.Group("/sys/tables")
 	{
-		sysTable := &tools.SysTable{}
+		sysTable := tools.SysTable{}
 		systables.GET("/page", sysTable.GetSysTableList)
 		tablesinfo := systables.Group("/info")
 		{
@@ -169,8 +169,8 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 //}
 
 func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	dictApi := &dict.SysDictType{}
-	dataApi := &dict.SysDictData{}
+	dictApi := dict.SysDictType{}
+	dataApi := dict.SysDictData{}
 	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 
@@ -201,7 +201,7 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 //}
 func registerSysSettingRouter(v1 *gin.RouterGroup) {
 	api := system.SysSetting{}
-	m := &monitor.Monitor{}
+	m := monitor.Monitor{}
 	setting := v1.Group("/setting")
 	{
 		setting.GET("", api.GetSetting)
@@ -213,7 +213,7 @@ func registerSysSettingRouter(v1 *gin.RouterGroup) {
 func registerPublicRouter(v1 *gin.RouterGroup) {
 	p := v1.Group("/public")
 	{
-		file := &public.File{}
+		file := public.File{}
 		p.POST("/uploadFile", file.UploadFile)
 	}
 }

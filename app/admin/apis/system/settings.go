@@ -23,9 +23,10 @@ type SysSetting struct {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/setting [get]
-func (e *SysSetting) GetSetting(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysSetting) GetSetting(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -37,7 +38,7 @@ func (e *SysSetting) GetSetting(c *gin.Context) {
 	var model = models.SysSetting{}
 	err = sysSettingService.GetSysSetting(&model)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
@@ -47,7 +48,7 @@ func (e *SysSetting) GetSetting(c *gin.Context) {
 		}
 	}
 
-	e.OK(c, model, "查询成功")
+	e.OK(model, "查询成功")
 }
 
 // @Summary 更新或提交系统信息
@@ -57,10 +58,11 @@ func (e *SysSetting) GetSetting(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [post]
-func (e *SysSetting) CreateOrUpdateSetting(c *gin.Context) {
+func (e SysSetting) CreateOrUpdateSetting(c *gin.Context) {
 	control := new(dto.SysSettingControl)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -69,12 +71,12 @@ func (e *SysSetting) CreateOrUpdateSetting(c *gin.Context) {
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 
@@ -83,7 +85,7 @@ func (e *SysSetting) CreateOrUpdateSetting(c *gin.Context) {
 	sysSettingService.Orm = db
 	err = sysSettingService.UpdateSysSetting(object)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "更新失败")
+		e.Error(http.StatusInternalServerError, err, "更新失败")
 		return
 	}
 
@@ -92,5 +94,5 @@ func (e *SysSetting) CreateOrUpdateSetting(c *gin.Context) {
 			object.Logo = fmt.Sprintf("http://%s/%s", c.Request.Host, object.Logo)
 		}
 	}
-	e.OK(c, object, "提交成功")
+	e.OK(object, "提交成功")
 }

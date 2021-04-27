@@ -27,7 +27,8 @@ type SysTable struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/page [get]
 func (e *SysTable) GetSysTableList(c *gin.Context) {
-	log := e.GetLogger(c)
+	e.Context = c
+	log := e.GetLogger()
 	var data tools.SysTables
 	var err error
 	var pageSize = 10
@@ -41,10 +42,10 @@ func (e *SysTable) GetSysTableList(c *gin.Context) {
 		pageIndex, err = pkg.StringToInt(index)
 	}
 
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -53,10 +54,10 @@ func (e *SysTable) GetSysTableList(c *gin.Context) {
 	result, count, err := data.GetPage(db, pageSize, pageIndex)
 	if err != nil {
 		log.Errorf("GetPage error, %s", err.Error())
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
-	e.PageOK(c, result, count, pageIndex, pageSize, "查询成功")
+	e.PageOK(result, count, pageIndex, pageSize, "查询成功")
 }
 
 // @Summary 获取配置
@@ -67,11 +68,12 @@ func (e *SysTable) GetSysTableList(c *gin.Context) {
 // @Router /api/v1/sys/tables/info/{tableId} [get]
 // @Security Bearer
 func (e *SysTable) GetSysTables(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -80,22 +82,23 @@ func (e *SysTable) GetSysTables(c *gin.Context) {
 	result, err := data.Get(db)
 	if err != nil {
 		log.Errorf("Get error, %s", err.Error())
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	e.OK(c, mp, "")
+	e.OK(mp, "")
 }
 
 func (e *SysTable) GetSysTablesInfo(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -106,24 +109,25 @@ func (e *SysTable) GetSysTablesInfo(c *gin.Context) {
 	result, err := data.Get(db)
 	if err != nil {
 		log.Errorf("Get error, %s", err.Error())
-		e.Error(c, 500, err, "抱歉未找到相关信息")
+		e.Error(500, err, "抱歉未找到相关信息")
 		return
 	}
 
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	e.OK(c, mp, "")
+	e.OK(mp, "")
 	//res.Data = mp
 	//c.JSON(http.StatusOK, res.ReturnOK())
 }
 
 func (e *SysTable) GetSysTablesTree(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -131,11 +135,11 @@ func (e *SysTable) GetSysTablesTree(c *gin.Context) {
 	result, err := data.GetTree(db)
 	if err != nil {
 		log.Errorf("GetTree error, %s", err.Error())
-		e.Error(c, 500, err, "抱歉未找到相关信息")
+		e.Error(500, err, "抱歉未找到相关信息")
 		return
 	}
 
-	e.OK(c, result, "")
+	e.OK(result, "")
 }
 
 // @Summary 添加表结构
@@ -149,11 +153,12 @@ func (e *SysTable) GetSysTablesTree(c *gin.Context) {
 // @Router /api/v1/sys/tables/info [post]
 // @Security Bearer
 func (e *SysTable) InsertSysTable(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -163,18 +168,18 @@ func (e *SysTable) InsertSysTable(c *gin.Context) {
 		data, err := genTableInit(db, tablesList, i, c)
 		if err != nil {
 			log.Errorf("genTableInit error, %s", err.Error())
-			e.Error(c, 500, err, "")
+			e.Error(500, err, "")
 			return
 		}
 
 		_, err = data.Create(db)
 		if err != nil {
 			log.Errorf("Create error, %s", err.Error())
-			e.Error(c, 500, err, "")
+			e.Error(500, err, "")
 			return
 		}
 	}
-	e.OK(c, nil, "添加成功")
+	e.OK(nil, "添加成功")
 
 }
 
@@ -296,11 +301,12 @@ func (e *SysTable) UpdateSysTable(c *gin.Context) {
 	err := c.Bind(&data)
 	pkg.HasError(err, "数据解析失败", 500)
 
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -308,10 +314,10 @@ func (e *SysTable) UpdateSysTable(c *gin.Context) {
 	result, err := data.Update(db)
 	if err != nil {
 		log.Errorf("Update error, %s", err.Error())
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
-	e.OK(c, result, "修改成功")
+	e.OK(result, "修改成功")
 }
 
 // @Summary 删除表结构
@@ -322,11 +328,12 @@ func (e *SysTable) UpdateSysTable(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
 func (e *SysTable) DeleteSysTables(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -335,8 +342,8 @@ func (e *SysTable) DeleteSysTables(c *gin.Context) {
 	_, err = data.BatchDelete(db, IDS)
 	if err != nil {
 		log.Errorf("BatchDelete error, %s", err.Error())
-		e.Error(c, 500, err, "删除失败")
+		e.Error(500, err, "删除失败")
 		return
 	}
-	e.OK(c, nil, "删除成功")
+	e.OK(nil, "删除成功")
 }

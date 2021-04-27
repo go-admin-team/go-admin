@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &sys_menu.SysMenu{}
+	api := sys_menu.SysMenu{}
 	//menu := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	//{
 	//	menu.GET("/:id", system.GetMenu)

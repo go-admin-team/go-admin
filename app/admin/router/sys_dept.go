@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &sys_dept.SysDept{}
+	api := sys_dept.SysDept{}
 	r := v1.Group("/dept").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		r.GET("", api.GetSysDeptList)

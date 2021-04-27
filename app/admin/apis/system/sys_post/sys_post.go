@@ -27,10 +27,11 @@ type SysPost struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post [get]
 // @Security Bearer
-func (e *SysPost) GetSysPostList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysPost) GetSysPostList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysPostSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -39,7 +40,7 @@ func (e *SysPost) GetSysPostList(c *gin.Context) {
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -50,11 +51,11 @@ func (e *SysPost) GetSysPostList(c *gin.Context) {
 	serviceStudent.Orm = db
 	err = serviceStudent.GetSysPostPage(d, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
 // @Summary 获取岗位信息
@@ -64,10 +65,11 @@ func (e *SysPost) GetSysPostList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/post/{postId} [get]
 // @Security Bearer
-func (e *SysPost) GetSysPost(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysPost) GetSysPost(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysPostById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -76,7 +78,7 @@ func (e *SysPost) GetSysPost(c *gin.Context) {
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object system.SysPost
@@ -86,11 +88,11 @@ func (e *SysPost) GetSysPost(c *gin.Context) {
 	serviceSysOperlog.Orm = db
 	err = serviceSysOperlog.GetSysPost(control, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
 // @Summary 添加岗位
@@ -103,10 +105,11 @@ func (e *SysPost) GetSysPost(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/post [post]
 // @Security Bearer
-func (e *SysPost) InsertSysPost(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysPost) InsertSysPost(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysPostControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -115,12 +118,12 @@ func (e *SysPost) InsertSysPost(c *gin.Context) {
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	// 设置创建人
@@ -132,11 +135,11 @@ func (e *SysPost) InsertSysPost(c *gin.Context) {
 	err = serviceSysPost.InsertSysPost(object)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
 // @Summary 修改岗位
@@ -149,10 +152,11 @@ func (e *SysPost) InsertSysPost(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/post/ [put]
 // @Security Bearer
-func (e *SysPost) UpdateSysPost(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysPost) UpdateSysPost(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysPostControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -161,12 +165,12 @@ func (e *SysPost) UpdateSysPost(c *gin.Context) {
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -179,7 +183,7 @@ func (e *SysPost) UpdateSysPost(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
 // @Summary 删除岗位
@@ -189,10 +193,11 @@ func (e *SysPost) UpdateSysPost(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
 // @Router /api/v1/post/{postId} [delete]
-func (e *SysPost) DeleteSysPost(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysPost) DeleteSysPost(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysPostById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -202,7 +207,7 @@ func (e *SysPost) DeleteSysPost(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -214,5 +219,5 @@ func (e *SysPost) DeleteSysPost(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, control.GetId(), "删除成功")
+	e.OK(control.GetId(), "删除成功")
 }

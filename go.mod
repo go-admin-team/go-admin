@@ -10,7 +10,7 @@ require (
 	github.com/casbin/casbin/v2 v2.25.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-admin-team/go-admin-core v1.3.5-rc.0
-	github.com/go-admin-team/go-admin-core/sdk v1.3.5-rc.0
+	github.com/go-admin-team/go-admin-core/sdk v1.3.0-rc.3.0.20210427015751-b42693c49c6c
 	github.com/google/uuid v1.2.0
 	github.com/mssola/user_agent v0.5.2
 	github.com/opentracing/opentracing-go v1.1.0

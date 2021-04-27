@@ -29,9 +29,10 @@ type SysDictType struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type [get]
 // @Security Bearer
-func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictType) GetSysDictTypeList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -42,7 +43,7 @@ func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
 	//查询列表
 	err = req.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -53,11 +54,11 @@ func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
 	s.Orm = db.Debug()
 	err = s.GetPage(req, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
 // @Summary 通过字典id获取字典类型
@@ -67,9 +68,10 @@ func (e *SysDictType) GetSysDictTypeList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/{dictId} [get]
 // @Security Bearer
-func (e *SysDictType) GetSysDictType(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictType) GetSysDictType(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -79,7 +81,7 @@ func (e *SysDictType) GetSysDictType(c *gin.Context) {
 	req := &dto.SysDictTypeById{}
 	err = req.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object system.SysDictType
@@ -89,11 +91,11 @@ func (e *SysDictType) GetSysDictType(c *gin.Context) {
 	s.Orm = db
 	err = s.Get(req, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
 // @Summary 添加字典类型
@@ -106,9 +108,10 @@ func (e *SysDictType) GetSysDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/type [post]
 // @Security Bearer
-func (e *SysDictType) InsertSysDictType(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictType) InsertSysDictType(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -118,7 +121,7 @@ func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 	req := &dto.SysDictTypeControl{}
 	err = req.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, _ := req.GenerateM()
@@ -131,11 +134,11 @@ func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 	err = s.Insert(object.(*system.SysDictType))
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
 // @Summary 修改字典类型
@@ -148,9 +151,10 @@ func (e *SysDictType) InsertSysDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/type/{dictId} [put]
 // @Security Bearer
-func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictType) UpdateSysDictType(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -160,7 +164,7 @@ func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 	//更新操作
 	err = req.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, _ := req.GenerateM()
@@ -174,7 +178,7 @@ func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
 // @Summary 删除字典类型
@@ -184,9 +188,10 @@ func (e *SysDictType) UpdateSysDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/type/{dictId} [delete]
-func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictType) DeleteSysDictType(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -197,13 +202,13 @@ func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 	err = req.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object common.ActiveRecord
 	object, err = req.GenerateM()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 
@@ -218,7 +223,7 @@ func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "删除成功")
+	e.OK(object.GetId(), "删除成功")
 }
 
 // @Summary 字典类型全部数据
@@ -230,9 +235,10 @@ func (e *SysDictType) DeleteSysDictType(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type-option-select [get]
 // @Security Bearer
-func (e *SysDictType) GetSysDictTypeAll(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictType) GetSysDictTypeAll(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -243,7 +249,7 @@ func (e *SysDictType) GetSysDictTypeAll(c *gin.Context) {
 	//查询列表
 	err = req.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -253,9 +259,9 @@ func (e *SysDictType) GetSysDictTypeAll(c *gin.Context) {
 	s.Orm = db
 	err = s.GetAll(req, &list)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, list, "查询成功")
+	e.OK(list, "查询成功")
 }

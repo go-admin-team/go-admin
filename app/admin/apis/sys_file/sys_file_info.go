@@ -17,10 +17,11 @@ type SysFileInfo struct {
 	apis.Api
 }
 
-func (e *SysFileInfo) GetSysFileInfoList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysFileInfo) GetSysFileInfoList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	search := new(dto.SysFileInfoSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -28,7 +29,7 @@ func (e *SysFileInfo) GetSysFileInfoList(c *gin.Context) {
 	err = c.ShouldBind(search)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -43,17 +44,18 @@ func (e *SysFileInfo) GetSysFileInfoList(c *gin.Context) {
 	err = serviceStudent.GetSysFileInfoPage(search, p, &list, &count)
 	if err != nil {
 		log.Errorf("GetSysFileInfoPage error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), search.PageIndex, search.PageSize, "查询成功")
+	e.PageOK(list, int(count), search.PageIndex, search.PageSize, "查询成功")
 }
 
-func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) GetSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoById)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -63,7 +65,7 @@ func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("参数验证错误, error:%s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -78,17 +80,18 @@ func (e *SysFileInfo) GetSysFileInfo(c *gin.Context) {
 	err = serviceSysFileInfo.GetSysFileInfo(control, p, &object)
 	if err != nil {
 		log.Errorf("GetSysFileInfo error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
-func (e *SysFileInfo) InsertSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoControl)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -98,13 +101,13 @@ func (e *SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	err = c.ShouldBind(control)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	// 设置创建人
@@ -116,17 +119,18 @@ func (e *SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 	err = serviceSysFileInfo.InsertSysFileInfo(control)
 	if err != nil {
 		log.Errorf("InsertSysFileInfo error: %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, control.ID, "创建成功")
+	e.OK(control.ID, "创建成功")
 }
 
-func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoControl)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -135,13 +139,13 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	err = c.ShouldBind(control)
 	if err != nil {
 		log.Warnf("参数验证错误, error:%s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	// 设置创建人
@@ -156,16 +160,17 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 	err = serviceSysFileInfo.UpdateSysFileInfo(control, p)
 	if err != nil {
 		log.Errorf("UpdateSysFileInfo error: %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
-	e.OK(c, control.ID, "更新成功")
+	e.OK(control.ID, "更新成功")
 }
 
-func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
 	control := new(dto.SysFileInfoById)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -175,13 +180,13 @@ func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, 422, err, "参数验证失败")
+		e.Error(422, err, "参数验证失败")
 		return
 	}
 	err = c.ShouldBind(control)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, 422, err, "参数验证失败")
+		e.Error(422, err, "参数验证失败")
 		return
 	}
 
@@ -197,8 +202,8 @@ func (e *SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
 	err = serviceSysFileInfo.RemoveSysFileInfo(control, p)
 	if err != nil {
 		log.Errorf("RemoveSysFileInfo error: %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
-	e.OK(c, control.Id, "删除成功")
+	e.OK(control.Id, "删除成功")
 }

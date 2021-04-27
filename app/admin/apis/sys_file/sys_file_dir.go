@@ -18,10 +18,11 @@ type SysFileDir struct {
 	apis.Api
 }
 
-func (e *SysFileDir) GetSysFileDirList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysFileDir) GetSysFileDirList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	search := new(dto.SysFileDirSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -39,17 +40,18 @@ func (e *SysFileDir) GetSysFileDirList(c *gin.Context) {
 	list, err = serviceStudent.SetSysFileDir(search)
 	if err != nil {
 		log.Errorf("SetSysFileDir error, %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, list, "查询成功")
+	e.OK(list, "查询成功")
 }
 
-func (e *SysFileDir) GetSysFileDir(c *gin.Context) {
+func (e SysFileDir) GetSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirById)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -59,7 +61,7 @@ func (e *SysFileDir) GetSysFileDir(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("ShouldBindUri error: %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 	}
 
 	var object models.SysFileDir
@@ -70,17 +72,18 @@ func (e *SysFileDir) GetSysFileDir(c *gin.Context) {
 	err = serviceSysFileDir.GetSysFileDir(control, &object)
 	if err != nil {
 		log.Errorf("GetSysFileDir error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
-func (e *SysFileDir) InsertSysFileDir(c *gin.Context) {
+func (e SysFileDir) InsertSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirControl)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -90,13 +93,13 @@ func (e *SysFileDir) InsertSysFileDir(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("ShouldBindUri error: %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	err = c.ShouldBind(control)
 	if err != nil {
 		log.Warnf("ShouldBind error: %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	// 设置创建人
@@ -108,17 +111,18 @@ func (e *SysFileDir) InsertSysFileDir(c *gin.Context) {
 	err = serviceSysFileDir.InsertSysFileDir(control)
 	if err != nil {
 		log.Errorf("InsertSysFileDir error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, control.ID, "创建成功")
+	e.OK(control.ID, "创建成功")
 }
 
-func (e *SysFileDir) UpdateSysFileDir(c *gin.Context) {
+func (e SysFileDir) UpdateSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirControl)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -127,12 +131,12 @@ func (e *SysFileDir) UpdateSysFileDir(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("ShouldBindUri error: %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 	}
 	err = c.ShouldBind(control)
 	if err != nil {
 		log.Warnf("ShouldBind error: %#v", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 	}
 	// 设置创建人
 	control.UpdateBy = user.GetUserId(c)
@@ -146,16 +150,17 @@ func (e *SysFileDir) UpdateSysFileDir(c *gin.Context) {
 	err = serviceSysFileDir.UpdateSysFileDir(control, p)
 	if err != nil {
 		log.Errorf("UpdateSysFileDir error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "更新失败")
+		e.Error(http.StatusInternalServerError, err, "更新失败")
 		return
 	}
-	e.OK(c, control.ID, "更新成功")
+	e.OK(control.ID, "更新成功")
 }
 
-func (e *SysFileDir) DeleteSysFileDir(c *gin.Context) {
+func (e SysFileDir) DeleteSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirById)
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -166,12 +171,12 @@ func (e *SysFileDir) DeleteSysFileDir(c *gin.Context) {
 	err = c.ShouldBindUri(control)
 	if err != nil {
 		log.Warnf("MsgID[%s] ShouldBindUri error: %s", msgID, err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 	}
 	err = c.ShouldBind(control)
 	if err != nil {
 		log.Warnf("MsgID[%s] ShouldBind error: %#v", msgID, err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 	}
 
 	// 设置编辑人
@@ -186,8 +191,8 @@ func (e *SysFileDir) DeleteSysFileDir(c *gin.Context) {
 	err = serviceSysFileDir.RemoveSysFileDir(control, p)
 	if err != nil {
 		log.Errorf("RemoveSysFileDir error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "删除失败")
+		e.Error(http.StatusInternalServerError, err, "删除失败")
 		return
 	}
-	e.OK(c, control.Id, "删除成功")
+	e.OK(control.Id, "删除成功")
 }

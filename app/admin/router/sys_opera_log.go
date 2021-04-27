@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysOperaLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &sys_opera_log.SysOperaLog{}
+	api := sys_opera_log.SysOperaLog{}
 	r := v1.Group("/sys-opera-log").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		r.GET("", api.GetSysOperaLogList)

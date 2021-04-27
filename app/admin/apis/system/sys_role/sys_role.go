@@ -29,10 +29,11 @@ type SysRole struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/role [get]
 // @Security Bearer
-func (e *SysRole) GetSysRoleList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysRole) GetSysRoleList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysRoleSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -41,7 +42,7 @@ func (e *SysRole) GetSysRoleList(c *gin.Context) {
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -52,11 +53,11 @@ func (e *SysRole) GetSysRoleList(c *gin.Context) {
 	s.Orm = db
 	err = s.GetSysRolePage(d, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
 // @Summary 获取Role数据
@@ -67,10 +68,11 @@ func (e *SysRole) GetSysRoleList(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/role/{id} [get]
 // @Security Bearer
-func (e *SysRole) GetSysRole(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysRole) GetSysRole(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysRoleById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -79,7 +81,7 @@ func (e *SysRole) GetSysRole(c *gin.Context) {
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object system.SysRole
@@ -89,11 +91,11 @@ func (e *SysRole) GetSysRole(c *gin.Context) {
 	s.Orm = db
 	err = s.GetSysRole(control, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
 // @Summary 创建角色
@@ -106,10 +108,11 @@ func (e *SysRole) GetSysRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/role [post]
 // @Security Bearer
-func (e *SysRole) InsertSysRole(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysRole) InsertSysRole(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysRoleControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -118,12 +121,12 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	// 设置创建人
@@ -138,15 +141,15 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 	err = s.InsertSysRole(object)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 	_, err = global.LoadPolicy(c)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
 // @Summary 修改用户角色
@@ -159,10 +162,11 @@ func (e *SysRole) InsertSysRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/role/{id} [put]
 // @Security Bearer
-func (e *SysRole) UpdateSysRole(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysRole) UpdateSysRole(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysRoleControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -171,12 +175,12 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	object.UpdateBy = user.GetUserId(c)
@@ -191,10 +195,10 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 	}
 	_, err = global.LoadPolicy(c)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
 // @Summary 删除用户角色
@@ -205,10 +209,11 @@ func (e *SysRole) UpdateSysRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/role [delete]
 // @Security Bearer
-func (e *SysRole) DeleteSysRole(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysRole) DeleteSysRole(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysRoleById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -218,7 +223,7 @@ func (e *SysRole) DeleteSysRole(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -228,21 +233,22 @@ func (e *SysRole) DeleteSysRole(c *gin.Context) {
 	err = s.RemoveSysRole(control)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
 	_, err = global.LoadPolicy(c)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(c, control.GetId(), "删除成功")
+	e.OK(control.GetId(), "删除成功")
 }
 
-func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysRole) UpdateRoleDataScope(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.RoleDataScopeReq)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -252,7 +258,7 @@ func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
 	err = c.Bind(control)
 	if err != nil {
 		log.Errorf("request bind error, %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	data := &system.SysRole{
@@ -266,8 +272,8 @@ func (e *SysRole) UpdateRoleDataScope(c *gin.Context) {
 	s.Log = log
 	err = s.UpdateDataScope(data)
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(c, nil, "操作成功")
+	e.OK(nil, "操作成功")
 }
