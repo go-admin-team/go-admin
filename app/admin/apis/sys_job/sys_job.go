@@ -15,9 +15,9 @@ type SysJob struct {
 }
 
 // RemoveJobForService 调用service实现
-func (e *SysJob) RemoveJobForService(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysJob) RemoveJobForService(c *gin.Context) {
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -26,7 +26,7 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 	err = c.BindUri(&v)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	s := service.SysJob{}
@@ -36,16 +36,17 @@ func (e *SysJob) RemoveJobForService(c *gin.Context) {
 	err = s.RemoveJob(&v)
 	if err != nil {
 		log.Errorf("RemoveJob error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(c, nil, s.Msg)
+	e.OK(nil, s.Msg)
 }
 
 // StartJobForService 启动job service实现
-func (e *SysJob) StartJobForService(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysJob) StartJobForService(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -54,7 +55,7 @@ func (e *SysJob) StartJobForService(c *gin.Context) {
 	err = c.BindUri(&v)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	s := service.SysJob{}
@@ -64,8 +65,8 @@ func (e *SysJob) StartJobForService(c *gin.Context) {
 	err = s.StartJob(&v)
 	if err != nil {
 		log.Errorf("GetCrontabKey error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "")
+		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(c, nil, s.Msg)
+	e.OK(nil, s.Msg)
 }

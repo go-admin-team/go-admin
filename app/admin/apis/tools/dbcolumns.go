@@ -19,7 +19,8 @@ import (
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/columns/page [get]
 func (e *Gen) GetDBColumnList(c *gin.Context) {
-	log := e.GetLogger(c)
+	e.Context = c
+	log := e.GetLogger()
 	var data tools.DBColumns
 	var err error
 	var pageSize = 10
@@ -36,7 +37,7 @@ func (e *Gen) GetDBColumnList(c *gin.Context) {
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -45,8 +46,8 @@ func (e *Gen) GetDBColumnList(c *gin.Context) {
 	result, count, err := data.GetPage(db, pageSize, pageIndex)
 	if err != nil {
 		log.Errorf("GetPage error, %s", err.Error())
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
-	e.PageOK(c, result, count, pageIndex, pageSize, "查询成功")
+	e.PageOK(result, count, pageIndex, pageSize, "查询成功")
 }

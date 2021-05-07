@@ -21,63 +21,64 @@ type Gen struct {
 	apis.Api
 }
 
-func (e *Gen) Preview(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e Gen) Preview(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	table := tools.SysTables{}
 	id, err := pkg.StringToInt(c.Param("tableId"))
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	table.TableId = id
 	t1, err := template.ParseFiles("template/v4/model.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t2, err := template.ParseFiles("template/v4/no_actions/apis.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t3, err := template.ParseFiles("template/v4/js.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t4, err := template.ParseFiles("template/v4/vue.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t5, err := template.ParseFiles("template/v4/no_actions/router_check_role.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t6, err := template.ParseFiles("template/v4/dto.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t7, err := template.ParseFiles("template/v4/no_actions/service.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -105,23 +106,24 @@ func (e *Gen) Preview(c *gin.Context) {
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
 	mp["template/service.go.template"] = b7.String()
-	e.OK(c, mp, "")
+	e.OK(mp, "")
 }
 
-func (e *Gen) GenCodeV3(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e Gen) GenCode(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	table := tools.SysTables{}
 	id, err := pkg.StringToInt(c.Param("tableId"))
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -129,28 +131,29 @@ func (e *Gen) GenCodeV3(c *gin.Context) {
 	tab, _ := table.Get(db)
 
 	if tab.IsActions == 1 {
-		e.ActionsGenV3(c, tab)
+		e.ActionsGen(c, tab)
 	} else {
-		e.NOActionsGenV3(c, tab)
+		e.NOActionsGen(c, tab)
 	}
 
-	e.OK(c, "", "Code generated successfully！")
+	e.OK("", "Code generated successfully！")
 }
 
-func (e *Gen) GenApiToFile(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e Gen) GenApiToFile(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	table := tools.SysTables{}
 	id, err := pkg.StringToInt(c.Param("tableId"))
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -158,11 +161,12 @@ func (e *Gen) GenApiToFile(c *gin.Context) {
 	tab, _ := table.Get(db)
 	e.genApiToFile(c, tab)
 
-	e.OK(c, "", "Code generated successfully！")
+	e.OK("", "Code generated successfully！")
 }
 
-func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
-	log := e.GetLogger(c)
+func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
+	e.Context = c
+	log := e.GetLogger()
 
 	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
@@ -174,43 +178,43 @@ func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	t1, err := template.ParseFiles(basePath + "model.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t2, err := template.ParseFiles(basePath + "no_actions/apis.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t3, err := template.ParseFiles(routerFile)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 
@@ -245,15 +249,16 @@ func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
 
 }
 
-func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
-	log := e.GetLogger(c)
+func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
+	e.Context = c
+	log := e.GetLogger()
 
 	basePath := "template/"
 
 	t1, err := template.ParseFiles(basePath + "api_migrate.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	i := strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
@@ -267,7 +272,7 @@ func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 
 }
 
-func (e *Gen) ActionsGenV3(c *gin.Context, tab tools.SysTables) {
+func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 	log := api.GetRequestLogger(c)
 	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
@@ -279,31 +284,31 @@ func (e *Gen) ActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	t1, err := template.ParseFiles(basePath + "model.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t3, err := template.ParseFiles(routerFile)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(c, 500, err, "")
+		e.Error(500, err, "")
 		return
 	}
 
@@ -331,7 +336,7 @@ func (e *Gen) ActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
 }
 
-func (e *Gen) GenMenuAndApi(c *gin.Context) {
+func (e Gen) GenMenuAndApi(c *gin.Context) {
 	log := api.GetRequestLogger(c)
 
 	table := tools.SysTables{}
@@ -342,7 +347,7 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		return
 	}
 
@@ -572,5 +577,5 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	ADelete.UpdatedAt = timeNow
 	ADelete.MenuId, err = ADelete.Create(db)
 
-	e.OK(c, "", "数据生成成功！")
+	e.OK("", "数据生成成功！")
 }

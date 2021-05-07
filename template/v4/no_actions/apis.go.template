@@ -18,22 +18,26 @@ type {{.ClassName}} struct {
 	apis.Api
 }
 
+// Get{{.ClassName}}List 获取{{.TableComment}}列表
 // @Summary 获取{{.TableComment}}列表
 // @Description 获取{{.TableComment}}列表
 // @Tags {{.TableComment}}
-{{ $tablename := .TBName -}}
-{{ range .Columns -}}
+{{- $tablename := .TBName -}}
+{{- range .Columns -}}
 {{$z := .IsQuery}}
-{{- if ($z) -}}// @Param {{.JsonField}} query {{.GoType}} false "{{.ColumnComment}}"{{ end -}}{{- end }}
+{{- if ($z) }}
+// @Param {{.JsonField}} query {{.GoType}} false "{{.ColumnComment}}"
+{{- end -}}
+{{- end }}
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} response.Response{data=response.Page{list=[]models.{{.ClassName}}}} "{"code": 200, "data": [...]}"
 // @Router /api/v1/{{.ModuleName}} [get]
 // @Security Bearer
-// Get{{.ClassName}}List 获取{{.TableComment}}列表
-func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
-    log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e {{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -44,7 +48,7 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 	err = d.Bind(c)
 	if err != nil {
 	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -59,13 +63,14 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 	err = service{{.ClassName}}.Get{{.ClassName}}Page(d, p, &list, &count)
 	if err != nil {
 		log.Errorf("Get {{.ClassName}} Page error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error( http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK( list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
+// Get{{.ClassName}} 获取{{.TableComment}}
 // @Summary 获取{{.TableComment}}
 // @Description 获取{{.TableComment}}
 // @Tags {{.TableComment}}
@@ -73,10 +78,10 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 // @Success 200 {object} response.Response{data=models.{{.ClassName}}} "{"code": 200, "data": [...]}"
 // @Router /api/v1/{{.ModuleName}}/{id} [get]
 // @Security Bearer
-// Get{{.ClassName}} 获取{{.TableComment}}
-func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
-    db, err := e.GetOrm(c)
+func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
+    db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -88,7 +93,7 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object models.{{.ClassName}}
@@ -102,25 +107,27 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 	err = service{{.ClassName}}.Get{{.ClassName}}(control, p, &object)
 	if err != nil {
 		log.Errorf("Get {{.ClassName}} error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error( http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK( object, "查看成功")
 }
 
+// Insert{{.ClassName}} 创建{{.TableComment}}
 // @Summary 创建{{.TableComment}}
 // @Description 创建{{.TableComment}}
 // @Tags {{.TableComment}}
-// @Accept  application/json
+// @Accept application/json
 // @Product application/json
 // @Param data body dto.{{.ClassName}}Control true "data"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
 // @Router /api/v1/{{.ModuleName}} [post]
-// Insert{{.ClassName}} 创建{{.TableComment}}
-func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
-    db, err := e.GetOrm(c)
+// @Security Bearer
+func (e {{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
+    db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -132,13 +139,13 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.GenerateM()
 	if err != nil {
 		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error( http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	// 设置创建人
@@ -150,25 +157,27 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 	err = service{{.ClassName}}.Insert{{.ClassName}}(object.(*models.{{.ClassName}}))
 	if err != nil {
 		log.Errorf("Insert {{.ClassName}} error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error( http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK( object.GetId(), "创建成功")
 }
 
+// Update{{.ClassName}} 修改{{.TableComment}}
 // @Summary 修改{{.TableComment}}
 // @Description 修改{{.TableComment}}
 // @Tags {{.TableComment}}
-// @Accept  application/json
+// @Accept application/json
 // @Product application/json
 // @Param data body dto.{{.ClassName}}Control true "body"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
-// @Router /api/v1/{{.ModuleName}} [put]
-// Update{{.ClassName}} 修改{{.TableComment}}
-func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
-    db, err := e.GetOrm(c)
+// @Router /api/v1/{{.ModuleName}}/{id} [put]
+// @Security Bearer
+func (e {{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
+    db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -180,13 +189,13 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.GenerateM()
 	if err != nil {
 		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error( http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -200,22 +209,24 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 	err = service{{.ClassName}}.Update{{.ClassName}}(object.(*models.{{.ClassName}}), p)
 	if err != nil {
 		log.Errorf("Update {{.ClassName}} error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "更新失败")
+		e.Error( http.StatusInternalServerError, err, "更新失败")
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK( object.GetId(), "更新成功")
 }
 
+// Delete{{.ClassName}} 删除{{.TableComment}}
 // @Summary 删除{{.TableComment}}
 // @Description 删除{{.TableComment}}
 // @Tags {{.TableComment}}
 // @Param ids body []int false "ids"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
 // @Router /api/v1/{{.ModuleName}} [delete]
-// Delete{{.ClassName}} 删除{{.TableComment}}
-func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
-    db, err := e.GetOrm(c)
+// @Security Bearer
+func (e {{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
+    db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -227,7 +238,7 @@ func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -243,8 +254,8 @@ func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
 	err = service{{.ClassName}}.Remove{{.ClassName}}(control, p)
 	if err != nil {
 		log.Errorf("Remove {{.ClassName}} error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "删除失败")
+		e.Error( http.StatusInternalServerError, err, "删除失败")
 		return
 	}
-	e.OK(c, control.GetId(), "删除成功")
+	e.OK( control.GetId(), "删除成功")
 }

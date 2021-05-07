@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysFileInfoRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &sys_file.SysFileInfo{}
+	api := sys_file.SysFileInfo{}
 	r := v1.Group("/sysfileinfo").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 		r.GET("", api.GetSysFileInfoList)

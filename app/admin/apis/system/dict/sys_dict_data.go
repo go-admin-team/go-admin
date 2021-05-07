@@ -29,9 +29,10 @@ type SysDictData struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data [get]
 // @Security Bearer
-func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictData) GetSysDictDataList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -43,7 +44,7 @@ func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
 	err = req.Bind(c)
 	if err != nil {
 		log.Warnf("Bind error: %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -55,11 +56,11 @@ func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
 	err = s.GetPage(req, &list, &count)
 	if err != nil {
 		log.Errorf("GetPage error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
 // @Summary 通过编码获取字典数据
@@ -69,9 +70,10 @@ func (e *SysDictData) GetSysDictDataList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data/{dictCode} [get]
 // @Security Bearer
-func (e *SysDictData) GetSysDictData(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictData) GetSysDictData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -82,7 +84,7 @@ func (e *SysDictData) GetSysDictData(c *gin.Context) {
 	err = req.Bind(c)
 	if err != nil {
 		log.Warnf("Bind error: %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object system.SysDictData
@@ -93,11 +95,11 @@ func (e *SysDictData) GetSysDictData(c *gin.Context) {
 	err = s.Get(req, &object)
 	if err != nil {
 		log.Warnf("Get error: %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
 // @Summary 添加字典数据
@@ -110,9 +112,10 @@ func (e *SysDictData) GetSysDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data [post]
 // @Security Bearer
-func (e *SysDictData) InsertSysDictData(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictData) InsertSysDictData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -123,7 +126,7 @@ func (e *SysDictData) InsertSysDictData(c *gin.Context) {
 	err = req.Bind(c)
 	if err != nil {
 		log.Warnf("Bind error: %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, _ := req.GenerateM()
@@ -136,11 +139,11 @@ func (e *SysDictData) InsertSysDictData(c *gin.Context) {
 	err = s.Insert(object.(*system.SysDictData))
 	if err != nil {
 		log.Errorf("Insert error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
 // @Summary 修改字典数据
@@ -153,9 +156,10 @@ func (e *SysDictData) InsertSysDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data/{dictCode} [put]
 // @Security Bearer
-func (e *SysDictData) UpdateSysDictData(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictData) UpdateSysDictData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -166,7 +170,7 @@ func (e *SysDictData) UpdateSysDictData(c *gin.Context) {
 	err = req.Bind(c)
 	if err != nil {
 		log.Warnf("request validate error, %s", err.Error())
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, _ := req.GenerateM()
@@ -178,10 +182,10 @@ func (e *SysDictData) UpdateSysDictData(c *gin.Context) {
 	err = s.Update(object.(*system.SysDictData))
 	if err != nil {
 		log.Errorf("Update error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "更新失败")
+		e.Error(http.StatusInternalServerError, err, "更新失败")
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
 // @Summary 删除字典数据
@@ -191,9 +195,10 @@ func (e *SysDictData) UpdateSysDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/data/{dictCode} [delete]
-func (e *SysDictData) DeleteSysDictData(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictData) DeleteSysDictData(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -204,14 +209,14 @@ func (e *SysDictData) DeleteSysDictData(c *gin.Context) {
 	err = req.Bind(c)
 	if err != nil {
 		log.Warnf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object common.ActiveRecord
 	object, err = req.GenerateM()
 	if err != nil {
 		log.Errorf("GenerateM error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 
@@ -224,15 +229,16 @@ func (e *SysDictData) DeleteSysDictData(c *gin.Context) {
 	err = s.Remove(req, object.(*system.SysDictData))
 	if err != nil {
 		log.Errorf("Remove error, %s", err)
-		e.Error(c, http.StatusInternalServerError, err, "删除失败")
+		e.Error(http.StatusInternalServerError, err, "删除失败")
 		return
 	}
-	e.OK(c, object.GetId(), "删除成功")
+	e.OK(object.GetId(), "删除成功")
 }
 
-func (e *SysDictData) GetSysDictDataAll(c *gin.Context) {
-	log := e.GetLogger(c)
-	db, err := e.GetOrm(c)
+func (e SysDictData) GetSysDictDataAll(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -244,7 +250,7 @@ func (e *SysDictData) GetSysDictDataAll(c *gin.Context) {
 	err = req.Bind(c)
 	if err != nil {
 		log.Warnf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -255,9 +261,9 @@ func (e *SysDictData) GetSysDictDataAll(c *gin.Context) {
 	err = s.GetAll(req, &list)
 	if err != nil {
 		log.Errorf("GetAll error, %s", err.Error())
-		e.Error(c, http.StatusInternalServerError, err, "查询失败")
+		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.OK(c, list, "查询成功")
+	e.OK(list, "查询成功")
 }

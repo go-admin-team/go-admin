@@ -157,14 +157,22 @@ vi ./config/setting.yml
 ```
 
 #### 初始化数据库，以及服务启动
-```
+``` bash
 # 首次配置需要初始化数据库资源信息
-./go-admin migrate -c config/settings.yml
+# macOS or linux 下使用
+$ ./go-admin migrate -c=config/settings.dev.yml
+
+# ⚠️注意:windows 下使用
+$ ./go-admin.exe migrate -c=config/settings.dev.yml
 
 
 # 启动项目，也可以用IDE进行调试
-./go-admin server -c config/settings.yml
+# macOS or linux 下使用
+$ ./go-admin server -c config/settings.yml
 
+
+# ⚠️注意:windows 下使用
+$ ./go-admin.exe server -c config/settings.yml
 ```
 
 #### 使用docker 编译启动
@@ -188,10 +196,11 @@ go generate
 
 #### 交叉编译
 ```bash
+# windows
 env GOOS=windows GOARCH=amd64 go build main.go
 
 # or
-
+# linux
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
 

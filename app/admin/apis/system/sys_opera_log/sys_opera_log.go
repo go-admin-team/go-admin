@@ -16,10 +16,11 @@ type SysOperaLog struct {
 	apis.Api
 }
 
-func (e *SysOperaLog) GetSysOperaLogList(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	d := new(dto.SysOperaLogSearch)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -28,7 +29,7 @@ func (e *SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	//查询列表
 	err = d.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -39,17 +40,18 @@ func (e *SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	serviceStudent.Orm = db
 	err = serviceStudent.GetSysOperaLogPage(d, &list, &count)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.PageOK(c, list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
-func (e *SysOperaLog) GetSysOperaLog(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysOperaLogById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -58,7 +60,7 @@ func (e *SysOperaLog) GetSysOperaLog(c *gin.Context) {
 	//查看详情
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	var object system.SysOperaLog
@@ -68,17 +70,18 @@ func (e *SysOperaLog) GetSysOperaLog(c *gin.Context) {
 	serviceSysOperlog.Orm = db
 	err = serviceSysOperlog.GetSysOperaLog(control, &object)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.OK(c, object, "查看成功")
+	e.OK(object, "查看成功")
 }
 
-func (e *SysOperaLog) InsertSysOperaLog(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysOperaLog) InsertSysOperaLog(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysOperaLogControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -87,12 +90,12 @@ func (e *SysOperaLog) InsertSysOperaLog(c *gin.Context) {
 	//新增操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	// 设置创建人
@@ -104,17 +107,18 @@ func (e *SysOperaLog) InsertSysOperaLog(c *gin.Context) {
 	err = serviceSysOperaLog.InsertSysOperaLog(object)
 	if err != nil {
 		log.Error(err)
-		e.Error(c, http.StatusInternalServerError, err, "创建失败")
+		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(c, object.GetId(), "创建成功")
+	e.OK(object.GetId(), "创建成功")
 }
 
-func (e *SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysOperaLogControl)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -123,12 +127,12 @@ func (e *SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
 	//更新操作
 	err = control.Bind(c)
 	if err != nil {
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 	object, err := control.Generate()
 	if err != nil {
-		e.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
@@ -141,13 +145,14 @@ func (e *SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, object.GetId(), "更新成功")
+	e.OK(object.GetId(), "更新成功")
 }
 
-func (e *SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
-	log := e.GetLogger(c)
+func (e SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	control := new(dto.SysOperaLogById)
-	db, err := e.GetOrm(c)
+	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
 		return
@@ -157,7 +162,7 @@ func (e *SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 	err = control.Bind(c)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
-		e.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
 
@@ -169,5 +174,5 @@ func (e *SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	e.OK(c, control.GetId(), "删除成功")
+	e.OK(control.GetId(), "删除成功")
 }

@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &sys_config.SysConfig{}
+	api := sys_config.SysConfig{}
 	r := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
 	{
 

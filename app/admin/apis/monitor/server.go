@@ -29,7 +29,8 @@ type Monitor struct {
 // @Tags 系统信息
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/settings/serverInfo [get]
-func (e *Monitor) ServerInfo(c *gin.Context) {
+func (e Monitor) ServerInfo(c *gin.Context) {
+	e.Context = c
 
 	osDic := make(map[string]interface{}, 0)
 	osDic["goOs"] = runtime.GOOS
@@ -65,7 +66,7 @@ func (e *Monitor) ServerInfo(c *gin.Context) {
 	cpuDic["Percent"] = pkg.Round(percent[0], 2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
-	e.Custom(c, gin.H{
+	e.Custom(gin.H{
 		"code": 200,
 		"os":   osDic,
 		"mem":  memDic,
