@@ -118,7 +118,7 @@ func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 // @Summary 创建{{.TableComment}}
 // @Description 创建{{.TableComment}}
 // @Tags {{.TableComment}}
-// @Accept  application/json
+// @Accept application/json
 // @Product application/json
 // @Param data body dto.{{.ClassName}}Control true "data"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
@@ -168,7 +168,7 @@ func (e {{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 // @Summary 修改{{.TableComment}}
 // @Description 修改{{.TableComment}}
 // @Tags {{.TableComment}}
-// @Accept  application/json
+// @Accept application/json
 // @Product application/json
 // @Param data body dto.{{.ClassName}}Control true "body"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
