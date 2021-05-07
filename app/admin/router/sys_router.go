@@ -46,7 +46,10 @@ func sysBaseRouter(r *gin.RouterGroup) {
 }
 
 func sysStaticFileRouter(r *gin.RouterGroup) {
-	mime.AddExtensionType(".js", "application/javascript")
+	err := mime.AddExtensionType(".js", "application/javascript")
+	if err != nil {
+		return
+	}
 	r.Static("/static", "./static")
 	r.Static("/form-generator", "./static/form-generator")
 }
@@ -64,7 +67,7 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1.GET("/getCaptcha", sys.GenerateCaptchaHandler)
 	gen := tools.Gen{}
 	v1.GET("/gen/preview/:tableId", gen.Preview)
-	v1.GET("/gen/toproject/:tableId", gen.GenCodeV3)
+	v1.GET("/gen/toproject/:tableId", gen.GenCode)
 	v1.GET("/gen/apitofile/:tableId", gen.GenApiToFile)
 
 	v1.GET("/gen/todb/:tableId", gen.GenMenuAndApi)

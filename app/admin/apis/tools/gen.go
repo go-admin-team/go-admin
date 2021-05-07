@@ -109,7 +109,7 @@ func (e *Gen) Preview(c *gin.Context) {
 	e.OK(mp, "")
 }
 
-func (e *Gen) GenCodeV3(c *gin.Context) {
+func (e *Gen) GenCode(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	table := tools.SysTables{}
@@ -131,9 +131,9 @@ func (e *Gen) GenCodeV3(c *gin.Context) {
 	tab, _ := table.Get(db)
 
 	if tab.IsActions == 1 {
-		e.ActionsGenV3(c, tab)
+		e.ActionsGen(c, tab)
 	} else {
-		e.NOActionsGenV3(c, tab)
+		e.NOActionsGen(c, tab)
 	}
 
 	e.OK("", "Code generated successfully！")
@@ -164,7 +164,7 @@ func (e *Gen) GenApiToFile(c *gin.Context) {
 	e.OK("", "Code generated successfully！")
 }
 
-func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
+func (e *Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	e.Context = c
 	log := e.GetLogger()
 
@@ -272,7 +272,7 @@ func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 
 }
 
-func (e *Gen) ActionsGenV3(c *gin.Context, tab tools.SysTables) {
+func (e *Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 	log := api.GetRequestLogger(c)
 	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
