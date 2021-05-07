@@ -31,8 +31,9 @@ type {{.ClassName}} struct {
 // @Router /api/v1/{{.ModuleName}} [get]
 // @Security Bearer
 // Get{{.ClassName}}List 获取{{.TableComment}}列表
-func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
-    log := e.GetLogger(c)
+func (e {{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
 	db, err := e.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -74,8 +75,9 @@ func (e *{{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 // @Router /api/v1/{{.ModuleName}}/{id} [get]
 // @Security Bearer
 // Get{{.ClassName}} 获取{{.TableComment}}
-func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
+func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
     db, err := e.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -118,8 +120,9 @@ func (e *{{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 // @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
 // @Router /api/v1/{{.ModuleName}} [post]
 // Insert{{.ClassName}} 创建{{.TableComment}}
-func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
+func (e {{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
     db, err := e.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -164,10 +167,11 @@ func (e *{{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 // @Product application/json
 // @Param data body dto.{{.ClassName}}Control true "body"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
-// @Router /api/v1/{{.ModuleName}} [put]
+// @Router /api/v1/{{.ModuleName}}/{id} [put]
 // Update{{.ClassName}} 修改{{.TableComment}}
-func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
+func (e {{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
     db, err := e.GetOrm(c)
 	if err != nil {
 		log.Error(err)
@@ -213,8 +217,9 @@ func (e *{{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 // @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
 // @Router /api/v1/{{.ModuleName}} [delete]
 // Delete{{.ClassName}} 删除{{.TableComment}}
-func (e *{{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
-    log := e.GetLogger(c)
+func (e {{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
+    e.SetContext(c)
+    log := e.GetLogger()
     db, err := e.GetOrm(c)
 	if err != nil {
 		log.Error(err)

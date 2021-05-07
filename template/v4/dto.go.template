@@ -2,7 +2,6 @@ package dto
 
 import (
     "errors"
-	vd "github.com/bytedance/go-tagexpr/v2/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
@@ -12,12 +11,12 @@ import (
 )
 
 type {{.ClassName}}Search struct {
-	dto.Pagination     `search:"-"  vd:"-"`
+	dto.Pagination     `search:"-"`
     {{ $tablename := .TBName -}}
     {{ range .Columns -}}
     {{$z := .IsQuery}}
     {{- if ($z) -}}
-    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  vd:"?" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
     {{ end -}}
     {{- end }}
 }
@@ -36,10 +35,6 @@ func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
     err := ctx.ShouldBind(m)
     if err != nil {
     	log.Errorf("ShouldBind error: %s", err.Error())
-    }
-    if err1 := vd.Validate(s); err != nil {
-        log.Errorf("Validate error: %s", err1.Error())
-        return err1
     }
     return err
 }
@@ -76,10 +71,6 @@ func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
     if err != nil {
         log.Errorf("ShouldBind error: %s", err.Error())
         err = errors.New("数据绑定出错")
-    }
-    if err1 := vd.Validate(s); err != nil {
-        log.Errorf("Validate error: %s", err1.Error())
-        return err1
     }
     return err
 }
@@ -130,10 +121,6 @@ func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
 		log.Errorf("ShouldBind error: %s", err.Error())
 		err = errors.New("数据绑定出错")
 	}
-	if err1 := vd.Validate(s); err != nil {
-        log.Errorf("Validate error: %s", err1.Error())
-        return err1
-    }
 	return err
 }
 

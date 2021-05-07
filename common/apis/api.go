@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +14,33 @@ import (
 
 type Api struct {
 	Context *gin.Context
+	Logger  *logger.Logger
+}
+
+func (e Api) SetContext(c *gin.Context) {
+	e.Context = c
+	e.Logger = api.GetRequestLogger(c)
 }
 
 // GetLogger 获取上下文提供的日志
 func (e Api) GetLogger() *logger.Logger {
-	return api.GetRequestLogger(e.Context)
+	return e.Logger
+}
+
+func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
+	var err error
+	for i := range bindings {
+		switch bindings[i] {
+		case binding.JSON:
+			err = e.Context.ShouldBindWith(d, binding.JSON)
+		default:
+			err = e.Context.ShouldBindUri(d)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetOrm 获取Orm DB

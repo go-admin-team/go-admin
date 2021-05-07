@@ -18,7 +18,7 @@ type SysChinaAreaData struct {
 }
 
 func (e SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
-	e.Context = c
+	e.SetContext(c)
 	log := e.GetLogger()
 	d := new(dto.SysChinaAreaDataSearch)
 	db, err := e.GetOrm()
@@ -52,7 +52,7 @@ func (e SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {
 }
 
 func (e SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
-	e.Context = c
+	e.SetContext(c)
 	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataById)
 	db, err := e.GetOrm()
@@ -85,7 +85,7 @@ func (e SysChinaAreaData) GetSysChinaAreaData(c *gin.Context) {
 }
 
 func (e SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
-	e.Context = c
+	e.SetContext(c)
 	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataControl)
 	db, err := e.GetOrm()
@@ -122,7 +122,7 @@ func (e SysChinaAreaData) InsertSysChinaAreaData(c *gin.Context) {
 }
 
 func (e SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
-	e.Context = c
+	e.SetContext(c)
 	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataControl)
 	db, err := e.GetOrm()
@@ -159,7 +159,7 @@ func (e SysChinaAreaData) UpdateSysChinaAreaData(c *gin.Context) {
 }
 
 func (e SysChinaAreaData) DeleteSysChinaAreaData(c *gin.Context) {
-	e.Context = c
+	e.SetContext(c)
 	log := e.GetLogger()
 	control := new(dto.SysChinaAreaDataById)
 	db, err := e.GetOrm()
