@@ -10,6 +10,7 @@ import (
 	"go-admin/app/admin/models/tools"
 )
 
+// GetDBColumnList 分页列表数据
 // @Summary 分页列表数据 / page list data
 // @Description 数据库表列分页列表 / database table column page list
 // @Tags 工具 / Tools

@@ -338,8 +338,9 @@ func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 }
 
 func (e Gen) GenMenuAndApi(c *gin.Context) {
-	log := api.GetRequestLogger(c)
 	e.Context = c
+	log := e.GetLogger()
+
 	table := tools.SysTables{}
 	timeNow := pkg.GetCurrentTime()
 	id, err := pkg.StringToInt(c.Param("tableId"))
