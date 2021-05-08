@@ -273,6 +273,7 @@ func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 }
 
 func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
+	e.Context = c
 	log := api.GetRequestLogger(c)
 	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
@@ -338,7 +339,7 @@ func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 
 func (e Gen) GenMenuAndApi(c *gin.Context) {
 	log := api.GetRequestLogger(c)
-
+	e.Context = c
 	table := tools.SysTables{}
 	timeNow := pkg.GetCurrentTime()
 	id, err := pkg.StringToInt(c.Param("tableId"))

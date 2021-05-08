@@ -16,6 +16,7 @@ type SysJob struct {
 
 // RemoveJobForService 调用service实现
 func (e SysJob) RemoveJobForService(c *gin.Context) {
+	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()
 	if err != nil {
@@ -23,7 +24,7 @@ func (e SysJob) RemoveJobForService(c *gin.Context) {
 		return
 	}
 	var v dto.GeneralDelDto
-	err = c.BindUri(&v)
+	err = c.Bind(&v)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")

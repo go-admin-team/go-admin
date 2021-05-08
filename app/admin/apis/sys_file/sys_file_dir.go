@@ -19,7 +19,7 @@ type SysFileDir struct {
 }
 
 func (e SysFileDir) GetSysFileDirList(c *gin.Context) {
-	e.SetContext(c)
+	e.Context = c
 	log := e.GetLogger()
 	search := new(dto.SysFileDirSearch)
 	db, err := e.GetOrm()
@@ -49,7 +49,7 @@ func (e SysFileDir) GetSysFileDirList(c *gin.Context) {
 
 func (e SysFileDir) GetSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirById)
-	e.SetContext(c)
+	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()
 	if err != nil {
@@ -81,7 +81,7 @@ func (e SysFileDir) GetSysFileDir(c *gin.Context) {
 
 func (e SysFileDir) InsertSysFileDir(c *gin.Context) {
 	control := new(dto.SysFileDirControl)
-	e.SetContext(c)
+	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()
 	if err != nil {
