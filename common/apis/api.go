@@ -1,12 +1,12 @@
 package apis
 
 import (
+	"fmt"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"net/http"
 
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
@@ -19,13 +19,23 @@ type Api struct {
 }
 
 func (e Api) SetContext(c *gin.Context) {
+	fmt.Println(&c)
 	e.Context = c
+	fmt.Println(&e.Context)
 }
 
 // GetLogger 获取上下文提供的日志
 func (e Api) GetLogger() *logger.Logger {
+
 	return api.GetRequestLogger(e.Context)
 }
+
+//func (e Api) GetLogger() (*logger.Logger, error) {
+//	if e.Context == nil {
+//		return nil, errors.New("API context cannot be nil")
+//	}
+//	return api.GetRequestLogger(e.Context), nil
+//}
 
 func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
 	var err error
