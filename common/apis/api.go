@@ -1,9 +1,10 @@
 package apis
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
@@ -19,13 +20,11 @@ type Api struct {
 
 func (e Api) SetContext(c *gin.Context) {
 	e.Context = c
-
 }
 
 // GetLogger 获取上下文提供的日志
 func (e Api) GetLogger() *logger.Logger {
-	e.Logger = api.GetRequestLogger(e.Context)
-	return e.Logger
+	return api.GetRequestLogger(e.Context)
 }
 
 func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
