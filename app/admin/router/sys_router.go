@@ -1,6 +1,7 @@
 package router
 
 import (
+	"go-admin/app/admin/apis"
 	"mime"
 
 	"github.com/gin-gonic/gin"
@@ -9,12 +10,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 
-	"go-admin/app/admin/apis/monitor"
-	"go-admin/app/admin/apis/public"
-	"go-admin/app/admin/apis/system"
-	"go-admin/app/admin/apis/system/dict"
-	"go-admin/app/admin/apis/system/sys_dept"
-	"go-admin/app/admin/apis/system/sys_menu"
 	"go-admin/app/admin/apis/tools"
 	"go-admin/common/middleware"
 	"go-admin/common/middleware/handler"
@@ -41,7 +36,7 @@ func sysBaseRouter(r *gin.RouterGroup) {
 	go ws.WebsocketManager.SendService()
 	go ws.WebsocketManager.SendAllService()
 
-	r.GET("/", system.HelloWorld)
+	r.GET("/", apis.HelloWorld)
 	r.GET("/info", handler.Ping)
 }
 
@@ -61,9 +56,9 @@ func sysSwaggerRouter(r *gin.RouterGroup) {
 func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 
-	m := monitor.Monitor{}
-	v1.GET("/monitor/server", m.ServerInfo)
-	sys := system.System{}
+	//m := apis2.Monitor{}
+	//v1.GET("/monitor/server", m.ServerInfo)
+	sys := apis.System{}
 	v1.GET("/getCaptcha", sys.GenerateCaptchaHandler)
 	gen := tools.Gen{}
 	v1.GET("/gen/preview/:tableId", gen.Preview)
@@ -76,8 +71,7 @@ func sysNoCheckRoleRouter(r *gin.RouterGroup) {
 
 	registerDBRouter(v1)
 	registerSysTableRouter(v1)
-	registerPublicRouter(v1)
-	registerSysSettingRouter(v1)
+	//registerPublicRouter(v1)
 }
 
 func registerDBRouter(api *gin.RouterGroup) {
@@ -121,8 +115,8 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 }
 
 func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := sys_menu.SysMenu{}
-	api2 := sys_dept.SysDept{}
+	api := apis.SysMenu{}
+	api2 := apis.SysDept{}
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		//v1auth.GET("/getinfo", system.GetInfo)
@@ -172,8 +166,8 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 //}
 
 func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	dictApi := dict.SysDictType{}
-	dataApi := dict.SysDictData{}
+	dictApi := apis.SysDictType{}
+	dataApi := apis.SysDictData{}
 	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 
@@ -202,21 +196,19 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 //		dept.DELETE("/:id", system.DeleteDept)
 //	}
 //}
-func registerSysSettingRouter(v1 *gin.RouterGroup) {
-	api := system.SysSetting{}
-	m := monitor.Monitor{}
-	setting := v1.Group("/setting")
-	{
-		setting.GET("", api.GetSetting)
-		setting.POST("", api.CreateOrUpdateSetting)
-		setting.GET("/serverInfo", m.ServerInfo)
-	}
-}
+//func registerSysSettingRouter(v1 *gin.RouterGroup) {
+//
+//	//m := apis2.Monitor{}
+//	setting := v1.Group("/setting")
+//	{
+//		setting.GET("/serverInfo", m.ServerInfo)
+//	}
+//}
 
-func registerPublicRouter(v1 *gin.RouterGroup) {
-	p := v1.Group("/public")
-	{
-		file := public.File{}
-		p.POST("/uploadFile", file.UploadFile)
-	}
-}
+//func registerPublicRouter(v1 *gin.RouterGroup) {
+//	p := v1.Group("/public")
+//	{
+//		file := apis2.File{}
+//		p.POST("/uploadFile", file.UploadFile)
+//	}
+//}

@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
-	"go-admin/app/admin/apis/system/sys_menu"
+	"go-admin/app/admin/apis"
 	middleware2 "go-admin/common/middleware"
 )
 
@@ -13,7 +13,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysMenuRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := sys_menu.SysMenu{}
+	api := apis.SysMenu{}
 	//menu := v1.Group("/menu").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	//{
 	//	menu.GET("/:id", system.GetMenu)
