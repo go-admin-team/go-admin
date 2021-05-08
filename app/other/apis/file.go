@@ -30,6 +30,7 @@ type File struct {
 	apis.Api
 }
 
+// UploadFile 上传图片
 // @Summary 上传图片
 // @Description 获取JSON
 // @Tags 公共接口
@@ -40,31 +41,29 @@ type File struct {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/public/uploadFile [post]
 func (e File) UploadFile(c *gin.Context) {
-	e.Context = c
-
+	e.SetContext(c)
 	tag, _ := c.GetPostForm("type")
-	urlPerfix := fmt.Sprintf("http://%s/", c.Request.Host)
+	urlPrefix := fmt.Sprintf("http://%s/", c.Request.Host)
 	var fileResponse FileResponse
 	if tag == "" {
 		e.Error(500, nil, "缺少标识")
-		//app.Error(c, 200, errors.New(""), "缺少标识")
 		return
 	} else {
 		switch tag {
 		case "1": // 单图
 			var done bool
-			fileResponse, done = e.singleFile(c, fileResponse, urlPerfix)
+			fileResponse, done = e.singleFile(c, fileResponse, urlPrefix)
 			if done {
 				return
 			}
 			e.OK(fileResponse, "上传成功")
 			return
 		case "2": // 多图
-			multipartFile := e.multipleFile(c, urlPerfix)
+			multipartFile := e.multipleFile(c, urlPrefix)
 			e.OK(multipartFile, "上传成功")
 			return
 		case "3": // base64
-			fileResponse = e.baseImg(c, fileResponse, urlPerfix)
+			fileResponse = e.baseImg(c, fileResponse, urlPrefix)
 			e.OK(fileResponse, "上传成功")
 		}
 	}

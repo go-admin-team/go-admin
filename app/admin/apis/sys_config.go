@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,9 +26,9 @@ func (e SysConfig) GetSysConfigList(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-
+	err = e.Bind(d, binding.Query)
 	//查询列表
-	err = d.Bind(c)
+	//err = d.Bind(c)
 	if err != nil {
 		log.Errorf("参数验证失败, error:%s", err)
 		e.Error(500, err, "参数验证失败")
@@ -58,7 +59,7 @@ func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	err = d.Bind(c)
+	err = e.Bind(d, binding.Query)
 	if err != nil {
 		log.Errorf("参数验证失败, error:%s", err)
 		e.Error(500, err, "参数验证失败")
@@ -98,6 +99,7 @@ func (e SysConfig) GetSysConfig(c *gin.Context) {
 		return
 	}
 	//查看详情
+	err = e.Bind(control)
 	err = control.Bind(c)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
@@ -132,7 +134,7 @@ func (e SysConfig) InsertSysConfig(c *gin.Context) {
 	}
 
 	//新增操作
-	err = control.Bind(c)
+	err = e.Bind(control, binding.JSON)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		log.Errorf("Orm获取失败, error:%s", err)
@@ -175,7 +177,7 @@ func (e SysConfig) UpdateSysConfig(c *gin.Context) {
 	}
 
 	//更新操作
-	err = control.Bind(c)
+	err = e.Bind(control, binding.JSON)
 
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
@@ -216,19 +218,16 @@ func (e SysConfig) DeleteSysConfig(c *gin.Context) {
 	}
 
 	//删除操作
-	err = control.Bind(c)
+	err = e.Bind(control, binding.JSON)
 	if err != nil {
 		log.Errorf("Bind error: %s", err)
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	object, err := control.GenerateM()
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
 		return
 	}
 
@@ -242,7 +241,6 @@ func (e SysConfig) DeleteSysConfig(c *gin.Context) {
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "删除失败")
 		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
 		return
 	}
 	e.OK(object.GetId(), "删除成功")

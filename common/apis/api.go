@@ -2,10 +2,10 @@ package apis
 
 import (
 	"github.com/gin-gonic/gin/binding"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
@@ -19,11 +19,12 @@ type Api struct {
 
 func (e Api) SetContext(c *gin.Context) {
 	e.Context = c
-	e.Logger = api.GetRequestLogger(c)
+
 }
 
 // GetLogger 获取上下文提供的日志
 func (e Api) GetLogger() *logger.Logger {
+	e.Logger = api.GetRequestLogger(e.Context)
 	return e.Logger
 }
 
@@ -33,6 +34,24 @@ func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
 		switch bindings[i] {
 		case binding.JSON:
 			err = e.Context.ShouldBindWith(d, binding.JSON)
+		case binding.XML:
+			err = e.Context.ShouldBindWith(d, binding.XML)
+		case binding.Form:
+			err = e.Context.ShouldBindWith(d, binding.Form)
+		case binding.Query:
+			err = e.Context.ShouldBindWith(d, binding.Query)
+		case binding.FormPost:
+			err = e.Context.ShouldBindWith(d, binding.FormPost)
+		case binding.FormMultipart:
+			err = e.Context.ShouldBindWith(d, binding.FormMultipart)
+		case binding.ProtoBuf:
+			err = e.Context.ShouldBindWith(d, binding.ProtoBuf)
+		case binding.MsgPack:
+			err = e.Context.ShouldBindWith(d, binding.MsgPack)
+		case binding.YAML:
+			err = e.Context.ShouldBindWith(d, binding.YAML)
+		case binding.Header:
+			err = e.Context.ShouldBindWith(d, binding.Header)
 		default:
 			err = e.Context.ShouldBindUri(d)
 		}
