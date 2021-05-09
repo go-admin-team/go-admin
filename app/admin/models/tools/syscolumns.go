@@ -66,6 +66,7 @@ func (e *SysColumns) GetList(tx *gorm.DB) ([]SysColumns, error) {
 
 func (e *SysColumns) Create(tx *gorm.DB) (SysColumns, error) {
 	var doc SysColumns
+	e.CreateBy = "1"
 	result := tx.Table("sys_columns").Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -82,6 +83,7 @@ func (e *SysColumns) Update(tx *gorm.DB) (update SysColumns, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
+	e.UpdateBy = "1"
 	if err = tx.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
 		return
 	}

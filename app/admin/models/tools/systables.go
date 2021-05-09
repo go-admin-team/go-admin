@@ -134,6 +134,7 @@ func (e *SysTables) GetTree(tx *gorm.DB) ([]SysTables, error) {
 
 func (e *SysTables) Create(tx *gorm.DB) (SysTables, error) {
 	var doc SysTables
+	e.CreateBy = "1"
 	result := tx.Table("sys_tables").Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -156,6 +157,7 @@ func (e *SysTables) Update(tx *gorm.DB) (update SysTables, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
+	e.UpdateBy="1"
 	if err = tx.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
