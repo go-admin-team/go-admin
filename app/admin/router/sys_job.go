@@ -7,7 +7,7 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
-	middleware2 "go-admin/common/middleware"
+	"go-admin/common/middleware"
 )
 
 func init() {
@@ -17,7 +17,7 @@ func init() {
 // 需认证的路由代码
 func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 
-	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
+	r := v1.Group("/sysjob").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		sysJob := &models.SysJob{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(sysJob, new(dto.SysJobSearch), func() interface{} {

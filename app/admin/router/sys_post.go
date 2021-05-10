@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/apis/system/sys_post"
-	middleware2 "go-admin/common/middleware"
+	"go-admin/common/middleware"
 )
 
 func init() {
@@ -14,7 +14,7 @@ func init() {
 // 需认证的路由代码
 func registerSyPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	api := sys_post.SysPost{}
-	r := v1.Group("/post").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
+	r := v1.Group("/post").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		r.GET("", api.GetSysPostList)
 		r.GET("/:id", api.GetSysPost)

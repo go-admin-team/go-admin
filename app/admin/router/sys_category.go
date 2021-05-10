@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	middleware2 "go-admin/common/middleware"
+	"go-admin/common/middleware"
 
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/models"
@@ -16,7 +16,7 @@ func init() {
 
 // 需认证的路由代码
 func registerSysCategoryRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	r := v1.Group("/syscategory").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole())
+	r := v1.Group("/syscategory").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		model := &models.SysCategory{}
 		r.GET("", actions.PermissionAction(), actions.IndexAction(model, new(dto.SysCategorySearch), func() interface{} {
