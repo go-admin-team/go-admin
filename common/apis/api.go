@@ -17,7 +17,7 @@ type Api struct {
 	Logger  *logger.Logger
 }
 
-func (e Api) SetContext(c *gin.Context) {
+func (e *Api) SetContext(c *gin.Context) {
 	e.Context = c
 }
 
