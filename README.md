@@ -156,14 +156,35 @@ vi ./config/setting.yml
 # 2. 确认log路径
 ```
 
+:::tip ⚠️注意 在windows环境如果没有安装中CGO，会出现这个问题；
+
+```bash
+E:\go-admin>go build
+# github.com/mattn/go-sqlite3
+cgo: exec /missing-cc: exec: "/missing-cc": file does not exist
+```
+
+or
+
+```bash
+D:\Code\go-admin>go build
+# github.com/mattn/go-sqlite3
+cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
+```
+
+[解决cgo问题进入](https://doc.go-admin.dev/guide/other/faq.html#_5-cgo-exec-missing-cc-exec-missing-cc-file-does-not-exist)
+
+:::
+
 #### 初始化数据库，以及服务启动
+
 ``` bash
 # 首次配置需要初始化数据库资源信息
 # macOS or linux 下使用
 $ ./go-admin migrate -c=config/settings.dev.yml
 
 # ⚠️注意:windows 下使用
-$ ./go-admin.exe migrate -c=config/settings.dev.yml
+$ go-admin.exe migrate -c=config/settings.dev.yml
 
 
 # 启动项目，也可以用IDE进行调试
@@ -172,7 +193,7 @@ $ ./go-admin server -c config/settings.yml
 
 
 # ⚠️注意:windows 下使用
-$ ./go-admin.exe server -c config/settings.yml
+$ go-admin.exe server -c config/settings.yml
 ```
 
 #### 使用docker 编译启动
