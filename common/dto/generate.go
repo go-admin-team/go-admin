@@ -22,7 +22,7 @@ func (s *ObjectById) Bind(ctx *gin.Context) error {
 		return err
 	}
 	if ctx.Request.Method == http.MethodDelete {
-		err = ctx.ShouldBind(&s.Ids)
+		err = ctx.ShouldBind(&s)
 		if err != nil {
 			log.Warnf("ShouldBind error: %s", err.Error())
 			return err

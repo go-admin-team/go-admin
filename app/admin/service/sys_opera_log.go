@@ -26,7 +26,7 @@ func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]syste
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
-		e.Log.Errorf(" db error:%s", err)
+		e.Log.Errorf("Service GetSysOperaLogPage error:%s", err.Error())
 		return err
 	}
 	return nil
@@ -34,19 +34,17 @@ func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]syste
 
 // GetSysOperaLog 获取SysOperaLog对象
 func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *system.SysOperaLog) error {
-	var err error
 	var data system.SysOperaLog
 
-	db := e.Orm.Model(&data).
-		First(model, d.GetId())
-	err = db.Error
+	err := e.Orm.Model(&data).
+		First(model, d.GetId()).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		e.Log.Errorf(" db error:%s", err)
+		e.Log.Errorf("Service GetSysOperaLog error:%s", err.Error())
 		return err
 	}
-	if db.Error != nil {
-		e.Log.Errorf(" db error:%s", err)
+	if err != nil {
+		e.Log.Errorf("Service GetSysOperaLog error:%s", err.Error())
 		return err
 	}
 	return nil
@@ -60,7 +58,7 @@ func (e *SysOperaLog) InsertSysOperaLog(model *system.SysOperaLog) error {
 	err = e.Orm.Model(&data).
 		Create(model).Error
 	if err != nil {
-		e.Log.Errorf(" db error:%s", err)
+		e.Log.Errorf("Service InsertSysOperaLog error:%s", err.Error())
 		return err
 	}
 	return nil
@@ -69,12 +67,11 @@ func (e *SysOperaLog) InsertSysOperaLog(model *system.SysOperaLog) error {
 // UpdateSysOperaLog 修改SysOperaLog对象
 func (e *SysOperaLog) UpdateSysOperaLog(c *system.SysOperaLog) error {
 	var err error
-	var data system.SysOperaLog
 
-	db := e.Orm.Model(&data).
+	db := e.Orm.Model(c).
 		Where(c.GetId()).Updates(c)
-	if db.Error != nil {
-		e.Log.Errorf(" db error:%s", err)
+	if err = db.Error; err != nil {
+		e.Log.Errorf("Service UpdateSysOperaLog error:%s", err.Error())
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -90,14 +87,12 @@ func (e *SysOperaLog) RemoveSysOperaLog(d *dto.SysOperaLogById) error {
 	var data system.SysOperaLog
 
 	db := e.Orm.Model(&data).Where(d.Ids).Delete(&data)
-	if db.Error != nil {
-		err = db.Error
-		e.Log.Errorf(" Delete error: %s", err)
+	if err = db.Error; err != nil {
+		e.Log.Errorf("Service RemoveSysOperaLog error:%s", err.Error())
 		return err
 	}
 	if db.RowsAffected == 0 {
-		err = errors.New("无权删除该数据")
-		return err
+		return errors.New("无权删除该数据")
 	}
 	return nil
 }

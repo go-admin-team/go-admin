@@ -18,6 +18,7 @@ type SysTable struct {
 	apis.Api
 }
 
+// GetSysTableList 分页列表数据
 // @Summary 分页列表数据
 // @Description 生成表分页列表
 // @Tags 工具 - 生成表

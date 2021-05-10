@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
-	"go-admin/app/admin/apis/sys_user"
+	"go-admin/app/admin/apis"
 	"go-admin/common/actions"
 	"go-admin/common/middleware"
 )
@@ -14,8 +14,8 @@ func init() {
 
 // 需认证的路由代码
 func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := sys_user.SysUser{}
-	r := v1.Group("/sysUser").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole()).Use(actions.PermissionAction())
+	api := apis.SysUser{}
+	r := v1.Group("/sysUser").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole()).Use(actions.PermissionAction())
 	{
 		r.GET("", api.GetSysUserList)
 		r.GET("/:id", api.GetSysUser)
