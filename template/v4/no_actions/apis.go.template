@@ -1,4 +1,4 @@
-package {{.ModuleName}}
+package apis
 
 import (
 	"net/http"

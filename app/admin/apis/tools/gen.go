@@ -218,7 +218,7 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 		return
 	}
 
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
@@ -240,7 +240,7 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
 	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
+	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.BusinessName+".go")
 	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
 	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
 	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
