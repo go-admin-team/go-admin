@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
@@ -21,7 +22,7 @@ type Gen struct {
 	apis.Api
 }
 
-func (e *Gen) Preview(c *gin.Context) {
+func (e Gen) Preview(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	table := tools.SysTables{}
@@ -109,7 +110,7 @@ func (e *Gen) Preview(c *gin.Context) {
 	e.OK(mp, "")
 }
 
-func (e *Gen) GenCodeV3(c *gin.Context) {
+func (e Gen) GenCode(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	table := tools.SysTables{}
@@ -131,15 +132,15 @@ func (e *Gen) GenCodeV3(c *gin.Context) {
 	tab, _ := table.Get(db)
 
 	if tab.IsActions == 1 {
-		e.ActionsGenV3(c, tab)
+		e.ActionsGen(c, tab)
 	} else {
-		e.NOActionsGenV3(c, tab)
+		e.NOActionsGen(c, tab)
 	}
 
 	e.OK("", "Code generated successfully！")
 }
 
-func (e *Gen) GenApiToFile(c *gin.Context) {
+func (e Gen) GenApiToFile(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	table := tools.SysTables{}
@@ -164,7 +165,7 @@ func (e *Gen) GenApiToFile(c *gin.Context) {
 	e.OK("", "Code generated successfully！")
 }
 
-func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
+func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	e.Context = c
 	log := e.GetLogger()
 
@@ -218,12 +219,12 @@ func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
 		return
 	}
 
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
 	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.ModuleFrontName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -239,17 +240,17 @@ func (e *Gen) NOActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
-	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
-	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
-	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
+	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.ModuleName+".go")
+	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+".go")
+	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.ModuleName+".go")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.ModuleFrontName+".js")
+	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.ModuleFrontName+"/index.vue")
+	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.ModuleName+".go")
+	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.ModuleName+".go")
 
 }
 
-func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
+func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 	e.Context = c
 	log := e.GetLogger()
 
@@ -272,7 +273,8 @@ func (e *Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 
 }
 
-func (e *Gen) ActionsGenV3(c *gin.Context, tab tools.SysTables) {
+func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
+	e.Context = c
 	log := api.GetRequestLogger(c)
 	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
@@ -316,7 +318,7 @@ func (e *Gen) ActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
 	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.ModuleFrontName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -329,15 +331,16 @@ func (e *Gen) ActionsGenV3(c *gin.Context, tab tools.SysTables) {
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
 
-	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.ModuleName+".go")
+	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.ModuleName+".go")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.ModuleFrontName+".js")
+	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.ModuleFrontName+"/index.vue")
+	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.ModuleName+".go")
 }
 
-func (e *Gen) GenMenuAndApi(c *gin.Context) {
-	log := api.GetRequestLogger(c)
+func (e Gen) GenMenuAndApi(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 
 	table := tools.SysTables{}
 	timeNow := pkg.GetCurrentTime()
@@ -354,10 +357,10 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	table.TableId = id
 	tab, _ := table.Get(db)
 	Mmenu := models.Menu{}
-	Mmenu.MenuName = tab.TBName + "Manage"
+	//Mmenu.MenuName =
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
-	Mmenu.Path = "/" + tab.TBName
+	Mmenu.Path = "/" + strings.Replace(tab.TBName, "_", "-", -1)
 	Mmenu.MenuType = "M"
 	Mmenu.Action = "无"
 	Mmenu.ParentId = 0
@@ -373,16 +376,16 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	Mmenu.MenuId, err = Mmenu.Create(db)
 
 	Cmenu := models.Menu{}
-	Cmenu.MenuName = tab.TBName
+	Cmenu.MenuName = tab.ClassName + "Manage"
 	Cmenu.Title = tab.TableComment
 	Cmenu.Icon = "pass"
 	Cmenu.Path = tab.TBName
 	Cmenu.MenuType = "C"
 	Cmenu.Action = "无"
-	Cmenu.Permission = tab.PackageName + ":" + tab.BusinessName + ":list"
+	Cmenu.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":list"
 	Cmenu.ParentId = Mmenu.MenuId
 	Cmenu.NoCache = false
-	Cmenu.Component = "/" + tab.BusinessName + "/index"
+	Cmenu.Component = "/" + tab.ModuleFrontName + "/index"
 	Cmenu.Sort = 0
 	Cmenu.Visible = "0"
 	Cmenu.IsFrame = "0"
@@ -399,7 +402,7 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	MList.Path = tab.TBName
 	MList.MenuType = "F"
 	MList.Action = "无"
-	MList.Permission = tab.PackageName + ":" + tab.BusinessName + ":query"
+	MList.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":query"
 	MList.ParentId = Cmenu.MenuId
 	MList.NoCache = false
 	MList.Sort = 0
@@ -418,7 +421,7 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	MCreate.Path = tab.TBName
 	MCreate.MenuType = "F"
 	MCreate.Action = "无"
-	MCreate.Permission = tab.PackageName + ":" + tab.BusinessName + ":add"
+	MCreate.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":add"
 	MCreate.ParentId = Cmenu.MenuId
 	MCreate.NoCache = false
 	MCreate.Sort = 0
@@ -437,7 +440,7 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	MUpdate.Path = tab.TBName
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
-	MUpdate.Permission = tab.PackageName + ":" + tab.BusinessName + ":edit"
+	MUpdate.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":edit"
 	MUpdate.ParentId = Cmenu.MenuId
 	MUpdate.NoCache = false
 	MUpdate.Sort = 0
@@ -456,7 +459,7 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	MDelete.Path = tab.TBName
 	MDelete.MenuType = "F"
 	MDelete.Action = "无"
-	MDelete.Permission = tab.PackageName + ":" + tab.BusinessName + ":remove"
+	MDelete.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":remove"
 	MDelete.ParentId = Cmenu.MenuId
 	MDelete.NoCache = false
 	MDelete.Sort = 0
@@ -487,95 +490,70 @@ func (e *Gen) GenMenuAndApi(c *gin.Context) {
 	Amenu.UpdatedAt = timeNow
 	Amenu.MenuId, err = Amenu.Create(db)
 
-	AList := models.Menu{}
-	AList.MenuName = ""
+	AList := models.SysApi{}
+	AList.Name = ""
 	AList.Title = "分页获取" + tab.TableComment
-	AList.Icon = "bug"
-	AList.Path = "/api/v1/" + tab.ModuleName
-	AList.MenuType = "A"
+	AList.Path = "/api/v1/" + tab.ModuleFrontName
 	AList.Action = "GET"
 	AList.ParentId = Amenu.MenuId
-	AList.NoCache = false
 	AList.Sort = 0
-	AList.Visible = "1"
-	AList.IsFrame = "0"
-	AList.CreateBy = "1"
-	AList.UpdateBy = "1"
+	AList.CreateBy = 1
+	AList.UpdateBy = 1
 	AList.CreatedAt = timeNow
 	AList.UpdatedAt = timeNow
-	AList.MenuId, err = AList.Create(db)
+	AList.Id, err = AList.Create(db)
 
-	AGet := models.Menu{}
-	AGet.MenuName = ""
+	AGet := models.SysApi{}
+	AList.Name = ""
 	AGet.Title = "根据id获取" + tab.TableComment
-	AGet.Icon = "bug"
-	AGet.Path = "/api/v1/" + tab.ModuleName + "/:id"
-	AGet.MenuType = "A"
+	AGet.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
 	AGet.Action = "GET"
 	AGet.ParentId = Amenu.MenuId
-	AGet.NoCache = false
 	AGet.Sort = 0
-	AGet.Visible = "1"
-	AGet.IsFrame = "0"
-	AGet.CreateBy = "1"
-	AGet.UpdateBy = "1"
+	AGet.CreateBy = 1
+	AGet.UpdateBy = 1
 	AGet.CreatedAt = timeNow
 	AGet.UpdatedAt = timeNow
-	AGet.MenuId, err = AGet.Create(db)
+	AGet.Id, err = AGet.Create(db)
 
-	ACreate := models.Menu{}
-	ACreate.MenuName = ""
+	ACreate := models.SysApi{}
+	AList.Name = ""
 	ACreate.Title = "创建" + tab.TableComment
-	ACreate.Icon = "bug"
-	ACreate.Path = "/api/v1/" + tab.ModuleName
-	ACreate.MenuType = "A"
+	ACreate.Path = "/api/v1/" + tab.ModuleFrontName
 	ACreate.Action = "POST"
 	ACreate.ParentId = Amenu.MenuId
-	ACreate.NoCache = false
 	ACreate.Sort = 0
-	ACreate.Visible = "1"
-	ACreate.IsFrame = "0"
-	ACreate.CreateBy = "1"
-	ACreate.UpdateBy = "1"
+	ACreate.CreateBy = 1
+	ACreate.UpdateBy = 1
 	ACreate.CreatedAt = timeNow
 	ACreate.UpdatedAt = timeNow
-	ACreate.MenuId, err = ACreate.Create(db)
+	ACreate.Id, err = ACreate.Create(db)
 
-	AUpdate := models.Menu{}
-	AUpdate.MenuName = ""
+	AUpdate := models.SysApi{}
+	AList.Name = ""
 	AUpdate.Title = "修改" + tab.TableComment
-	AUpdate.Icon = "bug"
-	AUpdate.Path = "/api/v1/" + tab.ModuleName + "/:id"
-	AUpdate.MenuType = "A"
+	AUpdate.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
 	AUpdate.Action = "PUT"
 	AUpdate.ParentId = Amenu.MenuId
-	AUpdate.NoCache = false
 	AUpdate.Sort = 0
-	AUpdate.Visible = "1"
-	AUpdate.IsFrame = "0"
-	AUpdate.CreateBy = "1"
-	AUpdate.UpdateBy = "1"
+	AUpdate.CreateBy = 1
+	AUpdate.UpdateBy = 1
 	AUpdate.CreatedAt = timeNow
 	AUpdate.UpdatedAt = timeNow
-	AUpdate.MenuId, err = AUpdate.Create(db)
+	AUpdate.Id, err = AUpdate.Create(db)
 
-	ADelete := models.Menu{}
-	ADelete.MenuName = ""
+	ADelete := models.SysApi{}
+	AList.Name = ""
 	ADelete.Title = "删除" + tab.TableComment
-	ADelete.Icon = "bug"
-	ADelete.Path = "/api/v1/" + tab.ModuleName
-	ADelete.MenuType = "A"
+	ADelete.Path = "/api/v1/" + tab.ModuleFrontName
 	ADelete.Action = "DELETE"
 	ADelete.ParentId = Amenu.MenuId
-	ADelete.NoCache = false
 	ADelete.Sort = 0
-	ADelete.Visible = "1"
-	ADelete.IsFrame = "0"
-	ADelete.CreateBy = "1"
-	ADelete.UpdateBy = "1"
+	ADelete.CreateBy = 1
+	ADelete.UpdateBy = 1
 	ADelete.CreatedAt = timeNow
 	ADelete.UpdatedAt = timeNow
-	ADelete.MenuId, err = ADelete.Create(db)
+	ADelete.Id, err = ADelete.Create(db)
 
 	e.OK("", "数据生成成功！")
 }

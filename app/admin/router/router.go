@@ -33,9 +33,6 @@ func examplesNoCheckRoleRouter(r *gin.Engine) {
 	for _, f := range routerNoCheckRole {
 		f(v1)
 	}
-
-	// {{无需认证路由自动补充在此处请勿删除}}
-	//registerSysFileInfoRouter(v1)
 }
 
 // 需要认证的路由示例

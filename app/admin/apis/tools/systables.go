@@ -18,6 +18,7 @@ type SysTable struct {
 	apis.Api
 }
 
+// GetSysTableList 分页列表数据
 // @Summary 分页列表数据
 // @Description 生成表分页列表
 // @Tags 工具 - 生成表
@@ -188,7 +189,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.CreateBy = user.GetUserIdStr(c)
+	data.CreateBy = user.GetUserId(c)
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get(tx)
@@ -205,12 +206,13 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 		//data.PackageName += strings.ToLower(strStart) + strings.ToLower(strend)
 		data.ModuleName += strings.ToLower(strStart) + strings.ToLower(strend)
 	}
+	data.ModuleFrontName = strings.ReplaceAll(data.ModuleName, "_", "-")
 	data.PackageName = "admin"
 	data.TplCategory = "crud"
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList(tx)
-	data.CreateBy = user.GetUserIdStr(c)
+	data.CreateBy = user.GetUserId(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -310,7 +312,7 @@ func (e *SysTable) UpdateSysTable(c *gin.Context) {
 		return
 	}
 
-	data.UpdateBy = user.GetUserIdStr(c)
+	data.UpdateBy = user.GetUserId(c)
 	result, err := data.Update(db)
 	if err != nil {
 		log.Errorf("Update error, %s", err.Error())

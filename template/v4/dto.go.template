@@ -2,7 +2,6 @@ package dto
 
 import (
     "errors"
-	vd "github.com/bytedance/go-tagexpr/v2/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
@@ -12,13 +11,13 @@ import (
 )
 
 type {{.ClassName}}Search struct {
-	dto.Pagination     `search:"-"  vd:"-"`
-    {{ $tablename := .TBName -}}
-    {{ range .Columns -}}
+	dto.Pagination     `search:"-"`
+    {{- $tablename := .TBName -}}
+    {{- range .Columns -}}
     {{$z := .IsQuery}}
-    {{- if ($z) -}}
-    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  vd:"?" search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
-    {{ end -}}
+    {{- if ($z) }}
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
+    {{- end }}
     {{- end }}
 }
 
@@ -37,26 +36,22 @@ func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
     if err != nil {
     	log.Errorf("ShouldBind error: %s", err.Error())
     }
-    if err1 := vd.Validate(s); err != nil {
-        log.Errorf("Validate error: %s", err1.Error())
-        return err1
-    }
     return err
 }
 
 type {{.ClassName}}Control struct {
-    {{ range .Columns -}}
+    {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}" vd:"?"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
     {{- else if eq .GoField "CreateBy" -}}
     {{- else if eq .GoField "UpdateBy" -}}
     {{- else }}
-    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}" vd:"?"`
-    {{end -}}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
+    {{- end -}}
     {{- end }}
 }
 
@@ -77,16 +72,12 @@ func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
         log.Errorf("ShouldBind error: %s", err.Error())
         err = errors.New("数据绑定出错")
     }
-    if err1 := vd.Validate(s); err != nil {
-        log.Errorf("Validate error: %s", err1.Error())
-        return err1
-    }
     return err
 }
 
 func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
 	return &models.{{.ClassName}}{
-	{{ range .Columns -}}
+	{{- range .Columns -}}
         {{$x := .Pk}}
         {{- if ($x) }}
         Model:     common.Model{ {{.GoField}}: s.{{.GoField}} },
@@ -97,7 +88,7 @@ func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
         {{- else if eq .GoField "UpdateBy" -}}
         {{- else }}
         {{.GoField}}:  s.{{.GoField}},
-        {{- end }}
+        {{- end -}}
         {{- end }}
 	}, nil
 }
@@ -130,10 +121,6 @@ func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
 		log.Errorf("ShouldBind error: %s", err.Error())
 		err = errors.New("数据绑定出错")
 	}
-	if err1 := vd.Validate(s); err != nil {
-        log.Errorf("Validate error: %s", err1.Error())
-        return err1
-    }
 	return err
 }
 

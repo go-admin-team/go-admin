@@ -43,20 +43,6 @@ func _1619418811873Test(db *gorm.DB, version string) error {
 			return err
 		}
 
-		// TODO: 例如 修改表字段 使用过程中请删除此段代码
-		//err := tx.Migrator().RenameColumn(&models.SysConfig{}, "config_id", "id")
-		//if err != nil {
-		// 	return err
-		//}
-
-		// TODO: 例如 新增表结构 使用过程中请删除此段代码
-		//err = tx.Debug().Migrator().AutoMigrate(
-		//		new(models.CasbinRule),
-		// 		)
-		//if err != nil {
-		// 	return err
-		//}
-
 		return tx.Create(&common.Migration{
 			Version: version,
 		}).Error

@@ -75,7 +75,7 @@ func (e *SysDictData) Update(c *system.SysDictData) error {
 
 	db := e.Orm.Model(&data).
 		Where(c.GetId()).Updates(c)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}

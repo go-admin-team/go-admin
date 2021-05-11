@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 
-	"go-admin/app/{{.PackageName}}/apis/{{.ModuleName}}"
+	"go-admin/app/{{.PackageName}}/apis"
 )
 
 func init() {
@@ -13,7 +13,7 @@ func init() {
 
 // register{{.ClassName}}Router
 func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &{{.ModuleName}}.{{.ClassName}}{}
+	api := apis.{{.ClassName}}{}
 	r := v1.Group("/{{.ModuleName}}").Use(authMiddleware.MiddlewareFunc())
 	{
 		r.GET("", api.Get{{.ClassName}})

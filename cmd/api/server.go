@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	router2 "go-admin/app/other/router"
 	"log"
 	"net/http"
 	"os"
@@ -115,7 +116,7 @@ func run() error {
 
 	if config.ApplicationConfig.Mode == "dev" {
 		//监控
-		AppRouters = append(AppRouters, router.Monitor)
+		AppRouters = append(AppRouters, router2.Monitor)
 	}
 
 	for _, f := range AppRouters {

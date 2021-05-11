@@ -12,6 +12,7 @@ import (
 	"go-admin/app/admin/models/tools"
 )
 
+// GetDBTableList 分页列表数据
 // @Summary 分页列表数据 / page list data
 // @Description 数据库表分页列表 / database table page list
 // @Tags 工具 / Tools
@@ -32,7 +33,6 @@ func (e *Gen) GetDBTableList(c *gin.Context) {
 		err = errors.New("对不起，sqlite3 或 postgres 不支持代码生成！")
 		log.Warn(err)
 		e.Error(403, err, "")
-		//c.JSON(http.StatusOK, res.ReturnError(500))
 		return
 	}
 
