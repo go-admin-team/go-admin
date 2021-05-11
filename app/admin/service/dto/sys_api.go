@@ -44,8 +44,8 @@ type SysApiControl struct {
 	Path     string `json:"path" comment:"地址"`
 	Paths    string `json:"paths" comment:""`
 	Action   string `json:"action" comment:"类型"`
-	ParentId string `json:"parentId" comment:"按钮id"`
-	Sort     string `json:"sort" comment:"排序"`
+	ParentId int    `json:"parentId" comment:"按钮id"`
+	Sort     int    `json:"sort" comment:"排序"`
 }
 
 func (s *SysApiControl) Generate() dto.Control {
@@ -70,7 +70,7 @@ func (s *SysApiControl) Bind(ctx *gin.Context) error {
 
 func (s *SysApiControl) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysApi{
-		Model:    common.Model{Id: s.Id},
+		Id:       s.Id,
 		Name:     s.Name,
 		Title:    s.Title,
 		Path:     s.Path,
