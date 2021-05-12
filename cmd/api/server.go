@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/go-admin-team/go-admin-core/sdk/runtime"
+	"go-admin/app/admin/service"
 	router2 "go-admin/app/other/router"
 	"log"
 	"net/http"
@@ -67,6 +69,9 @@ func setup() {
 			config.LoggerConfig.Stdout))
 	//3. 初始化数据库链接
 	database.Setup()
+
+	//list := sdk.Runtime.GetDb()
+	//list["*"]
 	//4. 设置缓存
 	cacheAdapter, err := config.CacheConfig.Setup()
 	if err != nil {
@@ -133,6 +138,11 @@ func run() error {
 
 	}()
 
+	serviceApi := service.SysApi{}
+	serviceApi.Orm = sdk.Runtime.GetDb()["*"]
+	var routers = sdk.Runtime.GetRouter()
+	serviceApi.CheckStorageSysApi(&routers)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -170,6 +180,8 @@ func run() error {
 
 	return nil
 }
+
+var Router runtime.Router
 
 func tip() {
 	usageStr := `欢迎使用 ` + pkg.Green(`go-admin `+global.Version) + ` 可以使用 ` + pkg.Red(`-h`) + ` 查看命令`
