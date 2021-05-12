@@ -18,7 +18,8 @@ type Api struct {
 	Logger  *logger.Logger
 }
 
-func (e Api) SetContext(c *gin.Context) {
+// MakeContext 设置http上下文
+func (e *Api) MakeContext(c *gin.Context) {
 	fmt.Println(&c)
 	e.Context = c
 	fmt.Println(&e.Context)
@@ -29,13 +30,6 @@ func (e Api) GetLogger() *logger.Logger {
 
 	return api.GetRequestLogger(e.Context)
 }
-
-//func (e Api) GetLogger() (*logger.Logger, error) {
-//	if e.Context == nil {
-//		return nil, errors.New("API context cannot be nil")
-//	}
-//	return api.GetRequestLogger(e.Context), nil
-//}
 
 func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
 	var err error

@@ -41,7 +41,7 @@ type File struct {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/public/uploadFile [post]
 func (e File) UploadFile(c *gin.Context) {
-	e.SetContext(c)
+	e.MakeContext(c)
 	tag, _ := c.GetPostForm("type")
 	urlPrefix := fmt.Sprintf("http://%s/", c.Request.Host)
 	var fileResponse FileResponse

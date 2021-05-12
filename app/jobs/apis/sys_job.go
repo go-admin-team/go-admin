@@ -46,7 +46,7 @@ func (e SysJob) RemoveJobForService(c *gin.Context) {
 
 // StartJobForService 启动job service实现
 func (e SysJob) StartJobForService(c *gin.Context) {
-	e.SetContext(c)
+	e.MakeContext(c)
 	log := e.GetLogger()
 	db, err := e.GetOrm()
 	if err != nil {

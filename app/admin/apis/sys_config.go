@@ -18,7 +18,7 @@ type SysConfig struct {
 }
 
 func (e SysConfig) GetSysConfigList(c *gin.Context) {
-	e.SetContext(c) //Context = c
+	e.MakeContext(c)
 	log := e.GetLogger()
 	d := new(dto.SysConfigSearch)
 	db, err := e.GetOrm()
