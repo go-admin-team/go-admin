@@ -34,8 +34,8 @@ type SysTables struct {
 	IsLogicalDelete     string       `gorm:"size:1;" json:"isLogicalDelete"`
 	LogicalDelete       bool         `gorm:"size:1;" json:"logicalDelete"`
 	LogicalDeleteColumn string       `gorm:"size:128;" json:"logicalDeleteColumn"`
-	CreateBy            string       `gorm:"size:128;" json:"createBy"`
-	UpdateBy            string       `gorm:"size:128;" json:"updateBy"`
+	CreateBy            int          `gorm:"size:128;" json:"createBy"`
+	UpdateBy            int          `gorm:"size:128;" json:"updateBy"`
 	DataScope           string       `gorm:"-" json:"dataScope"`
 	Params              Params       `gorm:"-" json:"params"`
 	Columns             []SysColumns `gorm:"-" json:"columns"`
@@ -134,7 +134,7 @@ func (e *SysTables) GetTree(tx *gorm.DB) ([]SysTables, error) {
 
 func (e *SysTables) Create(tx *gorm.DB) (SysTables, error) {
 	var doc SysTables
-	e.CreateBy = "1"
+	e.CreateBy = 0
 	result := tx.Table("sys_tables").Create(&e)
 	if result.Error != nil {
 		err := result.Error
@@ -157,7 +157,7 @@ func (e *SysTables) Update(tx *gorm.DB) (update SysTables, err error) {
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	e.UpdateBy="1"
+	e.UpdateBy = 0
 	if err = tx.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
