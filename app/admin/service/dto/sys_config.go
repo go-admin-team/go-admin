@@ -97,7 +97,7 @@ func (s *SysConfigById) Generate() *SysConfigById {
 }
 
 func (s *SysConfigById) GetId() interface{} {
-	return s.Id
+	return s.Ids
 }
 
 func (s *SysConfigById) Bind(ctx *gin.Context) error {
