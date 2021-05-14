@@ -1,13 +1,13 @@
 package apis
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -47,7 +47,7 @@ func (e SysDictType) GetSysDictTypeList(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysDictType, 0)
+	list := make([]models.SysDictType, 0)
 	var count int64
 	s := service.SysDictType{}
 	s.Log = log
@@ -84,7 +84,7 @@ func (e SysDictType) GetSysDictType(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object system.SysDictType
+	var object models.SysDictType
 
 	s := service.SysDictType{}
 	s.Log = log
@@ -131,7 +131,7 @@ func (e SysDictType) InsertSysDictType(c *gin.Context) {
 	s := service.SysDictType{}
 	s.Orm = db
 	s.Log = log
-	err = s.Insert(object.(*system.SysDictType))
+	err = s.Insert(object.(*models.SysDictType))
 	if err != nil {
 		log.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
@@ -173,7 +173,7 @@ func (e SysDictType) UpdateSysDictType(c *gin.Context) {
 	s := service.SysDictType{}
 	s.Orm = db
 	s.Log = log
-	err = s.Update(object.(*system.SysDictType))
+	err = s.Update(object.(*models.SysDictType))
 	if err != nil {
 		log.Error(err)
 		return
@@ -218,7 +218,7 @@ func (e SysDictType) DeleteSysDictType(c *gin.Context) {
 	s := service.SysDictType{}
 	s.Orm = db
 	s.Log = log
-	err = s.Remove(req, object.(*system.SysDictType))
+	err = s.Remove(req, object.(*models.SysDictType))
 	if err != nil {
 		log.Error(err)
 		return
@@ -253,7 +253,7 @@ func (e SysDictType) GetSysDictTypeAll(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysDictType, 0)
+	list := make([]models.SysDictType, 0)
 	s := service.SysDictType{}
 	s.Log = log
 	s.Orm = db

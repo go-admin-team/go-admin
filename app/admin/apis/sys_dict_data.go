@@ -1,13 +1,13 @@
 package apis
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -48,7 +48,7 @@ func (e SysDictData) GetSysDictDataList(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysDictData, 0)
+	list := make([]models.SysDictData, 0)
 	var count int64
 	s := service.SysDictData{}
 	s.Log = log
@@ -87,7 +87,7 @@ func (e SysDictData) GetSysDictData(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object system.SysDictData
+	var object models.SysDictData
 
 	s := service.SysDictData{}
 	s.Log = log
@@ -136,7 +136,7 @@ func (e SysDictData) InsertSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
 	s.Orm = db
 	s.Log = log
-	err = s.Insert(object.(*system.SysDictData))
+	err = s.Insert(object.(*models.SysDictData))
 	if err != nil {
 		log.Errorf("Insert error, %s", err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
@@ -179,7 +179,7 @@ func (e SysDictData) UpdateSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
 	s.Orm = db
 	s.Log = log
-	err = s.Update(object.(*system.SysDictData))
+	err = s.Update(object.(*models.SysDictData))
 	if err != nil {
 		log.Errorf("Update error, %s", err)
 		e.Error(http.StatusInternalServerError, err, "更新失败")
@@ -226,7 +226,7 @@ func (e SysDictData) DeleteSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
 	s.Orm = db
 	s.Log = log
-	err = s.Remove(req, object.(*system.SysDictData))
+	err = s.Remove(req, object.(*models.SysDictData))
 	if err != nil {
 		log.Errorf("Remove error, %s", err)
 		e.Error(http.StatusInternalServerError, err, "删除失败")
@@ -254,7 +254,7 @@ func (e SysDictData) GetSysDictDataAll(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysDictData, 0)
+	list := make([]models.SysDictData, 0)
 	s := service.SysDictData{}
 	s.Log = log
 	s.Orm = db

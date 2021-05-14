@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
@@ -17,9 +16,9 @@ type SysRole struct {
 }
 
 // GetSysRolePage 获取SysRole列表
-func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]system.SysRole, count *int64) error {
+func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]models.SysRole, count *int64) error {
 	var err error
-	var data system.SysRole
+	var data models.SysRole
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -36,7 +35,7 @@ func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]system.SysRole, c
 }
 
 // GetSysRole 获取SysRole对象
-func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *system.SysRole) error {
+func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *models.SysRole) error {
 	var err error
 
 	db := e.Orm.First(model, d.GetId())
@@ -59,9 +58,9 @@ func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *system.SysRole) error {
 }
 
 // InsertSysRole 创建SysRole对象
-func (e *SysRole) InsertSysRole(c *system.SysRole) error {
+func (e *SysRole) InsertSysRole(c *models.SysRole) error {
 	var err error
-	var data system.SysRole
+	var data models.SysRole
 
 	tx := e.Orm.Begin()
 	defer func() {
@@ -92,7 +91,7 @@ func (e *SysRole) InsertSysRole(c *system.SysRole) error {
 }
 
 // UpdateSysRole 修改SysRole对象
-func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
+func (e *SysRole) UpdateSysRole(c *models.SysRole) error {
 	var err error
 
 	tx := e.Orm.Debug().Begin()
@@ -113,7 +112,7 @@ func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 		return errors.New("无权更新该数据")
 	}
 
-	var t system.RoleMenu
+	var t models.RoleMenu
 	err = t.DeleteRoleMenu(tx, c.RoleId)
 	if err != nil {
 		e.Log.Errorf("delete role menu error, %", err.Error())
@@ -135,7 +134,7 @@ func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 // RemoveSysRole 删除SysRole
 func (e *SysRole) RemoveSysRole(d *dto.SysRoleById) error {
 	var err error
-	var data system.SysRole
+	var data models.SysRole
 
 	tx := e.Orm.Begin()
 	defer func() {
@@ -188,7 +187,7 @@ func (e *SysRole) GetRoleMenuId(tx *gorm.DB, roleId int) ([]int, error) {
 	return menuIds, nil
 }
 
-func (e *SysRole) UpdateDataScope(c *system.SysRole) (err error) {
+func (e *SysRole) UpdateDataScope(c *models.SysRole) (err error) {
 	tx := e.Orm.Begin()
 	defer func() {
 		if err != nil {
@@ -197,20 +196,20 @@ func (e *SysRole) UpdateDataScope(c *system.SysRole) (err error) {
 			tx.Commit()
 		}
 	}()
-	err = tx.Model(&system.SysRole{}).Where("role_id = ?", c.RoleId).Select("data_scope", "update_by").Updates(c).Error
+	err = tx.Model(&models.SysRole{}).Where("role_id = ?", c.RoleId).Select("data_scope", "update_by").Updates(c).Error
 	if err != nil {
 		return err
 	}
 
-	err = tx.Where("role_id = ?", c.RoleId).Delete(&system.SysRoleDept{}).Error
+	err = tx.Where("role_id = ?", c.RoleId).Delete(&models.SysRoleDept{}).Error
 	if err != nil {
 		return err
 	}
 
 	if c.DataScope == "2" {
-		deptRoles := make([]system.SysRoleDept, len(c.DeptIds))
+		deptRoles := make([]models.SysRoleDept, len(c.DeptIds))
 		for i := range c.DeptIds {
-			deptRoles[i] = system.SysRoleDept{
+			deptRoles[i] = models.SysRoleDept{
 				RoleId: c.RoleId,
 				DeptId: c.DeptIds[i],
 			}

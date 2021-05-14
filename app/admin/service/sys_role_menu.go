@@ -3,7 +3,6 @@ package service
 import (
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/models/system"
 	"go-admin/common/service"
 	"gorm.io/gorm"
 )
@@ -13,13 +12,13 @@ type SysRoleMenu struct {
 }
 
 func (e *SysRoleMenu) ReloadRule(tx *gorm.DB, roleId int, menuId []int) (err error) {
-	var role system.SysRole
+	var role models.SysRole
 
 	msgID := e.MsgID
 
 	menu := make([]models.Menu, 0)
-	roleMenu := make([]system.RoleMenu, len(menuId))
-	casbinRule := make([]system.CasbinRule, 0)
+	roleMenu := make([]models.RoleMenu, len(menuId))
+	casbinRule := make([]models.CasbinRule, 0)
 	//先删除所有的
 	err = e.DeleteRoleMenu(tx, roleId)
 	if err != nil {
@@ -40,13 +39,13 @@ func (e *SysRoleMenu) ReloadRule(tx *gorm.DB, roleId int, menuId []int) (err err
 		return
 	}
 	for i := range menu {
-		roleMenu[i] = system.RoleMenu{
+		roleMenu[i] = models.RoleMenu{
 			RoleId:   role.RoleId,
 			MenuId:   menu[i].MenuId,
 			RoleName: role.RoleKey,
 		}
 		if menu[i].MenuType == "A" {
-			casbinRule = append(casbinRule, system.CasbinRule{
+			casbinRule = append(casbinRule, models.CasbinRule{
 				PType: "p",
 				V0:    role.RoleKey,
 				V1:    menu[i].Path,
@@ -73,18 +72,18 @@ func (e *SysRoleMenu) ReloadRule(tx *gorm.DB, roleId int, menuId []int) (err err
 func (e *SysRoleMenu) DeleteRoleMenu(tx *gorm.DB, roleId int) (err error) {
 	msgID := e.MsgID
 	err = tx.Where("role_id = ?", roleId).
-		Delete(&system.SysRoleDept{}).Error
+		Delete(&models.SysRoleDept{}).Error
 	if err != nil {
 		log.Errorf("msgID[%s] delete role's dept error, %s", msgID, err.Error())
 		return
 	}
 	err = tx.Where("role_id = ?", roleId).
-		Delete(&system.RoleMenu{}).Error
+		Delete(&models.RoleMenu{}).Error
 	if err != nil {
 		log.Errorf("msgID[%s] delete role's menu error, %s", msgID, err.Error())
 		return
 	}
-	var role system.SysRole
+	var role models.SysRole
 	err = tx.Where("role_id = ?", roleId).
 		First(&role).Error
 	if err != nil {
@@ -92,7 +91,7 @@ func (e *SysRoleMenu) DeleteRoleMenu(tx *gorm.DB, roleId int) (err error) {
 		return
 	}
 	err = tx.Where("v0 = ?", role.RoleKey).
-		Delete(&system.CasbinRule{}).Error
+		Delete(&models.CasbinRule{}).Error
 	if err != nil {
 		log.Errorf("msgID[%s] delete casbin rule error, %s", msgID, err.Error())
 		return
@@ -100,8 +99,8 @@ func (e *SysRoleMenu) DeleteRoleMenu(tx *gorm.DB, roleId int) (err error) {
 	return
 }
 
-func (e *SysRoleMenu) GetIDS(tx *gorm.DB, roleName string) ([]system.MenuPath, error) {
-	var r []system.MenuPath
+func (e *SysRoleMenu) GetIDS(tx *gorm.DB, roleName string) ([]models.MenuPath, error) {
+	var r []models.MenuPath
 	table := tx.Select("sys_menu.path").Table("sys_role_menu")
 	table = table.Joins("left join sys_role on sys_role.role_id=sys_role_menu.role_id")
 	table = table.Joins("left join sys_menu on sys_menu.id=sys_role_menu.menu_id")

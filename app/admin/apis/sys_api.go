@@ -88,7 +88,7 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 	control := new(dto.SysApiById)
 
 	//查看详情
-	err = control.Bind(c)
+	err = e.Bind(control)
 	if err != nil {
 		log.Warnf("request body bind error, %s", err.Error())
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
@@ -111,56 +111,6 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 
 	e.OK(object, "查看成功")
 }
-
-// InsertSysApi 创建接口管理
-// @Summary 创建接口管理
-// @Description 创建接口管理
-// @Tags 接口管理
-// @Accept application/json
-// @Product application/json
-// @Param data body dto.SysApiControl true "data"
-// @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
-// @Router /api/v1/sys_api [post]
-// @Security Bearer
-//func (e SysApi) InsertSysApi(c *gin.Context) {
-//	e.MakeContext(c)
-//	log := e.GetLogger()
-//	db, err := e.GetOrm()
-//	if err != nil {
-//		log.Error(err)
-//		return
-//	}
-//
-//	control := new(dto.SysApiControl)
-//
-//	//新增操作
-//	err = control.Bind(c)
-//	if err != nil {
-//		log.Warnf("request body bind error, %s", err.Error())
-//		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-//		return
-//	}
-//	object, err := control.GenerateM()
-//	if err != nil {
-//		log.Errorf("generate SysApi model error, %s", err.Error())
-//		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-//		return
-//	}
-//	// 设置创建人
-//	object.SetCreateBy(user.GetUserId(c))
-//
-//	serviceSysApi := service.SysApi{}
-//	serviceSysApi.Orm = db
-//	serviceSysApi.Log = log
-//	err = serviceSysApi.InsertSysApi(object.(*models.SysApi))
-//	if err != nil {
-//		log.Errorf("Insert SysApi error, %s", err.Error())
-//		e.Error(http.StatusInternalServerError, err, "创建失败")
-//		return
-//	}
-//
-//	e.OK(object.GetId(), "创建成功")
-//}
 
 // UpdateSysApi 修改接口管理
 // @Summary 修改接口管理

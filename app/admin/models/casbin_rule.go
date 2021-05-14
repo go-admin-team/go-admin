@@ -1,4 +1,4 @@
-package system
+package models
 
 //sys_casbin_rule
 type CasbinRule struct {

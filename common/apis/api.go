@@ -27,7 +27,6 @@ func (e *Api) MakeContext(c *gin.Context) {
 
 // GetLogger 获取上下文提供的日志
 func (e Api) GetLogger() *logger.Logger {
-
 	return api.GetRequestLogger(e.Context)
 }
 

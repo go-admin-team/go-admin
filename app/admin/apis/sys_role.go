@@ -1,13 +1,13 @@
 package apis
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -46,7 +46,7 @@ func (e SysRole) GetSysRoleList(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysRole, 0)
+	list := make([]models.SysRole, 0)
 	var count int64
 	s := service.SysRole{}
 	s.Log = log
@@ -84,7 +84,7 @@ func (e SysRole) GetSysRole(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object system.SysRole
+	var object models.SysRole
 
 	s := service.SysRole{}
 	s.Log = log
@@ -261,7 +261,7 @@ func (e SysRole) UpdateRoleDataScope(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	data := &system.SysRole{
+	data := &models.SysRole{
 		RoleId:    control.RoleId,
 		DataScope: control.DataScope,
 		DeptIds:   control.DeptIds,

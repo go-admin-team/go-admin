@@ -1,12 +1,12 @@
 package dto
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -72,7 +72,7 @@ func (s *SysDictDataControl) Generate() dto.Control {
 }
 
 func (s *SysDictDataControl) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysDictData{
+	return &models.SysDictData{
 		DictCode:  s.Id,
 		DictSort:  s.DictSort,
 		DictLabel: s.DictLabel,
@@ -122,5 +122,5 @@ func (s *SysDictDataById) Generate() dto.Control {
 }
 
 func (s *SysDictDataById) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysDictData{}, nil
+	return &models.SysDictData{}, nil
 }

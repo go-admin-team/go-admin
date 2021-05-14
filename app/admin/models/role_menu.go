@@ -1,8 +1,7 @@
-package system
+package models
 
 import (
 	"fmt"
-
 	"github.com/casbin/casbin/v2"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"

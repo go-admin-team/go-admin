@@ -2,12 +2,12 @@ package service
 
 import (
 	"errors"
+	"go-admin/app/admin/models"
 
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 	common "go-admin/common/models"
@@ -19,9 +19,9 @@ type SysUser struct {
 }
 
 // GetSysUserPage 获取SysUser列表
-func (e *SysUser) GetSysUserPage(c cDto.Index, p *actions.DataPermission, list *[]system.SysUser, count *int64) error {
+func (e *SysUser) GetSysUserPage(c cDto.Index, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
 	var err error
-	var data system.SysUser
+	var data models.SysUser
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -40,8 +40,8 @@ func (e *SysUser) GetSysUserPage(c cDto.Index, p *actions.DataPermission, list *
 }
 
 // GetSysUser 获取SysUser对象
-func (e *SysUser) GetSysUser(d cDto.Control, p *actions.DataPermission, model *system.SysUser) error {
-	var data system.SysUser
+func (e *SysUser) GetSysUser(d cDto.Control, p *actions.DataPermission, model *models.SysUser) error {
+	var data models.SysUser
 
 	err := e.Orm.Model(&data).
 		Scopes(
@@ -63,7 +63,7 @@ func (e *SysUser) GetSysUser(d cDto.Control, p *actions.DataPermission, model *s
 // InsertSysUser 创建SysUser对象
 func (e *SysUser) InsertSysUser(model common.ActiveRecord) error {
 	var err error
-	var data system.SysUser
+	var data models.SysUser
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
@@ -96,7 +96,7 @@ func (e *SysUser) UpdateSysUser(c common.ActiveRecord, p *actions.DataPermission
 // RemoveSysUser 删除SysUser
 func (e *SysUser) RemoveSysUser(d cDto.Control, c common.ActiveRecord, p *actions.DataPermission) error {
 	var err error
-	var data system.SysUser
+	var data models.SysUser
 
 	db := e.Orm.Model(&data).
 		Scopes(
@@ -119,7 +119,7 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 	if newPassword == "" {
 		return nil
 	}
-	c := &system.SysUser{}
+	c := &models.SysUser{}
 
 	err = e.Orm.Model(c).
 		Scopes(
@@ -157,7 +157,7 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 	return nil
 }
 
-func (e *SysUser) GetSysUserProfile(id int, user *system.SysUser, roles *[]system.SysRole, posts *[]system.SysPost) error {
+func (e *SysUser) GetSysUserProfile(id int, user *models.SysUser, roles *[]models.SysRole, posts *[]models.SysPost) error {
 	err := e.Orm.Preload("Dept").First(user, "user_id = ?", id).Error
 	if err != nil {
 		return err

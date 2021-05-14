@@ -2,12 +2,12 @@ package dto
 
 import (
 	"encoding/json"
+	"go-admin/app/admin/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -68,8 +68,8 @@ func (s *SysConfigControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysConfigControl) Generate() (*system.SysConfig, error) {
-	return &system.SysConfig{
+func (s *SysConfigControl) Generate() (*models.SysConfig, error) {
+	return &models.SysConfig{
 		Model:       common.Model{Id: s.ID},
 		ConfigName:  s.ConfigName,
 		ConfigKey:   s.ConfigKey,
@@ -114,6 +114,6 @@ func (s *SysConfigById) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysConfigById) GenerateM() (*system.SysConfig, error) {
-	return &system.SysConfig{}, nil
+func (s *SysConfigById) GenerateM() (*models.SysConfig, error) {
+	return &models.SysConfig{}, nil
 }

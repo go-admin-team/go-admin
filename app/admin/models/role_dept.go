@@ -1,4 +1,4 @@
-package system
+package models
 
 //sys_role_dept
 type SysRoleDept struct {

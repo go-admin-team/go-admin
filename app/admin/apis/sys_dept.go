@@ -2,13 +2,13 @@ package apis
 
 import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -44,7 +44,7 @@ func (e SysDept) GetSysDeptList(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysDept, 0)
+	list := make([]models.SysDept, 0)
 	serviceStudent := service.SysDept{}
 	serviceStudent.Log = log
 	serviceStudent.Orm = db
@@ -81,7 +81,7 @@ func (e SysDept) GetSysDept(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object system.SysDept
+	var object models.SysDept
 
 	serviceSysOperlog := service.SysDept{}
 	serviceSysOperlog.Log = log

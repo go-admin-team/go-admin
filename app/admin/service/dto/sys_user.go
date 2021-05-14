@@ -3,8 +3,8 @@ package dto
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"go-admin/app/admin/models"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -77,7 +77,7 @@ func (s *SysUserControl) Generate() dto.Control {
 }
 
 func (s *SysUserControl) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysUser{
+	return &models.SysUser{
 		UserId:   s.UserId,
 		Username: s.Username,
 		Password: s.Password,
@@ -108,7 +108,7 @@ func (s *SysUserById) Generate() dto.Control {
 }
 
 func (s *SysUserById) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysUser{}, nil
+	return &models.SysUser{}, nil
 }
 
 // PassWord 密码

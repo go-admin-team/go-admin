@@ -1,12 +1,12 @@
 package dto
 
 import (
+	"go-admin/app/admin/models"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -60,8 +60,8 @@ func (s *SysLoginLogControl) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysLoginLogControl) Generate() (*system.SysLoginLog, error) {
-	return &system.SysLoginLog{
+func (s *SysLoginLogControl) Generate() (*models.SysLoginLog, error) {
+	return &models.SysLoginLog{
 		Model:         common.Model{Id: s.ID},
 		Username:      s.Username,
 		Status:        s.Status,
@@ -108,6 +108,6 @@ func (s *SysLoginLogById) Generate() *SysLoginLogById {
 	return &cp
 }
 
-func (s *SysLoginLogById) GenerateM() (*system.SysLoginLog, error) {
-	return &system.SysLoginLog{}, nil
+func (s *SysLoginLogById) GenerateM() (*models.SysLoginLog, error) {
+	return &models.SysLoginLog{}, nil
 }

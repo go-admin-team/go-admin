@@ -2,12 +2,12 @@ package apis
 
 import (
 	"github.com/gin-gonic/gin/binding"
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -35,7 +35,7 @@ func (e SysConfig) GetSysConfigList(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysConfig, 0)
+	list := make([]models.SysConfig, 0)
 	var count int64
 	s := service.SysConfig{}
 	s.Log = log
@@ -69,7 +69,7 @@ func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 	// 控制只读前台的数据
 	d.IsFrontend = 1
 
-	list := make([]system.SysConfig, 0)
+	list := make([]models.SysConfig, 0)
 	s := service.SysConfig{}
 	s.Log = log
 	s.Orm = db
@@ -107,7 +107,7 @@ func (e SysConfig) GetSysConfig(c *gin.Context) {
 		e.Error(500, err, "Orm获取失败")
 		return
 	}
-	var object system.SysConfig
+	var object models.SysConfig
 
 	serviceSysLoginLog := service.SysConfig{}
 	serviceSysLoginLog.Log = log

@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
@@ -15,10 +15,10 @@ type SysMenu struct {
 }
 
 // GetSysMenuPage 获取SysMenu列表
-func (e *SysMenu) GetSysMenuPage(c *dto.SysMenuSearch) (*[]system.SysMenu, error) {
-	var m = make([]system.SysMenu, 0)
+func (e *SysMenu) GetSysMenuPage(c *dto.SysMenuSearch) (*[]models.SysMenu, error) {
+	var m = make([]models.SysMenu, 0)
 	var err error
-	var menu = make([]system.SysMenu, 0)
+	var menu = make([]models.SysMenu, 0)
 	err = e.getSysMenuPage(c, &menu)
 	for i := 0; i < len(menu); i++ {
 		if menu[i].ParentId != 0 {
@@ -32,11 +32,11 @@ func (e *SysMenu) GetSysMenuPage(c *dto.SysMenuSearch) (*[]system.SysMenu, error
 }
 
 // getSysMenuPage 菜单列表
-func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]system.SysMenu) error {
+func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
 	var err error
-	var data system.SysMenu
+	var data models.SysMenu
 
-	err = e.Orm.Model(&data).
+	err = e.Orm.Model(&data).Preload("SysApi").
 		Scopes(
 			cDto.OrderDest("sort", false),
 			cDto.MakeCondition(c.GetNeedSearch()),
@@ -50,11 +50,11 @@ func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]system.SysMenu) e
 }
 
 // GetSysMenu 获取SysMenu对象
-func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *system.SysMenu) error {
+func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) error {
 	var err error
-	var data system.SysMenu
+	var data models.SysMenu
 
-	db := e.Orm.Model(&data).
+	db := e.Orm.Model(&data).Preload("SysApi").
 		First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
@@ -66,13 +66,16 @@ func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *system.SysMenu) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
+	for _, v := range model.SysApi {
+		model.Apis = append(model.Apis, v.Id)
+	}
 	return nil
 }
 
 // InsertSysMenu 创建SysMenu对象
-func (e *SysMenu) InsertSysMenu(model *system.SysMenu) error {
+func (e *SysMenu) InsertSysMenu(model *models.SysMenu) error {
 	var err error
-	var data system.SysMenu
+	var data models.SysMenu
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
@@ -83,10 +86,10 @@ func (e *SysMenu) InsertSysMenu(model *system.SysMenu) error {
 	return nil
 }
 
-func (e *SysMenu) initPaths(menu *system.SysMenu) error {
+func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 	var err error
-	var data system.SysMenu
-	parentMenu := new(system.SysMenu)
+	var data models.SysMenu
+	parentMenu := new(models.SysMenu)
 	if menu.ParentId != 0 {
 		e.Orm.Model(&data).First(parentMenu, menu.ParentId)
 		if parentMenu.Paths == "" {
@@ -102,12 +105,10 @@ func (e *SysMenu) initPaths(menu *system.SysMenu) error {
 }
 
 // UpdateSysMenu 修改SysMenu对象
-func (e *SysMenu) UpdateSysMenu(c *system.SysMenu) error {
+func (e *SysMenu) UpdateSysMenu(c *models.SysMenu) error {
 	var err error
-	var data system.SysMenu
 
-	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+	db := e.Orm.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -117,15 +118,15 @@ func (e *SysMenu) UpdateSysMenu(c *system.SysMenu) error {
 
 	}
 	return nil
-}
+}          
 
 // RemoveSysMenu 删除SysMenu
 func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) error {
 	var err error
-	var data system.SysMenu
+	var data models.SysMenu
 
 	db := e.Orm.Model(&data).
-		Where(d.GetId()).Delete(&data)
+		Where(d.Ids).Delete(&data)
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
@@ -139,9 +140,9 @@ func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) error {
 }
 
 // GetSysMenuList 获取菜单数据
-func (e *SysMenu) GetSysMenuList(c *dto.SysMenuSearch, list *[]system.SysMenu) error {
+func (e *SysMenu) GetSysMenuList(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
 	var err error
-	var data system.SysMenu
+	var data models.SysMenu
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -157,7 +158,7 @@ func (e *SysMenu) GetSysMenuList(c *dto.SysMenuSearch, list *[]system.SysMenu) e
 
 // SetSysMenuTree 设置菜单数据
 func (e *SysMenu) SetSysMenuLabel() (m []dto.MenuLabel, err error) {
-	var list []system.SysMenu
+	var list []models.SysMenu
 	err = e.GetSysMenuList(&dto.SysMenuSearch{}, &list)
 
 	m = make([]dto.MenuLabel, 0)
@@ -176,9 +177,9 @@ func (e *SysMenu) SetSysMenuLabel() (m []dto.MenuLabel, err error) {
 }
 
 // 左侧菜单
-func (e *SysMenu) GetSysMenuByRoleName(roleName string) (Menus []system.SysMenu, err error) {
+func (e *SysMenu) GetSysMenuByRoleName(roleName string) (Menus []models.SysMenu, err error) {
 	var table *gorm.DB
-	var data system.SysMenu
+	var data models.SysMenu
 
 	if roleName == "admin" {
 		table = e.Orm.Model(&data).Select("sys_menu.*")
@@ -198,7 +199,7 @@ func (e *SysMenu) GetSysMenuByRoleName(roleName string) (Menus []system.SysMenu,
 }
 
 // menuLabelCall 递归构造组织数据
-func menuLabelCall(elist *[]system.SysMenu, dept dto.MenuLabel) dto.MenuLabel {
+func menuLabelCall(elist *[]models.SysMenu, dept dto.MenuLabel) dto.MenuLabel {
 	list := *elist
 
 	min := make([]dto.MenuLabel, 0)
@@ -226,16 +227,16 @@ func menuLabelCall(elist *[]system.SysMenu, dept dto.MenuLabel) dto.MenuLabel {
 	return dept
 }
 
-func menuCall(menulist *[]system.SysMenu, menu system.SysMenu) system.SysMenu {
+func menuCall(menulist *[]models.SysMenu, menu models.SysMenu) models.SysMenu {
 	list := *menulist
 
-	min := make([]system.SysMenu, 0)
+	min := make([]models.SysMenu, 0)
 	for j := 0; j < len(list); j++ {
 
 		if menu.MenuId != list[j].ParentId {
 			continue
 		}
-		mi := system.SysMenu{}
+		mi := models.SysMenu{}
 		mi.MenuId = list[j].MenuId
 		mi.MenuName = list[j].MenuName
 		mi.Title = list[j].Title
@@ -251,7 +252,7 @@ func menuCall(menulist *[]system.SysMenu, menu system.SysMenu) system.SysMenu {
 		mi.Sort = list[j].Sort
 		mi.Visible = list[j].Visible
 		mi.CreatedAt = list[j].CreatedAt
-		mi.Children = []system.SysMenu{}
+		mi.Children = []models.SysMenu{}
 
 		if mi.MenuType != "F" {
 			ms := menuCall(menulist, mi)
@@ -266,11 +267,11 @@ func menuCall(menulist *[]system.SysMenu, menu system.SysMenu) system.SysMenu {
 	return menu
 }
 
-func (e *SysMenu) SetMenuRole(roleName string) (m []system.SysMenu, err error) {
+func (e *SysMenu) SetMenuRole(roleName string) (m []models.SysMenu, err error) {
 
 	menus, err := e.getByRoleName(roleName)
 
-	m = make([]system.SysMenu, 0)
+	m = make([]models.SysMenu, 0)
 	for i := 0; i < len(menus); i++ {
 		if menus[i].ParentId != 0 {
 			continue
@@ -282,8 +283,8 @@ func (e *SysMenu) SetMenuRole(roleName string) (m []system.SysMenu, err error) {
 	return
 }
 
-func (e *SysMenu) getByRoleName(roleName string) (Menus []system.SysMenu, err error) {
-	var data system.SysMenu
+func (e *SysMenu) getByRoleName(roleName string) (Menus []models.SysMenu, err error) {
+	var data models.SysMenu
 
 	var table *gorm.DB
 	if roleName == "admin" {

@@ -1,12 +1,12 @@
 package apis
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -33,7 +33,7 @@ func (e SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 		return
 	}
 
-	list := make([]system.SysLoginLog, 0)
+	list := make([]models.SysLoginLog, 0)
 	var count int64
 	serviceStudent := service.SysLoginLog{}
 	serviceStudent.Log = log
@@ -63,7 +63,7 @@ func (e SysLoginLog) GetSysLoginLog(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object system.SysLoginLog
+	var object models.SysLoginLog
 
 	serviceSysLoginLog := service.SysLoginLog{}
 	serviceSysLoginLog.Log = log

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
 	router2 "go-admin/app/other/router"
 	"log"
@@ -21,7 +22,6 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/spf13/cobra"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
 	"go-admin/common/database"
@@ -103,8 +103,8 @@ func setup() {
 	log.Println(usageStr)
 	//注册监听函数
 	queue := sdk.Runtime.GetMemoryQueue("")
-	queue.Register(global.LoginLog, system.SaveLoginLog)
-	queue.Register(global.OperateLog, system.SaveOperaLog)
+	queue.Register(global.LoginLog, models.SaveLoginLog)
+	queue.Register(global.OperateLog, models.SaveOperaLog)
 	go queue.Run()
 }
 

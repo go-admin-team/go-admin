@@ -1,12 +1,12 @@
 package apis
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/apis"
@@ -41,7 +41,7 @@ func (e SysMenu) GetSysMenuList(c *gin.Context) {
 		return
 	}
 
-	var list *[]system.SysMenu
+	var list *[]models.SysMenu
 	serviceSysMenu := service.SysMenu{}
 	serviceSysMenu.Log = log
 	serviceSysMenu.Orm = db
@@ -54,6 +54,7 @@ func (e SysMenu) GetSysMenuList(c *gin.Context) {
 	e.OK(list, "查询成功")
 }
 
+// GetSysMenu 获取菜单详情
 // @Summary Menu详情数据
 // @Description 获取JSON
 // @Tags 菜单
@@ -80,7 +81,7 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object system.SysMenu
+	var object models.SysMenu
 
 	serviceSysMenu := service.SysMenu{}
 	serviceSysMenu.Log = log
@@ -94,6 +95,8 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
+
+// InsertSysMenu 创建菜单
 // @Summary 创建菜单
 // @Description 获取JSON
 // @Tags 菜单
@@ -148,6 +151,7 @@ func (e SysMenu) InsertSysMenu(c *gin.Context) {
 	e.OK(object.GetId(), "创建成功")
 }
 
+// UpdateSysMenu 修改菜单
 // @Summary 修改菜单
 // @Description 获取JSON
 // @Tags 菜单
@@ -280,7 +284,7 @@ func (e SysMenu) GetMenuIDS(c *gin.Context) {
 		log.Error(err)
 		return
 	}
-	var data system.RoleMenu
+	var data models.RoleMenu
 	data.RoleName = c.GetString("role")
 	data.UpdateBy = user.GetUserId(c)
 	result, err := data.GetIDS(db)

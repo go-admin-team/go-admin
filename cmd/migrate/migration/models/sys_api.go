@@ -1,10 +1,6 @@
 package models
 
-import (
-	// "gorm.io/gorm"
-
-	"go-admin/common/models"
-)
+import "go-admin/common/models"
 
 type SysApi struct {
 	Id         int    `json:"id" gorm:"primaryKey;autoIncrement;comment:主键编码"`
