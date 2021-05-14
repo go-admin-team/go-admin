@@ -23,7 +23,7 @@ func (e *SysApi) GetSysApiPage(c *dto.SysApiSearch, p *actions.DataPermission, l
 	var err error
 	var data models.SysApi
 
-	err = e.Orm.Model(&data).
+	err = e.Orm.Debug().Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),

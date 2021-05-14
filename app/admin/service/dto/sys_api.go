@@ -17,6 +17,11 @@ type SysApiSearch struct {
 	Path           string `form:"path"  search:"type:exact;column:path;table:sys_api" comment:"地址"`
 	Action         string `form:"action"  search:"type:exact;column:action;table:sys_api" comment:"类型"`
 	ParentId       string `form:"parentId"  search:"type:exact;column:parent_id;table:sys_api" comment:"按钮id"`
+	SysApiOrder
+}
+
+type SysApiOrder struct {
+	HandleOrder string `search:"type:order;column:handle;table:sys_api" form:"handle_order"`
 }
 
 func (m *SysApiSearch) GetNeedSearch() interface{} {
