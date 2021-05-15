@@ -6,7 +6,7 @@
                 <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
                     {{range .Columns}}
                         {{- $x := .IsQuery -}}
-                        {{- if ($x) -}}
+                        {{- if (eq $x "1") -}}
                             <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
                                 {{- if ne .FkTableName "" -}}
                                 <el-select v-model="form.{{.JsonField}}"
@@ -287,7 +287,7 @@
                 rules: {
                 {{- range .Columns -}}
                 {{- $x := .IsQuery -}}
-                {{- if ($x) -}}
+                {{- if (eq $x "1") -}}
                 {{.JsonField}}:
                 [
                     {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'}
@@ -334,7 +334,7 @@
                 this.form = {
                 {{ range .Columns}}
                 {{- $x := .IsInsert -}}
-                {{- if ($x) -}}
+                {{- if (eq $x "1") -}}
                 {{- if eq .GoField "CreatedAt" -}}
                 {{- else if eq .GoField "UpdatedAt" -}}
                 {{- else if eq .GoField "DeletedAt" -}}
