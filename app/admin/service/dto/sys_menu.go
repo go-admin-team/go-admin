@@ -92,7 +92,9 @@ func (s *SysMenuControl) Bind(ctx *gin.Context) error {
 
 // Generate 结构体数据转化 从 Control 至 model 对应的模型
 func (s *SysMenuControl) Generate(model *models.SysMenu) {
-	model.MenuId = s.MenuId
+	if s.MenuId != 0 {
+		model.MenuId = s.MenuId
+	}
 	model.MenuName = s.MenuName
 	model.Title = s.Title
 	model.Icon = s.Icon

@@ -21,20 +21,20 @@ type Api struct {
 	Errors  error
 }
 
-func (e *Api) AddError(err error) error {
+func (e *Api) AddError(err error)  {
 	if e.Errors == nil {
 		e.Errors = err
 	} else if err != nil {
 		e.Logger.Error(err)
 		e.Errors = fmt.Errorf("%v; %w", e.Error, err)
 	}
-	return e.Errors
 }
 
 // MakeContext 设置http上下文
 func (e *Api) MakeContext(c *gin.Context) *Api {
 	fmt.Println(&c)
 	e.Context = c
+	e.Logger = api.GetRequestLogger(c)
 	fmt.Println(&e.Context)
 	return e
 }
@@ -91,25 +91,19 @@ func (e Api) GetOrm() (*gorm.DB, error) {
 	return db, nil
 }
 
-// MakeLogger 设置上下文提供的日志
-func (e *Api) MakeLogger() *Api {
-	e.Logger = api.GetRequestLogger(e.Context)
-	return e
-}
-
 // MakeOrm 设置Orm DB
 func (e *Api) MakeOrm() *Api {
 	var err error
 	if e.Logger == nil {
 		err = errors.New("at MakeOrm logger is nil")
 		//e.Logger.Error(http.StatusInternalServerError, err, "at MakeOrm logger is nil")
-		_ = e.AddError(err)
+		e.AddError(err)
 		return e
 	}
 	db, err := pkg.GetOrm(e.Context)
 	if err != nil {
 		e.Logger.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
-		_ = e.AddError(err)
+		e.AddError(err)
 	}
 	e.Orm = db
 	return e

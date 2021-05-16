@@ -81,9 +81,11 @@ func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
+	apis := make([]int, 0)
 	for _, v := range model.SysApi {
-		model.Apis = append(model.Apis, v.Id)
+		apis = append(model.Apis, v.Id)
 	}
+	model.Apis = apis
 	return nil
 }
 
@@ -121,7 +123,7 @@ func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 // UpdateSysMenu 修改SysMenu对象
 func (e *SysMenu) UpdateSysMenu(c *dto.SysMenuControl) *SysMenu {
 	var err error
-	model := models.SysMenu{}
+	var model = models.SysMenu{}
 	e.Orm.First(&model, c.GetId())
 	c.Generate(&model)
 	db := e.Orm.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
@@ -131,7 +133,7 @@ func (e *SysMenu) UpdateSysMenu(c *dto.SysMenuControl) *SysMenu {
 		return e
 	}
 	if db.RowsAffected == 0 {
-		e.AddError(errors.New("无权更新该数据"))
+		_ = e.AddError(errors.New("无权更新该数据"))
 		return e
 	}
 	return e

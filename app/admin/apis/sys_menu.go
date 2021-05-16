@@ -114,7 +114,6 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 func (e SysMenu) InsertSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
 	err := e.MakeContext(c).
-		MakeLogger().
 		MakeOrm().
 		Errors
 	if err != nil {
@@ -158,7 +157,6 @@ func (e SysMenu) InsertSysMenu(c *gin.Context) {
 func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
 	err := e.MakeContext(c).
-		MakeLogger().
 		MakeOrm().
 		Errors
 	if err != nil {
