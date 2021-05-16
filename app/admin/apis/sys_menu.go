@@ -95,7 +95,6 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-
 // InsertSysMenu 创建菜单
 // @Summary 创建菜单
 // @Description 获取JSON
@@ -114,41 +113,34 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 // @Security Bearer
 func (e SysMenu) InsertSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
-
-	e.Context = c
-	log := e.GetLogger()
-
-	db, err := e.GetOrm()
+	err := e.MakeContext(c).
+		MakeLogger().
+		MakeOrm().
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
-	//新增操作
-	err = control.Bind(c)
+	// 绑定数据
+	err = e.Bind(control)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
+
 	// 设置创建人
-	object.SetCreateBy(user.GetUserId(c))
+	control.SetCreateBy(user.GetUserId(c))
 
 	serviceSysMenu := service.SysMenu{}
-	serviceSysMenu.Orm = db
-	serviceSysMenu.Log = log
-	err = serviceSysMenu.InsertSysMenu(object)
+	err = serviceSysMenu.MakeLog(e.Logger).MakeOrm(e.Orm).InsertSysMenu(control).Error
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
-
-	e.OK(object.GetId(), "创建成功")
+	e.OK(control.GetId(), "创建成功")
 }
 
 // UpdateSysMenu 修改菜单
@@ -165,40 +157,37 @@ func (e SysMenu) InsertSysMenu(c *gin.Context) {
 // @Security Bearer
 func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
-
-	e.Context = c
-	log := e.GetLogger()
-
-	db, err := e.GetOrm()
+	err := e.MakeContext(c).
+		MakeLogger().
+		MakeOrm().
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
 
-	//更新操作
-	err = control.Bind(c)
+	// 绑定数据
+	err = e.Bind(control)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.SetUpdateBy(user.GetUserId(c))
+	control.SetUpdateBy(user.GetUserId(c))
 
 	serviceSysMenu := service.SysMenu{}
-	serviceSysMenu.Orm = db
-	serviceSysMenu.Log = log
-	err = serviceSysMenu.UpdateSysMenu(object)
+	err = serviceSysMenu.
+		MakeOrm(e.Orm).
+		MakeLog(e.Logger).
+		UpdateSysMenu(control).Error
+
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
-	e.OK(object.GetId(), "更新成功")
+	e.OK(control.GetId(), "更新成功")
 }
 
+// DeleteSysMenu 删除菜单
 // @Summary 删除菜单
 // @Description 删除数据
 // @Tags 菜单
@@ -238,6 +227,7 @@ func (e SysMenu) DeleteSysMenu(c *gin.Context) {
 	e.OK(control.GetId(), "删除成功")
 }
 
+// GetMenuRole 根据角色名称获取菜单列表数据（左菜单使用）
 // @Summary 根据角色名称获取菜单列表数据（左菜单使用）
 // @Description 获取JSON
 // @Tags 菜单
@@ -268,6 +258,7 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 	e.OK(result, "")
 }
 
+// GetMenuIDS 获取角色对应的菜单id数组
 // @Summary 获取角色对应的菜单id数组
 // @Description 获取JSON
 // @Tags 菜单
@@ -296,33 +287,7 @@ func (e SysMenu) GetMenuIDS(c *gin.Context) {
 	e.OK(result, "")
 }
 
-//// GetMenuTreeRoleselect 角色修改中的菜单列表
-//func (e SysMenu) GetMenuTreeRoleselect(c *gin.Context) {
-//	var Menu models.Menu
-//	var SysRole models.SysRole
-//
-//	id, err := tools.StringToInt(c.Param("roleId"))
-//	SysRole.RoleId = id
-//	//var r *models.SysRole
-//	r, err := SysRole.Get()
-//
-//	var result *[]models.MenuLable
-//	menuIds := make([]int, 0)
-//	if r.RoleKey != "admin" {
-//		result, err = Menu.SetMenuLabel()
-//		tools.HasError(err, "抱歉未找到相关信息", -1)
-//		if id != 0 {
-//			menuIds, err = SysRole.GetRoleMeunId()
-//			tools.HasError(err, "抱歉未找到相关信息", -1)
-//		}
-//	}
-//	app.Custum(c, gin.H{
-//		"code":        200,
-//		"menus":       result,
-//		"checkedKeys": menuIds,
-//	})
-//}
-
+// GetMenuTreeSelect 获取菜单树
 // @Summary 获取菜单树
 // @Description 获取JSON
 // @Tags 菜单

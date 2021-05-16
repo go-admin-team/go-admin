@@ -2,16 +2,31 @@ package service
 
 import (
 	"errors"
+
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
-	"gorm.io/gorm"
 )
 
 type SysMenu struct {
 	service.Service
+}
+
+// MakeOrm 设置ORM
+func (e *SysMenu) MakeOrm(orm *gorm.DB) *SysMenu {
+	e.Orm = orm
+	return e
+}
+
+// MakeLog 设置Log
+func (e *SysMenu) MakeLog(l *logger.Logger) *SysMenu {
+	e.Log = l
+	return e
 }
 
 // GetSysMenuPage 获取SysMenu列表
@@ -73,17 +88,16 @@ func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) error {
 }
 
 // InsertSysMenu 创建SysMenu对象
-func (e *SysMenu) InsertSysMenu(model *models.SysMenu) error {
+func (e *SysMenu) InsertSysMenu(c *dto.SysMenuControl) *SysMenu {
 	var err error
 	var data models.SysMenu
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	c.Generate(&data)
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
-		return err
+		_ = e.AddError(err)
 	}
-	return nil
+	return e
 }
 
 func (e *SysMenu) initPaths(menu *models.SysMenu) error {
@@ -105,20 +119,23 @@ func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 }
 
 // UpdateSysMenu 修改SysMenu对象
-func (e *SysMenu) UpdateSysMenu(c *models.SysMenu) error {
+func (e *SysMenu) UpdateSysMenu(c *dto.SysMenuControl) *SysMenu {
 	var err error
-
-	db := e.Orm.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(c)
+	model := models.SysMenu{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
+	db := e.Orm.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
-		return err
+		_ = e.AddError(err)
+		return e
 	}
 	if db.RowsAffected == 0 {
-		return errors.New("无权更新该数据")
-
+		e.AddError(errors.New("无权更新该数据"))
+		return e
 	}
-	return nil
-}          
+	return e
+}
 
 // RemoveSysMenu 删除SysMenu
 func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) error {

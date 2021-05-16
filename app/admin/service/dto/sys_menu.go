@@ -2,11 +2,11 @@ package dto
 
 import (
 	"encoding/json"
-	"go-admin/app/admin/models"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"go-admin/app/admin/models"
+	common "go-admin/common/models"
 
 	"go-admin/common/dto"
 )
@@ -58,6 +58,15 @@ type SysMenuControl struct {
 	Sort       int             `form:"sort" comment:"排序"`          //排序
 	Visible    string          `form:"visible" comment:"是否显示"`     //是否显示
 	IsFrame    string          `form:"isFrame" comment:"是否frame"`  //是否frame
+	common.ControlBy
+}
+
+func (s *SysMenuControl) SetCreateBy(id int) {
+	s.CreateBy = id
+}
+
+func (s *SysMenuControl) SetUpdateBy(id int) {
+	s.UpdateBy = id
 }
 
 // Bind 映射上下文中的结构体数据
@@ -82,26 +91,30 @@ func (s *SysMenuControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 Control 至 model 对应的模型
-func (s *SysMenuControl) Generate() (*models.SysMenu, error) {
-	return &models.SysMenu{
-		MenuId:     s.MenuId,
-		MenuName:   s.MenuName,
-		Title:      s.Title,
-		Icon:       s.Icon,
-		Path:       s.Path,
-		Paths:      s.Paths,
-		MenuType:   s.MenuType,
-		Action:     s.Action,
-		SysApi:     s.SysApi,
-		Permission: s.Permission,
-		ParentId:   s.ParentId,
-		NoCache:    s.NoCache,
-		Breadcrumb: s.Breadcrumb,
-		Component:  s.Component,
-		Sort:       s.Sort,
-		Visible:    s.Visible,
-		IsFrame:    s.IsFrame,
-	}, nil
+func (s *SysMenuControl) Generate(model *models.SysMenu) {
+	model.MenuId = s.MenuId
+	model.MenuName = s.MenuName
+	model.Title = s.Title
+	model.Icon = s.Icon
+	model.Path = s.Path
+	model.Paths = s.Paths
+	model.MenuType = s.MenuType
+	model.Action = s.Action
+	model.SysApi = s.SysApi
+	model.Permission = s.Permission
+	model.ParentId = s.ParentId
+	model.NoCache = s.NoCache
+	model.Breadcrumb = s.Breadcrumb
+	model.Component = s.Component
+	model.Sort = s.Sort
+	model.Visible = s.Visible
+	model.IsFrame = s.IsFrame
+	if s.CreateBy != 0 {
+		model.CreateBy = s.CreateBy
+	}
+	if s.UpdateBy != 0 {
+		model.UpdateBy = s.UpdateBy
+	}
 }
 
 // GetId 获取数据对应的ID
