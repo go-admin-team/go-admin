@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
@@ -14,9 +14,9 @@ type SysConfig struct {
 }
 
 // GetSysConfigPage 获取SysConfig列表
-func (e *SysConfig) GetSysConfigPage(c *dto.SysConfigSearch, list *[]system.SysConfig, count *int64) error {
+func (e *SysConfig) GetSysConfigPage(c *dto.SysConfigSearch, list *[]models.SysConfig, count *int64) error {
 	var err error
-	var data system.SysConfig
+	var data models.SysConfig
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -32,9 +32,9 @@ func (e *SysConfig) GetSysConfigPage(c *dto.SysConfigSearch, list *[]system.SysC
 	return nil
 }
 
-func (e *SysConfig) GetSysConfigByKey(c *dto.SysConfigSearch, list *[]system.SysConfig) error {
+func (e *SysConfig) GetSysConfigByKey(c *dto.SysConfigSearch, list *[]models.SysConfig) error {
 	var err error
-	var data system.SysConfig
+	var data models.SysConfig
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -49,8 +49,8 @@ func (e *SysConfig) GetSysConfigByKey(c *dto.SysConfigSearch, list *[]system.Sys
 }
 
 // GetSysConfig 获取SysConfig对象
-func (e *SysConfig) GetSysConfig(d *dto.SysConfigById, model *system.SysConfig) error {
-	var data system.SysConfig
+func (e *SysConfig) GetSysConfig(d *dto.SysConfigById, model *models.SysConfig) error {
+	var data models.SysConfig
 
 	err := e.Orm.Model(&data).
 		First(model, d.GetId()).Error
@@ -67,9 +67,9 @@ func (e *SysConfig) GetSysConfig(d *dto.SysConfigById, model *system.SysConfig) 
 }
 
 // InsertSysConfig 创建SysConfig对象
-func (e *SysConfig) InsertSysConfig(model *system.SysConfig) error {
+func (e *SysConfig) InsertSysConfig(model *models.SysConfig) error {
 	var err error
-	var data system.SysConfig
+	var data models.SysConfig
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
@@ -81,7 +81,7 @@ func (e *SysConfig) InsertSysConfig(model *system.SysConfig) error {
 }
 
 // UpdateSysConfig 修改SysConfig对象
-func (e *SysConfig) UpdateSysConfig(c *system.SysConfig) error {
+func (e *SysConfig) UpdateSysConfig(c *models.SysConfig) error {
 	var err error
 
 	db := e.Orm.Model(c).
@@ -99,9 +99,9 @@ func (e *SysConfig) UpdateSysConfig(c *system.SysConfig) error {
 }
 
 // RemoveSysConfig 删除SysConfig
-func (e *SysConfig) RemoveSysConfig(d *dto.SysConfigById, c *system.SysConfig) error {
+func (e *SysConfig) RemoveSysConfig(d *dto.SysConfigById, c *models.SysConfig) error {
 	var err error
-	var data system.SysConfig
+	var data models.SysConfig
 
 	db := e.Orm.Model(&data).
 		Where(d.Ids).Delete(c)
@@ -120,7 +120,7 @@ func (e *SysConfig) RemoveSysConfig(d *dto.SysConfigById, c *system.SysConfig) e
 // GetSysConfigByKEY 根据Key获取SysConfig
 func (e *SysConfig) GetSysConfigByKEY(c *dto.SysConfigControl) error {
 	var err error
-	var data system.SysConfig
+	var data models.SysConfig
 	data.ConfigKey = c.ConfigKey
 	err = e.Orm.Table(data.TableName()).Where("config_key = ?", data.ConfigKey).First(c).Error
 	if err != nil {

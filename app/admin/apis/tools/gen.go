@@ -490,70 +490,70 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	Amenu.UpdatedAt = timeNow
 	Amenu.MenuId, err = Amenu.Create(db)
 
-	AList := models.SysApi{}
-	AList.Name = ""
-	AList.Title = "分页获取" + tab.TableComment
-	AList.Path = "/api/v1/" + tab.ModuleFrontName
-	AList.Action = "GET"
-	AList.ParentId = Amenu.MenuId
-	AList.Sort = 0
-	AList.CreateBy = 1
-	AList.UpdateBy = 1
-	AList.CreatedAt = timeNow
-	AList.UpdatedAt = timeNow
-	AList.Id, err = AList.Create(db)
-
-	AGet := models.SysApi{}
-	AList.Name = ""
-	AGet.Title = "根据id获取" + tab.TableComment
-	AGet.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
-	AGet.Action = "GET"
-	AGet.ParentId = Amenu.MenuId
-	AGet.Sort = 0
-	AGet.CreateBy = 1
-	AGet.UpdateBy = 1
-	AGet.CreatedAt = timeNow
-	AGet.UpdatedAt = timeNow
-	AGet.Id, err = AGet.Create(db)
-
-	ACreate := models.SysApi{}
-	AList.Name = ""
-	ACreate.Title = "创建" + tab.TableComment
-	ACreate.Path = "/api/v1/" + tab.ModuleFrontName
-	ACreate.Action = "POST"
-	ACreate.ParentId = Amenu.MenuId
-	ACreate.Sort = 0
-	ACreate.CreateBy = 1
-	ACreate.UpdateBy = 1
-	ACreate.CreatedAt = timeNow
-	ACreate.UpdatedAt = timeNow
-	ACreate.Id, err = ACreate.Create(db)
-
-	AUpdate := models.SysApi{}
-	AList.Name = ""
-	AUpdate.Title = "修改" + tab.TableComment
-	AUpdate.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
-	AUpdate.Action = "PUT"
-	AUpdate.ParentId = Amenu.MenuId
-	AUpdate.Sort = 0
-	AUpdate.CreateBy = 1
-	AUpdate.UpdateBy = 1
-	AUpdate.CreatedAt = timeNow
-	AUpdate.UpdatedAt = timeNow
-	AUpdate.Id, err = AUpdate.Create(db)
-
-	ADelete := models.SysApi{}
-	AList.Name = ""
-	ADelete.Title = "删除" + tab.TableComment
-	ADelete.Path = "/api/v1/" + tab.ModuleFrontName
-	ADelete.Action = "DELETE"
-	ADelete.ParentId = Amenu.MenuId
-	ADelete.Sort = 0
-	ADelete.CreateBy = 1
-	ADelete.UpdateBy = 1
-	ADelete.CreatedAt = timeNow
-	ADelete.UpdatedAt = timeNow
-	ADelete.Id, err = ADelete.Create(db)
+	//AList := models.SysApi{}
+	//AList.Name = ""
+	//AList.Title = "分页获取" + tab.TableComment
+	//AList.Path = "/api/v1/" + tab.ModuleFrontName
+	//AList.Action = "GET"
+	//AList.ParentId = Amenu.MenuId
+	//AList.Sort = 0
+	//AList.CreateBy = 1
+	//AList.UpdateBy = 1
+	//AList.CreatedAt = timeNow
+	//AList.UpdatedAt = timeNow
+	//AList.Id, err = AList.Create(db)
+	//
+	//AGet := models.SysApi{}
+	//AList.Name = ""
+	//AGet.Title = "根据id获取" + tab.TableComment
+	//AGet.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
+	//AGet.Action = "GET"
+	//AGet.ParentId = Amenu.MenuId
+	//AGet.Sort = 0
+	//AGet.CreateBy = 1
+	//AGet.UpdateBy = 1
+	//AGet.CreatedAt = timeNow
+	//AGet.UpdatedAt = timeNow
+	//AGet.Id, err = AGet.Create(db)
+	//
+	//ACreate := models.SysApi{}
+	//AList.Name = ""
+	//ACreate.Title = "创建" + tab.TableComment
+	//ACreate.Path = "/api/v1/" + tab.ModuleFrontName
+	//ACreate.Action = "POST"
+	//ACreate.ParentId = Amenu.MenuId
+	//ACreate.Sort = 0
+	//ACreate.CreateBy = 1
+	//ACreate.UpdateBy = 1
+	//ACreate.CreatedAt = timeNow
+	//ACreate.UpdatedAt = timeNow
+	//ACreate.Id, err = ACreate.Create(db)
+	//
+	//AUpdate := models.SysApi{}
+	//AList.Name = ""
+	//AUpdate.Title = "修改" + tab.TableComment
+	//AUpdate.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
+	//AUpdate.Action = "PUT"
+	//AUpdate.ParentId = Amenu.MenuId
+	//AUpdate.Sort = 0
+	//AUpdate.CreateBy = 1
+	//AUpdate.UpdateBy = 1
+	//AUpdate.CreatedAt = timeNow
+	//AUpdate.UpdatedAt = timeNow
+	//AUpdate.Id, err = AUpdate.Create(db)
+	//
+	//ADelete := models.SysApi{}
+	//AList.Name = ""
+	//ADelete.Title = "删除" + tab.TableComment
+	//ADelete.Path = "/api/v1/" + tab.ModuleFrontName
+	//ADelete.Action = "DELETE"
+	//ADelete.ParentId = Amenu.MenuId
+	//ADelete.Sort = 0
+	//ADelete.CreateBy = 1
+	//ADelete.UpdateBy = 1
+	//ADelete.CreatedAt = timeNow
+	//ADelete.UpdatedAt = timeNow
+	//ADelete.Id, err = ADelete.Create(db)
 
 	e.OK("", "数据生成成功！")
 }

@@ -1,12 +1,12 @@
 package dto
 
 import (
+	"go-admin/app/admin/models"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -70,8 +70,8 @@ func (s *SysOperaLogControl) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysOperaLogControl) Generate() (*system.SysOperaLog, error) {
-	return &system.SysOperaLog{
+func (s *SysOperaLogControl) Generate() (*models.SysOperaLog, error) {
+	return &models.SysOperaLog{
 		Model:         common.Model{Id: s.ID},
 		Title:         s.Title,
 		BusinessType:  s.BusinessType,

@@ -17,6 +17,11 @@ type SysApiSearch struct {
 	Path           string `form:"path"  search:"type:exact;column:path;table:sys_api" comment:"地址"`
 	Action         string `form:"action"  search:"type:exact;column:action;table:sys_api" comment:"类型"`
 	ParentId       string `form:"parentId"  search:"type:exact;column:parent_id;table:sys_api" comment:"按钮id"`
+	SysApiOrder
+}
+
+type SysApiOrder struct {
+	HandleOrder string `search:"type:order;column:handle;table:sys_api" form:"handle_order"`
 }
 
 func (m *SysApiSearch) GetNeedSearch() interface{} {
@@ -39,7 +44,7 @@ func (m *SysApiSearch) Bind(ctx *gin.Context) error {
 
 type SysApiControl struct {
 	Id       int    `uri:"id" comment:"编码"` // 编码
-	Name     string `json:"name" comment:"名称"`
+	Handle   string `json:"handle" comment:"handle"`
 	Title    string `json:"title" comment:"标题"`
 	Path     string `json:"path" comment:"地址"`
 	Paths    string `json:"paths" comment:""`
@@ -71,7 +76,7 @@ func (s *SysApiControl) Bind(ctx *gin.Context) error {
 func (s *SysApiControl) GenerateM() (common.ActiveRecord, error) {
 	return &models.SysApi{
 		Id:       s.Id,
-		Name:     s.Name,
+		Handle:   s.Handle,
 		Title:    s.Title,
 		Path:     s.Path,
 		Paths:    s.Paths,

@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
+	"go-admin/app/admin/models"
 
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	common "go-admin/common/models"
@@ -17,9 +17,9 @@ type SysLoginLog struct {
 }
 
 // GetSysLoginLogPage 获取SysLoginLog列表
-func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]system.SysLoginLog, count *int64) error {
+func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginLog, count *int64) error {
 	var err error
-	var data system.SysLoginLog
+	var data models.SysLoginLog
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -36,9 +36,9 @@ func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]syste
 }
 
 // GetSysLoginLog 获取SysLoginLog对象
-func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *system.SysLoginLog) error {
+func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *models.SysLoginLog) error {
 	var err error
-	var data system.SysLoginLog
+	var data models.SysLoginLog
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
@@ -58,7 +58,7 @@ func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *system.SysLo
 // InsertSysLoginLog 创建SysLoginLog对象
 func (e *SysLoginLog) InsertSysLoginLog(model common.ActiveRecord) error {
 	var err error
-	var data system.SysLoginLog
+	var data models.SysLoginLog
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
@@ -72,7 +72,7 @@ func (e *SysLoginLog) InsertSysLoginLog(model common.ActiveRecord) error {
 // UpdateSysLoginLog 修改SysLoginLog对象
 func (e *SysLoginLog) UpdateSysLoginLog(c common.ActiveRecord) error {
 	var err error
-	var data system.SysLoginLog
+	var data models.SysLoginLog
 
 	db := e.Orm.Model(&data).
 		Where(c.GetId()).Updates(c)
@@ -90,7 +90,7 @@ func (e *SysLoginLog) UpdateSysLoginLog(c common.ActiveRecord) error {
 // RemoveSysLoginLog 删除SysLoginLog
 func (e *SysLoginLog) RemoveSysLoginLog(d *dto.SysLoginLogById, c common.ActiveRecord) error {
 	var err error
-	var data system.SysLoginLog
+	var data models.SysLoginLog
 
 	db := e.Orm.Model(&data).
 		Where(d.Ids).Delete(c)

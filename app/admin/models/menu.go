@@ -6,34 +6,33 @@ import (
 	"go-admin/common/models"
 
 	"gorm.io/gorm"
-
-	"go-admin/app/admin/models/system"
 )
 
 type Menu struct {
-	MenuId     int    `json:"menuId" gorm:"primaryKey;autoIncrement"`
-	MenuName   string `json:"menuName" gorm:"size:128;"`
-	Title      string `json:"title" gorm:"size:128;"`
-	Icon       string `json:"icon" gorm:"size:128;"`
-	Path       string `json:"path" gorm:"size:128;"`
-	Paths      string `json:"paths" gorm:"size:128;"`
-	MenuType   string `json:"menuType" gorm:"size:1;"`
-	Action     string `json:"action" gorm:"size:16;"`
-	Permission string `json:"permission" gorm:"size:255;"`
-	ParentId   int    `json:"parentId" gorm:"size:11;"`
-	NoCache    bool   `json:"noCache" gorm:"size:8;"`
-	Breadcrumb string `json:"breadcrumb" gorm:"size:255;"`
-	Component  string `json:"component" gorm:"size:255;"`
-	Sort       int    `json:"sort" gorm:"size:4;"`
-	Visible    string `json:"visible" gorm:"size:1;"`
-	CreateBy   string `json:"createBy" gorm:"size:128;"`
-	UpdateBy   string `json:"updateBy" gorm:"size:128;"`
-	IsFrame    string `json:"isFrame" gorm:"size:1;DEFAULT:0;"`
-	DataScope  string `json:"dataScope" gorm:"-"`
-	Params     string `json:"params" gorm:"-"`
-	RoleId     int    `gorm:"-"`
-	Children   []Menu `json:"children" gorm:"-"`
-	IsSelect   bool   `json:"is_select" gorm:"-"`
+	MenuId     int      `json:"menuId" gorm:"primaryKey;autoIncrement"`
+	MenuName   string   `json:"menuName" gorm:"size:128;"`
+	Title      string   `json:"title" gorm:"size:128;"`
+	Icon       string   `json:"icon" gorm:"size:128;"`
+	Path       string   `json:"path" gorm:"size:128;"`
+	Paths      string   `json:"paths" gorm:"size:128;"`
+	MenuType   string   `json:"menuType" gorm:"size:1;"`
+	Action     string   `json:"action" gorm:"size:16;"`
+	Permission string   `json:"permission" gorm:"size:255;"`
+	ParentId   int      `json:"parentId" gorm:"size:11;"`
+	NoCache    bool     `json:"noCache" gorm:"size:8;"`
+	Breadcrumb string   `json:"breadcrumb" gorm:"size:255;"`
+	Component  string   `json:"component" gorm:"size:255;"`
+	Sort       int      `json:"sort" gorm:"size:4;"`
+	Visible    string   `json:"visible" gorm:"size:1;"`
+	CreateBy   string   `json:"createBy" gorm:"size:128;"`
+	UpdateBy   string   `json:"updateBy" gorm:"size:128;"`
+	IsFrame    string   `json:"isFrame" gorm:"size:1;DEFAULT:0;"`
+	DataScope  string   `json:"dataScope" gorm:"-"`
+	Params     string   `json:"params" gorm:"-"`
+	RoleId     int      `gorm:"-"`
+	Children   []Menu   `json:"children" gorm:"-"`
+	IsSelect   bool     `json:"is_select" gorm:"-"`
+
 	models.ModelTime
 }
 
@@ -83,160 +82,6 @@ type MenuRole struct {
 
 type MS []Menu
 
-//func (e *Menu) GetByMenuId() (Menu Menu, err error) {
-//
-//	table := orm.Eloquent.Table(e.TableName())
-//	table = table.Where("menu_id = ?", e.MenuId)
-//	if err = table.Find(&Menu).Error; err != nil {
-//		return
-//	}
-//	return
-//}
-
-//func (e *Menu) SetMenu() (m []Menu, err error) {
-//	menulist, err := e.GetPage()
-//
-//	m = make([]Menu, 0)
-//	for i := 0; i < len(menulist); i++ {
-//		if menulist[i].ParentId != 0 {
-//			continue
-//		}
-//		menusInfo := DiguiMenu(&menulist, menulist[i])
-//
-//		m = append(m, menusInfo)
-//	}
-//	return
-//}
-
-//func DiguiMenu(menulist *[]Menu, menu Menu) Menu {
-//	list := *menulist
-//
-//	min := make([]Menu, 0)
-//	for j := 0; j < len(list); j++ {
-//
-//		if menu.MenuId != list[j].ParentId {
-//			continue
-//		}
-//		mi := Menu{}
-//		mi.MenuId = list[j].MenuId
-//		mi.MenuName = list[j].MenuName
-//		mi.Title = list[j].Title
-//		mi.Icon = list[j].Icon
-//		mi.Path = list[j].Path
-//		mi.MenuType = list[j].MenuType
-//		mi.Action = list[j].Action
-//		mi.Permission = list[j].Permission
-//		mi.ParentId = list[j].ParentId
-//		mi.NoCache = list[j].NoCache
-//		mi.Breadcrumb = list[j].Breadcrumb
-//		mi.Component = list[j].Component
-//		mi.Sort = list[j].Sort
-//		mi.Visible = list[j].Visible
-//		mi.CreatedAt = list[j].CreatedAt
-//		mi.Children = []Menu{}
-//
-//		if mi.MenuType != "F" {
-//			ms := DiguiMenu(menulist, mi)
-//			min = append(min, ms)
-//
-//		} else {
-//			min = append(min, mi)
-//		}
-//
-//	}
-//	menu.Children = min
-//	return menu
-//}
-
-//func (e *Menu) SetMenuLabel() (m *[]MenuLable, err error) {
-//	menulist, err := e.Get()
-//
-//	ml := make([]MenuLable, 0)
-//	for i := 0; i < len(menulist); i++ {
-//		if menulist[i].ParentId != 0 {
-//			continue
-//		}
-//		e := MenuLable{}
-//		e.Id = menulist[i].MenuId
-//		e.Label = menulist[i].Title
-//		menusInfo := MenuLabelCall(&menulist, e)
-//
-//		ml = append(ml, menusInfo)
-//	}
-//	return &ml, err
-//}
-
-//func MenuLabelCall(menulist *[]Menu, menu MenuLable) MenuLable {
-//	list := *menulist
-//
-//	min := make([]MenuLable, 0)
-//	for j := 0; j < len(list); j++ {
-//
-//		if menu.Id != list[j].ParentId {
-//			continue
-//		}
-//		mi := MenuLable{}
-//		mi.Id = list[j].MenuId
-//		mi.Label = list[j].Title
-//		mi.Children = []MenuLable{}
-//		if list[j].MenuType != "F" {
-//			ms := MenuLabelCall(menulist, mi)
-//			min = append(min, ms)
-//		} else {
-//			min = append(min, mi)
-//		}
-//
-//	}
-//	if len(min) > 0 {
-//		menu.Children = min
-//	} else {
-//		menu.Children = nil
-//	}
-//	return menu
-//}
-
-//func (e *Menu) SetMenuRole(roleName string) (m []Menu, err error) {
-//
-//	menus, err := e.GetByRoleName(roleName)
-//
-//	m = make([]Menu, 0)
-//	for i := 0; i < len(menus); i++ {
-//		if menus[i].ParentId != 0 {
-//			continue
-//		}
-//		menusInfo := DiguiMenu(&menus, menus[i])
-//
-//		m = append(m, menusInfo)
-//	}
-//	return
-//}
-
-//func (e *MenuRole) Get(tx *gorm.DB) (Menus []MenuRole, err error) {
-//	table := tx.Table(e.TableName())
-//	if e.MenuName != "" {
-//		table = table.Where("menu_name = ?", e.MenuName)
-//	}
-//	if err = table.Order("sort").Find(&Menus).Error; err != nil {
-//		return
-//	}
-//	return
-//}
-
-//func (e *Menu) GetByRoleName(roleName string) (Menus []Menu, err error) {
-//	var table *gorm.DB
-//	if roleName == "admin" {
-//		table = orm.Eloquent.Table(e.TableName()).Select("sys_menu.*")
-//		table = table.Where(" menu_type in ('M','C')")
-//	} else {
-//		table = orm.Eloquent.Table(e.TableName()).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
-//		table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", roleName)
-//	}
-//	if err = table.Order("sort").Find(&Menus).Error; err != nil {
-//		return
-//	}
-//	return
-//}
-
 func (e *Menu) Get(tx *gorm.DB) (Menus []Menu, err error) {
 	table := tx.Table(e.TableName())
 	if e.MenuName != "" {
@@ -274,7 +119,7 @@ func (e *Menu) GetPage(tx *gorm.DB) (Menus []Menu, err error) {
 	}
 
 	// 数据权限控制
-	dataPermission := new(system.DataPermission)
+	dataPermission := new(DataPermission)
 	dataPermission.UserId, _ = pkg.StringToInt(e.DataScope)
 	table, err = dataPermission.GetDataScope("sys_menu", table)
 	if err != nil {
@@ -315,29 +160,3 @@ func InitPaths(tx *gorm.DB, menu *Menu) (err error) {
 	tx.Table("sys_menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return
 }
-
-//func (e *Menu) Update(tx *gorm.DB, id int) (update Menu, err error) {
-//	if err = tx.Table(e.TableName()).First(&update, id).Error; err != nil {
-//		return
-//	}
-//
-//	//参数1:是要修改的数据
-//	//参数2:是修改的数据
-//	if err = tx.Table(e.TableName()).Model(&update).Updates(&e).Error; err != nil {
-//		return
-//	}
-//	err = InitPaths(tx, e)
-//	if err != nil {
-//		return
-//	}
-//	return
-//}
-
-//func (e *Menu) Delete(tx *gorm.DB, id int) (success bool, err error) {
-//	if err = tx.Table(e.TableName()).Where("menu_id = ?", id).Delete(&Menu{}).Error; err != nil {
-//		success = false
-//		return
-//	}
-//	success = true
-//	return
-//}

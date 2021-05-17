@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,7 +9,6 @@ import (
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/google/uuid"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
@@ -51,7 +51,7 @@ func (e SysUser) GetSysUserList(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	list := make([]system.SysUser, 0)
+	list := make([]models.SysUser, 0)
 	var count int64
 	serviceStudent := service.SysUser{}
 	serviceStudent.Log = log
@@ -89,7 +89,7 @@ func (e SysUser) GetSysUser(c *gin.Context) {
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
 		return
 	}
-	var object system.SysUser
+	var object models.SysUser
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
@@ -288,7 +288,7 @@ func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
 		}
 	}
 
-	object := &system.SysUser{
+	object := &models.SysUser{
 		UserId: p.UserId,
 		Avatar: "/" + filPath,
 	}
@@ -363,9 +363,9 @@ func (e SysUser) GetSysUserProfile(c *gin.Context) {
 	serviceSysUser := service.SysUser{}
 	serviceSysUser.Log = log
 	serviceSysUser.Orm = db
-	user := new(system.SysUser)
-	roles := make([]system.SysRole, 0)
-	posts := make([]system.SysPost, 0)
+	user := new(models.SysUser)
+	roles := make([]models.SysRole, 0)
+	posts := make([]models.SysPost, 0)
 	err = serviceSysUser.GetSysUserProfile(id, user, &roles, &posts)
 	if err != nil {
 		log.Errorf("get user profile error, %s", err.Error())
@@ -432,7 +432,7 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	var buttons = make([]string, 1)
 	buttons[0] = "*:*:*"
 
-	RoleMenu := system.RoleMenu{}
+	RoleMenu := models.RoleMenu{}
 	RoleMenu.RoleId = user.GetRoleId(c)
 
 	var mp = make(map[string]interface{})
@@ -446,7 +446,7 @@ func (e SysUser) GetInfo(c *gin.Context) {
 		mp["buttons"] = list
 	}
 
-	var sysUser system.SysUser
+	var sysUser models.SysUser
 	req := new(dto.SysUserById)
 	req.Id = user.GetUserId(c)
 	serviceSysUser := service.SysUser{}

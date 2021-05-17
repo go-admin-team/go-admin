@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
+	"go-admin/app/admin/models"
 
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
@@ -16,9 +16,9 @@ type SysPost struct {
 }
 
 // GetSysPostPage 获取SysPost列表
-func (e *SysPost) GetSysPostPage(c *dto.SysPostSearch, list *[]system.SysPost, count *int64) error {
+func (e *SysPost) GetSysPostPage(c *dto.SysPostSearch, list *[]models.SysPost, count *int64) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -35,9 +35,9 @@ func (e *SysPost) GetSysPostPage(c *dto.SysPostSearch, list *[]system.SysPost, c
 }
 
 // GetSysPost 获取SysPost对象
-func (e *SysPost) GetSysPost(d *dto.SysPostById, model *system.SysPost) error {
+func (e *SysPost) GetSysPost(d *dto.SysPostById, model *models.SysPost) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
@@ -55,9 +55,9 @@ func (e *SysPost) GetSysPost(d *dto.SysPostById, model *system.SysPost) error {
 }
 
 // InsertSysPost 创建SysPost对象
-func (e *SysPost) InsertSysPost(model *system.SysPost) error {
+func (e *SysPost) InsertSysPost(model *models.SysPost) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
@@ -69,9 +69,9 @@ func (e *SysPost) InsertSysPost(model *system.SysPost) error {
 }
 
 // UpdateSysPost 修改SysPost对象
-func (e *SysPost) UpdateSysPost(c *system.SysPost) error {
+func (e *SysPost) UpdateSysPost(c *models.SysPost) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	db := e.Orm.Model(&data).
 		Where(c.GetId()).Updates(c)
@@ -89,7 +89,7 @@ func (e *SysPost) UpdateSysPost(c *system.SysPost) error {
 // RemoveSysPost 删除SysPost
 func (e *SysPost) RemoveSysPost(d *dto.SysPostById) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	db := e.Orm.Model(&data).Delete(&data, d.GetId())
 	if db.Error != nil {

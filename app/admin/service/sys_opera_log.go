@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	"go-admin/common/service"
@@ -14,9 +14,9 @@ type SysOperaLog struct {
 }
 
 // GetSysOperaLogPage 获取SysOperaLog列表
-func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]system.SysOperaLog, count *int64) error {
+func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]models.SysOperaLog, count *int64) error {
 	var err error
-	var data system.SysOperaLog
+	var data models.SysOperaLog
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -33,8 +33,8 @@ func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]syste
 }
 
 // GetSysOperaLog 获取SysOperaLog对象
-func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *system.SysOperaLog) error {
-	var data system.SysOperaLog
+func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *models.SysOperaLog) error {
+	var data models.SysOperaLog
 
 	err := e.Orm.Model(&data).
 		First(model, d.GetId()).Error
@@ -51,9 +51,9 @@ func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *system.SysOp
 }
 
 // InsertSysOperaLog 创建SysOperaLog对象
-func (e *SysOperaLog) InsertSysOperaLog(model *system.SysOperaLog) error {
+func (e *SysOperaLog) InsertSysOperaLog(model *models.SysOperaLog) error {
 	var err error
-	var data system.SysOperaLog
+	var data models.SysOperaLog
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
@@ -65,7 +65,7 @@ func (e *SysOperaLog) InsertSysOperaLog(model *system.SysOperaLog) error {
 }
 
 // UpdateSysOperaLog 修改SysOperaLog对象
-func (e *SysOperaLog) UpdateSysOperaLog(c *system.SysOperaLog) error {
+func (e *SysOperaLog) UpdateSysOperaLog(c *models.SysOperaLog) error {
 	var err error
 
 	db := e.Orm.Model(c).
@@ -84,7 +84,7 @@ func (e *SysOperaLog) UpdateSysOperaLog(c *system.SysOperaLog) error {
 // RemoveSysOperaLog 删除SysOperaLog
 func (e *SysOperaLog) RemoveSysOperaLog(d *dto.SysOperaLogById) error {
 	var err error
-	var data system.SysOperaLog
+	var data models.SysOperaLog
 
 	db := e.Orm.Model(&data).Where(d.Ids).Delete(&data)
 	if err = db.Error; err != nil {

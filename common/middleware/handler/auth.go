@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,6 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/mssola/user_agent"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/global"
 )
 
@@ -159,8 +159,8 @@ func LogOut(c *gin.Context) {
 func Authorizator(data interface{}, c *gin.Context) bool {
 
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(system.SysUser)
-		r, _ := v["role"].(system.SysRole)
+		u, _ := v["user"].(models.SysUser)
+		r, _ := v["role"].(models.SysRole)
 		c.Set("role", r.RoleName)
 		c.Set("roleIds", r.RoleId)
 		c.Set("userId", u.UserId)

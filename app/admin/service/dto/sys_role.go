@@ -2,12 +2,12 @@ package dto
 
 import (
 	"encoding/json"
+	"go-admin/app/admin/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 )
 
@@ -76,8 +76,8 @@ func (s *SysRoleControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysRoleControl) Generate() (*system.SysRole, error) {
-	return &system.SysRole{
+func (s *SysRoleControl) Generate() (*models.SysRole, error) {
+	return &models.SysRole{
 		RoleId:    s.RoleId,
 		RoleName:  s.RoleName,
 		Status:    s.Status,
@@ -110,8 +110,8 @@ func (s *SysRoleById) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysRoleById) GenerateM() (*system.SysRole, error) {
-	return &system.SysRole{}, nil
+func (s *SysRoleById) GenerateM() (*models.SysRole, error) {
+	return &models.SysRole{}, nil
 }
 
 // RoleDataScopeReq 角色数据权限修改

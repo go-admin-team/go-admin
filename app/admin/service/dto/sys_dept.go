@@ -2,12 +2,12 @@ package dto
 
 import (
 	"encoding/json"
+	"go-admin/app/admin/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 )
 
@@ -74,8 +74,8 @@ func (s *SysDeptControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysDeptControl) Generate() (*system.SysDept, error) {
-	return &system.SysDept{
+func (s *SysDeptControl) Generate() (*models.SysDept, error) {
+	return &models.SysDept{
 		DeptId:   s.DeptId,
 		DeptName: s.DeptName,
 		ParentId: s.ParentId,
@@ -122,8 +122,8 @@ func (s *SysDeptById) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysDeptById) GenerateM() (*system.SysDept, error) {
-	return &system.SysDept{}, nil
+func (s *SysDeptById) GenerateM() (*models.SysDept, error) {
+	return &models.SysDept{}, nil
 }
 
 type DeptLabel struct {

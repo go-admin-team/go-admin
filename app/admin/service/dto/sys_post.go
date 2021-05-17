@@ -2,12 +2,12 @@ package dto
 
 import (
 	"encoding/json"
+	"go-admin/app/admin/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 )
 
@@ -68,8 +68,8 @@ func (s *SysPostControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysPostControl) Generate() (*system.SysPost, error) {
-	return &system.SysPost{
+func (s *SysPostControl) Generate() (*models.SysPost, error) {
+	return &models.SysPost{
 		PostId:   s.PostId,
 		PostName: s.PostName,
 		PostCode: s.PostCode,
@@ -113,6 +113,6 @@ func (s *SysPostById) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysPostById) GenerateM() (*system.SysPost, error) {
-	return &system.SysPost{}, nil
+func (s *SysPostById) GenerateM() (*models.SysPost, error) {
+	return &models.SysPost{}, nil
 }

@@ -1,12 +1,13 @@
 package apis
 
 import (
+	"errors"
 	"fmt"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
@@ -16,29 +17,38 @@ import (
 type Api struct {
 	Context *gin.Context
 	Logger  *logger.Logger
+	Orm     *gorm.DB
+	Errors  error
 }
 
-func (e Api) SetContext(c *gin.Context) {
+func (e *Api) AddError(err error)  {
+	if e.Errors == nil {
+		e.Errors = err
+	} else if err != nil {
+		e.Logger.Error(err)
+		e.Errors = fmt.Errorf("%v; %w", e.Error, err)
+	}
+}
+
+// MakeContext 设置http上下文
+func (e *Api) MakeContext(c *gin.Context) *Api {
 	fmt.Println(&c)
 	e.Context = c
+	e.Logger = api.GetRequestLogger(c)
 	fmt.Println(&e.Context)
+	return e
 }
 
 // GetLogger 获取上下文提供的日志
 func (e Api) GetLogger() *logger.Logger {
-
 	return api.GetRequestLogger(e.Context)
 }
 
-//func (e Api) GetLogger() (*logger.Logger, error) {
-//	if e.Context == nil {
-//		return nil, errors.New("API context cannot be nil")
-//	}
-//	return api.GetRequestLogger(e.Context), nil
-//}
-
 func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
 	var err error
+	if len(bindings) == 0 {
+		bindings = append(bindings, binding.JSON, nil)
+	}
 	for i := range bindings {
 		switch bindings[i] {
 		case binding.JSON:
@@ -79,6 +89,24 @@ func (e Api) GetOrm() (*gorm.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+// MakeOrm 设置Orm DB
+func (e *Api) MakeOrm() *Api {
+	var err error
+	if e.Logger == nil {
+		err = errors.New("at MakeOrm logger is nil")
+		//e.Logger.Error(http.StatusInternalServerError, err, "at MakeOrm logger is nil")
+		e.AddError(err)
+		return e
+	}
+	db, err := pkg.GetOrm(e.Context)
+	if err != nil {
+		e.Logger.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.AddError(err)
+	}
+	e.Orm = db
+	return e
 }
 
 // Error 通常错误数据处理

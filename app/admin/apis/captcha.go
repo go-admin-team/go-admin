@@ -11,7 +11,7 @@ type System struct {
 }
 
 func (e System) GenerateCaptchaHandler(c *gin.Context) {
-	e.Context = c
+	e.MakeContext(c)
 	log := e.GetLogger()
 	id, b64s, err := captcha.DriverDigitFunc()
 	if err != nil {
