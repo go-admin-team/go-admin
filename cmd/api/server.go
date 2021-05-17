@@ -3,10 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/go-admin-team/go-admin-core/sdk/runtime"
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/service"
-	router2 "go-admin/app/other/router"
 	"log"
 	"net/http"
 	"os"
@@ -20,8 +16,10 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/runtime"
 	"github.com/spf13/cobra"
 
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
 	"go-admin/common/database"
@@ -31,6 +29,7 @@ import (
 
 var (
 	configYml string
+	apiCheck  bool
 	StartCmd  = &cobra.Command{
 		Use:          "server",
 		Short:        "Start API server",
@@ -49,6 +48,7 @@ var AppRouters = make([]func(), 0)
 
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&configYml, "config", "c", "config/settings.yml", "Start server with provided configuration file")
+	StartCmd.PersistentFlags().BoolVarP(&apiCheck, "api", "a", false, "Start server with check api data")
 
 	//注册路由 fixme 其他应用的路由，在本目录新建文件放在init方法
 	AppRouters = append(AppRouters, router.InitRouter)
@@ -105,6 +105,7 @@ func setup() {
 	queue := sdk.Runtime.GetMemoryQueue("")
 	queue.Register(global.LoginLog, models.SaveLoginLog)
 	queue.Register(global.OperateLog, models.SaveOperaLog)
+	queue.Register(global.ApiCheck, models.SaveSysApi)
 	go queue.Run()
 }
 
@@ -117,11 +118,6 @@ func run() error {
 	engine := sdk.Runtime.GetEngine()
 	if engine == nil {
 		engine = gin.New()
-	}
-
-	if config.ApplicationConfig.Mode == "dev" {
-		//监控
-		AppRouters = append(AppRouters, router2.Monitor)
 	}
 
 	for _, f := range AppRouters {
@@ -137,11 +133,29 @@ func run() error {
 		jobs.Setup(sdk.Runtime.GetDb())
 
 	}()
-
-	serviceApi := service.SysApi{}
-	serviceApi.Orm = sdk.Runtime.GetDb()["*"]
-	var routers = sdk.Runtime.GetRouter()
-	serviceApi.CheckStorageSysApi(&routers)
+	if apiCheck {
+		var routers = sdk.Runtime.GetRouter()
+		q := sdk.Runtime.GetMemoryQueue("")
+		mp := make(map[string]interface{}, 0)
+		mp["List"] = routers
+		message, err := sdk.Runtime.GetStreamMessage("", global.ApiCheck, mp)
+		if err != nil {
+			log.Printf("GetStreamMessage error, %s \n", err.Error())
+			//日志报错错误，不中断请求
+		} else {
+			err = q.Append(message)
+			if err != nil {
+				log.Printf("Append message error, %s \n", err.Error())
+			}
+		}
+	}
+	//serviceApi := service.SysApi{}
+	//serviceApi.Orm = sdk.Runtime.GetDb()["*"]
+	//var routers = sdk.Runtime.GetRouter()
+	//err := serviceApi.CheckStorageSysApi(&routers)
+	//if err != nil {
+	//	log.Println("Server check api data :", err)
+	//}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

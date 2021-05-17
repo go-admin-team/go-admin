@@ -26,7 +26,6 @@ type SysApi struct {
 // @Param title query string false "标题"
 // @Param path query string false "地址"
 // @Param action query string false "类型"
-// @Param parentId query string false "按钮id"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} response.Response{data=response.Page{list=[]models.SysApi}} "{"code": 200, "data": [...]}"
@@ -77,34 +76,26 @@ func (e SysApi) GetSysApiList(c *gin.Context) {
 // @Router /api/v1/sys_api/{id} [get]
 // @Security Bearer
 func (e SysApi) GetSysApi(c *gin.Context) {
-	e.MakeContext(c)
-	log := e.GetLogger()
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
 	control := new(dto.SysApiById)
-
-	//查看详情
-	err = e.Bind(control)
+	s := new(service.SysApi)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Warnf("request body bind error, %s", err.Error())
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Logger.Error(err)
 		return
 	}
+
 	var object models.SysApi
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysApi := service.SysApi{}
-	serviceSysApi.Log = log
-	serviceSysApi.Orm = db
-	err = serviceSysApi.GetSysApi(control, p, &object)
+	err = s.GetSysApi(control, p, &object).Error
 	if err != nil {
-		log.Errorf("Get SysApi error, %s", err.Error())
+		e.Logger.Errorf("Get SysApi error, %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}

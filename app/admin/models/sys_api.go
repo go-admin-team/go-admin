@@ -3,6 +3,11 @@ package models
 import (
 	// "gorm.io/gorm"
 
+	"encoding/json"
+	"fmt"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/runtime"
+	"github.com/go-admin-team/go-admin-core/storage"
 	"go-admin/common/models"
 )
 
@@ -31,4 +36,33 @@ func (e *SysApi) Generate() models.ActiveRecord {
 
 func (e *SysApi) GetId() interface{} {
 	return e.Id
+}
+
+func SaveSysApi(message storage.Messager) (err error) {
+	var rb []byte
+	rb, err = json.Marshal(message.GetValues())
+	if err != nil {
+		fmt.Errorf("json Marshal error, %s", err.Error())
+		return err
+	}
+
+	var l runtime.Routers
+	err = json.Unmarshal(rb, &l)
+	if err != nil {
+		fmt.Errorf("json Unmarshal error, %s", err.Error())
+		return err
+	}
+	dbList := sdk.Runtime.GetDb()
+	for _, d := range dbList {
+		for _, v := range l.List {
+			err := d.Debug().Where(SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
+				Attrs(SysApi{Handle: v.Handler}).
+				FirstOrCreate(&SysApi{}).Error
+			if err != nil {
+				err := fmt.Errorf("Models SaveSysApi error: %s \r\n ", err.Error())
+				return err
+			}
+		}
+	}
+	return nil
 }

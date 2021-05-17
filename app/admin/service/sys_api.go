@@ -39,7 +39,7 @@ func (e *SysApi) GetSysApiPage(c *dto.SysApiSearch, p *actions.DataPermission, l
 }
 
 // GetSysApi 获取SysApi对象
-func (e *SysApi) GetSysApi(d *dto.SysApiById, p *actions.DataPermission, model *models.SysApi) error {
+func (e *SysApi) GetSysApi(d *dto.SysApiById, p *actions.DataPermission, model *models.SysApi) *SysApi {
 	var data models.SysApi
 
 	err := e.Orm.Model(&data).
@@ -50,11 +50,13 @@ func (e *SysApi) GetSysApi(d *dto.SysApiById, p *actions.DataPermission, model *
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
 		e.Log.Errorf("Service GetSysApi error:%s", err)
-		return err
+		e.AddError(err)
+		return e
 	}
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
-		return err
+		e.AddError(err)
+		return e
 	}
 	return nil
 }
@@ -62,7 +64,9 @@ func (e *SysApi) GetSysApi(d *dto.SysApiById, p *actions.DataPermission, model *
 // InsertSysApi 创建SysApi对象
 func (e *SysApi) CheckStorageSysApi(c *[]runtime.Router) error {
 	for _, v := range *c {
-		err := e.Orm.Debug().Where(models.SysApi{Path: v.RelativePath, Action: v.HttpMethod}).Attrs(models.SysApi{Handle: v.Handler}).FirstOrCreate(&models.SysApi{}).Error
+		err := e.Orm.Debug().Where(models.SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
+			Attrs(models.SysApi{Handle: v.Handler}).
+			FirstOrCreate(&models.SysApi{}).Error
 		if err != nil {
 			err := fmt.Errorf("Service CheckStorageSysApi error: %s \r\n ", err.Error())
 			return err

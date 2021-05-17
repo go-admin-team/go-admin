@@ -1,36 +1,25 @@
 package router
 
 import (
-	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/tools/transfer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func Monitor() {
-	var r *gin.Engine
-	h := sdk.Runtime.GetEngine()
-	if h == nil {
-		h = gin.New()
-		sdk.Runtime.SetEngine(h)
-	}
-	switch h.(type) {
-	case *gin.Engine:
-		r = h.(*gin.Engine)
-		//开发环境启动监控指标
-		setHandle(r)
-	default:
-		log.Fatal("not support other engine")
-	}
+func init() {
+	routerNoCheckRole = append(routerNoCheckRole, registerMonitorRouter)
 }
 
-func setHandle(r *gin.Engine) {
-	r.GET("/metrics", transfer.Handler(promhttp.Handler()))
-	//健康检查
-	r.GET("/health", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
+// 需认证的路由代码
+func registerMonitorRouter(v1 *gin.RouterGroup) {
+	if config.ApplicationConfig.Mode == "dev" {
+		v1.GET("/metrics", transfer.Handler(promhttp.Handler()))
+		//健康检查
+		v1.GET("/health", func(c *gin.Context) {
+			c.Status(http.StatusOK)
+		})
+	}
 }

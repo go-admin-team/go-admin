@@ -113,27 +113,20 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 // @Security Bearer
 func (e SysMenu) InsertSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
+	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
 		return
 	}
-
-	// 绑定数据
-	err = e.Bind(control)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-
 	// 设置创建人
 	control.SetCreateBy(user.GetUserId(c))
-
-	serviceSysMenu := service.SysMenu{}
-	err = serviceSysMenu.MakeLog(e.Logger).MakeOrm(e.Orm).InsertSysMenu(control).Error
+	err = s.InsertSysMenu(control).Error
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
@@ -156,28 +149,19 @@ func (e SysMenu) InsertSysMenu(c *gin.Context) {
 // @Security Bearer
 func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuControl)
+	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
 
-	// 绑定数据
-	err = e.Bind(control)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
 	control.SetUpdateBy(user.GetUserId(c))
-
-	serviceSysMenu := service.SysMenu{}
-	err = serviceSysMenu.
-		MakeOrm(e.Orm).
-		MakeLog(e.Logger).
-		UpdateSysMenu(control).Error
-
+	err = s.UpdateSysMenu(control).Error
 	if err != nil {
 		e.Logger.Error(err)
 		return
