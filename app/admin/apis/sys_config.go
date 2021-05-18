@@ -18,31 +18,24 @@ type SysConfig struct {
 }
 
 func (e SysConfig) GetSysConfigList(c *gin.Context) {
-	e.MakeContext(c)
-	log := e.GetLogger()
+	s := service.SysConfig{}
 	d := new(dto.SysConfigSearch)
-	db, err := e.GetOrm()
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(d, binding.Query).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-	err = e.Bind(d, binding.Query)
-	//查询列表
-	//err = d.Bind(c)
-	if err != nil {
-		log.Errorf("参数验证失败, error:%s", err)
-		e.Error(500, err, "参数验证失败")
+		e.Logger.Error(err)
 		return
 	}
 
+
 	list := make([]models.SysConfig, 0)
 	var count int64
-	s := service.SysConfig{}
-	s.Log = log
-	s.Orm = db
 	err = s.GetSysConfigPage(d, &list, &count)
 	if err != nil {
-		log.Errorf("GetSysConfigPage 查询失败, error:%s", err)
+		e.Logger.Errorf("GetSysConfigPage 查询失败, error:%s", err)
 		e.Error(500, err, "查询失败")
 		return
 	}
@@ -51,31 +44,24 @@ func (e SysConfig) GetSysConfigList(c *gin.Context) {
 
 // GetSysConfigBySysApp 获取系统配置信息，主要注意这里不在验证数据权限
 func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
 	d := new(dto.SysConfigSearch)
-	db, err := e.GetOrm()
+	s := service.SysConfig{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(d, nil).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-	err = e.Bind(d, binding.Query)
-	if err != nil {
-		log.Errorf("参数验证失败, error:%s", err)
-		e.Error(500, err, "参数验证失败")
+		e.Logger.Error(err)
 		return
 	}
 
 	// 控制只读前台的数据
 	d.IsFrontend = 1
-
 	list := make([]models.SysConfig, 0)
-	s := service.SysConfig{}
-	s.Log = log
-	s.Orm = db
 	err = s.GetSysConfigByKey(d, &list)
 	if err != nil {
-		log.Errorf("GetSysConfigPage 查询失败, error:%s", err)
+		e.Logger.Errorf("GetSysConfigPage 查询失败, error:%s", err)
 		e.Error(500, err, "查询失败")
 		return
 	}
@@ -90,32 +76,23 @@ func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 }
 
 func (e SysConfig) GetSysConfig(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
 	control := new(dto.SysConfigById)
-	db, err := e.GetOrm()
+	s := service.SysConfig{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-	//查看详情
-	err = e.Bind(control)
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
+		e.Logger.Error(err)
 		return
 	}
 	var object models.SysConfig
 
-	serviceSysLoginLog := service.SysConfig{}
-	serviceSysLoginLog.Log = log
-	serviceSysLoginLog.Orm = db
-	err = serviceSysLoginLog.GetSysConfig(control, &object)
+	err = s.GetSysConfig(control, &object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
-		log.Errorf("Orm获取失败, error:%s", err)
+		e.Logger.Errorf("Orm获取失败, error:%s", err)
 		e.Error(500, err, "Orm获取失败")
 		return
 	}
@@ -124,123 +101,93 @@ func (e SysConfig) GetSysConfig(c *gin.Context) {
 }
 
 func (e SysConfig) InsertSysConfig(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
+	s := service.SysConfig{}
 	control := new(dto.SysConfigControl)
-	db, err := e.GetOrm()
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
 
-	//新增操作
-	err = e.Bind(control, binding.JSON)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
-		return
-	}
 	object, err := control.Generate()
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
+		e.Logger.Errorf("Orm获取失败, error:%s", err)
 		return
 	}
 	// 设置创建人
 	object.SetCreateBy(user.GetUserId(c))
 
-	serviceSysLoginLog := service.SysConfig{}
-	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.Log = log
-	err = serviceSysLoginLog.InsertSysConfig(object)
+	err = s.InsertSysConfig(object)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
 		return
 	}
-
 	e.OK(object.GetId(), "创建成功")
 }
 
 func (e SysConfig) UpdateSysConfig(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
+	s := service.SysConfig{}
 	control := new(dto.SysConfigControl)
-	db, err := e.GetOrm()
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
 
-	//更新操作
-	err = e.Bind(control, binding.JSON)
-
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
-		return
-	}
 	object, err := control.Generate()
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
+		e.Logger.Errorf("Orm获取失败, error:%s", err)
 		return
 	}
 	object.SetUpdateBy(user.GetUserId(c))
 
-	serviceSysLoginLog := service.SysConfig{}
-	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.Log = log
-	err = serviceSysLoginLog.UpdateSysConfig(object)
+	err = s.UpdateSysConfig(object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "更新失败")
-		log.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
+		e.Logger.Errorf("Orm获取失败, error:%s", err)
 		return
 	}
 	e.OK(object.GetId(), "更新成功")
 }
 
 func (e SysConfig) DeleteSysConfig(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
+	s := service.SysConfig{}
 	control := new(dto.SysConfigById)
-	db, err := e.GetOrm()
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
 
-	//删除操作
-	err = e.Bind(control, binding.JSON)
-	if err != nil {
-		log.Errorf("Bind error: %s", err)
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
 	object, err := control.GenerateM()
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		log.Errorf("Orm获取失败, error:%s", err)
+		e.Logger.Errorf("Orm获取失败, error:%s", err)
 		return
 	}
 
 	// 设置编辑人
 	object.SetUpdateBy(user.GetUserId(c))
 
-	serviceSysLoginLog := service.SysConfig{}
-	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.Log = log
-	err = serviceSysLoginLog.RemoveSysConfig(control, object)
+	err = s.RemoveSysConfig(control, object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "删除失败")
-		log.Errorf("Orm获取失败, error:%s", err)
+		e.Logger.Errorf("Orm获取失败, error:%s", err)
 		return
 	}
 	e.OK(object.GetId(), "删除成功")

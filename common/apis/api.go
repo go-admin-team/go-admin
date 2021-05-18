@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin/binding"
+	"go-admin/common/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ type Api struct {
 	Errors  error
 }
 
-func (e *Api) AddError(err error)  {
+func (e *Api) AddError(err error) {
 	if e.Errors == nil {
 		e.Errors = err
 	} else if err != nil {
@@ -44,7 +45,7 @@ func (e Api) GetLogger() *logger.Logger {
 	return api.GetRequestLogger(e.Context)
 }
 
-func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
+func (e *Api) Bind(d interface{}, bindings ...binding.Binding) *Api {
 	var err error
 	if len(bindings) == 0 {
 		bindings = append(bindings, binding.JSON, nil)
@@ -75,10 +76,10 @@ func (e Api) Bind(d interface{}, bindings ...binding.Binding) error {
 			err = e.Context.ShouldBindUri(d)
 		}
 		if err != nil {
-			return err
+			e.AddError(err)
 		}
 	}
-	return nil
+	return e
 }
 
 // GetOrm 获取Orm DB
@@ -106,6 +107,12 @@ func (e *Api) MakeOrm() *Api {
 		e.AddError(err)
 	}
 	e.Orm = db
+	return e
+}
+
+func (e *Api) MakeService(c *service.Service) *Api {
+	c.Log = e.Logger
+	c.Orm = e.Orm
 	return e
 }
 
