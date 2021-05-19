@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
+	"github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
@@ -24,7 +24,7 @@ func (e *SysMenu) MakeOrm(orm *gorm.DB) *SysMenu {
 }
 
 // MakeLog 设置Log
-func (e *SysMenu) MakeLog(l *logger.Logger) *SysMenu {
+func (e *SysMenu) MakeLog(l *logger.Helper) *SysMenu {
 	e.Log = l
 	return e
 }

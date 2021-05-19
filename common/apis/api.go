@@ -3,21 +3,22 @@ package apis
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin/binding"
-	"go-admin/common/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
+
+	"go-admin/common/service"
 )
 
 type Api struct {
 	Context *gin.Context
-	Logger  *logger.Logger
+	Logger  *logger.Helper
 	Orm     *gorm.DB
 	Errors  error
 }
@@ -41,7 +42,7 @@ func (e *Api) MakeContext(c *gin.Context) *Api {
 }
 
 // GetLogger 获取上下文提供的日志
-func (e Api) GetLogger() *logger.Logger {
+func (e Api) GetLogger() *logger.Helper {
 	return api.GetRequestLogger(e.Context)
 }
 
