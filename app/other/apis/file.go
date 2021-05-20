@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/utils"
 	"github.com/google/uuid"
 
-	"go-admin/common/apis"
 	"go-admin/common/file_store"
 )
 
@@ -27,7 +27,7 @@ type FileResponse struct {
 const path = "static/uploadfile/"
 
 type File struct {
-	apis.Api
+	api.Api
 }
 
 // UploadFile 上传图片

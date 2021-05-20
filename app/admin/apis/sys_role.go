@@ -1,21 +1,22 @@
 package apis
 
 import (
+	"github.com/go-admin-team/go-admin-core/sdk"
 	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
-	"go-admin/common/apis"
 	"go-admin/common/global"
 )
 
 type SysRole struct {
-	apis.Api
+	api.Api
 }
 
 // @Summary 角色列表数据
@@ -109,38 +110,27 @@ func (e SysRole) GetSysRole(c *gin.Context) {
 // @Router /api/v1/role [post]
 // @Security Bearer
 func (e SysRole) InsertSysRole(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysRoleControl)
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//新增操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	// 设置创建人
-	object.CreateBy = user.GetUserId(c)
-	if object.Status == "" {
-		object.Status = "2"
-	}
-
 	s := service.SysRole{}
-	s.Orm = db
-	s.Log = log
-	err = s.InsertSysRole(object)
+	control := new(dto.SysRoleControl)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
+		return
+	}
+
+	// 设置创建人
+	control.CreateBy = user.GetUserId(c)
+	if control.Status == "" {
+		control.Status = "2"
+	}
+
+	err = s.InsertSysRole(control)
+	if err != nil {
+		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
@@ -149,9 +139,10 @@ func (e SysRole) InsertSysRole(c *gin.Context) {
 		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(object.GetId(), "创建成功")
+	e.OK(control.GetId(), "创建成功")
 }
 
+// UpdateSysRole 修改用户角色
 // @Summary 修改用户角色
 // @Description 获取JSON
 // @Tags 角色/Role
@@ -163,34 +154,24 @@ func (e SysRole) InsertSysRole(c *gin.Context) {
 // @Router /api/v1/role/{id} [put]
 // @Security Bearer
 func (e SysRole) UpdateSysRole(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysRoleControl)
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//更新操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.UpdateBy = user.GetUserId(c)
-
 	s := service.SysRole{}
-	s.Orm = db
-	s.Log = log
-	err = s.UpdateSysRole(object)
+	control := new(dto.SysRoleControl)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
+		return
+	}
+	cb :=sdk.Runtime.GetCasbinKey(c.Request.Host)
+
+	control.SetUpdateBy(user.GetUserId(c))
+
+	err = s.UpdateSysRole(control,cb)
+	if err != nil {
+		e.Logger.Error(err)
 		return
 	}
 	_, err = global.LoadPolicy(c)
@@ -198,7 +179,7 @@ func (e SysRole) UpdateSysRole(c *gin.Context) {
 		e.Error(http.StatusInternalServerError, err, "")
 		return
 	}
-	e.OK(object.GetId(), "更新成功")
+	e.OK(control.GetId(), "更新成功")
 }
 
 // @Summary 删除用户角色

@@ -2,13 +2,14 @@ package service
 
 import (
 	"errors"
+	"github.com/casbin/casbin/v2"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysRole struct {
@@ -20,7 +21,7 @@ func (e *SysRole) GetSysRolePage(c *dto.SysRoleSearch, list *[]models.SysRole, c
 	var err error
 	var data models.SysRole
 
-	err = e.Orm.Model(&data).
+	err = e.Orm.Model(&data).Preload("SysMenu").
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
@@ -49,7 +50,7 @@ func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *models.SysRole) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	model.MenuIds, err = e.GetRoleMenuId(e.Orm, model.RoleId)
+	model.MenuIds, err = e.GetRoleMenuId(model.RoleId)
 	if err != nil {
 		e.Log.Errorf("get menuIds error, %s", err.Error())
 		return err
@@ -58,10 +59,17 @@ func (e *SysRole) GetSysRole(d *dto.SysRoleById, model *models.SysRole) error {
 }
 
 // InsertSysRole 创建SysRole对象
-func (e *SysRole) InsertSysRole(c *models.SysRole) error {
+func (e *SysRole) InsertSysRole(c *dto.SysRoleControl) error {
 	var err error
 	var data models.SysRole
-
+	var dataMenu []models.SysMenu
+	err = e.Orm.Preload("SysApi").Where("menu_id in ?", c.MenuIds).Find(&dataMenu).Error
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	c.SysMenu = dataMenu
+	c.Generate(&data)
 	tx := e.Orm.Begin()
 	defer func() {
 		if err != nil {
@@ -91,7 +99,7 @@ func (e *SysRole) InsertSysRole(c *models.SysRole) error {
 }
 
 // UpdateSysRole 修改SysRole对象
-func (e *SysRole) UpdateSysRole(c *models.SysRole) error {
+func (e *SysRole) UpdateSysRole(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error {
 	var err error
 
 	tx := e.Orm.Debug().Begin()
@@ -102,8 +110,14 @@ func (e *SysRole) UpdateSysRole(c *models.SysRole) error {
 			tx.Commit()
 		}
 	}()
-	db := tx.Model(&c).
-		Where(c.GetId()).Updates(c)
+	var model = models.SysRole{}
+	var mlist = make([]models.SysMenu, 0)
+	e.Orm.First(&model, c.GetId())
+	e.Orm.Preload("SysApi").Find(&mlist, c.MenuIds)
+	c.Generate(&model)
+	model.SysMenu = mlist
+	db := e.Orm.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
+
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -111,23 +125,13 @@ func (e *SysRole) UpdateSysRole(c *models.SysRole) error {
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
 	}
-
-	var t models.RoleMenu
-	err = t.DeleteRoleMenu(tx, c.RoleId)
-	if err != nil {
-		e.Log.Errorf("delete role menu error, %", err.Error())
-		return err
-	}
-	if len(c.MenuIds) > 0 {
-		s := SysRoleMenu{}
-		s.Orm = e.Orm
-		s.Log = e.Log
-		err = s.ReloadRule(tx, c.RoleId, c.MenuIds)
-		if err != nil {
-			e.Log.Errorf("reload casbin rule error, %", err.Error())
-			return err
+	for _, menu := range mlist {
+		for _, api := range menu.SysApi {
+			_, err = cb.AddNamedPolicy("p", model.RoleKey, api.Path, api.Action)
 		}
 	}
+
+	_ = cb.SavePolicy()
 	return nil
 }
 
@@ -169,10 +173,10 @@ func (e *SysRole) RemoveSysRole(d *dto.SysRoleById) error {
 }
 
 // 获取角色对应的菜单ids
-func (e *SysRole) GetRoleMenuId(tx *gorm.DB, roleId int) ([]int, error) {
+func (e *SysRole) GetRoleMenuId(roleId int) ([]int, error) {
 	menuIds := make([]int, 0)
 	menuList := make([]models.MenuIdList, 0)
-	if err := tx.Table("sys_role_menu").
+	if err := e.Orm.Table("sys_role_menu").
 		Select("sys_role_menu.menu_id").
 		Where("role_id = ? ", roleId).
 		Where(" sys_role_menu.menu_id not in(select sys_menu.parent_id from sys_role_menu "+

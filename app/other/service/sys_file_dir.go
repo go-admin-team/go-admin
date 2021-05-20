@@ -3,14 +3,14 @@ package service
 import (
 	"errors"
 	"fmt"
-	"go-admin/app/other/models"
-	"go-admin/app/other/service/dto"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
+	"go-admin/app/other/models"
+	"go-admin/app/other/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysFileDir struct {

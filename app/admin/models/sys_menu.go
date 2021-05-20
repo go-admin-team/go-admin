@@ -24,7 +24,7 @@ type SysMenu struct {
 	DataScope  string    `json:"dataScope" gorm:"-"`
 	Params     string    `json:"params" gorm:"-"`
 	RoleId     int       `gorm:"-"`
-	Children   []SysMenu `json:"children" gorm:"-"`
+	Children   []SysMenu `json:"children,omitempty" gorm:"-"`
 	IsSelect   bool      `json:"is_select" gorm:"-"`
 	models.ControlBy
 	models.ModelTime

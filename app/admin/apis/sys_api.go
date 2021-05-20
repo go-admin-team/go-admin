@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
@@ -11,11 +12,10 @@ import (
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
-	"go-admin/common/apis"
 )
 
 type SysApi struct {
-	apis.Api
+	api.Api
 }
 
 // GetSysApiList 获取接口管理列表

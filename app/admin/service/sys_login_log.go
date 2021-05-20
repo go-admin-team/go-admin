@@ -2,14 +2,14 @@ package service
 
 import (
 	"errors"
-	"go-admin/app/admin/models"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 	common "go-admin/common/models"
-	"go-admin/common/service"
 )
 
 type SysLoginLog struct {

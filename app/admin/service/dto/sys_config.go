@@ -2,12 +2,12 @@ package dto
 
 import (
 	"encoding/json"
-	"go-admin/app/admin/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
+	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -24,16 +24,6 @@ type SysConfigSearch struct {
 func (m *SysConfigSearch) GetNeedSearch() interface{} {
 	return *m
 }
-
-// Bind 映射上下文中的结构体数据
-//func (m *SysConfigSearch) Bind(ctx *gin.Context) error {
-//	log := api.GetRequestLogger(ctx)
-//	err := ctx.ShouldBind(m)
-//	if err != nil {
-//		log.Debugf("ShouldBind error: %s", err.Error())
-//	}
-//	return err
-//}
 
 // SysConfigControl 增、改使用的结构体
 type SysConfigControl struct {

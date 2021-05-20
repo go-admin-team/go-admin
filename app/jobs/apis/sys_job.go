@@ -1,18 +1,18 @@
 package apis
 
 import (
-	"go-admin/app/jobs/service"
 	"net/http"
-
-	"go-admin/common/apis"
-	"go-admin/common/dto"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
+
+	"go-admin/app/jobs/service"
+	"go-admin/common/dto"
 )
 
 type SysJob struct {
-	apis.Api
+	api.Api
 }
 
 // RemoveJobForService 调用service实现

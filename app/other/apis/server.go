@@ -4,13 +4,12 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-
-	"go-admin/common/apis"
 )
 
 const (
@@ -21,7 +20,7 @@ const (
 )
 
 type Monitor struct {
-	apis.Api
+	api.Api
 }
 
 // ServerInfo 获取系统信息

@@ -2,14 +2,14 @@ package service
 
 import (
 	"errors"
-	models2 "go-admin/app/other/models"
-	dto2 "go-admin/app/other/service/dto"
+	"go-admin/app/other/models"
+	"go-admin/app/other/service/dto"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysChinaAreaData struct {
@@ -17,8 +17,8 @@ type SysChinaAreaData struct {
 }
 
 // GetSysChinaAreaDataPage 获取SysChinaAreaData列表
-func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto2.SysChinaAreaDataSearch, p *actions.DataPermission, list *[]models2.SysChinaAreaData, count *int64) error {
-	var data models2.SysChinaAreaData
+func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto.SysChinaAreaDataSearch, p *actions.DataPermission, list *[]models.SysChinaAreaData, count *int64) error {
+	var data models.SysChinaAreaData
 
 	err := e.Orm.Model(&data).
 		Scopes(
@@ -36,8 +36,8 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto2.SysChinaAreaDataSearc
 }
 
 // GetSysChinaAreaData 获取SysChinaAreaData对象
-func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto2.SysChinaAreaDataById, p *actions.DataPermission, model *models2.SysChinaAreaData) error {
-	var data models2.SysChinaAreaData
+func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto.SysChinaAreaDataById, p *actions.DataPermission, model *models.SysChinaAreaData) error {
+	var data models.SysChinaAreaData
 
 	err := e.Orm.Model(&data).
 		Scopes(
@@ -57,8 +57,8 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto2.SysChinaAreaDataById, p *
 }
 
 // InsertSysChinaAreaData 创建SysChinaAreaData对象
-func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models2.SysChinaAreaData) error {
-	var data models2.SysChinaAreaData
+func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models.SysChinaAreaData) error {
+	var data models.SysChinaAreaData
 
 	err := e.Orm.Model(&data).
 		Create(model).Error
@@ -70,7 +70,7 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models2.SysChinaAreaDat
 }
 
 // UpdateSysChinaAreaData 修改SysChinaAreaData对象
-func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models2.SysChinaAreaData, p *actions.DataPermission) error {
+func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models.SysChinaAreaData, p *actions.DataPermission) error {
 	db := e.Orm.Model(c).
 		Scopes(
 			actions.Permission(c.TableName(), p),
@@ -86,9 +86,9 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models2.SysChinaAreaData, p
 }
 
 // RemoveSysChinaAreaData 删除SysChinaAreaData
-func (e *SysChinaAreaData) RemoveSysChinaAreaData(d *dto2.SysChinaAreaDataById, p *actions.DataPermission) error {
+func (e *SysChinaAreaData) RemoveSysChinaAreaData(d *dto.SysChinaAreaDataById, p *actions.DataPermission) error {
 
-	var data models2.SysChinaAreaData
+	var data models.SysChinaAreaData
 
 	db := e.Orm.Model(&data).
 		Scopes(

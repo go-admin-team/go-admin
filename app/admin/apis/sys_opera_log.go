@@ -5,15 +5,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
-	"go-admin/common/apis"
 )
 
 type SysOperaLog struct {
-	apis.Api
+	api.Api
 }
 
 func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {

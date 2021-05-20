@@ -7,14 +7,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
 	"go-admin/common/actions"
-	"go-admin/common/apis"
 )
 
 type SysChinaAreaData struct {
-	apis.Api
+	api.Api
 }
 
 func (e SysChinaAreaData) GetSysChinaAreaDataList(c *gin.Context) {

@@ -1,13 +1,14 @@
 package service
 
 import (
-	"github.com/robfig/cron/v3"
-	"go-admin/app/jobs/models"
 	"time"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
+	"github.com/robfig/cron/v3"
+
 	"go-admin/app/jobs"
+	"go-admin/app/jobs/models"
 	"go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysJob struct {

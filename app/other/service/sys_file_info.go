@@ -2,14 +2,14 @@ package service
 
 import (
 	"errors"
-	models2 "go-admin/app/other/models"
-	dto2 "go-admin/app/other/service/dto"
 
-	"gorm.io/gorm"
+	"go-admin/app/other/models"
+	"go-admin/app/other/service/dto"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
+	"gorm.io/gorm"
 )
 
 type SysFileInfo struct {
@@ -17,9 +17,9 @@ type SysFileInfo struct {
 }
 
 // GetSysFileInfoPage 获取SysFileInfo列表
-func (e *SysFileInfo) GetSysFileInfoPage(c *dto2.SysFileInfoSearch, p *actions.DataPermission, list *[]models2.SysFileInfo, count *int64) error {
+func (e *SysFileInfo) GetSysFileInfoPage(c *dto.SysFileInfoSearch, p *actions.DataPermission, list *[]models.SysFileInfo, count *int64) error {
 	var err error
-	var data models2.SysFileInfo
+	var data models.SysFileInfo
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -37,9 +37,9 @@ func (e *SysFileInfo) GetSysFileInfoPage(c *dto2.SysFileInfoSearch, p *actions.D
 }
 
 // GetSysFileInfo 获取SysFileInfo对象
-func (e *SysFileInfo) GetSysFileInfo(d *dto2.SysFileInfoById, p *actions.DataPermission, model *models2.SysFileInfo) error {
+func (e *SysFileInfo) GetSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPermission, model *models.SysFileInfo) error {
 	var err error
-	var data models2.SysFileInfo
+	var data models.SysFileInfo
 
 	db := e.Orm.Model(&data).
 		Scopes(
@@ -60,9 +60,9 @@ func (e *SysFileInfo) GetSysFileInfo(d *dto2.SysFileInfoById, p *actions.DataPer
 }
 
 // InsertSysFileInfo 创建SysFileInfo对象
-func (e *SysFileInfo) InsertSysFileInfo(model *dto2.SysFileInfoControl) error {
+func (e *SysFileInfo) InsertSysFileInfo(model *dto.SysFileInfoControl) error {
 	var err error
-	var data *models2.SysFileInfo
+	var data *models.SysFileInfo
 
 	data, err = model.Generate()
 	if err != nil {
@@ -80,9 +80,9 @@ func (e *SysFileInfo) InsertSysFileInfo(model *dto2.SysFileInfoControl) error {
 }
 
 // UpdateSysFileInfo 修改SysFileInfo对象
-func (e *SysFileInfo) UpdateSysFileInfo(c *dto2.SysFileInfoControl, p *actions.DataPermission) error {
+func (e *SysFileInfo) UpdateSysFileInfo(c *dto.SysFileInfoControl, p *actions.DataPermission) error {
 	var err error
-	var data *models2.SysFileInfo
+	var data *models.SysFileInfo
 
 	data, err = c.Generate()
 	if err != nil {
@@ -105,9 +105,9 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *dto2.SysFileInfoControl, p *actions.D
 }
 
 // RemoveSysFileInfo 删除SysFileInfo
-func (e *SysFileInfo) RemoveSysFileInfo(d *dto2.SysFileInfoById, p *actions.DataPermission) error {
+func (e *SysFileInfo) RemoveSysFileInfo(d *dto.SysFileInfoById, p *actions.DataPermission) error {
 	var err error
-	var data models2.SysFileInfo
+	var data models.SysFileInfo
 
 	db := e.Orm.Model(&data).
 		Scopes(

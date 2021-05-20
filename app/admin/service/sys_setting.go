@@ -3,10 +3,10 @@ package service
 import (
 	"errors"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
-	"go-admin/common/service"
 )
 
 type SysSetting struct {

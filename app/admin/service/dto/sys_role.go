@@ -3,6 +3,7 @@ package dto
 import (
 	"encoding/json"
 	"go-admin/app/admin/models"
+	common "go-admin/common/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -42,16 +43,26 @@ func (m *SysRoleSearch) Bind(ctx *gin.Context) error {
 
 // SysConfigControl 增、改使用的结构体
 type SysRoleControl struct {
-	RoleId    int    `uri:"id" comment:"角色编码"`        // 角色编码
-	RoleName  string `form:"roleName" comment:"角色名称"` // 角色名称
-	Status    string `form:"status" comment:"状态"`     // 状态
-	RoleKey   string `form:"roleKey" comment:"角色代码"`  // 角色代码
-	RoleSort  int    `form:"roleSort" comment:"角色排序"` // 角色排序
-	Flag      string `form:"flag" comment:"标记"`       // 标记
-	Remark    string `form:"remark" comment:"备注"`     // 备注
-	Admin     bool   `form:"admin" comment:"是否管理员"`
-	DataScope string `form:"dataScope"`
-	MenuIds   []int  `json:"menuIds"`
+	RoleId    int              `uri:"id" comment:"角色编码"`        // 角色编码
+	RoleName  string           `form:"roleName" comment:"角色名称"` // 角色名称
+	Status    string           `form:"status" comment:"状态"`     // 状态
+	RoleKey   string           `form:"roleKey" comment:"角色代码"`  // 角色代码
+	RoleSort  int              `form:"roleSort" comment:"角色排序"` // 角色排序
+	Flag      string           `form:"flag" comment:"标记"`       // 标记
+	Remark    string           `form:"remark" comment:"备注"`     // 备注
+	Admin     bool             `form:"admin" comment:"是否管理员"`
+	DataScope string           `form:"dataScope"`
+	SysMenu   []models.SysMenu `form:"sysMenu"`
+	MenuIds   []int            `form:"menuIds"`
+	common.ControlBy
+}
+
+func (s *SysRoleControl) SetCreateBy(id int) {
+	s.CreateBy = id
+}
+
+func (s *SysRoleControl) SetUpdateBy(id int) {
+	s.UpdateBy = id
 }
 
 // Bind 映射上下文中的结构体数据
@@ -76,19 +87,20 @@ func (s *SysRoleControl) Bind(ctx *gin.Context) error {
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysRoleControl) Generate() (*models.SysRole, error) {
-	return &models.SysRole{
-		RoleId:    s.RoleId,
-		RoleName:  s.RoleName,
-		Status:    s.Status,
-		RoleKey:   s.RoleKey,
-		RoleSort:  s.RoleSort,
-		Flag:      s.Flag,
-		Remark:    s.Remark,
-		Admin:     s.Admin,
-		DataScope: s.DataScope,
-		MenuIds:   s.MenuIds,
-	}, nil
+func (s *SysRoleControl) Generate(model *models.SysRole) {
+	if s.RoleId != 0 {
+		model.RoleId = s.RoleId
+	}
+	model.RoleName = s.RoleName
+	model.Status = s.Status
+	model.RoleKey = s.RoleKey
+	model.RoleSort = s.RoleSort
+	model.Flag = s.Flag
+	model.Remark = s.Remark
+	model.Admin = s.Admin
+	model.DataScope = s.DataScope
+	model.SysMenu = s.SysMenu
+
 }
 
 // GetId 获取数据对应的ID

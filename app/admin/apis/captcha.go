@@ -2,12 +2,12 @@ package apis
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
-	"go-admin/common/apis"
 )
 
 type System struct {
-	apis.Api
+	api.Api
 }
 
 func (e System) GenerateCaptchaHandler(c *gin.Context) {

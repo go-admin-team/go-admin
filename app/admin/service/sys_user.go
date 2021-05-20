@@ -6,12 +6,12 @@ import (
 
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 	common "go-admin/common/models"
-	"go-admin/common/service"
 )
 
 type SysUser struct {

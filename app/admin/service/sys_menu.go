@@ -4,29 +4,16 @@ import (
 	"errors"
 
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"gorm.io/gorm"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysMenu struct {
 	service.Service
-}
-
-// MakeOrm 设置ORM
-func (e *SysMenu) MakeOrm(orm *gorm.DB) *SysMenu {
-	e.Orm = orm
-	return e
-}
-
-// MakeLog 设置Log
-func (e *SysMenu) MakeLog(l *logger.Logger) *SysMenu {
-	e.Log = l
-	return e
 }
 
 // GetSysMenuPage 获取SysMenu列表
@@ -51,7 +38,7 @@ func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]models.SysMenu) e
 	var err error
 	var data models.SysMenu
 
-	err = e.Orm.Model(&data).Preload("SysApi").
+	err = e.Orm.Model(&data).
 		Scopes(
 			cDto.OrderDest("sort", false),
 			cDto.MakeCondition(c.GetNeedSearch()),
@@ -83,7 +70,7 @@ func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) error {
 	}
 	apis := make([]int, 0)
 	for _, v := range model.SysApi {
-		apis = append(model.Apis, v.Id)
+		apis = append(apis, v.Id)
 	}
 	model.Apis = apis
 	return nil
@@ -140,7 +127,7 @@ func (e *SysMenu) UpdateSysMenu(c *dto.SysMenuControl) *SysMenu {
 }
 
 // RemoveSysMenu 删除SysMenu
-func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) error {
+func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -149,13 +136,13 @@ func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) error {
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
-		return err
+		_ = e.AddError(err)
 	}
 	if db.RowsAffected == 0 {
 		err = errors.New("无权删除该数据")
-		return err
+		_ = e.AddError(err)
 	}
-	return nil
+	return e
 }
 
 // GetSysMenuList 获取菜单数据
@@ -175,7 +162,7 @@ func (e *SysMenu) GetSysMenuList(c *dto.SysMenuSearch, list *[]models.SysMenu) e
 	return nil
 }
 
-// SetSysMenuTree 设置菜单数据
+// SetSysMenuLabel 设置菜单数据
 func (e *SysMenu) SetSysMenuLabel() (m []dto.MenuLabel, err error) {
 	var list []models.SysMenu
 	err = e.GetSysMenuList(&dto.SysMenuSearch{}, &list)
@@ -195,26 +182,31 @@ func (e *SysMenu) SetSysMenuLabel() (m []dto.MenuLabel, err error) {
 	return
 }
 
-// 左侧菜单
-func (e *SysMenu) GetSysMenuByRoleName(roleName string) (Menus []models.SysMenu, err error) {
-	var table *gorm.DB
-	var data models.SysMenu
+// GetSysMenuByRoleName 左侧菜单
+func (e *SysMenu) GetSysMenuByRoleName(roleName string) ([]models.SysMenu, error) {
+	var MenuList []models.SysMenu
+	var role models.SysRole
+	var err error
 
 	if roleName == "admin" {
-		table = e.Orm.Model(&data).Select("sys_menu.*")
-		table = table.Where(" menu_type in ('M','C')")
+		var data []models.SysMenu
+		err = e.Orm.Where(" menu_type in ('M','C')").
+			Order("sort").
+			Find(&data).
+			Error
+		MenuList = data
 	} else {
-		table = e.Orm.Model(&data).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
-		table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", roleName)
+		err = e.Orm.Model(&role).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
+			return db.Where(" menu_type in ('M','C')").Order("sort")
+		}).Where("role_name=?", roleName).Find(&role).
+			Error
+		MenuList = role.SysMenu
 	}
-
-	err = table.Order("sort").Find(&Menus).Error
 
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
-		return
 	}
-	return
+	return MenuList, err
 }
 
 // menuLabelCall 递归构造组织数据
@@ -286,40 +278,38 @@ func menuCall(menulist *[]models.SysMenu, menu models.SysMenu) models.SysMenu {
 	return menu
 }
 
+// SetMenuRole 获取左侧菜单树使用
 func (e *SysMenu) SetMenuRole(roleName string) (m []models.SysMenu, err error) {
-
 	menus, err := e.getByRoleName(roleName)
-
 	m = make([]models.SysMenu, 0)
 	for i := 0; i < len(menus); i++ {
 		if menus[i].ParentId != 0 {
 			continue
 		}
 		menusInfo := menuCall(&menus, menus[i])
-
 		m = append(m, menusInfo)
 	}
 	return
 }
 
-func (e *SysMenu) getByRoleName(roleName string) (Menus []models.SysMenu, err error) {
-	var data models.SysMenu
+func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
+	var MenuList []models.SysMenu
+	var role models.SysRole
+	var err error
 
-	var table *gorm.DB
 	if roleName == "admin" {
-		table = e.Orm.Model(&data).Select("sys_menu.*")
-		table = table.Where(" menu_type in ('M','C')")
+		var data []models.SysMenu
+		err = e.Orm.Where(" menu_type in ('M','C')").Order("sort").Find(&data).Error
+		MenuList = data
 	} else {
-		table = e.Orm.Model(&data).Select("sys_menu.*").Joins("left join sys_role_menu on sys_role_menu.menu_id=sys_menu.menu_id")
-		table = table.Where("sys_role_menu.role_name=? and menu_type in ('M','C')", roleName)
+		err = e.Orm.Model(&role).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
+			return db.Where(" menu_type in ('M','C')").Order("sort")
+		}).Where("role_name=?", roleName).Find(&role).Error
+		MenuList = role.SysMenu
 	}
-	err = table.Scopes(
-		cDto.OrderDest("sort", false),
-	).Find(&Menus).Error
 
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
-		return
 	}
-	return
+	return MenuList, err
 }

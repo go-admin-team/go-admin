@@ -15,11 +15,10 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
-	"go-admin/common/apis"
 )
 
 type Gen struct {
-	apis.Api
+	api.Api
 }
 
 func (e Gen) Preview(c *gin.Context) {

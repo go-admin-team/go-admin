@@ -1,20 +1,20 @@
 package apis
 
 import (
-	"go-admin/app/admin/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
-	"go-admin/common/apis"
 )
 
 type SysPost struct {
-	apis.Api
+	api.Api
 }
 
 // @Summary 岗位列表数据

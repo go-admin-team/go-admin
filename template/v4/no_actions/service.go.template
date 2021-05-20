@@ -3,13 +3,13 @@ package service
 import (
 	"errors"
 
+    "github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 	"go-admin/app/{{.PackageName}}/service/dto"
-	"go-admin/common/service"
 )
 
 type {{.ClassName}} struct {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 
@@ -11,11 +12,10 @@ import (
 	"go-admin/app/other/service"
 	"go-admin/app/other/service/dto"
 	"go-admin/common/actions"
-	"go-admin/common/apis"
 )
 
 type SysFileDir struct {
-	apis.Api
+	api.Api
 }
 
 func (e SysFileDir) GetSysFileDirList(c *gin.Context) {

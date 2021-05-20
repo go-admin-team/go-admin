@@ -5,17 +5,17 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/tools"
-	"go-admin/common/apis"
 )
 
 type SysTable struct {
-	apis.Api
+	api.Api
 }
 
 // GetSysTableList 分页列表数据
