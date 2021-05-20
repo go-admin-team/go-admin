@@ -76,7 +76,7 @@ func LoggerToFile() gin.HandlerFunc {
 			"method":      reqMethod,
 			"uri":         reqUri,
 		}
-		log.Info(logData)
+		log.WithFields(logData).Info()
 		//l := logger.Logger{Logger: log.Fields(logData)}
 		//l.Info(logData)
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB {

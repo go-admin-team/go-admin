@@ -6,10 +6,11 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 
-	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
+
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 )
 
 type SysMenu struct {
