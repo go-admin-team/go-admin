@@ -55,12 +55,14 @@ func SaveSysApi(message storage.Messager) (err error) {
 	dbList := sdk.Runtime.GetDb()
 	for _, d := range dbList {
 		for _, v := range l.List {
-			err := d.Debug().Where(SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
-				Attrs(SysApi{Handle: v.Handler}).
-				FirstOrCreate(&SysApi{}).Error
-			if err != nil {
-				err := fmt.Errorf("Models SaveSysApi error: %s \r\n ", err.Error())
-				return err
+			if v.HttpMethod != "HEAD" {
+				err := d.Debug().Where(SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
+					Attrs(SysApi{Handle: v.Handler}).
+					FirstOrCreate(&SysApi{}).Error
+				if err != nil {
+					err := fmt.Errorf("Models SaveSysApi error: %s \r\n ", err.Error())
+					return err
+				}
 			}
 		}
 	}

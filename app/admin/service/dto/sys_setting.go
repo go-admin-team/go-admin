@@ -66,6 +66,10 @@ func (s *SysSettingById) Generate() *SysSettingById {
 }
 
 func (s *SysSettingById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
 	return s.Id
 }
 

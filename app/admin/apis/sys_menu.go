@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"net/http"
 
@@ -26,27 +27,22 @@ type SysMenu struct {
 // @Router /api/v1/menulist [get]
 // @Security Bearer
 func (e SysMenu) GetSysMenuList(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	d := new(dto.SysMenuSearch)
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
 
-	//查询列表
-	err = d.Bind(c)
+	s := service.SysMenu{}
+	d := new(dto.SysMenuSearch)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(d, binding.Form).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
 	var list *[]models.SysMenu
-	serviceSysMenu := service.SysMenu{}
-	serviceSysMenu.Log = log
-	serviceSysMenu.Orm = db
-	list, err = serviceSysMenu.GetSysMenuPage(d)
+	list, err = s.GetSysMenuPage(d)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -69,7 +65,7 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control, nil).
+		Bind(control).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -109,7 +105,7 @@ func (e SysMenu) InsertSysMenu(c *gin.Context) {
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(control, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -145,7 +141,7 @@ func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(control, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -175,7 +171,7 @@ func (e SysMenu) DeleteSysMenu(c *gin.Context) {
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(control, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

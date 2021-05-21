@@ -37,10 +37,8 @@ func (e *SysDictType) GetPage(c *dto.SysDictTypeSearch, list *[]models.SysDictTy
 // Get 获取对象
 func (e *SysDictType) Get(d *dto.SysDictTypeById, model *models.SysDictType) error {
 	var err error
-	var data models.SysDictType
 
-	db := e.Orm.Model(&data).
-		First(model, d.GetId())
+	db := e.Orm.First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
@@ -55,12 +53,11 @@ func (e *SysDictType) Get(d *dto.SysDictTypeById, model *models.SysDictType) err
 }
 
 // Insert 创建对象
-func (e *SysDictType) Insert(model *models.SysDictType) error {
+func (e *SysDictType) Insert(c *dto.SysDictTypeControl) error {
 	var err error
 	var data models.SysDictType
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	c.Generate(&data)
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -69,12 +66,12 @@ func (e *SysDictType) Insert(model *models.SysDictType) error {
 }
 
 // Update 修改对象
-func (e *SysDictType) Update(c *models.SysDictType) error {
+func (e *SysDictType) Update(c *dto.SysDictTypeControl) error {
 	var err error
-	var data models.SysDictType
-
-	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+	var model = models.SysDictType{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
+	db := e.Orm.Save(&model)
 	if db.Error != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -87,12 +84,11 @@ func (e *SysDictType) Update(c *models.SysDictType) error {
 }
 
 // Remove 删除
-func (e *SysDictType) Remove(d *dto.SysDictTypeById, c *models.SysDictType) error {
+func (e *SysDictType) Remove(d *dto.SysDictTypeById) error {
 	var err error
 	var data models.SysDictType
 
-	db := e.Orm.Model(&data).
-		Where(d.GetId()).Delete(c)
+	db := e.Orm.Delete(&data, d.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

@@ -19,8 +19,6 @@ func registerSysLoginLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMi
 	{
 		r.GET("", api.GetSysLoginLogList)
 		r.GET("/:id", api.GetSysLoginLog)
-		r.POST("", api.InsertSysLoginLog)
-		r.PUT("/:id", api.UpdateSysLoginLog)
 		r.DELETE("", api.DeleteSysLoginLog)
 	}
 }

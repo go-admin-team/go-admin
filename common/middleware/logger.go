@@ -24,8 +24,9 @@ func LoggerToFile() gin.HandlerFunc {
 		// 处理请求
 
 		c.Next()
-		if strings.Index(c.Request.RequestURI, "/api/v1/logout") > -1 ||
-			strings.Index(c.Request.RequestURI, "/login") > -1 {
+		url := c.Request.RequestURI
+		if strings.Index(url, "logout") > -1 ||
+			strings.Index(url, "login") > -1 {
 			return
 		}
 		// 结束时间
@@ -77,8 +78,7 @@ func LoggerToFile() gin.HandlerFunc {
 			"uri":         reqUri,
 		}
 		log.WithFields(logData).Info()
-		//l := logger.Logger{Logger: log.Fields(logData)}
-		//l.Info(logData)
+
 		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, statusBus)
 		}
@@ -98,25 +98,9 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	l["requestMethod"] = c.Request.Method
 	l["operParam"] = body
 	l["operTime"] = time.Now()
-	if reqUri == "/login" {
-		l["businessType"] = "10"
-		l["title"] = "用户登录"
-		l["operName"] = "-"
-	} else if strings.Contains(reqUri, "/api/v1/logout") {
-		l["businessType"] = "11"
-		l["title"] = "退出登录"
-	} else if strings.Contains(reqUri, "/api/v1/getCaptcha") {
-		l["businessType"] = "12"
-		l["title"] = "验证码"
-	} else {
-		if reqMethod == "POST" {
-			l["businessType"] = "1"
-		} else if reqMethod == "PUT" {
-			l["businessType"] = "2"
-		} else if reqMethod == "DELETE" {
-			l["businessType"] = "3"
-		}
-	}
+	l["jsonResult"] = result
+	l["latencyTime"] = latencyTime.String()
+	l["statusCode"] = statusCode
 	if status == http.StatusOK {
 		l["status"] = "2"
 	} else {

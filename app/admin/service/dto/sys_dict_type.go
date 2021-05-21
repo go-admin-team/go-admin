@@ -36,45 +36,23 @@ func (m *SysDictTypeSearch) Generate() dto.Index {
 }
 
 type SysDictTypeControl struct {
-	Id int `uri:"id" comment:""` //
-
-	DictName string `json:"dictName" comment:""`
-
-	DictType string `json:"dictType" comment:""`
-
-	Status string `json:"status" comment:""`
-
-	Remark string `json:"remark" comment:""`
+	Id       int    `uri:"id"`
+	DictName string `json:"dictName"`
+	DictType string `json:"dictType"`
+	Status   string `json:"status"`
+	Remark   string `json:"remark"`
+	common.ControlBy
 }
 
-func (s *SysDictTypeControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
+func (s *SysDictTypeControl) Generate(model *models.SysDictType) {
+	if s.Id != 0 {
+		model.ID = s.Id
 	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
+	model.DictName = s.DictName
+	model.DictType = s.DictType
+	model.Status = s.Status
+	model.Remark = s.Remark
 
-func (s *SysDictTypeControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysDictTypeControl) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysDictType{
-
-		ID:       s.Id,
-		DictName: s.DictName,
-		DictType: s.DictType,
-		Status:   s.Status,
-		Remark:   s.Remark,
-	}, nil
 }
 
 func (s *SysDictTypeControl) GetId() interface{} {
@@ -83,11 +61,20 @@ func (s *SysDictTypeControl) GetId() interface{} {
 
 type SysDictTypeById struct {
 	dto.ObjectById
+	common.ControlBy
 }
 
 func (s *SysDictTypeById) Generate() dto.Control {
 	cp := *s
 	return &cp
+}
+
+func (s *SysDictTypeById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
+	return s.Id
 }
 
 func (s *SysDictTypeById) GenerateM() (common.ActiveRecord, error) {

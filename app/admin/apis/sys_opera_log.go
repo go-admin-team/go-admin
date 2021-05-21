@@ -6,8 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
-
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 )
@@ -16,6 +14,7 @@ type SysOperaLog struct {
 	api.Api
 }
 
+// GetSysOperaLogList 操作日志列表
 func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
@@ -47,6 +46,7 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
+// GetSysOperaLog  操作日志通过id获取
 func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
@@ -77,76 +77,77 @@ func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-func (e SysOperaLog) InsertSysOperaLog(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysOperaLogControl)
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
 
-	//新增操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	// 设置创建人
-	object.SetCreateBy(user.GetUserId(c))
+//func (e SysOperaLog) InsertSysOperaLog(c *gin.Context) {
+//	e.Context = c
+//	log := e.GetLogger()
+//	control := new(dto.SysOperaLogControl)
+//	db, err := e.GetOrm()
+//	if err != nil {
+//		log.Error(err)
+//		return
+//	}
+//
+//	//新增操作
+//	err = control.Bind(c)
+//	if err != nil {
+//		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+//		return
+//	}
+//	object, err := control.Generate()
+//	if err != nil {
+//		e.Error(http.StatusInternalServerError, err, "模型生成失败")
+//		return
+//	}
+//	// 设置创建人
+//	object.SetCreateBy(user.GetUserId(c))
+//
+//	serviceSysOperaLog := service.SysOperaLog{}
+//	serviceSysOperaLog.Orm = db
+//	serviceSysOperaLog.Log = log
+//	err = serviceSysOperaLog.InsertSysOperaLog(object)
+//	if err != nil {
+//		log.Error(err)
+//		e.Error(http.StatusInternalServerError, err, "创建失败")
+//		return
+//	}
+//
+//	e.OK(object.GetId(), "创建成功")
+//}
 
-	serviceSysOperaLog := service.SysOperaLog{}
-	serviceSysOperaLog.Orm = db
-	serviceSysOperaLog.Log = log
-	err = serviceSysOperaLog.InsertSysOperaLog(object)
-	if err != nil {
-		log.Error(err)
-		e.Error(http.StatusInternalServerError, err, "创建失败")
-		return
-	}
-
-	e.OK(object.GetId(), "创建成功")
-}
-
-func (e SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysOperaLogControl)
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//更新操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.SetUpdateBy(user.GetUserId(c))
-
-	serviceSysOperaLog := service.SysOperaLog{}
-	serviceSysOperaLog.Orm = db
-	serviceSysOperaLog.Log = log
-	err = serviceSysOperaLog.UpdateSysOperaLog(object)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	e.OK(object.GetId(), "更新成功")
-}
+//func (e SysOperaLog) UpdateSysOperaLog(c *gin.Context) {
+//	e.Context = c
+//	log := e.GetLogger()
+//	control := new(dto.SysOperaLogControl)
+//	db, err := e.GetOrm()
+//	if err != nil {
+//		log.Error(err)
+//		return
+//	}
+//
+//	//更新操作
+//	err = control.Bind(c)
+//	if err != nil {
+//		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+//		return
+//	}
+//	object, err := control.Generate()
+//	if err != nil {
+//		e.Error(http.StatusInternalServerError, err, "模型生成失败")
+//		return
+//	}
+//	object.SetUpdateBy(user.GetUserId(c))
+//
+//	serviceSysOperaLog := service.SysOperaLog{}
+//	serviceSysOperaLog.Orm = db
+//	serviceSysOperaLog.Log = log
+//	err = serviceSysOperaLog.UpdateSysOperaLog(object)
+//	if err != nil {
+//		log.Error(err)
+//		return
+//	}
+//	e.OK(object.GetId(), "更新成功")
+//}
 
 func (e SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 	e.Context = c

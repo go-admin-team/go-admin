@@ -149,14 +149,6 @@ func run() error {
 			}
 		}
 	}
-	//serviceApi := service.SysApi{}
-	//serviceApi.Orm = sdk.Runtime.GetDb()["*"]
-	//var routers = sdk.Runtime.GetRouter()
-	//err := serviceApi.CheckStorageSysApi(&routers)
-	//if err != nil {
-	//	log.Println("Server check api data :", err)
-	//}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

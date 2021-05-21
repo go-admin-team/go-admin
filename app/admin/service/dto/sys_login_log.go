@@ -19,6 +19,10 @@ type SysLoginLogSearch struct {
 	LoginLocation  string `form:"loginLocation" search:"type:exact;column:login_location;table:sys_login_log" comment:"归属地"`
 }
 
+type SysLoginLogOrder struct {
+	HandleOrder string `search:"type:order;column:created_at;table:sys_login_log" form:"created_at_order"`
+}
+
 func (m *SysLoginLogSearch) GetNeedSearch() interface{} {
 	return *m
 }

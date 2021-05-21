@@ -67,12 +67,11 @@ func (e *SysConfig) GetSysConfig(d *dto.SysConfigById, model *models.SysConfig) 
 }
 
 // InsertSysConfig 创建SysConfig对象
-func (e *SysConfig) InsertSysConfig(model *models.SysConfig) error {
+func (e *SysConfig) InsertSysConfig(c *dto.SysConfigControl) error {
 	var err error
 	var data models.SysConfig
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	c.Generate(&data)
+	err = e.Orm.Create(data).Error
 	if err != nil {
 		e.Log.Errorf("Service InsertSysConfig error:%s", err)
 		return err
@@ -81,11 +80,12 @@ func (e *SysConfig) InsertSysConfig(model *models.SysConfig) error {
 }
 
 // UpdateSysConfig 修改SysConfig对象
-func (e *SysConfig) UpdateSysConfig(c *models.SysConfig) error {
+func (e *SysConfig) UpdateSysConfig(c *dto.SysConfigControl) error {
 	var err error
-
-	db := e.Orm.Model(c).
-		Where(c.GetId()).Updates(c)
+	var model = models.SysConfig{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
+	db := e.Orm.Save(&model)
 	err = db.Error
 	if err != nil {
 		e.Log.Errorf("Service UpdateSysConfig error:%s", err)
@@ -99,12 +99,11 @@ func (e *SysConfig) UpdateSysConfig(c *models.SysConfig) error {
 }
 
 // RemoveSysConfig 删除SysConfig
-func (e *SysConfig) RemoveSysConfig(d *dto.SysConfigById, c *models.SysConfig) error {
+func (e *SysConfig) RemoveSysConfig(d *dto.SysConfigById) error {
 	var err error
 	var data models.SysConfig
 
-	db := e.Orm.Model(&data).
-		Where(d.Ids).Delete(c)
+	db := e.Orm.Delete(&data, d.Ids)
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Service RemoveSysConfig error:%s", err)

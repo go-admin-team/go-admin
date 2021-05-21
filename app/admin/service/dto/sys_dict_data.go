@@ -50,41 +50,22 @@ type SysDictDataControl struct {
 	Status    string `json:"status" comment:""`
 	Default   string `json:"default" comment:""`
 	Remark    string `json:"remark" comment:""`
+	common.ControlBy
 }
 
-func (s *SysDictDataControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
+func (s *SysDictDataControl) Generate(model *models.SysDictData) {
 
-func (s *SysDictDataControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysDictDataControl) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysDictData{
-		DictCode:  s.Id,
-		DictSort:  s.DictSort,
-		DictLabel: s.DictLabel,
-		DictValue: s.DictValue,
-		DictType:  s.DictType,
-		CssClass:  s.CssClass,
-		ListClass: s.ListClass,
-		IsDefault: s.IsDefault,
-		Status:    s.Status,
-		Default:   s.Default,
-		Remark:    s.Remark,
-	}, nil
+	model.DictCode = s.Id
+	model.DictSort = s.DictSort
+	model.DictLabel = s.DictLabel
+	model.DictValue = s.DictValue
+	model.DictType = s.DictType
+	model.CssClass = s.CssClass
+	model.ListClass = s.ListClass
+	model.IsDefault = s.IsDefault
+	model.Status = s.Status
+	model.Default = s.Default
+	model.Remark = s.Remark
 }
 
 func (s *SysDictDataControl) GetId() interface{} {
@@ -94,6 +75,7 @@ func (s *SysDictDataControl) GetId() interface{} {
 type SysDictDataById struct {
 	Id  int   `uri:"dictCode"`
 	Ids []int `json:"ids"`
+	common.ControlBy
 }
 
 func (s *SysDictDataById) Bind(ctx *gin.Context) error {
@@ -111,6 +93,7 @@ func (s *SysDictDataById) Bind(ctx *gin.Context) error {
 
 func (s *SysDictDataById) GetId() interface{} {
 	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
 		return s.Ids
 	}
 	return s.Id

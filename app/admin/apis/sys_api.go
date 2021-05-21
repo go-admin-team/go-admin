@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,38 +33,28 @@ type SysApi struct {
 // @Router /api/v1/sys_api [get]
 // @Security Bearer
 func (e SysApi) GetSysApiList(c *gin.Context) {
-	e.MakeContext(c)
-	log := e.GetLogger()
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
+	s := new(service.SysApi)
 	d := new(dto.SysApiSearch)
-	//查询列表
-	err = d.Bind(c)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(d,binding.Form).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Warnf("request body bind error, %s", err.Error())
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
-
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
-
 	list := make([]models.SysApi, 0)
 	var count int64
-	serviceSysApi := service.SysApi{}
-	serviceSysApi.Log = log
-	serviceSysApi.Orm = db
-	err = serviceSysApi.GetSysApiPage(d, p, &list, &count)
+	err = s.GetSysApiPage(d, p, &list, &count)
 	if err != nil {
-		log.Errorf("Get SysApi Page error, %s", err.Error())
+		e.Logger.Errorf("Get SysApi Page error, %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
-
 	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
@@ -80,7 +71,7 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 	s := new(service.SysApi)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(control,nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -114,26 +105,20 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 // @Router /api/v1/sys_api/{id} [put]
 // @Security Bearer
 func (e SysApi) UpdateSysApi(c *gin.Context) {
-	e.MakeContext(c)
-	log := e.GetLogger()
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
 	control := new(dto.SysApiControl)
-
-	//更新操作
-	err = control.Bind(c)
+	s := new(service.SysApi)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Warnf("request body bind error, %s", err.Error())
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Logger.Error(err)
 		return
 	}
 	object, err := control.GenerateM()
 	if err != nil {
-		log.Errorf("generate SysApi model error, %s", err.Error())
+		e.Logger.Errorf("generate SysApi model error, %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
@@ -142,12 +127,9 @@ func (e SysApi) UpdateSysApi(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysApi := service.SysApi{}
-	serviceSysApi.Orm = db
-	serviceSysApi.Log = log
-	err = serviceSysApi.UpdateSysApi(object.(*models.SysApi), p)
+	err = s.UpdateSysApi(object.(*models.SysApi), p)
 	if err != nil {
-		log.Errorf("Update SysApi error, %s", err.Error())
+		e.Logger.Errorf("Update SysApi error, %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "更新失败")
 		return
 	}
@@ -163,21 +145,16 @@ func (e SysApi) UpdateSysApi(c *gin.Context) {
 // @Router /api/v1/sys_api [delete]
 // @Security Bearer
 func (e SysApi) DeleteSysApi(c *gin.Context) {
-	e.MakeContext(c)
-	log := e.GetLogger()
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
 
 	control := new(dto.SysApiById)
-
-	//删除操作
-	err = control.Bind(c)
+	s := service.SysApi{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(control).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Warnf("request body bind error, %s", err.Error())
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Logger.Error(err)
 		return
 	}
 
@@ -187,12 +164,9 @@ func (e SysApi) DeleteSysApi(c *gin.Context) {
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysApi := service.SysApi{}
-	serviceSysApi.Orm = db
-	serviceSysApi.Log = log
-	err = serviceSysApi.RemoveSysApi(control, p)
+	err = s.RemoveSysApi(control, p)
 	if err != nil {
-		log.Errorf("Remove SysApi error, %s", err.Error())
+		e.Logger.Errorf("Remove SysApi error, %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "删除失败")
 		return
 	}

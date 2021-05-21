@@ -55,27 +55,26 @@ func (e *SysDept) GetSysDept(d *dto.SysDeptById, model *models.SysDept) error {
 }
 
 // InsertSysDept 创建SysDept对象
-func (e *SysDept) InsertSysDept(model *models.SysDept) error {
+func (e *SysDept) InsertSysDept(c *dto.SysDeptControl) error {
 	var err error
 	var data models.SysDept
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	c.Generate(&data)
+	err = e.Orm.Create(data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	deptPath := "/" + pkg.IntToString(model.DeptId)
-	if model.ParentId != 0 {
+	deptPath := "/" + pkg.IntToString(data.DeptId)
+	if data.ParentId != 0 {
 		var deptP models.SysDept
-		e.Orm.Model(&data).First(&deptP, model.ParentId)
+		e.Orm.First(&deptP, data.ParentId)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0" + deptPath
 	}
 	var mp = map[string]string{}
 	mp["dept_path"] = deptPath
-	if err := e.Orm.Model(&model).Update("dept_path", deptPath).Error; err != nil {
+	if err := e.Orm.Update("dept_path", deptPath).Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -83,12 +82,12 @@ func (e *SysDept) InsertSysDept(model *models.SysDept) error {
 }
 
 // UpdateSysDept 修改SysDept对象
-func (e *SysDept) UpdateSysDept(c *models.SysDept) error {
+func (e *SysDept) UpdateSysDept(c *dto.SysDeptControl) error {
 	var err error
-	var data models.SysDept
-
-	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+	var model = models.SysDept{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
+	db := e.Orm.Where(c.GetId()).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err

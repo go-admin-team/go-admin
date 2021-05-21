@@ -77,77 +77,77 @@ func (e SysLoginLog) GetSysLoginLog(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-func (e SysLoginLog) InsertSysLoginLog(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysLoginLogControl)
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
+//func (e SysLoginLog) InsertSysLoginLog(c *gin.Context) {
+//	e.Context = c
+//	log := e.GetLogger()
+//	control := new(dto.SysLoginLogControl)
+//	db, err := e.GetOrm()
+//	if err != nil {
+//		log.Error(err)
+//		return
+//	}
+//
+//	//新增操作
+//	err = control.Bind(c)
+//	if err != nil {
+//		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+//		return
+//	}
+//	object, err := control.Generate()
+//	if err != nil {
+//		e.Error(http.StatusInternalServerError, err, "模型生成失败")
+//		return
+//	}
+//	// 设置创建人
+//	object.SetCreateBy(user.GetUserId(c))
+//
+//	serviceSysLoginLog := service.SysLoginLog{}
+//	serviceSysLoginLog.Orm = db
+//	serviceSysLoginLog.Log = log
+//	err = serviceSysLoginLog.InsertSysLoginLog(object)
+//	if err != nil {
+//		log.Errorf("InsertSysLoginLog error, %s", err)
+//		e.Error(http.StatusInternalServerError, err, "创建失败")
+//		return
+//	}
+//
+//	e.OK(object.GetId(), "创建成功")
+//}
 
-	//新增操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	// 设置创建人
-	object.SetCreateBy(user.GetUserId(c))
-
-	serviceSysLoginLog := service.SysLoginLog{}
-	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.Log = log
-	err = serviceSysLoginLog.InsertSysLoginLog(object)
-	if err != nil {
-		log.Errorf("InsertSysLoginLog error, %s", err)
-		e.Error(http.StatusInternalServerError, err, "创建失败")
-		return
-	}
-
-	e.OK(object.GetId(), "创建成功")
-}
-
-func (e SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysLoginLogControl)
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//更新操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.SetUpdateBy(user.GetUserId(c))
-
-	serviceSysLoginLog := service.SysLoginLog{}
-	serviceSysLoginLog.Orm = db
-	serviceSysLoginLog.Log = log
-	err = serviceSysLoginLog.UpdateSysLoginLog(object)
-	if err != nil {
-		log.Errorf("UpdateSysLoginLog error, %s", err)
-		e.Error(http.StatusInternalServerError, err, "更新失败")
-		return
-	}
-	e.OK(object.GetId(), "更新成功")
-}
+//func (e SysLoginLog) UpdateSysLoginLog(c *gin.Context) {
+//	e.Context = c
+//	log := e.GetLogger()
+//	control := new(dto.SysLoginLogControl)
+//	db, err := e.GetOrm()
+//	if err != nil {
+//		log.Error(err)
+//		return
+//	}
+//
+//	//更新操作
+//	err = control.Bind(c)
+//	if err != nil {
+//		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+//		return
+//	}
+//	object, err := control.Generate()
+//	if err != nil {
+//		e.Error(http.StatusInternalServerError, err, "模型生成失败")
+//		return
+//	}
+//	object.SetUpdateBy(user.GetUserId(c))
+//
+//	serviceSysLoginLog := service.SysLoginLog{}
+//	serviceSysLoginLog.Orm = db
+//	serviceSysLoginLog.Log = log
+//	err = serviceSysLoginLog.UpdateSysLoginLog(object)
+//	if err != nil {
+//		log.Errorf("UpdateSysLoginLog error, %s", err)
+//		e.Error(http.StatusInternalServerError, err, "更新失败")
+//		return
+//	}
+//	e.OK(object.GetId(), "更新成功")
+//}
 
 func (e SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 	e.Context = c

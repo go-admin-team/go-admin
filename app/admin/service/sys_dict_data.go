@@ -55,12 +55,11 @@ func (e *SysDictData) Get(d *dto.SysDictDataById, model *models.SysDictData) err
 }
 
 // Insert 创建对象
-func (e *SysDictData) Insert(model *models.SysDictData) error {
+func (e *SysDictData) Insert(c *dto.SysDictDataControl) error {
 	var err error
-	var data models.SysDictData
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	var data = new(models.SysDictData)
+	c.Generate(data)
+	err = e.Orm.Create(data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -69,12 +68,12 @@ func (e *SysDictData) Insert(model *models.SysDictData) error {
 }
 
 // Update 修改对象
-func (e *SysDictData) Update(c *models.SysDictData) error {
+func (e *SysDictData) Update(c *dto.SysDictDataControl) error {
 	var err error
-	var data models.SysDictData
-
-	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+	var model = models.SysDictData{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
+	db := e.Orm.Save(model)
 	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -87,12 +86,11 @@ func (e *SysDictData) Update(c *models.SysDictData) error {
 }
 
 // Remove 删除
-func (e *SysDictData) Remove(d *dto.SysDictDataById, c *models.SysDictData) error {
+func (e *SysDictData) Remove(c *dto.SysDictDataById) error {
 	var err error
 	var data models.SysDictData
 
-	db := e.Orm.Model(&data).
-		Where(d.GetId()).Delete(c)
+	db := e.Orm.Delete(&data, c.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

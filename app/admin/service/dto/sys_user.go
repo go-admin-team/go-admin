@@ -59,11 +59,7 @@ type SysUserControl struct {
 
 func (s *SysUserControl) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
-	//err := ctx.ShouldBindUri(s)
-	//if err != nil {
-	//	log.Debugf("ShouldBindUri error: %s", err.Error())
-	//	return err
-	//}
+
 	err := ctx.ShouldBind(s)
 	if err != nil {
 		log.Debugf("ShouldBind error: %s", err.Error())
@@ -105,6 +101,14 @@ type SysUserById struct {
 func (s *SysUserById) Generate() dto.Control {
 	cp := *s
 	return &cp
+}
+
+func (s *SysUserById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
+	return s.Id
 }
 
 func (s *SysUserById) GenerateM() (common.ActiveRecord, error) {

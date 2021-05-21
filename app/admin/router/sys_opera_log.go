@@ -18,8 +18,6 @@ func registerSysOperaLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMi
 	{
 		r.GET("", api.GetSysOperaLogList)
 		r.GET("/:id", api.GetSysOperaLog)
-		r.POST("", api.InsertSysOperaLog)
-		r.PUT("/:id", api.UpdateSysOperaLog)
 		r.DELETE("", api.DeleteSysOperaLog)
 	}
 }
