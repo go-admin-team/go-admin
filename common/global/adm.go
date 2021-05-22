@@ -2,7 +2,7 @@ package global
 
 const (
 	// Version go-admin Version Info
-	Version = "1.3.5"
+	Version = "1.3.7"
 )
 
 var (
