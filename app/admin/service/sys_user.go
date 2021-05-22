@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"go-admin/app/admin/models"
+	"go-admin/app/admin/service/dto"
 
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
@@ -11,7 +12,6 @@ import (
 
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	common "go-admin/common/models"
 )
 
 type SysUser struct {
@@ -61,12 +61,11 @@ func (e *SysUser) GetSysUser(d cDto.Control, p *actions.DataPermission, model *m
 }
 
 // InsertSysUser 创建SysUser对象
-func (e *SysUser) InsertSysUser(model common.ActiveRecord) error {
+func (e *SysUser) InsertSysUser(c *dto.SysUserControl) error {
 	var err error
 	var data models.SysUser
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	c.Generate(&data)
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -75,13 +74,12 @@ func (e *SysUser) InsertSysUser(model common.ActiveRecord) error {
 }
 
 // UpdateSysUser 修改SysUser对象
-func (e *SysUser) UpdateSysUser(c common.ActiveRecord, p *actions.DataPermission) error {
+func (e *SysUser) UpdateSysUser(c *dto.SysUserControl, p *actions.DataPermission) error {
 	var err error
-
-	db := e.Orm.Model(c).
-		Scopes(
-			actions.Permission(c.TableName(), p),
-		).Where(c.GetId()).Updates(c)
+	var model models.SysUser
+	db := e.Orm.Scopes(
+		actions.Permission(model.TableName(), p),
+	).First(&model, c.GetId())
 	if err = db.Error; err != nil {
 		e.Log.Errorf("Service UpdateSysUser error: %s", err)
 		return err
@@ -90,18 +88,24 @@ func (e *SysUser) UpdateSysUser(c common.ActiveRecord, p *actions.DataPermission
 		return errors.New("无权更新该数据")
 
 	}
+	c.Generate(&model)
+	err = e.Orm.Save(&model).Error
+	if err != nil {
+		e.Log.Errorf("Service UpdateSysUser error: %s", err)
+		return err
+	}
 	return nil
 }
 
 // RemoveSysUser 删除SysUser
-func (e *SysUser) RemoveSysUser(d cDto.Control, c common.ActiveRecord, p *actions.DataPermission) error {
+func (e *SysUser) RemoveSysUser(c *dto.SysUserById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysUser
 
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(d.GetId()).Delete(c)
+		).Delete(&data, c.GetId())
 	if err = db.Error; err != nil {
 		e.Log.Errorf("Delete error: %s", err)
 		return err
@@ -157,8 +161,8 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 	return nil
 }
 
-func (e *SysUser) GetSysUserProfile(id int, user *models.SysUser, roles *[]models.SysRole, posts *[]models.SysPost) error {
-	err := e.Orm.Preload("Dept").First(user, "user_id = ?", id).Error
+func (e *SysUser) GetSysUserProfile(c *dto.SysUserById, user *models.SysUser, roles *[]models.SysRole, posts *[]models.SysPost) error {
+	err := e.Orm.Preload("Dept").First(user, c.GetId()).Error
 	if err != nil {
 		return err
 	}

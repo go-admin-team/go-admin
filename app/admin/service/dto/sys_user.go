@@ -55,6 +55,7 @@ type SysUserControl struct {
 	PostId   int    `json:"postId" comment:"岗位"`
 	Remark   string `json:"remark" comment:"备注"`
 	Status   string `json:"status" comment:"状态"`
+	common.ControlBy
 }
 
 func (s *SysUserControl) Bind(ctx *gin.Context) error {
@@ -67,27 +68,22 @@ func (s *SysUserControl) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysUserControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysUserControl) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysUser{
-		UserId:   s.UserId,
-		Username: s.Username,
-		Password: s.Password,
-		NickName: s.NickName,
-		Phone:    s.Phone,
-		RoleId:   s.RoleId,
-		Avatar:   s.Avatar,
-		Sex:      s.Sex,
-		Email:    s.Email,
-		DeptId:   s.DeptId,
-		PostId:   s.PostId,
-		Remark:   s.Remark,
-		Status:   s.Status,
-	}, nil
+func (s *SysUserControl) Generate(model *models.SysUser) {
+	if s.UserId != 0 {
+		model.UserId = s.UserId
+	}
+	model.Username = s.Username
+	model.Password = s.Password
+	model.NickName = s.NickName
+	model.Phone = s.Phone
+	model.RoleId = s.RoleId
+	model.Avatar = s.Avatar
+	model.Sex = s.Sex
+	model.Email = s.Email
+	model.DeptId = s.DeptId
+	model.PostId = s.PostId
+	model.Remark = s.Remark
+	model.Status = s.Status
 }
 
 func (s *SysUserControl) GetId() interface{} {
@@ -96,6 +92,7 @@ func (s *SysUserControl) GetId() interface{} {
 
 type SysUserById struct {
 	dto.ObjectById
+	common.ControlBy
 }
 
 func (s *SysUserById) Generate() dto.Control {

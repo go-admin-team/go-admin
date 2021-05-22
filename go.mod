@@ -27,5 +27,5 @@ require (
 	gorm.io/driver/mysql v1.0.4-0.20201206014609-ae5fd10184f6
 	gorm.io/driver/postgres v1.0.6-0.20201208020313-1ed927cfab53
 	gorm.io/driver/sqlite v1.1.5-0.20201206014648-c84401fbe3ba
-	gorm.io/gorm v1.21.6
+	gorm.io/gorm v1.21.10
 )

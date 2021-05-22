@@ -87,6 +87,7 @@ func (s *SysLoginLogControl) GetId() interface{} {
 type SysLoginLogById struct {
 	Id  int   `uri:"id"`
 	Ids []int `json:"ids"`
+	common.ControlBy
 }
 
 func (s *SysLoginLogById) GetId() interface{} {

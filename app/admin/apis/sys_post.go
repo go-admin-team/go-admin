@@ -17,6 +17,7 @@ type SysPost struct {
 	api.Api
 }
 
+// GetSysPostList
 // @Summary 岗位列表数据
 // @Description 获取JSON
 // @Tags 岗位
@@ -28,36 +29,32 @@ type SysPost struct {
 // @Router /api/v1/post [get]
 // @Security Bearer
 func (e SysPost) GetSysPostList(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	d := new(dto.SysPostSearch)
-	db, err := e.GetOrm()
+	s := new(service.SysPost)
+	req := new(dto.SysPostSearch)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//查询列表
-	err = d.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
 	list := make([]models.SysPost, 0)
 	var count int64
-	serviceStudent := service.SysPost{}
-	serviceStudent.Log = log
-	serviceStudent.Orm = db
-	err = serviceStudent.GetSysPostPage(d, &list, &count)
+
+	err = s.GetSysPostPage(req, &list, &count)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
 
-	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
+// GetSysPost
 // @Summary 获取岗位信息
 // @Description 获取JSON
 // @Tags 岗位
@@ -66,27 +63,21 @@ func (e SysPost) GetSysPostList(c *gin.Context) {
 // @Router /api/v1/post/{postId} [get]
 // @Security Bearer
 func (e SysPost) GetSysPost(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysPostById)
-	db, err := e.GetOrm()
+	s := new(service.SysPost)
+	req := new(dto.SysPostById)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//查看详情
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 	var object models.SysPost
 
-	serviceSysOperlog := service.SysPost{}
-	serviceSysOperlog.Log = log
-	serviceSysOperlog.Orm = db
-	err = serviceSysOperlog.GetSysPost(control, &object)
+	err = s.GetSysPost(req, &object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -95,6 +86,7 @@ func (e SysPost) GetSysPost(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
+// InsertSysPost
 // @Summary 添加岗位
 // @Description 获取JSON
 // @Tags 岗位
@@ -106,42 +98,33 @@ func (e SysPost) GetSysPost(c *gin.Context) {
 // @Router /api/v1/post [post]
 // @Security Bearer
 func (e SysPost) InsertSysPost(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysPostControl)
-	db, err := e.GetOrm()
+	s := new(service.SysPost)
+	req := new(dto.SysPostControl)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
-	//新增操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
 	// 设置创建人
-	object.SetCreateBy(user.GetUserId(c))
+	req.SetCreateBy(user.GetUserId(c))
 
-	serviceSysPost := service.SysPost{}
-	serviceSysPost.Orm = db
-	serviceSysPost.Log = log
-	err = serviceSysPost.InsertSysPost(object)
+	err = s.InsertSysPost(req)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(object.GetId(), "创建成功")
+	e.OK(req.GetId(), "创建成功")
 }
 
+// UpdateSysPost
 // @Summary 修改岗位
 // @Description 获取JSON
 // @Tags 岗位
@@ -153,39 +136,30 @@ func (e SysPost) InsertSysPost(c *gin.Context) {
 // @Router /api/v1/post/ [put]
 // @Security Bearer
 func (e SysPost) UpdateSysPost(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysPostControl)
-	db, err := e.GetOrm()
+	s := new(service.SysPost)
+	req := new(dto.SysPostControl)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
-	//更新操作
-	err = control.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.Generate()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.SetUpdateBy(user.GetUserId(c))
+	req.SetUpdateBy(user.GetUserId(c))
 
-	serviceSysPost := service.SysPost{}
-	serviceSysPost.Orm = db
-	serviceSysPost.Log = log
-	err = serviceSysPost.UpdateSysPost(object)
+	err = s.UpdateSysPost(req)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
-	e.OK(object.GetId(), "更新成功")
+	e.OK(req.GetId(), "更新成功")
 }
 
+// DeleteSysPost
 // @Summary 删除岗位
 // @Description 删除数据
 // @Tags 岗位
@@ -194,30 +168,24 @@ func (e SysPost) UpdateSysPost(c *gin.Context) {
 // @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
 // @Router /api/v1/post/{postId} [delete]
 func (e SysPost) DeleteSysPost(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysPostById)
-	db, err := e.GetOrm()
+	s := new(service.SysPost)
+	req := new(dto.SysPostById)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
+	req.SetUpdateBy(user.GetUserId(c))
 
-	//删除操作
-	err = control.Bind(c)
+	err = s.RemoveSysPost(req)
 	if err != nil {
-		log.Errorf("Bind error: %s", err)
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Logger.Error(err)
 		return
 	}
-
-	serviceSysPost := service.SysPost{}
-	serviceSysPost.Orm = db
-	serviceSysPost.Log = log
-	err = serviceSysPost.RemoveSysPost(control)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	e.OK(control.GetId(), "删除成功")
+	e.OK(req.GetId(), "删除成功")
 }

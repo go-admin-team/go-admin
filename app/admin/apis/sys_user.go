@@ -13,13 +13,13 @@ import (
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
-	common "go-admin/common/models"
 )
 
 type SysUser struct {
 	api.Api
 }
 
+// GetSysUserList
 // @Summary 列表用户信息数据
 // @Description 获取JSON
 // @Tags 用户
@@ -29,22 +29,16 @@ type SysUser struct {
 // @Router /api/v1/sysUser [get]
 // @Security Bearer
 func (e SysUser) GetSysUserList(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	d := new(dto.SysUserSearch)
-	db, err := e.GetOrm()
+	s := new(service.SysUser)
+	req := new(dto.SysUserSearch)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	req := d.Generate()
-
-	//查询列表
-	err = req.Bind(c)
-	if err != nil {
-		log.Warnf("Bind error: %s", err.Error())
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
@@ -53,10 +47,8 @@ func (e SysUser) GetSysUserList(c *gin.Context) {
 
 	list := make([]models.SysUser, 0)
 	var count int64
-	serviceStudent := service.SysUser{}
-	serviceStudent.Log = log
-	serviceStudent.Orm = db
-	err = serviceStudent.GetSysUserPage(req, p, &list, &count)
+
+	err = s.GetSysUserPage(req, p, &list, &count)
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
@@ -65,6 +57,7 @@ func (e SysUser) GetSysUserList(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
+// GetSysUser
 // @Summary 获取用户
 // @Description 获取JSON
 // @Tags 用户
@@ -73,31 +66,25 @@ func (e SysUser) GetSysUserList(c *gin.Context) {
 // @Router /api/v1/sysUser/{userId} [get]
 // @Security Bearer
 func (e SysUser) GetSysUser(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysUserById)
-	db, err := e.GetOrm()
+	s := new(service.SysUser)
+	req := new(dto.SysUserById)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
-	//查看详情
-	req := control.Generate()
-	err = req.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
 	var object models.SysUser
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Log = log
-	serviceSysUser.Orm = db
-	err = serviceSysUser.GetSysUser(req, p, &object)
+	err = s.GetSysUser(req, p, &object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -106,6 +93,7 @@ func (e SysUser) GetSysUser(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
+// InsertSysUser
 // @Summary 创建用户
 // @Description 获取JSON
 // @Tags 用户
@@ -116,44 +104,33 @@ func (e SysUser) GetSysUser(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sysUser [post]
 func (e SysUser) InsertSysUser(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysUserControl)
-	db, err := e.GetOrm()
+	s := new(service.SysUser)
+	req := new(dto.SysUserControl)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
-	//新增操作
-	req := control.Generate()
-	err = req.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
 	// 设置创建人
-	object.SetCreateBy(user.GetUserId(c))
+	req.SetCreateBy(user.GetUserId(c))
 
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Orm = db
-	serviceSysUser.Log = log
-	err = serviceSysUser.InsertSysUser(object)
+	err = s.InsertSysUser(req)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
 		return
 	}
 
-	e.OK(object.GetId(), "创建成功")
+	e.OK(req.GetId(), "创建成功")
 }
 
+// UpdateSysUser
 // @Summary 修改用户数据
 // @Description 获取JSON
 // @Tags 用户
@@ -164,45 +141,33 @@ func (e SysUser) InsertSysUser(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/sysuser/{userId} [put]
 func (e SysUser) UpdateSysUser(c *gin.Context) {
-	control := new(dto.SysUserControl)
-
-	e.Context = c
-	log := e.GetLogger()
-	db, err := e.GetOrm()
+	s := new(service.SysUser)
+	req := new(dto.SysUserControl)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
-	req := control.Generate()
-	//更新操作
-	err = req.Bind(c)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.SetUpdateBy(user.GetUserId(c))
+	req.SetUpdateBy(user.GetUserId(c))
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Orm = db
-	serviceSysUser.Log = log
-	err = serviceSysUser.UpdateSysUser(object, p)
+	err = s.UpdateSysUser(req, p)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
-	e.OK(object.GetId(), "更新成功")
+	e.OK(req.GetId(), "更新成功")
 }
 
+// DeleteSysUser
 // @Summary 删除用户数据
 // @Description 删除数据
 // @Tags 用户
@@ -211,48 +176,34 @@ func (e SysUser) UpdateSysUser(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/sysuser/{userId} [delete]
 func (e SysUser) DeleteSysUser(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	control := new(dto.SysUserById)
-
-	db, err := e.GetOrm()
+	s := new(service.SysUser)
+	req := new(dto.SysUserById)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	//删除操作
-	req := control.Generate()
-	err = req.Bind(c)
-	if err != nil {
-		log.Errorf("Bind error: %s", err)
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	var object common.ActiveRecord
-	object, err = req.GenerateM()
-	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
 	// 设置编辑人
-	object.SetUpdateBy(user.GetUserId(c))
+	req.SetUpdateBy(user.GetUserId(c))
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Orm = db
-	serviceSysUser.Log = log
-	err = serviceSysUser.RemoveSysUser(req, object, p)
+	err = s.RemoveSysUser(req, p)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
-	e.OK(object.GetId(), "删除成功")
+	e.OK(req.GetId(), "删除成功")
 }
 
+// InsetSysUserAvatar
 // @Summary 修改头像
 // @Description 获取JSON
 // @Tags 用户
@@ -262,14 +213,17 @@ func (e SysUser) DeleteSysUser(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/user/avatar [post]
 func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	db, err := e.GetOrm()
+	s := service.SysUser{}
+	req := new(dto.SysUserControl)
+	err := e.MakeContext(c).
+		MakeOrm().
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
-
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
@@ -278,31 +232,27 @@ func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
 	guid := uuid.New().String()
 	filPath := "static/uploadfile/" + guid + ".jpg"
 	for _, file := range files {
-		log.Debugf("upload avatar file: %s", file.Filename)
+		e.Logger.Debugf("upload avatar file: %s", file.Filename)
 		// 上传文件至指定目录
 		err = c.SaveUploadedFile(file, filPath)
 		if err != nil {
-			log.Errorf("save file error, %s", err.Error())
+			e.Logger.Errorf("save file error, %s", err.Error())
 			e.Error(http.StatusInternalServerError, err, "")
 			return
 		}
 	}
+	req.UserId = p.UserId
+	req.Avatar = "/" + filPath
 
-	object := &models.SysUser{
-		UserId: p.UserId,
-		Avatar: "/" + filPath,
-	}
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Orm = db
-	serviceSysUser.Log = log
-	err = serviceSysUser.UpdateSysUser(object, p)
+	err = s.UpdateSysUser(req, p)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		return
 	}
 	e.OK(filPath, "修改成功")
 }
 
+// SysUserUpdatePwd
 // @Summary 重置密码
 // @Description 获取JSON
 // @Tags 用户
@@ -313,37 +263,32 @@ func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
 // @Router /api/v1/user/pwd [post]
 // @Security Bearer
 func (e SysUser) SysUserUpdatePwd(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	db, err := e.GetOrm()
+	s := new(service.SysUser)
+	req := new(dto.PassWord)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(req).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	var pwd dto.PassWord
-	err = c.Bind(&pwd)
-	if err != nil {
-		log.Errorf("Bind error: %s", err)
-		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Orm = db
-	serviceSysUser.Log = log
-	err = serviceSysUser.UpdateSysUserPwd(user.GetUserId(c), pwd.OldPassword, pwd.NewPassword, p)
+	err = s.UpdateSysUserPwd(user.GetUserId(c), req.OldPassword, req.NewPassword, p)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(http.StatusForbidden, err, "密码修改失败")
 		return
 	}
 	e.OK(nil, "密码修改成功")
 }
 
+// GetSysUserProfile
 // @Summary 获取个人中心用户
 // @Description 获取JSON
 // @Tags 个人中心
@@ -351,24 +296,26 @@ func (e SysUser) SysUserUpdatePwd(c *gin.Context) {
 // @Router /api/v1/user/profile [get]
 // @Security Bearer
 func (e SysUser) GetSysUserProfile(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-	db, err := e.GetOrm()
+	s := new(service.SysUser)
+	req := new(dto.SysUserById)
+	err := e.MakeContext(c).
+		MakeOrm().
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
-	id := user.GetUserId(c)
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Log = log
-	serviceSysUser.Orm = db
+	req.Id = user.GetUserId(c)
+
 	user := new(models.SysUser)
 	roles := make([]models.SysRole, 0)
 	posts := make([]models.SysPost, 0)
-	err = serviceSysUser.GetSysUserProfile(id, user, &roles, &posts)
+	err = s.GetSysUserProfile(req, user, &roles, &posts)
 	if err != nil {
-		log.Errorf("get user profile error, %s", err.Error())
+		e.Logger.Errorf("get user profile error, %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "获取用户信息失败")
 		return
 	}
@@ -377,46 +324,18 @@ func (e SysUser) GetSysUserProfile(c *gin.Context) {
 		"roles": roles,
 		"posts": posts,
 	}, "查询成功")
-	//var SysUser models.SysUser
-	//userId := tools.GetUserIdStr(c)
-	//SysUser.UserId, _ = tools.StringToInt(userId)
-	//result, err := SysUser.Get()
-	//tools.HasError(err, "抱歉未找到相关信息", -1)
-	//var SysRole models.SysRole
-	//var Post models.Post
-	//var Dept models.SysDepts
-	////获取角色列表
-	//roles, err := SysRole.GetList()
-	////获取职位列表
-	//posts, err := Post.GetList()
-	////获取部门列表
-	//Dept.DeptId = result.DeptId
-	//dept, err := Dept.Get()
-	//
-	//postIds := make([]int, 0)
-	//postIds = append(postIds, result.PostId)
-	//
-	//roleIds := make([]int, 0)
-	//roleIds = append(roleIds, result.RoleId)
-	//
-	//app.Custum(c, gin.H{
-	//	"code":    200,
-	//	"data":    result,
-	//	"postIds": postIds,
-	//	"roleIds": roleIds,
-	//	"roles":   roles,
-	//	"posts":   posts,
-	//	"dept":    dept,
-	//})
 }
 
 func (e SysUser) GetInfo(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-
-	db, err := e.GetOrm()
+	req := new(dto.SysUserById)
+	s := new(service.SysUser)
+	err := e.MakeContext(c).
+		MakeOrm().
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
+		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Logger.Error(err)
 		return
 	}
 
@@ -441,18 +360,16 @@ func (e SysUser) GetInfo(c *gin.Context) {
 		mp["permissions"] = permissions
 		mp["buttons"] = buttons
 	} else {
-		list, _ := RoleMenu.GetPermis(db)
+		list, _ := RoleMenu.GetPermis(e.Orm)
 		mp["permissions"] = list
 		mp["buttons"] = list
 	}
 
 	var sysUser models.SysUser
-	req := new(dto.SysUserById)
+
 	req.Id = user.GetUserId(c)
-	serviceSysUser := service.SysUser{}
-	serviceSysUser.Log = log
-	serviceSysUser.Orm = db
-	err = serviceSysUser.GetSysUser(req, p, &sysUser)
+
+	err = s.GetSysUser(req, p, &sysUser)
 	if err != nil {
 		e.Error(http.StatusUnauthorized, err, "登录失败")
 		return

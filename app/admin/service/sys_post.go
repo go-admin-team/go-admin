@@ -55,7 +55,7 @@ func (e *SysPost) GetSysPost(d *dto.SysPostById, model *models.SysPost) error {
 }
 
 // InsertSysPost 创建SysPost对象
-func (e *SysPost) InsertSysPost(model *models.SysPost) error {
+func (e *SysPost) InsertSysPost(model *dto.SysPostControl) error {
 	var err error
 	var data models.SysPost
 
@@ -69,12 +69,13 @@ func (e *SysPost) InsertSysPost(model *models.SysPost) error {
 }
 
 // UpdateSysPost 修改SysPost对象
-func (e *SysPost) UpdateSysPost(c *models.SysPost) error {
+func (e *SysPost) UpdateSysPost(c *dto.SysPostControl) error {
 	var err error
-	var data models.SysPost
+	var model = models.SysPost{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
 
-	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+	db := e.Orm.Save(&model)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
