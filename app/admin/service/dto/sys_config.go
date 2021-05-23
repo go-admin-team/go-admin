@@ -18,7 +18,7 @@ type SysConfigSearch struct {
 	ConfigName     string `form:"configName" search:"type:contains;column:config_name;table:sys_config" comment:""`
 	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config" comment:""`
 	ConfigType     string `form:"configType" search:"type:exact;column:config_type;table:sys_config" comment:""`
-	IsFrontend     int    `json:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config" comment:""`
+	IsFrontend     int    `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config" comment:""`
 }
 
 func (m *SysConfigSearch) GetNeedSearch() interface{} {
@@ -87,8 +87,8 @@ func (s *SysConfigControl) GetId() interface{} {
 
 // SysConfigById 获取单个或者删除的结构体
 type SysConfigById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
+	Id         int   `uri:"id"`
+	Ids        []int `json:"ids"`
 }
 
 func (s *SysConfigById) Generate() *SysConfigById {
@@ -97,7 +97,11 @@ func (s *SysConfigById) Generate() *SysConfigById {
 }
 
 func (s *SysConfigById) GetId() interface{} {
-	return s.Ids
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
+	return s.Id
 }
 
 func (s *SysConfigById) Bind(ctx *gin.Context) error {
