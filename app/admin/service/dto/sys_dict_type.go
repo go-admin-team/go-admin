@@ -17,6 +17,10 @@ type SysDictTypeSearch struct {
 	Status         int    `form:"status" search:"type:exact;column:status;table:sys_dict_type"`
 }
 
+type SysDictTypeOrder struct {
+	DictIdOrder string `search:"type:order;column:dict_id;table:sys_dict_type" form:"dict_id_order"`
+}
+
 func (m *SysDictTypeSearch) GetNeedSearch() interface{} {
 	return *m
 }

@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"net/http"
 
@@ -170,6 +171,7 @@ func (e SysDictData) UpdateSysDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/data/{dictCode} [delete]
+// @Security Bearer
 func (e SysDictData) DeleteSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
 	d := new(dto.SysDictDataById)
@@ -196,12 +198,21 @@ func (e SysDictData) DeleteSysDictData(c *gin.Context) {
 	e.OK(d.GetId(), "删除成功")
 }
 
+// GetSysDictDataAll 数据字典根据key获取 业务页面使用
+// @Summary 数据字典根据key获取
+// @Description 数据字典根据key获取
+// @Tags 字典数据
+// @Param dictType query int true "dictType"
+// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Router /api/v1/dict-data/option-select [get]
+// @Security Bearer
 func (e SysDictData) GetSysDictDataAll(c *gin.Context) {
 	s := service.SysDictData{}
 	d := &dto.SysDictDataSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(d,binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

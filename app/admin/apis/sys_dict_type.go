@@ -190,7 +190,7 @@ func (e SysDictType) DeleteSysDictType(c *gin.Context) {
 }
 
 // GetSysDictTypeAll
-// @Summary 字典类型全部数据
+// @Summary 字典类型全部数据 代码生成使用接口
 // @Description 获取JSON
 // @Tags 字典类型
 // @Param dictName query string false "dictName"
