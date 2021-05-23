@@ -43,47 +43,24 @@ func (m *SysApiSearch) Bind(ctx *gin.Context) error {
 }
 
 type SysApiControl struct {
-	Id       int    `uri:"id" comment:"编码"` // 编码
-	Handle   string `json:"handle" comment:"handle"`
-	Title    string `json:"title" comment:"标题"`
-	Path     string `json:"path" comment:"地址"`
-	Paths    string `json:"paths" comment:""`
-	Action   string `json:"action" comment:"类型"`
-	ParentId int    `json:"parentId" comment:"按钮id"`
-	Sort     int    `json:"sort" comment:"排序"`
+	Id     int    `uri:"id" comment:"编码"` // 编码
+	Handle string `json:"handle" comment:"handle"`
+	Title  string `json:"title" comment:"标题"`
+	Path   string `json:"path" comment:"地址"`
+	Type   string `json:"type" comment:""`
+	Action string `json:"action" comment:"类型"`
+	common.ControlBy
 }
 
-func (s *SysApiControl) Generate() dto.Control {
-	o := *s
-	return &o
-}
-
-func (s *SysApiControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Errorf("ShouldBindUri error: %s", err.Error())
-		return errors.New("数据绑定出错")
+func (s *SysApiControl) Generate(model *models.SysApi) {
+	if s.Id != 0 {
+		model.Id = s.Id
 	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Errorf("ShouldBind error: %s", err.Error())
-		err = errors.New("数据绑定出错")
-	}
-	return err
-}
-
-func (s *SysApiControl) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysApi{
-		Id:       s.Id,
-		Handle:   s.Handle,
-		Title:    s.Title,
-		Path:     s.Path,
-		Paths:    s.Paths,
-		Action:   s.Action,
-		ParentId: s.ParentId,
-		Sort:     s.Sort,
-	}, nil
+	model.Handle = s.Handle
+	model.Title = s.Title
+	model.Path = s.Path
+	model.Type = s.Type
+	model.Action = s.Action
 }
 
 func (s *SysApiControl) GetId() interface{} {

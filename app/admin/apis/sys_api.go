@@ -30,7 +30,7 @@ type SysApi struct {
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} response.Response{data=response.Page{list=[]models.SysApi}} "{"code": 200, "data": [...]}"
-// @Router /api/v1/sys_api [get]
+// @Router /api/v1/sys-api [get]
 // @Security Bearer
 func (e SysApi) GetSysApiList(c *gin.Context) {
 	s := new(service.SysApi)
@@ -105,35 +105,30 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 // @Router /api/v1/sys_api/{id} [put]
 // @Security Bearer
 func (e SysApi) UpdateSysApi(c *gin.Context) {
-	control := new(dto.SysApiControl)
+	req := new(dto.SysApiControl)
 	s := new(service.SysApi)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
-	object, err := control.GenerateM()
-	if err != nil {
-		e.Logger.Errorf("generate SysApi model error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.SetUpdateBy(user.GetUserId(c))
+
+	req.SetUpdateBy(user.GetUserId(c))
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.UpdateSysApi(object.(*models.SysApi), p)
+	err = s.UpdateSysApi(req, p)
 	if err != nil {
 		e.Logger.Errorf("Update SysApi error, %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "更新失败")
 		return
 	}
-	e.OK(object.GetId(), "更新成功")
+	e.OK(req.GetId(), "更新成功")
 }
 
 // DeleteSysApi 删除接口管理

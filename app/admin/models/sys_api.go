@@ -1,26 +1,23 @@
 package models
 
 import (
-	// "gorm.io/gorm"
-
 	"encoding/json"
 	"fmt"
+
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
 	"github.com/go-admin-team/go-admin-core/storage"
+
 	"go-admin/common/models"
 )
 
 type SysApi struct {
-	Id         int    `json:"id" gorm:"primaryKey;autoIncrement;comment:主键编码"`
-	Handle     string `json:"handle" gorm:"type:varchar(128);comment:handle"`
-	Title      string `json:"title" gorm:"type:varchar(128);comment:标题"`
-	Permission string `json:"permission" gorm:"size:255;"`
-	Path       string `json:"path" gorm:"type:varchar(128);comment:地址"`
-	Paths      string `json:"paths" gorm:"type:varchar(128);comment:Paths"`
-	Action     string `json:"action" gorm:"type:varchar(16);comment:类型"`
-	ParentId   int    `json:"parentId" gorm:"comment:按钮id"`
-	Sort       int    `json:"sort" gorm:"type:tinyint(4);comment:排序"`
+	Id     int    `json:"id" gorm:"primaryKey;autoIncrement;comment:主键编码"`
+	Handle string `json:"handle" gorm:"size:128;comment:handle"`
+	Title  string `json:"title" gorm:"size:128;comment:标题"`
+	Path   string `json:"path" gorm:"size:128;comment:地址"`
+	Action string `json:"action" gorm:"size:16;comment:请求类型"`
+	Type   string `json:"type" gorm:"size:16;comment:接口类型"`
 	models.ModelTime
 	models.ControlBy
 }
