@@ -87,7 +87,8 @@ func (s *SysConfigControl) GetId() interface{} {
 
 // SysConfigById 获取单个或者删除的结构体
 type SysConfigById struct {
-	Ids []int `json:"ids"`
+	Id         int   `uri:"id"`
+	Ids        []int `json:"ids"`
 }
 
 func (s *SysConfigById) Generate() *SysConfigById {
