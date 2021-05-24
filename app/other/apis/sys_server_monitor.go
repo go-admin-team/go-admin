@@ -19,7 +19,7 @@ const (
 	GB = 1024 * MB
 )
 
-type Monitor struct {
+type ServerMonitor struct {
 	api.Api
 }
 
@@ -28,8 +28,8 @@ type Monitor struct {
 // @Description 获取JSON
 // @Tags 系统信息
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/settings/serverInfo [get]
-func (e Monitor) ServerInfo(c *gin.Context) {
+// @Router /api/v1/server-monitor [get]
+func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	e.Context = c
 
 	osDic := make(map[string]interface{}, 0)
