@@ -12,7 +12,6 @@ import (
 
 type SysApiSearch struct {
 	dto.Pagination `search:"-"`
-	Name           string `form:"name"  search:"type:exact;column:name;table:sys_api" comment:"名称"`
 	Title          string `form:"title"  search:"type:exact;column:title;table:sys_api" comment:"标题"`
 	Path           string `form:"path"  search:"type:exact;column:path;table:sys_api" comment:"地址"`
 	Action         string `form:"action"  search:"type:exact;column:action;table:sys_api" comment:"类型"`
@@ -21,7 +20,9 @@ type SysApiSearch struct {
 }
 
 type SysApiOrder struct {
-	HandleOrder string `search:"type:order;column:handle;table:sys_api" form:"handle_order"`
+	TitleOrder string `search:"type:order;column:title;table:sys_api" form:"title_order"`
+	PathOrder string `search:"type:order;column:path;table:sys_api" form:"path_order"`
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_api" form:"createdAt_order"`
 }
 
 func (m *SysApiSearch) GetNeedSearch() interface{} {

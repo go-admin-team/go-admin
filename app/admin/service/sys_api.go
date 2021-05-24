@@ -77,18 +77,17 @@ func (e *SysApi) CheckStorageSysApi(c *[]runtime.Router) error {
 // UpdateSysApi 修改SysApi对象
 func (e *SysApi) UpdateSysApi(c *dto.SysApiControl, p *actions.DataPermission) error {
 	var model = models.SysApi{}
-	e.Orm.Scopes(
-		actions.Permission(model.TableName(), p),
-	).First(&model, c.GetId())
+	db := e.Orm.Debug().First(&model, c.GetId())
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
 	c.Generate(&model)
-	db := e.Orm.Save(&model)
+	db = e.Orm.Save(&model)
 	if err := db.Error; err != nil {
 		e.Log.Errorf("Service UpdateSysApi error:%s", err)
 		return err
 	}
-	if db.RowsAffected == 0 {
-		return errors.New("无权更新该数据")
-	}
+
 	return nil
 }
 
