@@ -1,10 +1,6 @@
 package dto
 
 import (
-	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
@@ -29,19 +25,6 @@ func (m *SysApiSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-func (m *SysApiSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
-func (m *SysApiSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Errorf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
 
 type SysApiControl struct {
 	Id     int    `uri:"id" comment:"编码"` // 编码
@@ -70,6 +53,7 @@ func (s *SysApiControl) GetId() interface{} {
 
 type SysApiById struct {
 	dto.ObjectById
+	common.ControlBy
 }
 
 func (s *SysApiById) GetId() interface{} {
@@ -80,24 +64,6 @@ func (s *SysApiById) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysApiById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Errorf("ShouldBindUri error: %s", err.Error())
-		return errors.New("数据绑定出错")
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Errorf("ShouldBind error: %s", err.Error())
-		err = errors.New("数据绑定出错")
-	}
-	return err
-}
-
-func (s *SysApiById) SetUpdateBy(id int) {
-
-}
 
 func (s *SysApiById) Generate() dto.Control {
 	o := *s
