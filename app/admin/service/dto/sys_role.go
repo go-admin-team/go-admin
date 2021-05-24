@@ -27,6 +27,14 @@ type SysRoleSearch struct {
 	DataScope string `form:"dataScope" search:"type:exact;column:data_scope;table:sys_role" comment:"是否管理员"`
 }
 
+type SysRoleOrder struct {
+	RoleIdOrder    string `search:"type:order;column:role_id;table:sys_role" form:"roleId_order"`
+	RoleNameOrder  string `search:"type:order;column:role_name;table:sys_role" form:"roleName_order"`
+	RoleSortOrder  string `search:"type:order;column:role_sort;table:sys_role" form:"username_order"`
+	StatusOrder  string `search:"type:order;column:status;table:sys_role" form:"status_order"`
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_role" form:"createdAt_order"`
+}
+
 func (m *SysRoleSearch) GetNeedSearch() interface{} {
 	return *m
 }
