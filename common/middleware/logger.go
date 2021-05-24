@@ -1,7 +1,11 @@
 package middleware
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -19,9 +23,24 @@ import (
 // LoggerToFile 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log := api.GetRequestLogger(c)
 		// 开始时间
 		startTime := time.Now()
 		// 处理请求
+		var body string
+		switch c.Request.Method {
+		case http.MethodPost, http.MethodPut, http.MethodDelete:
+			bf := bytes.NewBuffer(nil)
+			wt := bufio.NewWriter(bf)
+			_, err := io.Copy(wt, c.Request.Body)
+			if err != nil {
+				log.Warnf("copy body error, %s", err.Error())
+				err = nil
+			}
+			rb, _ := ioutil.ReadAll(bf)
+			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rb))
+			body  =string(rb)
+		}
 
 		c.Next()
 		url := c.Request.RequestURI
@@ -34,13 +53,7 @@ func LoggerToFile() gin.HandlerFunc {
 		if c.Request.Method == http.MethodOptions {
 			return
 		}
-		log := api.GetRequestLogger(c)
-
-		bd, bl := c.Get("body")
-		var body = ""
-		if bl {
-			body = bd.(string)
-		}
+		
 
 		rt, bl := c.Get("result")
 		var result = ""
@@ -79,7 +92,7 @@ func LoggerToFile() gin.HandlerFunc {
 		}
 		log.WithFields(logData).Info()
 
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB {
+		if c.Request.Method != "OPTIONS" && c.Request.Method != "GET" && config.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, statusBus)
 		}
 	}
