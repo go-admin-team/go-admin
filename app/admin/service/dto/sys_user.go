@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"go-admin/app/admin/models"
 
 	"go-admin/common/dto"
@@ -21,24 +19,18 @@ type SysUserSearch struct {
 	DeptId         string `form:"deptId" search:"type:exact;column:dept_id;table:sys_user" comment:"部门"`
 	PostId         string `form:"postId" search:"type:exact;column:post_id;table:sys_user" comment:"岗位"`
 	Status         string `form:"status" search:"type:exact;column:status;table:sys_user" comment:"状态"`
+	SysUserOrder
+}
+
+type SysUserOrder struct {
+	UserIdOrder    string `search:"type:order;column:user_id;table:sys_user" form:"userId_order"`
+	UsernameOrder  string `search:"type:order;column:username;table:sys_user" form:"username_order"`
+	StatusOrder  string `search:"type:order;column:status;table:sys_user" form:"status_order"`
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_user" form:"createdAt_order"`
 }
 
 func (m *SysUserSearch) GetNeedSearch() interface{} {
 	return *m
-}
-
-func (m *SysUserSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
-func (m *SysUserSearch) Generate() dto.Index {
-	o := *m
-	return &o
 }
 
 type SysUserControl struct {
@@ -56,16 +48,6 @@ type SysUserControl struct {
 	Remark   string `json:"remark" comment:"备注"`
 	Status   string `json:"status" comment:"状态"`
 	common.ControlBy
-}
-
-func (s *SysUserControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-
-	err := ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 func (s *SysUserControl) Generate(model *models.SysUser) {
@@ -93,11 +75,6 @@ func (s *SysUserControl) GetId() interface{} {
 type SysUserById struct {
 	dto.ObjectById
 	common.ControlBy
-}
-
-func (s *SysUserById) Generate() dto.Control {
-	cp := *s
-	return &cp
 }
 
 func (s *SysUserById) GetId() interface{} {
