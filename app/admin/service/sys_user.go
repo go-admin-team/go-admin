@@ -19,7 +19,7 @@ type SysUser struct {
 }
 
 // GetSysUserPage 获取SysUser列表
-func (e *SysUser) GetSysUserPage(c cDto.Index, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
+func (e *SysUser) GetSysUserPage(c *dto.SysUserSearch, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
 	var err error
 	var data models.SysUser
 
@@ -40,7 +40,7 @@ func (e *SysUser) GetSysUserPage(c cDto.Index, p *actions.DataPermission, list *
 }
 
 // GetSysUser 获取SysUser对象
-func (e *SysUser) GetSysUser(d cDto.Control, p *actions.DataPermission, model *models.SysUser) error {
+func (e *SysUser) GetSysUser(d *dto.SysUserById, p *actions.DataPermission, model *models.SysUser) error {
 	var data models.SysUser
 
 	err := e.Orm.Model(&data).
