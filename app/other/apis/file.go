@@ -45,28 +45,33 @@ func (e File) UploadFile(c *gin.Context) {
 	tag, _ := c.GetPostForm("type")
 	urlPrefix := fmt.Sprintf("http://%s/", c.Request.Host)
 	var fileResponse FileResponse
-	if tag == "" {
-		e.Error(500, nil, "缺少标识")
-		return
-	} else {
-		switch tag {
-		case "1": // 单图
-			var done bool
-			fileResponse, done = e.singleFile(c, fileResponse, urlPrefix)
-			if done {
-				return
-			}
-			e.OK(fileResponse, "上传成功")
+
+	switch tag {
+	case "1": // 单图
+		var done bool
+		fileResponse, done = e.singleFile(c, fileResponse, urlPrefix)
+		if done {
 			return
-		case "2": // 多图
-			multipartFile := e.multipleFile(c, urlPrefix)
-			e.OK(multipartFile, "上传成功")
-			return
-		case "3": // base64
-			fileResponse = e.baseImg(c, fileResponse, urlPrefix)
-			e.OK(fileResponse, "上传成功")
 		}
+		e.OK(fileResponse, "上传成功")
+		return
+	case "2": // 多图
+		multipartFile := e.multipleFile(c, urlPrefix)
+		e.OK(multipartFile, "上传成功")
+		return
+	case "3": // base64
+		fileResponse = e.baseImg(c, fileResponse, urlPrefix)
+		e.OK(fileResponse, "上传成功")
+	default:
+		var done bool
+		fileResponse, done = e.singleFile(c, fileResponse, urlPrefix)
+		if done {
+			return
+		}
+		e.OK(fileResponse, "上传成功")
+		return
 	}
+
 }
 
 func (e File) baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix string) FileResponse {
