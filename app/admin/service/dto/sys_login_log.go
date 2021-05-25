@@ -20,7 +20,7 @@ type SysLoginLogSearch struct {
 }
 
 type SysLoginLogOrder struct {
-	HandleOrder string `search:"type:order;column:created_at;table:sys_login_log" form:"created_at_order"`
+	HandleOrder string `search:"type:order;column:created_at;table:sys_login_log" form:"createdAtOrder"`
 }
 
 func (m *SysLoginLogSearch) GetNeedSearch() interface{} {

@@ -23,10 +23,10 @@ type SysUserSearch struct {
 }
 
 type SysUserOrder struct {
-	UserIdOrder    string `search:"type:order;column:user_id;table:sys_user" form:"userId_order"`
-	UsernameOrder  string `search:"type:order;column:username;table:sys_user" form:"username_order"`
-	StatusOrder  string `search:"type:order;column:status;table:sys_user" form:"status_order"`
-	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_user" form:"createdAt_order"`
+	UserIdOrder    string `search:"type:order;column:user_id;table:sys_user" form:"userIdOrder"`
+	UsernameOrder  string `search:"type:order;column:username;table:sys_user" form:"usernameOrder"`
+	StatusOrder  string `search:"type:order;column:status;table:sys_user" form:"statusOrder"`
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_user" form:"createdAtOrder"`
 }
 
 func (m *SysUserSearch) GetNeedSearch() interface{} {

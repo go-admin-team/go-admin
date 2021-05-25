@@ -13,6 +13,15 @@ type SysConfigSearch struct {
 	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config"`
 	ConfigType     string `form:"configType" search:"type:exact;column:config_type;table:sys_config"`
 	IsFrontend     int    `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config"`
+	SysConfigOrder
+}
+
+type SysConfigOrder struct {
+	IdOrder string `search:"type:order;column:id;table:sys_config" form:"idOrder"`
+	ConfigNameOrder string `search:"type:order;column:config_name;table:sys_config" form:"configNameOrder"`
+	ConfigKeyOrder string `search:"type:order;column:config_key;table:sys_config" form:"configKeyOrder"`
+	ConfigTypeOrder string `search:"type:order;column:config_type;table:sys_config" form:"configTypeOrder"`
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_config" form:"createdAtOrder"`
 }
 
 func (m *SysConfigSearch) GetNeedSearch() interface{} {
@@ -48,6 +57,15 @@ func (s *SysConfigControl) Generate(model *models.SysConfig) {
 // GetId 获取数据对应的ID
 func (s *SysConfigControl) GetId() interface{} {
 	return s.Id
+}
+
+// SysConfigByKeyReq 根据Key获取配置
+type SysConfigByKeyReq struct {
+	ConfigKey string `uri:"configKey" search:"type:contains;column:config_key;table:sys_config"`
+}
+
+func (m *SysConfigByKeyReq) GetNeedSearch() interface{} {
+	return *m
 }
 
 // SysConfigById 获取单个或者删除的结构体

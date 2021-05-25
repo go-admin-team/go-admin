@@ -16,9 +16,9 @@ type SysApiSearch struct {
 }
 
 type SysApiOrder struct {
-	TitleOrder string `search:"type:order;column:title;table:sys_api" form:"title_order"`
-	PathOrder string `search:"type:order;column:path;table:sys_api" form:"path_order"`
-	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_api" form:"createdAt_order"`
+	TitleOrder string `search:"type:order;column:title;table:sys_api" form:"titleOrder"`
+	PathOrder string `search:"type:order;column:path;table:sys_api" form:"pathOrder"`
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_api" form:"createdAtOrder"`
 }
 
 func (m *SysApiSearch) GetNeedSearch() interface{} {

@@ -71,7 +71,7 @@ func (e *SysConfig) InsertSysConfig(c *dto.SysConfigControl) error {
 	var err error
 	var data models.SysConfig
 	c.Generate(&data)
-	err = e.Orm.Create(data).Error
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("Service InsertSysConfig error:%s", err)
 		return err
@@ -117,7 +117,7 @@ func (e *SysConfig) RemoveSysConfig(d *dto.SysConfigById) error {
 }
 
 // GetSysConfigByKEY 根据Key获取SysConfig
-func (e *SysConfig) GetSysConfigByKEY(c *dto.SysConfigControl) error {
+func (e *SysConfig) GetSysConfigByKEY(c *dto.SysConfigByKeyReq) error {
 	var err error
 	var data models.SysConfig
 	data.ConfigKey = c.ConfigKey

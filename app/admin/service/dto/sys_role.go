@@ -28,11 +28,11 @@ type SysRoleSearch struct {
 }
 
 type SysRoleOrder struct {
-	RoleIdOrder    string `search:"type:order;column:role_id;table:sys_role" form:"roleId_order"`
-	RoleNameOrder  string `search:"type:order;column:role_name;table:sys_role" form:"roleName_order"`
-	RoleSortOrder  string `search:"type:order;column:role_sort;table:sys_role" form:"username_order"`
-	StatusOrder  string `search:"type:order;column:status;table:sys_role" form:"status_order"`
-	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_role" form:"createdAt_order"`
+	RoleIdOrder    string `search:"type:order;column:role_id;table:sys_role" form:"roleIdOrder"`
+	RoleNameOrder  string `search:"type:order;column:role_name;table:sys_role" form:"roleNameOrder"`
+	RoleSortOrder  string `search:"type:order;column:role_sort;table:sys_role" form:"usernameOrder"`
+	StatusOrder  string `search:"type:order;column:status;table:sys_role" form:"statusOrder"`
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_role" form:"createdAtOrder"`
 }
 
 func (m *SysRoleSearch) GetNeedSearch() interface{} {

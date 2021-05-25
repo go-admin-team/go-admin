@@ -18,7 +18,7 @@ type SysDictTypeSearch struct {
 }
 
 type SysDictTypeOrder struct {
-	DictIdOrder string `search:"type:order;column:dict_id;table:sys_dict_type" form:"dict_id_order"`
+	DictIdOrder string `search:"type:order;column:dict_id;table:sys_dict_type" form:"dictIdOrder"`
 }
 
 func (m *SysDictTypeSearch) GetNeedSearch() interface{} {
