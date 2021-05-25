@@ -13,25 +13,18 @@ import (
 
 type SysOperaLogSearch struct {
 	dto.Pagination `search:"-"`
-
-	Title         string `form:"title" search:"type:contains;column:title;table:sys_opera_log" comment:"操作模块"`
-	Method        string `form:"method" search:"type:contains;column:method;table:sys_opera_log" comment:"函数"`
-	RequestMethod string `form:"requestMethod" search:"type:contains;column:request_method;table:sys_opera_log" comment:"请求方式"`
-	OperUrl       string `form:"operUrl" search:"type:contains;column:oper_url;table:sys_opera_log" comment:"访问地址"`
-	OperIp        string `form:"operIp" search:"type:exact;column:oper_ip;table:sys_opera_log" comment:"客户端ip"`
+	Title          string `form:"title" search:"type:contains;column:title;table:sys_opera_log" comment:"操作模块"`
+	Method         string `form:"method" search:"type:contains;column:method;table:sys_opera_log" comment:"函数"`
+	RequestMethod  string `form:"requestMethod" search:"type:contains;column:request_method;table:sys_opera_log" comment:"请求方式"`
+	OperUrl        string `form:"operUrl" search:"type:contains;column:oper_url;table:sys_opera_log" comment:"访问地址"`
+	OperIp         string `form:"operIp" search:"type:exact;column:oper_ip;table:sys_opera_log" comment:"客户端ip"`
+	Status         int    `form:"status" search:"type:exact;column:status;table:sys_opera_log" comment:"状态"`
+	BeginTime      string `form:"beginTime" search:"type:gte;column:ctime;table:sys_opera_log" comment:"创建时间"`
+	EndTime        string `form:"endTime" search:"type:lte;column:ctime;table:sys_opera_log" comment:"创建时间"`
 }
 
 func (m *SysOperaLogSearch) GetNeedSearch() interface{} {
 	return *m
-}
-
-func (m *SysOperaLogSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 type SysOperaLogControl struct {

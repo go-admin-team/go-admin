@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"net/http"
 
@@ -20,7 +21,7 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	req := new(dto.SysOperaLogSearch)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
