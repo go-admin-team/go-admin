@@ -17,6 +17,19 @@ type SysConfig struct {
 	api.Api
 }
 
+// GetSysConfigList 获取配置管理列表
+// @Summary 获取配置管理列表
+// @Description 获取配置管理列表
+// @Tags 配置管理
+// @Param configName query string false "名称"
+// @Param configKey query string false "key"
+// @Param configType query string false "类型"
+// @Param isFrontend query int false "是否前端"
+// @Param pageSize query int false "页条数"
+// @Param pageIndex query int false "页码"
+// @Success 200 {object} response.Response{data=response.Page{list=[]models.SysApi}} "{"code": 200, "data": [...]}"
+// @Router /api/v1/sys-config [get]
+// @Security Bearer
 func (e SysConfig) GetSysConfigList(c *gin.Context) {
 	s := service.SysConfig{}
 	d := new(dto.SysConfigSearch)
@@ -74,6 +87,15 @@ func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 	e.OK(mp, "查询成功")
 }
 
+
+// GetSysConfig 获取配置管理
+// @Summary 获取配置管理
+// @Description 获取配置管理
+// @Tags 配置管理
+// @Param id path string false "id"
+// @Success 200 {object} response.Response{data=models.SysApi} "{"code": 200, "data": [...]}"
+// @Router /api/v1/sys_api/{id} [get]
+// @Security Bearer
 func (e SysConfig) GetSysConfig(c *gin.Context) {
 	control := new(dto.SysConfigById)
 	s := service.SysConfig{}
@@ -124,6 +146,16 @@ func (e SysConfig) InsertSysConfig(c *gin.Context) {
 	e.OK(control.GetId(), "创建成功")
 }
 
+// UpdateSysConfig 修改配置管理
+// @Summary 修改配置管理
+// @Description 修改配置管理
+// @Tags 配置管理
+// @Accept application/json
+// @Product application/json
+// @Param data body dto.SysConfigControl true "body"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
+// @Router /api/v1/sys-config/{id} [put]
+// @Security Bearer
 func (e SysConfig) UpdateSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
 	control := new(dto.SysConfigControl)
@@ -148,6 +180,14 @@ func (e SysConfig) UpdateSysConfig(c *gin.Context) {
 	e.OK(control.GetId(), "更新成功")
 }
 
+// DeleteSysConfig 删除配置管理
+// @Summary 删除配置管理
+// @Description 删除配置管理
+// @Tags 配置管理
+// @Param ids body []int false "ids"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
+// @Router /api/v1/sys-config [delete]
+// @Security Bearer
 func (e SysConfig) DeleteSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
 	control := new(dto.SysConfigById)
@@ -176,7 +216,7 @@ func (e SysConfig) DeleteSysConfig(c *gin.Context) {
 // GetSysConfigByKEYForService 根据Key获取SysConfig的Service
 func (e SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	var s = new(service.SysConfig)
-	var control = new(dto.SysConfigControl)
+	var control = new(dto.SysConfigByKeyReq)
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(control).
