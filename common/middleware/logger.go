@@ -104,7 +104,6 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	l := make(map[string]interface{})
 	l["_fullPath"] = c.FullPath()
 	l["operUrl"] = reqUri
-	l["method"] = reqMethod
 	l["operIp"] = clientIP
 	l["operLocation"] = pkg.GetLocation(clientIP)
 	l["operName"] = user.GetUserName(c)
