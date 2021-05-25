@@ -8,7 +8,7 @@ func InitMiddleware(r *gin.Engine) {
 	// 数据库链接
 	r.Use(WithContextDb)
 	// 日志处理
-	r.Use(LoggerToFile())
+	//r.Use(LoggerToFile())
 	// 自定义错误处理
 	r.Use(CustomError)
 	// NoCache is a middleware function that appends headers

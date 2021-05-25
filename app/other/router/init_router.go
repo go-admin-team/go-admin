@@ -27,7 +27,7 @@ func InitRouter() {
 
 	//r.Use(common.Sentinel()).
 	//	Use(common.RequestId(pkg.TrafficKey))
-	//common.InitMiddleware(r)
+	common.InitMiddleware(r)
 	// the jwt middleware
 	authMiddleware, err := common.AuthInit()
 	if err != nil {
