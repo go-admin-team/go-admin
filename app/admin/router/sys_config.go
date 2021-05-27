@@ -33,4 +33,10 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 		r2.GET("", api.GetSysConfigBySysApp)
 	}
 
+	r3 := v1.Group("/set-config")
+	{
+		r3.PUT("", api.SetSysConfig)
+		r3.GET("", api.GetSetSysConfig)
+	}
+
 }

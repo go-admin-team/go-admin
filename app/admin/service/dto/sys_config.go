@@ -17,11 +17,11 @@ type SysConfigSearch struct {
 }
 
 type SysConfigOrder struct {
-	IdOrder string `search:"type:order;column:id;table:sys_config" form:"idOrder"`
+	IdOrder         string `search:"type:order;column:id;table:sys_config" form:"idOrder"`
 	ConfigNameOrder string `search:"type:order;column:config_name;table:sys_config" form:"configNameOrder"`
-	ConfigKeyOrder string `search:"type:order;column:config_key;table:sys_config" form:"configKeyOrder"`
+	ConfigKeyOrder  string `search:"type:order;column:config_key;table:sys_config" form:"configKeyOrder"`
 	ConfigTypeOrder string `search:"type:order;column:config_type;table:sys_config" form:"configTypeOrder"`
-	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_config" form:"createdAtOrder"`
+	CreatedAtOrder  string `search:"type:order;column:created_at;table:sys_config" form:"createdAtOrder"`
 }
 
 func (m *SysConfigSearch) GetNeedSearch() interface{} {
@@ -57,6 +57,17 @@ func (s *SysConfigControl) Generate(model *models.SysConfig) {
 // GetId 获取数据对应的ID
 func (s *SysConfigControl) GetId() interface{} {
 	return s.Id
+}
+
+// SysConfigSetReq 增、改使用的结构体
+type SysConfigSetReq struct {
+	ConfigKey   string `json:"configKey" comment:""`
+	ConfigValue string `json:"configValue" comment:""`
+}
+
+// Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
+func (s *SysConfigSetReq) Generate(model *models.SysConfig) {
+	model.ConfigValue = s.ConfigValue
 }
 
 // SysConfigByKeyReq 根据Key获取配置
