@@ -1,14 +1,14 @@
 package tools
 
 import (
+	"gorm.io/gorm"
 	"strings"
 
 	"go-admin/app/admin/models"
-	orm "go-admin/common/global"
 )
 
 type SysTables struct {
-	TableId             int          `gorm:"primary_key;auto_increment" json:"tableId"`    //表编码
+	TableId             int          `gorm:"primaryKey;autoIncrement" json:"tableId"`      //表编码
 	TBName              string       `gorm:"column:table_name;size:255;" json:"tableName"` //表名称
 	TableComment        string       `gorm:"size:255;" json:"tableComment"`                //表备注
 	ClassName           string       `gorm:"size:255;" json:"className"`                   //类名
@@ -34,8 +34,8 @@ type SysTables struct {
 	IsLogicalDelete     string       `gorm:"size:1;" json:"isLogicalDelete"`
 	LogicalDelete       bool         `gorm:"size:1;" json:"logicalDelete"`
 	LogicalDeleteColumn string       `gorm:"size:128;" json:"logicalDeleteColumn"`
-	CreateBy            string       `gorm:"size:128;" json:"createBy"`
-	UpdateBy            string       `gorm:"size:128;" json:"updateBy"`
+	CreateBy            int          `gorm:"size:128;" json:"createBy"`
+	UpdateBy            int          `gorm:"size:128;" json:"updateBy"`
 	DataScope           string       `gorm:"-" json:"dataScope"`
 	Params              Params       `gorm:"-" json:"params"`
 	Columns             []SysColumns `gorm:"-" json:"columns"`
@@ -53,10 +53,10 @@ type Params struct {
 	TreeName       string `gorm:"-" json:"treeName"`
 }
 
-func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, error) {
+func (e *SysTables) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]SysTables, int, error) {
 	var doc []SysTables
 
-	table := orm.Eloquent.Table("sys_tables")
+	table := tx.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -74,10 +74,10 @@ func (e *SysTables) GetPage(pageSize int, pageIndex int) ([]SysTables, int, erro
 	return doc, int(count), nil
 }
 
-func (e *SysTables) Get() (SysTables, error) {
+func (e *SysTables) Get(tx *gorm.DB) (SysTables, error) {
 	var doc SysTables
 	var err error
-	table := orm.Eloquent.Table("sys_tables")
+	table := tx.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -94,17 +94,17 @@ func (e *SysTables) Get() (SysTables, error) {
 	}
 	var col SysColumns
 	col.TableId = doc.TableId
-	if doc.Columns, err = col.GetList(); err != nil {
+	if doc.Columns, err = col.GetList(tx); err != nil {
 		return doc, err
 	}
 
 	return doc, nil
 }
 
-func (e *SysTables) GetTree() ([]SysTables, error) {
+func (e *SysTables) GetTree(tx *gorm.DB) ([]SysTables, error) {
 	var doc []SysTables
 	var err error
-	table := orm.Eloquent.Table("sys_tables")
+	table := tx.Table("sys_tables")
 
 	if e.TBName != "" {
 		table = table.Where("table_name = ?", e.TBName)
@@ -123,7 +123,7 @@ func (e *SysTables) GetTree() ([]SysTables, error) {
 		var col SysColumns
 		//col.FkCol = append(col.FkCol, SysColumns{ColumnId: 0, ColumnName: "请选择"})
 		col.TableId = doc[i].TableId
-		if doc[i].Columns, err = col.GetList(); err != nil {
+		if doc[i].Columns, err = col.GetList(tx); err != nil {
 			return doc, err
 		}
 
@@ -132,9 +132,10 @@ func (e *SysTables) GetTree() ([]SysTables, error) {
 	return doc, nil
 }
 
-func (e *SysTables) Create() (SysTables, error) {
+func (e *SysTables) Create(tx *gorm.DB) (SysTables, error) {
 	var doc SysTables
-	result := orm.Eloquent.Table("sys_tables").Create(&e)
+	e.CreateBy = 0
+	result := tx.Table("sys_tables").Create(&e)
 	if result.Error != nil {
 		err := result.Error
 		return doc, err
@@ -143,20 +144,21 @@ func (e *SysTables) Create() (SysTables, error) {
 	for i := 0; i < len(e.Columns); i++ {
 		e.Columns[i].TableId = doc.TableId
 
-		e.Columns[i].Create()
+		_, _ = e.Columns[i].Create(tx)
 	}
 
 	return doc, nil
 }
 
-func (e *SysTables) Update() (update SysTables, err error) {
+func (e *SysTables) Update(tx *gorm.DB) (update SysTables, err error) {
 	//if err = orm.Eloquent.Table("sys_tables").First(&update, e.TableId).Error; err != nil {
 	//	return
 	//}
 
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
-	if err = orm.Eloquent.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
+	e.UpdateBy = 0
+	if err = tx.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
 
@@ -170,7 +172,7 @@ func (e *SysTables) Update() (update SysTables, err error) {
 	tables := make([]SysTables, 0)
 	tableMap := make(map[string]*SysTables)
 	if len(tableNames) > 0 {
-		if err = orm.Eloquent.Table("sys_tables").Where("table_name in (?)", tableNames).Find(&tables).Error; err != nil {
+		if err = tx.Table("sys_tables").Where("table_name in (?)", tableNames).Find(&tables).Error; err != nil {
 			return
 		}
 		for i := range tables {
@@ -196,13 +198,13 @@ func (e *SysTables) Update() (update SysTables, err error) {
 				}
 			}
 		}
-		_, _ = e.Columns[i].Update()
+		_, _ = e.Columns[i].Update(tx)
 	}
 	return
 }
 
-func (e *SysTables) Delete() (success bool, err error) {
-	tx := orm.Eloquent.Begin()
+func (e *SysTables) Delete(db *gorm.DB) (success bool, err error) {
+	tx := db.Begin()
 	defer func() {
 		if err != nil {
 			tx.Rollback()
@@ -222,8 +224,8 @@ func (e *SysTables) Delete() (success bool, err error) {
 	return
 }
 
-func (e *SysTables) BatchDelete(id []int) (Result bool, err error) {
-	if err = orm.Eloquent.Unscoped().Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
+func (e *SysTables) BatchDelete(tx *gorm.DB, id []int) (Result bool, err error) {
+	if err = tx.Unscoped().Table(e.TableName()).Where(" table_id in (?)", id).Delete(&SysColumns{}).Error; err != nil {
 		return
 	}
 	Result = true

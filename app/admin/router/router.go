@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin"
-	"go-admin/pkg/jwtauth"
-	jwt "go-admin/pkg/jwtauth"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 )
 
 var (
@@ -35,8 +35,7 @@ func examplesNoCheckRoleRouter(r *gin.Engine) {
 	}
 
 	// {{无需认证路由自动补充在此处请勿删除}}
-	registerSysFileInfoRouter(v1)
-	registerSysFileDirRouter(v1)
+	//registerSysFileInfoRouter(v1)
 }
 
 // 需要认证的路由示例
@@ -49,9 +48,4 @@ func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddle
 	for _, f := range routerCheckRole {
 		f(v1, authMiddleware)
 	}
-
-	// {{认证路由自动补充在此处请勿删除}}
-	registerSysContentRouter(v1, authMiddleware)
-	registerSysCategoryRouter(v1, authMiddleware)
-
 }

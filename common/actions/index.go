@@ -5,25 +5,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
 
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 // IndexAction 通用查询动作
 func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := pkg.GenerateMsgIDFromContext(c)
 		list := f()
 		object := m.Generate()
 		req := d.Generate()
@@ -32,7 +32,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 		//查询列表
 		err = req.Bind(c)
 		if err != nil {
-			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			response.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 			return
 		}
 
@@ -49,10 +49,10 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Errorf("MsgID[%s] Index error: %s", msgID, err)
-			app.Error(c, http.StatusInternalServerError, err, "查询失败")
+			response.Error(c, http.StatusInternalServerError, err, "查询失败")
 			return
 		}
-		app.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+		response.PageOK(c, list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 		c.Next()
 	}
 }

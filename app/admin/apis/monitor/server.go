@@ -4,12 +4,13 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 
-	"go-admin/tools"
-	"go-admin/tools/app"
+	"go-admin/common/apis"
 )
 
 const (
@@ -19,12 +20,17 @@ const (
 	GB = 1024 * MB
 )
 
+type Monitor struct {
+	apis.Api
+}
+
 // @Summary 系统信息
 // @Description 获取JSON
 // @Tags 系统信息
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/settings/serverInfo [get]
-func ServerInfo(c *gin.Context) {
+func (e Monitor) ServerInfo(c *gin.Context) {
+	e.Context = c
 
 	osDic := make(map[string]interface{}, 0)
 	osDic["goOs"] = runtime.GOOS
@@ -33,8 +39,8 @@ func ServerInfo(c *gin.Context) {
 	osDic["compiler"] = runtime.Compiler
 	osDic["version"] = runtime.Version()
 	osDic["numGoroutine"] = runtime.NumGoroutine()
-	osDic["ip"] = tools.GetLocaHonst()
-	osDic["projectDir"] = tools.GetCurrentPath()
+	osDic["ip"] = pkg.GetLocaHonst()
+	osDic["projectDir"] = pkg.GetCurrentPath()
 
 	dis, _ := disk.Usage("/")
 	diskTotalGB := int(dis.Total) / GB
@@ -57,10 +63,10 @@ func ServerInfo(c *gin.Context) {
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuInfo"], _ = cpu.Info()
 	percent, _ := cpu.Percent(0, false)
-	cpuDic["Percent"] = tools.Round(percent[0], 2)
+	cpuDic["Percent"] = pkg.Round(percent[0], 2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
-	app.Custum(c, gin.H{
+	e.Custom(gin.H{
 		"code": 200,
 		"os":   osDic,
 		"mem":  memDic,

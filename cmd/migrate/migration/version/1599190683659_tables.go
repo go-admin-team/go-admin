@@ -5,9 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/models/tools"
 	"go-admin/cmd/migrate/migration"
+	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
 )
 
@@ -21,11 +20,11 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.CasbinRule),
 		new(models.SysDept),
 		new(models.SysConfig),
-		new(tools.SysTables),
-		new(tools.SysColumns),
-		new(models.Menu),
-		new(models.LoginLog),
-		new(models.SysOperLog),
+		new(models.SysTables),
+		new(models.SysColumns),
+		new(models.SysMenu),
+		new(models.SysLoginLog),
+		new(models.SysOperaLog),
 		new(models.RoleMenu),
 		new(models.SysRoleDept),
 		new(models.SysUser),

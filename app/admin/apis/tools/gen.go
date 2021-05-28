@@ -3,35 +3,86 @@ package tools
 import (
 	"bytes"
 	"net/http"
+	"strconv"
 	"text/template"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
-	tools2 "go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/config"
+	"go-admin/common/apis"
 )
 
-func Preview(c *gin.Context) {
+type Gen struct {
+	apis.Api
+}
+
+func (e Gen) Preview(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	table.TableId = id
-	t1, err := template.ParseFiles("template/v3/model.go.template")
-	tools2.HasError(err, "", -1)
-	t2, err := template.ParseFiles("template/v3/no_actions/api.go.template")
-	tools2.HasError(err, "", -1)
-	t3, err := template.ParseFiles("template/v3/js.go.template")
-	tools2.HasError(err, "", -1)
-	t4, err := template.ParseFiles("template/v3/vue.go.template")
-	tools2.HasError(err, "", -1)
-	t5, err := template.ParseFiles("template/v3/no_actions/router_check_role.go.template")
-	tools2.HasError(err, "", -1)
-	t6, err := template.ParseFiles("template/v3/no_actions/dto.go.template")
-	tools2.HasError(err, "", -1)
-	tab, _ := table.Get()
+	t1, err := template.ParseFiles("template/v4/model.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+	t2, err := template.ParseFiles("template/v4/no_actions/apis.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+	t3, err := template.ParseFiles("template/v4/js.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+	t4, err := template.ParseFiles("template/v4/vue.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+	t5, err := template.ParseFiles("template/v4/no_actions/router_check_role.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+	t6, err := template.ParseFiles("template/v4/dto.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+	t7, err := template.ParseFiles("template/v4/no_actions/service.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+
+	db, err := pkg.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
+	tab, _ := table.Get(db)
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -44,6 +95,8 @@ func Preview(c *gin.Context) {
 	err = t5.Execute(&b5, tab)
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
+	var b7 bytes.Buffer
+	err = t7.Execute(&b7, tab)
 
 	mp := make(map[string]interface{})
 	mp["template/model.go.template"] = b1.String()
@@ -52,31 +105,70 @@ func Preview(c *gin.Context) {
 	mp["template/vue.go.template"] = b4.String()
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
-	var res app.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	mp["template/service.go.template"] = b7.String()
+	e.OK(mp, "")
 }
 
-func GenCodeV3(c *gin.Context) {
+func (e Gen) GenCode(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	table := tools.SysTables{}
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
-	table.TableId = id
-	tab, _ := table.Get()
-
-	if tab.IsActions == 1 {
-		ActionsGenV3(tab)
-	} else {
-		NOActionsGenV3(tab)
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
 	}
 
-	app.OK(c, "", "Code generated successfully！")
+	db, err := pkg.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
+	table.TableId = id
+	tab, _ := table.Get(db)
+
+	if tab.IsActions == 1 {
+		e.ActionsGen(c, tab)
+	} else {
+		e.NOActionsGen(c, tab)
+	}
+
+	e.OK("", "Code generated successfully！")
 }
 
-func NOActionsGenV3(tab tools.SysTables) {
+func (e Gen) GenApiToFile(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	table := tools.SysTables{}
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 
-	basePath := "template/v3/"
+	db, err := pkg.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
+	table.TableId = id
+	tab, _ := table.Get(db)
+	e.genApiToFile(c, tab)
+
+	e.OK("", "Code generated successfully！")
+}
+
+func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
+	e.Context = c
+	log := e.GetLogger()
+
+	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {
@@ -84,26 +176,54 @@ func NOActionsGenV3(tab tools.SysTables) {
 	}
 
 	t1, err := template.ParseFiles(basePath + "model.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t2, err := template.ParseFiles(basePath + "no_actions/apis.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t3, err := template.ParseFiles(routerFile)
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/" + tab.ModuleName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -119,18 +239,43 @@ func NOActionsGenV3(tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
-	tools2.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
+	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
+	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+"/"+tab.BusinessName+".go")
+	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
+	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
+	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.BusinessName+".go")
 
 }
 
-func ActionsGenV3(tab tools.SysTables) {
-	basePath := "template/v3/"
+func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
+	e.Context = c
+	log := e.GetLogger()
+
+	basePath := "template/"
+
+	t1, err := template.ParseFiles(basePath + "api_migrate.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
+	i := strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
+	var b1 bytes.Buffer
+	err = t1.Execute(&b1, struct {
+		tools.SysTables
+		GenerateTime string
+	}{tab, i})
+
+	pkg.FileCreate(b1, "./cmd/migrate/migration/version-local/"+i+"_migrate.go")
+
+}
+
+func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
+	e.Context = c
+	log := api.GetRequestLogger(c)
+	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
 
 	if tab.IsAuth == 2 {
@@ -138,21 +283,41 @@ func ActionsGenV3(tab tools.SysTables) {
 	}
 
 	t1, err := template.ParseFiles(basePath + "model.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t3, err := template.ParseFiles(routerFile)
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
-	tools2.HasError(err, "", -1)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, "")
+		return
+	}
 
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = tools2.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = tools2.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
+	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.BusinessName)
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -165,21 +330,30 @@ func ActionsGenV3(tab tools.SysTables) {
 	var b6 bytes.Buffer
 	err = t6.Execute(&b6, tab)
 
-	tools2.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
-	tools2.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
-	tools2.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
-	tools2.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
-	tools2.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
+	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.BusinessName+".go")
+	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.BusinessName+".go")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.BusinessName+".js")
+	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.BusinessName+"/index.vue")
+	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.BusinessName+".go")
 }
 
-func GenMenuAndApi(c *gin.Context) {
-
+func (e Gen) GenMenuAndApi(c *gin.Context) {
+	log := api.GetRequestLogger(c)
+	e.Context = c
 	table := tools.SysTables{}
-	timeNow := tools2.GetCurrentTime()
-	id, err := tools2.StringToInt(c.Param("tableId"))
-	tools2.HasError(err, "", -1)
+	timeNow := pkg.GetCurrentTime()
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	pkg.HasError(err, "", -1)
+
+	db, err := pkg.GetOrm(c)
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	table.TableId = id
-	tab, _ := table.Get()
+	tab, _ := table.Get(db)
 	Mmenu := models.Menu{}
 	Mmenu.MenuName = tab.TBName + "Manage"
 	Mmenu.Title = tab.TableComment
@@ -197,7 +371,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Mmenu.UpdateBy = "1"
 	Mmenu.CreatedAt = timeNow
 	Mmenu.UpdatedAt = timeNow
-	Mmenu.MenuId, err = Mmenu.Create()
+	Mmenu.MenuId, err = Mmenu.Create(db)
 
 	Cmenu := models.Menu{}
 	Cmenu.MenuName = tab.TBName
@@ -206,7 +380,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Cmenu.Path = tab.TBName
 	Cmenu.MenuType = "C"
 	Cmenu.Action = "无"
-	Cmenu.Permission = tab.ModuleName + ":" + tab.BusinessName + ":list"
+	Cmenu.Permission = tab.PackageName + ":" + tab.BusinessName + ":list"
 	Cmenu.ParentId = Mmenu.MenuId
 	Cmenu.NoCache = false
 	Cmenu.Component = "/" + tab.BusinessName + "/index"
@@ -217,7 +391,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Cmenu.UpdateBy = "1"
 	Cmenu.CreatedAt = timeNow
 	Cmenu.UpdatedAt = timeNow
-	Cmenu.MenuId, err = Cmenu.Create()
+	Cmenu.MenuId, err = Cmenu.Create(db)
 
 	MList := models.Menu{}
 	MList.MenuName = ""
@@ -226,7 +400,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.Path = tab.TBName
 	MList.MenuType = "F"
 	MList.Action = "无"
-	MList.Permission = tab.ModuleName + ":" + tab.BusinessName + ":query"
+	MList.Permission = tab.PackageName + ":" + tab.BusinessName + ":query"
 	MList.ParentId = Cmenu.MenuId
 	MList.NoCache = false
 	MList.Sort = 0
@@ -236,7 +410,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MList.UpdateBy = "1"
 	MList.CreatedAt = timeNow
 	MList.UpdatedAt = timeNow
-	MList.MenuId, err = MList.Create()
+	MList.MenuId, err = MList.Create(db)
 
 	MCreate := models.Menu{}
 	MCreate.MenuName = ""
@@ -245,7 +419,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.Path = tab.TBName
 	MCreate.MenuType = "F"
 	MCreate.Action = "无"
-	MCreate.Permission = tab.ModuleName + ":" + tab.BusinessName + ":add"
+	MCreate.Permission = tab.PackageName + ":" + tab.BusinessName + ":add"
 	MCreate.ParentId = Cmenu.MenuId
 	MCreate.NoCache = false
 	MCreate.Sort = 0
@@ -255,7 +429,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MCreate.UpdateBy = "1"
 	MCreate.CreatedAt = timeNow
 	MCreate.UpdatedAt = timeNow
-	MCreate.MenuId, err = MCreate.Create()
+	MCreate.MenuId, err = MCreate.Create(db)
 
 	MUpdate := models.Menu{}
 	MUpdate.MenuName = ""
@@ -264,7 +438,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.Path = tab.TBName
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
-	MUpdate.Permission = tab.ModuleName + ":" + tab.BusinessName + ":edit"
+	MUpdate.Permission = tab.PackageName + ":" + tab.BusinessName + ":edit"
 	MUpdate.ParentId = Cmenu.MenuId
 	MUpdate.NoCache = false
 	MUpdate.Sort = 0
@@ -274,7 +448,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MUpdate.UpdateBy = "1"
 	MUpdate.CreatedAt = timeNow
 	MUpdate.UpdatedAt = timeNow
-	MUpdate.MenuId, err = MUpdate.Create()
+	MUpdate.MenuId, err = MUpdate.Create(db)
 
 	MDelete := models.Menu{}
 	MDelete.MenuName = ""
@@ -283,7 +457,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MDelete.Path = tab.TBName
 	MDelete.MenuType = "F"
 	MDelete.Action = "无"
-	MDelete.Permission = tab.ModuleName + ":" + tab.BusinessName + ":remove"
+	MDelete.Permission = tab.PackageName + ":" + tab.BusinessName + ":remove"
 	MDelete.ParentId = Cmenu.MenuId
 	MDelete.NoCache = false
 	MDelete.Sort = 0
@@ -293,7 +467,7 @@ func GenMenuAndApi(c *gin.Context) {
 	MDelete.UpdateBy = "1"
 	MDelete.CreatedAt = timeNow
 	MDelete.UpdatedAt = timeNow
-	MDelete.MenuId, err = MDelete.Create()
+	MDelete.MenuId, err = MDelete.Create(db)
 
 	var InterfaceId = 63
 	Amenu := models.Menu{}
@@ -312,7 +486,7 @@ func GenMenuAndApi(c *gin.Context) {
 	Amenu.UpdateBy = "1"
 	Amenu.CreatedAt = timeNow
 	Amenu.UpdatedAt = timeNow
-	Amenu.MenuId, err = Amenu.Create()
+	Amenu.MenuId, err = Amenu.Create(db)
 
 	AList := models.Menu{}
 	AList.MenuName = ""
@@ -330,7 +504,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AList.UpdateBy = "1"
 	AList.CreatedAt = timeNow
 	AList.UpdatedAt = timeNow
-	AList.MenuId, err = AList.Create()
+	AList.MenuId, err = AList.Create(db)
 
 	AGet := models.Menu{}
 	AGet.MenuName = ""
@@ -348,7 +522,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AGet.UpdateBy = "1"
 	AGet.CreatedAt = timeNow
 	AGet.UpdatedAt = timeNow
-	AGet.MenuId, err = AGet.Create()
+	AGet.MenuId, err = AGet.Create(db)
 
 	ACreate := models.Menu{}
 	ACreate.MenuName = ""
@@ -366,7 +540,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ACreate.UpdateBy = "1"
 	ACreate.CreatedAt = timeNow
 	ACreate.UpdatedAt = timeNow
-	ACreate.MenuId, err = ACreate.Create()
+	ACreate.MenuId, err = ACreate.Create(db)
 
 	AUpdate := models.Menu{}
 	AUpdate.MenuName = ""
@@ -384,7 +558,7 @@ func GenMenuAndApi(c *gin.Context) {
 	AUpdate.UpdateBy = "1"
 	AUpdate.CreatedAt = timeNow
 	AUpdate.UpdatedAt = timeNow
-	AUpdate.MenuId, err = AUpdate.Create()
+	AUpdate.MenuId, err = AUpdate.Create(db)
 
 	ADelete := models.Menu{}
 	ADelete.MenuName = ""
@@ -402,7 +576,7 @@ func GenMenuAndApi(c *gin.Context) {
 	ADelete.UpdateBy = "1"
 	ADelete.CreatedAt = timeNow
 	ADelete.UpdatedAt = timeNow
-	ADelete.MenuId, err = ADelete.Create()
+	ADelete.MenuId, err = ADelete.Create(db)
 
-	app.OK(c, "", "数据生成成功！")
+	e.OK("", "数据生成成功！")
 }

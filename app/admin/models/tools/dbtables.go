@@ -2,12 +2,11 @@ package tools
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"gorm.io/gorm"
 
-	orm "go-admin/common/global"
-	"go-admin/tools"
-	config2 "go-admin/tools/config"
+	config2 "github.com/go-admin-team/go-admin-core/sdk/config"
 )
 
 type DBTables struct {
@@ -20,14 +19,14 @@ type DBTables struct {
 	TableComment   string `gorm:"column:TABLE_COMMENT" json:"tableComment"`
 }
 
-func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error) {
+func (e *DBTables) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBTables, int, error) {
 	var doc []DBTables
 	table := new(gorm.DB)
 	var count int64
 
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Table("information_schema.tables")
-		table = table.Where("TABLE_NAME not in (select table_name from " + config2.GenConfig.DBName + ".sys_tables) ")
+		table = tx.Table("information_schema.tables")
+		table = table.Where("TABLE_NAME not in (select table_name from `" + config2.GenConfig.DBName + "`.sys_tables) ")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		if e.TableName != "" {
@@ -37,28 +36,27 @@ func (e *DBTables) GetPage(pageSize int, pageIndex int) ([]DBTables, int, error)
 			return nil, 0, err
 		}
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
+		pkg.Assert(true, "目前只支持mysql数据库", 500)
 	}
 
 	//table.Count(&count)
 	return doc, int(count), nil
 }
 
-func (e *DBTables) Get() (DBTables, error) {
+func (e *DBTables) Get(tx *gorm.DB) (DBTables, error) {
 	var doc DBTables
-	table := new(gorm.DB)
 	if config2.DatabaseConfig.Driver == "mysql" {
-		table = orm.Eloquent.Table("information_schema.tables")
+		table := tx.Table("information_schema.tables")
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 		if e.TableName == "" {
 			return doc, errors.New("table name cannot be empty！")
 		}
 		table = table.Where("TABLE_NAME = ?", e.TableName)
+		if err := table.First(&doc).Error; err != nil {
+			return doc, err
+		}
 	} else {
-		tools.Assert(true, "目前只支持mysql数据库", 500)
-	}
-	if err := table.First(&doc).Error; err != nil {
-		return doc, err
+		pkg.Assert(true, "目前只支持mysql数据库", 500)
 	}
 	return doc, nil
 }

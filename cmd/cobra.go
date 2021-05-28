@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"go-admin/common/global"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -11,8 +13,6 @@ import (
 	"go-admin/cmd/config"
 	"go-admin/cmd/migrate"
 	"go-admin/cmd/version"
-	"go-admin/common/global"
-	"go-admin/tools"
 )
 
 var rootCmd = &cobra.Command{
@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			tip()
-			return errors.New(tools.Red("requires at least one arg"))
+			return errors.New(pkg.Red("requires at least one arg"))
 		}
 		return nil
 	},
@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 }
 
 func tip() {
-	usageStr := `欢迎使用 ` + tools.Green(`go-admin `+global.Version) + ` 可以使用 ` + tools.Red(`-h`) + ` 查看命令`
+	usageStr := `欢迎使用 ` + pkg.Green(`go-admin `+global.Version) + ` 可以使用 ` + pkg.Red(`-h`) + ` 查看命令`
 	usageStr1 := `也可以参考 http://doc.zhangwj.com/go-admin-site/guide/ksks.html 里边的【启动】章节`
 	fmt.Printf("%s\n", usageStr)
 	fmt.Printf("%s\n", usageStr1)

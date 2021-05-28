@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Migration struct {
-	Version   string    `gorm:"primary_key"`
+	Version   string    `gorm:"primaryKey"`
 	ApplyTime time.Time `gorm:"autoCreateTime"`
 }
 

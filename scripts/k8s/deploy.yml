@@ -1,0 +1,57 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-admin
+  labels:
+    app: go-admin
+    service: go-admin
+spec:
+  ports:
+  - port: 8000
+    name: http
+    protocol: TCP
+  selector:
+    app: go-admin
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-admin-v1
+  labels:
+    app: go-admin
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-admin
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: go-admin
+        version: v1
+    spec:
+      containers:
+      - name: go-admin
+        image: registry.cn-shanghai.aliyuncs.com/go-admin-team/go-admin
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: go-admin
+          mountPath: /temp
+        - name: go-admin
+          mountPath: /static
+        - name: go-admin-config
+          mountPath: /config/
+          readOnly: true
+      volumes:
+      - name: go-admin
+        persistentVolumeClaim:
+          claimName: go-admin
+      - name: go-admin-config
+        configMap:
+          name: settings-admin
+---

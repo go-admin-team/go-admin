@@ -2,15 +2,17 @@ package jobs
 
 import (
 	"fmt"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk"
+	"gorm.io/gorm"
 	"sync"
 	"time"
 
 	"github.com/robfig/cron/v3"
 
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/cronjob"
 	"go-admin/app/admin/models"
-	"go-admin/common/global"
-	"go-admin/pkg"
-	"go-admin/pkg/cronjob"
 )
 
 var timeFormat = "2006-01-02 15:04:05"
@@ -22,7 +24,7 @@ var lock sync.Mutex
 type JobCore struct {
 	InvokeTarget   string
 	Name           string
-	JobId          uint
+	JobId          int
 	EntryId        int
 	CronExpression string
 	Args           string
@@ -41,10 +43,14 @@ func (e *ExecJob) Run() {
 	startTime := time.Now()
 	var obj = jobList[e.InvokeTarget]
 	if obj == nil {
-		global.JobLogger.Warning(" ExecJob Run job nil", e)
+		log.Warn("[Job] ExecJob Run job nil")
 		return
 	}
-	CallExec(obj.(JobsExec), e.Args)
+	err := CallExec(obj.(JobsExec), e.Args)
+	if err != nil {
+		// 如果失败暂停一段时间重试
+		fmt.Println(time.Now().Format(timeFormat), " [ERROR] mission failed! ", err)
+	}
 	// 结束时间
 	endTime := time.Now()
 
@@ -53,7 +59,8 @@ func (e *ExecJob) Run() {
 	//TODO: 待完善部分
 	//str := time.Now().Format(timeFormat) + " [INFO] JobCore " + string(e.EntryId) + "exec success , spend :" + latencyTime.String()
 	//ws.SendAll(str)
-	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", e, "exec success , spend :", latencyTime)
+	log.Info("[Job] JobCore %s exec success , spend :%v", e.Name, latencyTime)
+	return
 }
 
 //http 任务接口
@@ -61,19 +68,21 @@ func (h *HttpJob) Run() {
 
 	startTime := time.Now()
 	var count = 0
+	var err error
+	var str string
 	/* 循环 */
 LOOP:
 	if count < retryCount {
 		/* 跳过迭代 */
-		str, err := pkg.Get(h.InvokeTarget)
+		str, err = pkg.Get(h.InvokeTarget)
 		if err != nil {
 			// 如果失败暂停一段时间重试
 			fmt.Println(time.Now().Format(timeFormat), " [ERROR] mission failed! ", err)
-			fmt.Printf(time.Now().Format(timeFormat)+" [INFO] Retry after the task fails %d seconds! %s \n", time.Duration(count)*time.Second, str)
-			time.Sleep(time.Duration(count) * time.Second)
+			fmt.Printf(time.Now().Format(timeFormat)+" [INFO] Retry after the task fails %d seconds! %s \n", (count+1)*5, str)
+			time.Sleep(time.Duration(count+1) * 5 * time.Second)
+			count = count + 1
 			goto LOOP
 		}
-		count = count + 1
 	}
 	// 结束时间
 	endTime := time.Now()
@@ -82,19 +91,26 @@ LOOP:
 	latencyTime := endTime.Sub(startTime)
 	//TODO: 待完善部分
 
-	global.JobLogger.Info(time.Now().Format(timeFormat), " [INFO] JobCore ", h, "exec success , spend :", latencyTime)
+	log.Infof("[Job] JobCore %s exec success , spend :%v", h.Name, latencyTime)
+	return
 }
 
 // 初始化
-func Setup() {
+func Setup(dbs map[string]*gorm.DB) {
 
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
 
-	global.GADMCron = cronjob.NewWithSeconds()
+	for k, db := range dbs {
+		sdk.Runtime.SetCrontab(k, cronjob.NewWithSeconds())
+		setup(k, db)
+	}
+}
 
+func setup(key string, db *gorm.DB) {
+	crontab := sdk.Runtime.GetCrontabKey(key)
 	sysJob := models.SysJob{}
 	jobList := make([]models.SysJob, 0)
-	err := sysJob.GetList(&jobList)
+	err := sysJob.GetList(db, &jobList)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore init error", err)
 	}
@@ -102,7 +118,7 @@ func Setup() {
 		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore total:0")
 	}
 
-	_, err = sysJob.RemoveAllEntryID()
+	_, err = sysJob.RemoveAllEntryID(db)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore remove entry_id error", err)
 	}
@@ -115,7 +131,7 @@ func Setup() {
 			j.JobId = jobList[i].JobId
 			j.Name = jobList[i].JobName
 
-			sysJob.EntryId, err = AddJob(j)
+			sysJob.EntryId, err = AddJob(crontab, j)
 		} else if jobList[i].JobType == 2 {
 			j := &ExecJob{}
 			j.InvokeTarget = jobList[i].InvokeTarget
@@ -123,30 +139,30 @@ func Setup() {
 			j.JobId = jobList[i].JobId
 			j.Name = jobList[i].JobName
 			j.Args = jobList[i].Args
-			sysJob.EntryId, err = AddJob(j)
+			sysJob.EntryId, err = AddJob(crontab, j)
 		}
-		err = sysJob.Update(jobList[i].JobId)
+		err = sysJob.Update(db, jobList[i].JobId)
 	}
 
 	// 其中任务
-	global.GADMCron.Start()
+	crontab.Start()
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore start success.")
 	// 关闭任务
-	defer global.GADMCron.Stop()
+	defer crontab.Stop()
 	select {}
 }
 
 // 添加任务 AddJob(invokeTarget string, jobId int, jobName string, cronExpression string)
-func AddJob(job Job) (int, error) {
+func AddJob(c *cron.Cron, job Job) (int, error) {
 	if job == nil {
 		fmt.Println("unknown")
 		return 0, nil
 	}
-	return job.addJob()
+	return job.addJob(c)
 }
 
-func (h *HttpJob) addJob() (int, error) {
-	id, err := global.GADMCron.AddJob(h.CronExpression, h)
+func (h *HttpJob) addJob(c *cron.Cron) (int, error) {
+	id, err := c.AddJob(h.CronExpression, h)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
 		return 0, err
@@ -155,8 +171,8 @@ func (h *HttpJob) addJob() (int, error) {
 	return EntryId, nil
 }
 
-func (h *ExecJob) addJob() (int, error) {
-	id, err := global.GADMCron.AddJob(h.CronExpression, h)
+func (h *ExecJob) addJob(c *cron.Cron) (int, error) {
+	id, err := c.AddJob(h.CronExpression, h)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
 		return 0, err
@@ -166,10 +182,10 @@ func (h *ExecJob) addJob() (int, error) {
 }
 
 // 移除任务
-func Remove(entryID int) chan bool {
+func Remove(c *cron.Cron, entryID int) chan bool {
 	ch := make(chan bool)
 	go func() {
-		global.GADMCron.Remove(cron.EntryID(entryID))
+		c.Remove(cron.EntryID(entryID))
 		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Remove success ,info entryID :", entryID)
 		ch <- true
 	}()
@@ -177,11 +193,11 @@ func Remove(entryID int) chan bool {
 }
 
 // 任务停止
-func Stop() chan bool {
-	ch := make(chan bool)
-	go func() {
-		global.GADMCron.Stop()
-		ch <- true
-	}()
-	return ch
-}
+//func Stop() chan bool {
+//	ch := make(chan bool)
+//	go func() {
+//		global.GADMCron.Stop()
+//		ch <- true
+//	}()
+//	return ch
+//}

@@ -1,26 +1,28 @@
+// +build examples
+
 package main
 
 import (
+	"github.com/go-admin-team/go-admin-core/sdk"
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"go-admin/common/global"
-	mycasbin "go-admin/pkg/casbin"
-	"go-admin/pkg/logger"
+	myCasbin "github.com/go-admin-team/go-admin-core/sdk/pkg/casbin"
+	"gorm.io/driver/mysql"
 )
 
 func main() {
-	var err error
-	global.Eloquent, err = gorm.Open(mysql.Open("root:123456@tcp/inmg?charset=utf8&parseTime=True&loc=Local"), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open("root:123456@tcp/inmg?charset=utf8&parseTime=True&loc=Local"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	mycasbin.Setup()
-	logger.Setup()
-	global.GinEngine = gin.Default()
-	//router.InitRouter()
-	log.Fatal(global.GinEngine.Run(":8000"))
+	syncEnforce := myCasbin.Setup(db, "sys_")
+	sdk.Runtime.SetDb("*", db)
+	sdk.Runtime.SetCasbin("*", syncEnforce)
+
+	e := gin.Default()
+	sdk.Runtime.SetEngine(e)
+	log.Fatal(e.Run(":8000"))
 }

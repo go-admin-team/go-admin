@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/spf13/cobra"
 
-	"go-admin/tools/config"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 )
 
 var (
 	configYml string
-	mode      string
 	StartCmd  = &cobra.Command{
 		Use:     "config",
 		Short:   "Get Application config info",
@@ -27,7 +27,7 @@ func init() {
 }
 
 func run() {
-	config.Setup(configYml)
+	config.Setup(file.NewSource, file.WithPath(configYml))
 
 	application, errs := json.MarshalIndent(config.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
@@ -41,7 +41,8 @@ func run() {
 	}
 	fmt.Println("jwt:", string(jwt))
 
-	database, errs := json.MarshalIndent(config.DatabaseConfig, "", "   ") //转换成JSON返回的是byte[]
+	// todo 需要兼容
+	database, errs := json.MarshalIndent(config.DatabasesConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {
 		fmt.Println(errs.Error())
 	}

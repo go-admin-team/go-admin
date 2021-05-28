@@ -1,0 +1,102 @@
+package service
+
+import (
+	"errors"
+
+	"gorm.io/gorm"
+
+	"go-admin/app/{{.PackageName}}/models"
+	"go-admin/common/actions"
+	cDto "go-admin/common/dto"
+	"go-admin/app/{{.PackageName}}/service/dto"
+	"go-admin/common/service"
+)
+
+type {{.ClassName}} struct {
+	service.Service
+}
+
+// Get{{.ClassName}}Page 获取{{.ClassName}}列表
+func (e *{{.ClassName}}) Get{{.ClassName}}Page(c *dto.{{.ClassName}}Search, p *actions.DataPermission, list *[]models.{{.ClassName}}, count *int64) error {
+	var err error
+	var data models.{{.ClassName}}
+
+	err = e.Orm.Model(&data).
+		Scopes(
+			cDto.MakeCondition(c.GetNeedSearch()),
+			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+			actions.Permission(data.TableName(), p),
+		).
+		Find(list).Limit(-1).Offset(-1).
+		Count(count).Error
+	if err != nil {
+		e.Log.Errorf("Service Get{{.ClassName}}Page error:%s", err)
+		return err
+	}
+	return nil
+}
+
+// Get{{.ClassName}} 获取{{.ClassName}}对象
+func (e *{{.ClassName}}) Get{{.ClassName}}(d *dto.{{.ClassName}}ById, p *actions.DataPermission, model *models.{{.ClassName}}) error {
+	var data models.{{.ClassName}}
+
+	err := e.Orm.Model(&data).
+		Scopes(
+			actions.Permission(data.TableName(), p),
+		).
+		First(model, d.GetId()).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("Service Get{{.ClassName}} error:%s", err)
+		return err
+	}
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	return nil
+}
+
+// Insert{{.ClassName}} 创建{{.ClassName}}对象
+func (e *{{.ClassName}}) Insert{{.ClassName}}(c *models.{{.ClassName}}) error {
+	err := e.Orm.Create(c).Error
+	if err != nil {
+		e.Log.Errorf("Service Insert{{.ClassName}} error:%s", err)
+		return err
+	}
+	return nil
+}
+
+// Update{{.ClassName}} 修改{{.ClassName}}对象
+func (e *{{.ClassName}}) Update{{.ClassName}}(c *models.{{.ClassName}}, p *actions.DataPermission) error {
+	db := e.Orm.Model(c).
+		Scopes(
+			actions.Permission(c.TableName(), p),
+		).Where(c.GetId()).Updates(c)
+	if err := db.Error; err != nil {
+        e.Log.Errorf("Service Update{{.ClassName}} error:%s", err)
+        return err
+    }
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+	return nil
+}
+
+// Remove{{.ClassName}} 删除{{.ClassName}}
+func (e *{{.ClassName}}) Remove{{.ClassName}}(d *dto.{{.ClassName}}ById, p *actions.DataPermission) error {
+	var data models.{{.ClassName}}
+
+	db := e.Orm.Model(&data).
+		Scopes(
+			actions.Permission(data.TableName(), p),
+		).Delete(&data, d.GetId())
+	if err := db.Error; err != nil {
+        e.Log.Errorf("Service Remove{{.ClassName}} error:%s", err)
+        return err
+    }
+    if db.RowsAffected == 0 {
+        return errors.New("无权删除该数据")
+    }
+	return nil
+}

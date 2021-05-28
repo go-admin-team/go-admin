@@ -4,38 +4,39 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/common/dto"
-	"go-admin/common/log"
 	"go-admin/common/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
 )
 
 // UpdateAction 通用更新动作
 func UpdateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := pkg.GenerateMsgIDFromContext(c)
 		req := control.Generate()
 		//更新操作
 		err = req.Bind(c)
 		if err != nil {
-			app.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
+			response.Error(c, http.StatusUnprocessableEntity, err, "参数验证失败")
 			return
 		}
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			app.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			response.Error(c, http.StatusInternalServerError, err, "模型生成失败")
 			return
 		}
-		object.SetUpdateBy(tools.GetUserIdUint(c))
+		object.SetUpdateBy(user.GetUserId(c))
 
 		//数据权限检查
 		p := GetPermissionFromContext(c)
@@ -45,14 +46,14 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
 			log.Errorf("MsgID[%s] Update error: %s", msgID, err)
-			app.Error(c, http.StatusInternalServerError, err, "更新失败")
+			response.Error(c, http.StatusInternalServerError, err, "更新失败")
 			return
 		}
 		if db.RowsAffected == 0 {
-			app.Error(c, http.StatusForbidden, nil, "无权更新该数据")
+			response.Error(c, http.StatusForbidden, nil, "无权更新该数据")
 			return
 		}
-		app.OK(c, object.GetId(), "更新成功")
+		response.OK(c, object.GetId(), "更新成功")
 		c.Next()
 	}
 }

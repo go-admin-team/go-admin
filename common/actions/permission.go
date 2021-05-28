@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
-
-	"go-admin/common/log"
-	"go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/config"
 )
 
 type DataPermission struct {
@@ -22,19 +22,19 @@ type DataPermission struct {
 
 func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db, err := tools.GetOrm(c)
+		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
-		msgID := tools.GenerateMsgIDFromContext(c)
+		msgID := pkg.GenerateMsgIDFromContext(c)
 		var p = new(DataPermission)
-		if userId := tools.GetUserIdStr(c); userId != "" {
+		if userId := user.GetUserIdStr(c); userId != "" {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
 				log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
-				app.Error(c, http.StatusInternalServerError, err, "权限范围鉴定错误")
+				response.Error(c, http.StatusInternalServerError, err, "权限范围鉴定错误")
 				c.Abort()
 				return
 			}
@@ -71,7 +71,7 @@ func Permission(tableName string, p *DataPermission) func(db *gorm.DB) *gorm.DB 
 		case "3":
 			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", p.DeptId)
 		case "4":
-			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+tools.IntToString(p.DeptId)+"%")
+			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%/"+pkg.IntToString(p.DeptId)+"/%")
 		case "5":
 			return db.Where(tableName+".create_by = ?", p.UserId)
 		default:

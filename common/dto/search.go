@@ -1,19 +1,18 @@
 package dto
 
 import (
-	"go-admin/tools/config"
-
-	"github.com/matchstalk/go-admin-core/search"
+	"github.com/go-admin-team/go-admin-core/tools/search"
+	"go-admin/common/global"
 	"gorm.io/gorm"
 )
 
 type GeneralDelDto struct {
-	Id  uint   `uri:"id" json:"id" validate:"required"`
-	Ids []uint `json:"ids"`
+	Id  int   `uri:"id" json:"id" validate:"required"`
+	Ids []int `json:"ids"`
 }
 
-func (g GeneralDelDto) GetIds() []uint {
-	ids := make([]uint, 0)
+func (g GeneralDelDto) GetIds() []int {
+	ids := make([]int, 0)
 	if g.Id != 0 {
 		ids = append(ids, g.Id)
 	}
@@ -36,7 +35,7 @@ func (g GeneralDelDto) GetIds() []uint {
 }
 
 type GeneralGetDto struct {
-	Id uint `uri:"id" json:"id" validate:"required"`
+	Id int `uri:"id" json:"id" validate:"required"`
 }
 
 func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
@@ -45,7 +44,7 @@ func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
 			GormPublic: search.GormPublic{},
 			Join:       make([]*search.GormJoin, 0),
 		}
-		search.ResolveSearchQuery(config.DatabaseConfig.Driver, q, condition)
+		search.ResolveSearchQuery(global.Driver, q, condition)
 		for _, join := range condition.Join {
 			if join == nil {
 				continue

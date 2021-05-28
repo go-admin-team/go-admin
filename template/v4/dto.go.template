@@ -1,0 +1,138 @@
+package dto
+
+import (
+    "errors"
+	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
+
+	"go-admin/app/{{.PackageName}}/models"
+	"go-admin/common/dto"
+	common "go-admin/common/models"
+)
+
+type {{.ClassName}}Search struct {
+	dto.Pagination     `search:"-"`
+    {{- $tablename := .TBName -}}
+    {{- range .Columns -}}
+    {{$z := .IsQuery}}
+    {{- if ($z) }}
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
+    {{- end }}
+    {{- end }}
+}
+
+func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
+	return *m
+}
+
+func (m *{{.ClassName}}Search) Generate() dto.Index {
+	o := *m
+	return &o
+}
+
+func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
+	log := api.GetRequestLogger(ctx)
+    err := ctx.ShouldBind(m)
+    if err != nil {
+    	log.Errorf("ShouldBind error: %s", err.Error())
+    }
+    return err
+}
+
+type {{.ClassName}}Control struct {
+    {{- range .Columns -}}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{- else if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoField "CreateBy" -}}
+    {{- else if eq .GoField "UpdateBy" -}}
+    {{- else }}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
+    {{- end -}}
+    {{- end }}
+}
+
+func (s *{{.ClassName}}Control) Generate() dto.Control {
+	o := *s
+	return &o
+}
+
+func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
+	log := api.GetRequestLogger(ctx)
+    err := ctx.ShouldBindUri(s)
+    if err != nil {
+        log.Errorf("ShouldBindUri error: %s", err.Error())
+        return errors.New("数据绑定出错")
+    }
+    err = ctx.ShouldBind(s)
+    if err != nil {
+        log.Errorf("ShouldBind error: %s", err.Error())
+        err = errors.New("数据绑定出错")
+    }
+    return err
+}
+
+func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
+	return &models.{{.ClassName}}{
+	{{- range .Columns -}}
+        {{$x := .Pk}}
+        {{- if ($x) }}
+        Model:     common.Model{ {{.GoField}}: s.{{.GoField}} },
+        {{- else if eq .GoField "CreatedAt" -}}
+        {{- else if eq .GoField "UpdatedAt" -}}
+        {{- else if eq .GoField "DeletedAt" -}}
+        {{- else if eq .GoField "CreateBy" -}}
+        {{- else if eq .GoField "UpdateBy" -}}
+        {{- else }}
+        {{.GoField}}:  s.{{.GoField}},
+        {{- end -}}
+        {{- end }}
+	}, nil
+}
+
+func (s *{{.ClassName}}Control) GetId() interface{} {
+	return s.{{.PkGoField}}
+}
+
+type {{.ClassName}}ById struct {
+	dto.ObjectById
+}
+
+func (s *{{.ClassName}}ById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
+	return s.Id
+}
+
+func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
+	log := api.GetRequestLogger(ctx)
+	err := ctx.ShouldBindUri(s)
+	if err != nil {
+		log.Errorf("ShouldBindUri error: %s", err.Error())
+		return errors.New("数据绑定出错")
+	}
+	err = ctx.ShouldBind(s)
+	if err != nil {
+		log.Errorf("ShouldBind error: %s", err.Error())
+		err = errors.New("数据绑定出错")
+	}
+	return err
+}
+
+func (s *{{.ClassName}}ById) SetUpdateBy(id int) {
+
+}
+
+func (s *{{.ClassName}}ById) Generate() dto.Control {
+	o := *s
+	return &o
+}
+
+func (s *{{.ClassName}}ById) GenerateM() (common.ActiveRecord, error) {
+	return &models.{{.ClassName}}{}, nil
+}

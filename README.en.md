@@ -23,6 +23,10 @@
 - GORM-based database storage that can expand many types of databases
 
 - Simple model mapping of configuration files to quickly get the desired configuration
+       
+- Form builder
+  
+- Multi command mode
 
 - TODO: unit test
 
@@ -39,102 +43,90 @@
 8.  Operation log: system normal operation log record and query; system exception information log record and query.
 9.  Login log: The system login log record query contains login exceptions.
 10. System interface: Automatically generate related api interface documents according to business code.
+11. Multi command mode code generation: according to the data table structure to generate the corresponding business, all visual programming, basic business can be 0 code.
+12. Form construction: Customize page style, drag and drop to achieve page layout.
+13. Service monitoring: view the basic information of some servers.       
 
-## Configuration details
+## 🗞 System architecture
 
-1. Configuration file description
-```yml
-settings:
-  application:  
-    # Project launch environment         
-    env: dev  
-    # When env: demo, prompts for request operations other than GET
-    envmsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！" 
-    # Host IP or domain name, default 0.0.0.0
-    host: 0.0.0.0 
-    # Whether to initialize the database structure and basic data; true: required; false: not required
-    isinit: false  
-    # JWT encrypted string
-    jwtsecret: 123abc  
-    # log storage path
-    logpath: temp/logs/log.log   
-    # application name
-    name: go-admin   
-    # application port
-    port: 8000   
-    readtimeout: 1   
-    writertimeout: 2 
-  database:
-    # database name
-    database: dbname 
-    # database type
-    dbtype: mysql    
-    # database host
-    host: 127.0.0.1  
-    # database  password
-    password: password  
-    # database port
-    port: 3306       
-    # database username
-    username: root   
-  redis:
-    # redis addresss
-    addr: 0.0.0.0:6379 
-    # db 
-    db: 0   
-    # password            
-    password: password  
-    # read timeout
-    readtimeout: 50     
-```
+<p align="center">
+  <img  src="https://gitee.com/mydearzwj/image/raw/d9f59ea603e3c8a3977491a1bfa8f122e1a80824/img/go-admin-system.png" width="936px" height="491px">
+</p>
 
-2. file path  go-admin/config/settings.yml
+## 📦 Local development
 
-
-## 📦 evelopment
-
-
-First start instructions
+### Create development directory
 
 ```bash
-# Get the code
-git clone https://github.com/wenjianzhang/go-admin.git
+mkdir goadmin
+cd goadmin
+```
 
-# Enter working path
+### Get code
+
+> Key points: two projects must be placed in the same folder;
+
+```bash
+# Get backend code
+git clone https://github.com/go-admin-team/go-admin.git
+
+# Get front end code
+git clone https://github.com/go-admin-team/go-admin-ui.git
+
+```
+
+
+### Start up instructions
+
+#### Server startup instructions
+
+```bash
+# Enter the go-admin backend project
 cd ./go-admin
 
-# Build the project
+# Compile project
 go build
 
-# Change setting
-vi ./config/setting.yml (Note: Change isinit and database connection)
+# Configuration 
+# file path  go-admin/config/settings.yml
+vi ./config/setting.yml 
 
-# 1. Database information in the configuration file
-# Note: the corresponding configuration data under settings.database
-# 2. Confirm database initialization parameters
-# Note: If this is the first time settings.application.isinit is set, please set the current value to true, the system will automatically initialize the database structure and basic data information;
-# 3. Confirm the log path
+# 1. Modifying database information in configuration file 
+# settings.database Corresponding configuration data under
+# 2. Confirm log path
+```
+
+#### Initialize the database and start the service
+```
+# The first configuration needs to initialize the database resource information
+./go-admin migrate -c config/settings.yml
 
 
-# Start the project or debug with the IDE
-./go-admin
+# Start the project, you can also debug with IDE
+./go-admin server -c config/settings.yml
 
-# See also instructions in WIKI
+```
+
+#### Using docker to compile and start
+
+```shell
+# Compile image
+docker build -t go-admin .
+
+# Start the container. The first go admin is the container name and the second go admin is the image name
+docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin
+
 ```
 
 
-Document generation
+
+#### Document generation
+
 ```bash
-swag init  
+go generate
 ```
 
-If there is no `swag` command go get installed
-```bash
-go get -u github.com/swaggo/swag/cmd/swag
-```
-
-
-Cross compilation
+#### Cross compiling
 ```bash
 env GOOS=windows GOARCH=amd64 go build main.go
 
@@ -143,11 +135,56 @@ env GOOS=windows GOARCH=amd64 go build main.go
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
+### UI interactive terminal startup description
 
-## 🔗 Online Demo
+```bash
+# Installation dependency
+npm install
+
+# It is recommended that you do not use cnpm to install dependencies directly. There will be all kinds of weird bugs. The problem of slow download speed of NPM can be solved by the following operations
+npm install --registry=https://registry.npm.taobao.org
+
+# Start the service
+npm run dev
+```
+
+## 🎬 Online Demo
 > admin  /  123456
 
-Demo address：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
+Demo：[http://www.go-admin.dev](http://www.go-admin.dev/#/login)
+
+
+## 📨 Interaction
+
+<table>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/wx.png" width="180px"></td>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/qq.png" width="200px"></td>
+    <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/qq2.png" width="200px"></td>
+  </tr>
+  <tr>
+    <td>WeChat</td>
+    <td>This QQ group is full</td>
+    <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=0f2bf59f5f2edec6a4550c364242c0641f870aa328e468c4ee4b7dbfb392627b"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流乙号" title="go-admin技术交流乙号"></a></td>
+  </tr>
+</table>
+
+## 💎 Member
+
+<a href="https://github.com/wenjianzhang"> <img src="https://avatars.githubusercontent.com/u/3890175?s=460&u=20eac63daef81588fbac611da676b99859319251&v=4" width="80px"></a>
+<a href="https://github.com/lwnmengjing"> <img src="https://avatars.githubusercontent.com/u/12806223?s=400&u=a89272dce50100b77b4c0d5c81c718bf78ebb580&v=4" width="80px"></a>
+<a href="https://github.com/chengxiao"> <img src="https://avatars.githubusercontent.com/u/1379545?s=460&u=557da5503d0ac4a8628df6b4075b17853d5edcd9&v=4" width="80px"></a>
+<a href="https://github.com/bing127"> <img src="https://avatars.githubusercontent.com/u/31166183?s=460&u=c085bff88df10bb7676c8c0351ba9dcd031d1fb3&v=4" width="80px"></a>
+
+
+
+## JetBrains Open source certificate support
+
+The go admin project has always been developed in the GoLand integrated development environment of JetBrains company, based on the * * free JetBrains open source license (s) * * genuine free license. I would like to express my thanks.
+
+<a href="https://www.jetbrains.com/?from=kubeadm-ha" target="_blank"><img src="https://raw.githubusercontent.com/panjf2000/illustrations/master/jetbrains/jetbrains-variant-4.png" width="250" align="middle"/></a>
+
+
 
 
 ## 🤝 Open source projects used
@@ -169,20 +206,10 @@ Demo address：[http://www.zhangwj.com](http://www.zhangwj.com/#/login)
 
 
 
-## Version
-
-#### 2020-03-15 New Features and Optimization
-
-1. Add user avatar upload
-2. Add user password modification
-3. Operation log page adjustment
-4. Optimize captcha background color
-
-I saw a lot of friends who experience the wrong verification code, so I adjusted the contrast for everyone to experience!
-
 
 ## 🤝 Thanks
-[chengxiao](https://github.com/chengxiao)
+2. [chengxiao](https://github.com/chengxiao)
+
 
 
 ## License

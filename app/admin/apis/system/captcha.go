@@ -2,16 +2,24 @@ package system
 
 import (
 	"github.com/gin-gonic/gin"
-
-	"go-admin/tools"
-	"go-admin/tools/app"
-	"go-admin/tools/captcha"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
+	"go-admin/common/apis"
 )
 
-func GenerateCaptchaHandler(c *gin.Context) {
+type System struct {
+	apis.Api
+}
+
+func (e System) GenerateCaptchaHandler(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	id, b64s, err := captcha.DriverDigitFunc()
-	tools.HasError(err, "验证码获取失败", 500)
-	app.Custum(c, gin.H{
+	if err != nil {
+		log.Errorf("DriverDigitFunc error, %s", err.Error())
+		e.Error(500, err, "验证码获取失败")
+		return
+	}
+	e.Custom(gin.H{
 		"code": 200,
 		"data": b64s,
 		"id":   id,

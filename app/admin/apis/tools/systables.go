@@ -5,11 +5,17 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/tools"
-	tools2 "go-admin/tools"
-	"go-admin/tools/app"
+	"go-admin/common/apis"
 )
+
+type SysTable struct {
+	apis.Api
+}
 
 // @Summary 分页列表数据
 // @Description 生成表分页列表
@@ -17,86 +23,122 @@ import (
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/page [get]
-func GetSysTableList(c *gin.Context) {
+func (e *SysTable) GetSysTableList(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
 	var data tools.SysTables
 	var err error
 	var pageSize = 10
 	var pageIndex = 1
 
 	if size := c.Request.FormValue("pageSize"); size != "" {
-		pageSize, err = tools2.StringToInt(size)
+		pageSize, err = pkg.StringToInt(size)
 	}
 
 	if index := c.Request.FormValue("pageIndex"); index != "" {
-		pageIndex, err = tools2.StringToInt(index)
+		pageIndex, err = pkg.StringToInt(index)
+	}
+
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
 	}
 
 	data.TBName = c.Request.FormValue("tableName")
 	data.TableComment = c.Request.FormValue("tableComment")
-	result, count, err := data.GetPage(pageSize, pageIndex)
-	tools2.HasError(err, "", -1)
-
-	var mp = make(map[string]interface{}, 3)
-	mp["list"] = result
-	mp["count"] = count
-	mp["pageIndex"] = pageIndex
-	mp["pageSize"] = pageSize
-
-	var res app.Response
-	res.Data = mp
-
-	c.JSON(http.StatusOK, res.ReturnOK())
+	result, count, err := data.GetPage(db, pageSize, pageIndex)
+	if err != nil {
+		log.Errorf("GetPage error, %s", err.Error())
+		e.Error(500, err, "")
+		return
+	}
+	e.PageOK(result, count, pageIndex, pageSize, "查询成功")
 }
 
 // @Summary 获取配置
 // @Description 获取JSON
 // @Tags 工具 - 生成表
 // @Param configKey path int true "configKey"
-// @Success 200 {object} app.Response "{"code": 200, "data": [...]}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/info/{tableId} [get]
 // @Security Bearer
-func GetSysTables(c *gin.Context) {
-	var data tools.SysTables
-	data.TableId, _ = tools2.StringToInt(c.Param("tableId"))
-	result, err := data.Get()
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
+func (e *SysTable) GetSysTables(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
 
-	var res app.Response
-	res.Data = result
+	var data tools.SysTables
+	data.TableId, _ = pkg.StringToInt(c.Param("tableId"))
+	result, err := data.Get(db)
+	if err != nil {
+		log.Errorf("Get error, %s", err.Error())
+		e.Error(500, err, "")
+		return
+	}
+
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	res.Data = mp
-	c.JSON(http.StatusOK, res.ReturnOK())
+	e.OK(mp, "")
 }
 
-func GetSysTablesInfo(c *gin.Context) {
+func (e *SysTable) GetSysTablesInfo(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	var data tools.SysTables
 	if c.Request.FormValue("tableName") != "" {
 		data.TBName = c.Request.FormValue("tableName")
 	}
-	result, err := data.Get()
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
+	result, err := data.Get(db)
+	if err != nil {
+		log.Errorf("Get error, %s", err.Error())
+		e.Error(500, err, "抱歉未找到相关信息")
+		return
+	}
 
-	var res app.Response
-	res.Data = result
 	mp := make(map[string]interface{})
 	mp["list"] = result.Columns
 	mp["info"] = result
-	res.Data = mp
-	c.JSON(http.StatusOK, res.ReturnOK())
+	e.OK(mp, "")
+	//res.Data = mp
+	//c.JSON(http.StatusOK, res.ReturnOK())
 }
 
-func GetSysTablesTree(c *gin.Context) {
-	var data tools.SysTables
-	result, err := data.GetTree()
-	tools2.HasError(err, "抱歉未找到相关信息", -1)
+func (e *SysTable) GetSysTablesTree(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
 
-	var res app.Response
-	res.Data = result
-	c.JSON(http.StatusOK, res.ReturnOK())
+	var data tools.SysTables
+	result, err := data.GetTree(db)
+	if err != nil {
+		log.Errorf("GetTree error, %s", err.Error())
+		e.Error(500, err, "抱歉未找到相关信息")
+		return
+	}
+
+	e.OK(result, "")
 }
 
 // @Summary 添加表结构
@@ -109,31 +151,49 @@ func GetSysTablesTree(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [post]
 // @Security Bearer
-func InsertSysTable(c *gin.Context) {
+func (e *SysTable) InsertSysTable(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
 
 	tablesList := strings.Split(c.Request.FormValue("tables"), ",")
 	for i := 0; i < len(tablesList); i++ {
 
-		data, err := genTableInit(tablesList, i, c)
+		data, err := genTableInit(db, tablesList, i, c)
+		if err != nil {
+			log.Errorf("genTableInit error, %s", err.Error())
+			e.Error(500, err, "")
+			return
+		}
 
-		_, err = data.Create()
-		tools2.HasError(err, "", -1)
+		_, err = data.Create(db)
+		if err != nil {
+			log.Errorf("Create error, %s", err.Error())
+			e.Error(500, err, "")
+			return
+		}
 	}
-	var res app.Response
-	res.Msg = "添加成功！"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	e.OK(nil, "添加成功")
 
 }
 
-func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
+func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
 	var data tools.SysTables
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.CreateBy = tools2.GetUserIdStr(c)
+	data.CreateBy = 0
 
 	dbTable.TableName = data.TBName
-	dbtable, err := dbTable.Get()
+	dbtable, err := dbTable.Get(tx)
+	if err != nil {
+		return data, err
+	}
 
 	dbColumn.TableName = data.TBName
 	tablenamelist := strings.Split(dbColumn.TableName, "_")
@@ -148,8 +208,8 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 	data.TplCategory = "crud"
 	data.Crud = true
 
-	dbcolumn, err := dbColumn.GetList()
-	data.CreateBy = tools2.GetUserIdStr(c)
+	dbcolumn, err := dbColumn.GetList(tx)
+	data.CreateBy = 0
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -191,8 +251,8 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 			column.IsPk = "1"
 			column.Pk = true
 			data.PkColumn = dbcolumn[i].ColumnName
-			column.GoField = strings.ToUpper(column.GoField)
-			column.JsonField = strings.ToUpper(column.JsonField)
+			//column.GoField = strings.ToUpper(column.GoField)
+			//column.JsonField = strings.ToUpper(column.JsonField)
 			data.PkGoField = column.GoField
 			data.PkJsonField = column.JsonField
 		}
@@ -204,9 +264,7 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 
 		if strings.Contains(dbcolumn[i].ColumnType, "int") {
 			if strings.Contains(dbcolumn[i].ColumnKey, "PR") {
-				column.GoType = "uint"
-			} else if strings.Contains(dbcolumn[i].ColumnType, "unsigned") {
-				column.GoType = "uint"
+				column.GoType = "int"
 			} else {
 				column.GoType = "string"
 			}
@@ -237,18 +295,28 @@ func genTableInit(tablesList []string, i int, c *gin.Context) (tools.SysTables, 
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [put]
 // @Security Bearer
-func UpdateSysTable(c *gin.Context) {
+func (e *SysTable) UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
-	tools2.HasError(err, "数据解析失败", 500)
-	data.UpdateBy = tools2.GetUserIdStr(c)
-	result, err := data.Update()
-	tools2.HasError(err, "", -1)
+	pkg.HasError(err, "数据解析失败", 500)
 
-	var res app.Response
-	res.Data = result
-	res.Msg = "修改成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
+	data.UpdateBy = 0
+	result, err := data.Update(db)
+	if err != nil {
+		log.Errorf("Update error, %s", err.Error())
+		e.Error(500, err, "")
+		return
+	}
+	e.OK(result, "修改成功")
 }
 
 // @Summary 删除表结构
@@ -258,12 +326,23 @@ func UpdateSysTable(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
-func DeleteSysTables(c *gin.Context) {
+func (e *SysTable) DeleteSysTables(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Errorf("get db connection error, %s", err.Error())
+		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		return
+	}
+
 	var data tools.SysTables
-	IDS := tools2.IdsStrToIdsIntGroup("tableId", c)
-	_, err := data.BatchDelete(IDS)
-	tools2.HasError(err, "删除失败", 500)
-	var res app.Response
-	res.Msg = "删除成功"
-	c.JSON(http.StatusOK, res.ReturnOK())
+	IDS := pkg.IdsStrToIdsIntGroup("tableId", c)
+	_, err = data.BatchDelete(db, IDS)
+	if err != nil {
+		log.Errorf("BatchDelete error, %s", err.Error())
+		e.Error(500, err, "删除失败")
+		return
+	}
+	e.OK(nil, "删除成功")
 }

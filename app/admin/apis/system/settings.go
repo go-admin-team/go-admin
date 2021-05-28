@@ -1,16 +1,21 @@
 package system
 
 import (
-	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"go-admin/app/admin/models"
-	"go-admin/tools"
-	"go-admin/tools/app"
+	"go-admin/app/admin/service"
+	"go-admin/app/admin/service/dto"
+	"go-admin/common/apis"
 )
+
+type SysSetting struct {
+	apis.Api
+}
 
 // @Summary 查询系统信息
 // @Description 获取JSON
@@ -18,50 +23,76 @@ import (
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/setting [get]
-func GetSetting(c *gin.Context) {
-	var s models.SysSetting
-	r, e := s.Get()
+func (e SysSetting) GetSetting(c *gin.Context) {
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
-	if r.Logo != "" {
-		if !strings.HasPrefix(r.Logo, "http") {
-			r.Logo = fmt.Sprintf("http://%s/%s", c.Request.Host, r.Logo)
+	sysSettingService := service.SysSetting{}
+	sysSettingService.Log = log
+	sysSettingService.Orm = db
+	var model = models.SysSetting{}
+	err = sysSettingService.GetSysSetting(&model)
+	if err != nil {
+		e.Error(http.StatusInternalServerError, err, "查询失败")
+		return
+	}
+
+	if model.Logo != "" {
+		if !strings.HasPrefix(model.Logo, "http") {
+			model.Logo = fmt.Sprintf("http://%s/%s", c.Request.Host, model.Logo)
 		}
 	}
 
-	tools.HasError(e, "查询失败", 500)
-	app.OK(c, r, "查询成功")
+	e.OK(model, "查询成功")
 }
 
 // @Summary 更新或提交系统信息
 // @Description 获取JSON
 // @Tags 系统信息
-// @Param data body models.SysUser true "body"
+// @Param data body dto.SysSettingControl true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/system/setting [post]
-func CreateSetting(c *gin.Context) {
-	var s models.ResponseSystemConfig
-	if err := c.ShouldBind(&s); err != nil {
-		app.Error(c, 200, errors.New("缺少必要参数"), "")
+func (e SysSetting) CreateOrUpdateSetting(c *gin.Context) {
+	control := new(dto.SysSettingControl)
+	e.Context = c
+	log := e.GetLogger()
+	db, err := e.GetOrm()
+	if err != nil {
+		log.Error(err)
 		return
 	}
 
-	var sModel models.SysSetting
-	sModel.Logo = s.Logo
-	sModel.Name = s.Name
-
-	a, e := sModel.Update()
-	if e != nil {
-		app.Error(c, 200, e, "")
+	//更新操作
+	err = control.Bind(c)
+	if err != nil {
+		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")
+		return
+	}
+	object, err := control.Generate()
+	if err != nil {
+		e.Error(http.StatusInternalServerError, err, "模型生成失败")
 		return
 	}
 
-	if a.Logo != "" {
-		if !strings.HasPrefix(a.Logo, "http") {
-			a.Logo = fmt.Sprintf("http://%s/%s", c.Request.Host, a.Logo)
+	sysSettingService := service.SysSetting{}
+	sysSettingService.Log = log
+	sysSettingService.Orm = db
+	err = sysSettingService.UpdateSysSetting(object)
+	if err != nil {
+		e.Error(http.StatusInternalServerError, err, "更新失败")
+		return
+	}
+
+	if object.Logo != "" {
+		if !strings.HasPrefix(object.Logo, "http") {
+			object.Logo = fmt.Sprintf("http://%s/%s", c.Request.Host, object.Logo)
 		}
 	}
-
-	app.OK(c, a, "提交成功")
-
+	e.OK(object, "提交成功")
 }

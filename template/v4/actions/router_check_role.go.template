@@ -1,0 +1,31 @@
+package router
+
+import (
+    "github.com/gin-gonic/gin"
+    jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
+
+    "go-admin/app/{{.PackageName}}/models"
+    "go-admin/app/{{.PackageName}}/service/dto"
+    "go-admin/common/actions"
+    "go-admin/common/middleware"
+)
+
+func init()  {
+	routerCheckRole = append(routerCheckRole, register{{.ClassName}}Router)
+}
+
+// 需认证的路由代码
+func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+    r := v1.Group("/{{.ModuleName}}").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+    {
+        model := &models.{{.ClassName}}{}
+        r.GET("", actions.PermissionAction(), actions.IndexAction(model, new(dto.{{.ClassName}}Search), func() interface{} {
+            list := make([]models.{{.ClassName}}, 0)
+            return &list
+        }))
+        r.GET("/:id", actions.PermissionAction(), actions.ViewAction(new(dto.{{.ClassName}}ById), nil))
+        r.POST("", actions.CreateAction(new(dto.{{.ClassName}}Control)))
+        r.PUT("/:id", actions.PermissionAction(), actions.UpdateAction(new(dto.{{.ClassName}}Control)))
+        r.DELETE("", actions.PermissionAction(), actions.DeleteAction(new(dto.{{.ClassName}}ById)))
+    }
+}
