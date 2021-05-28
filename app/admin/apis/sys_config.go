@@ -179,38 +179,6 @@ func (e SysConfig) UpdateSysConfig(c *gin.Context) {
 	e.OK(control.GetId(), "更新成功")
 }
 
-// SetSysConfig 设置配置
-// @Summary 设置配置
-// @Description 界面操作设置配置值
-// @Tags 配置管理
-// @Accept application/json
-// @Product application/json
-// @Param data body []dto.SysConfigSetReq true "body"
-// @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
-// @Router /api/v1/set-config [put]
-// @Security Bearer
-func (e SysConfig) SetSysConfig(c *gin.Context) {
-	s := service.SysConfig{}
-	req := make([]dto.SysConfigSetReq, 0)
-	err := e.MakeContext(c).
-		MakeOrm().
-		Bind(&req).
-		MakeService(&s.Service).
-		Errors
-	if err != nil {
-		e.Logger.Error(err)
-		return
-	}
-
-	err = s.SetSysConfig(&req)
-	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "更新失败")
-		e.Logger.Errorf("Orm获取失败, error:%s", err)
-		return
-	}
-	e.OK("", "更新成功")
-}
-
 func (e SysConfig) GetSetSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
@@ -222,7 +190,7 @@ func (e SysConfig) GetSetSysConfig(c *gin.Context) {
 		return
 	}
 
-	d := make([]dto.SysConfigSetReq, 0)
+	d := make([]dto.GetSetSysConfigReq, 0)
 	err = s.GetSetSysConfig(&d)
 	if err != nil {
 		e.Logger.Errorf("GetSetSysConfig 查询失败, error:%s", err)
@@ -231,19 +199,42 @@ func (e SysConfig) GetSetSysConfig(c *gin.Context) {
 	}
 	m := make(map[string]interface{}, 0)
 	for _, req := range d {
-
-		if req.ConfigKey == "sys_app_logo" {
-			mp := make(map[string]interface{}, 0)
-			mp["url"] = req.ConfigValue
-			l := make([]map[string]interface{}, 0)
-			l = append(l, mp)
-			m[req.ConfigKey] = l
-		} else {
-			m[req.ConfigKey] = req.ConfigValue
-		}
-
+		m[req.ConfigKey] = req.ConfigValue
 	}
 	e.OK(m, "查询成功")
+}
+
+// UpdateSetSysConfig 设置配置
+// @Summary 设置配置
+// @Description 界面操作设置配置值
+// @Tags 配置管理
+// @Accept application/json
+// @Product application/json
+// @Param data body []dto.GetSetSysConfigReq true "body"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
+// @Router /api/v1/set-config [put]
+// @Security Bearer
+func (e SysConfig) UpdateSetSysConfig(c *gin.Context) {
+	s := service.SysConfig{}
+	d := make([]dto.GetSetSysConfigReq, 0)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&d).
+		MakeService(&s.Service).
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		return
+	}
+
+	err = s.UpdateSetSysConfig(&d)
+	if err != nil {
+		e.Logger.Errorf("GetSetSysConfig 更新失败, error:%s", err)
+		e.Error(500, err, err.Error())
+		return
+	}
+
+	e.OK("", "更新成功")
 }
 
 // DeleteSysConfig 删除配置管理

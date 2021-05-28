@@ -59,16 +59,17 @@ func (s *SysConfigControl) GetId() interface{} {
 	return s.Id
 }
 
-// SysConfigSetReq 增、改使用的结构体
-type SysConfigSetReq struct {
-	ConfigKey   string `json:"configKey" comment:""`
+// GetSetSysConfigReq 增、改使用的结构体
+type GetSetSysConfigReq struct {
+	ConfigKey   string      `json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysConfigSetReq) Generate(model *models.SysConfig) {
+func (s *GetSetSysConfigReq) Generate(model *models.SysConfig) {
 	model.ConfigValue = s.ConfigValue
 }
+type UpdateSetSysConfigReq map[string]string
 
 // SysConfigByKeyReq 根据Key获取配置
 type SysConfigByKeyReq struct {
