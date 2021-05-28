@@ -9,11 +9,11 @@ import (
 	common "go-admin/common/models"
 )
 
-type SysContentSearch struct {
-    dto.Pagination `search:"-"`
-    CateId         string `form:"cateId" search:"type:exact;column:cate_id;table:sys_content" comment:"分类"`
-    Name           string `form:"name" search:"type:contains;column:name;table:sys_content" comment:"名称"`
-    Status         string `form:"status" search:"type:exact;column:status;table:sys_content" comment:"状态"`
+type SysContentSearch struct {
+	dto.Pagination `search:"-"`
+	CateId         string `form:"cateId" search:"type:exact;column:cate_id;table:sys_content" comment:"分类"`
+	Name           string `form:"name" search:"type:contains;column:name;table:sys_content" comment:"名称"`
+	Status         string `form:"status" search:"type:exact;column:status;table:sys_content" comment:"状态"`
 }
 
 func (m *SysContentSearch) GetNeedSearch() interface{} {
