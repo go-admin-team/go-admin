@@ -101,9 +101,17 @@
 
                             {{- end -}}
                             {{- if eq .DictType "" -}}
+                                {{- if eq .HtmlType "datetime" -}}
+                                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
+                                                 :show-overflow-tooltip="true">
+                                    <template slot-scope="scope">
+                                    <span>{{ "{{" }} parseTime(scope.row.{{.JsonField}}) {{"}}"}}</span>
+                                    </template>
+                                </el-table-column>
+                                {{- else -}}
                                 <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
                                                  :show-overflow-tooltip="true"/>
-
+                                {{- end -}}
                             {{- end -}}
                             {{- end -}}
                         {{- end }}
