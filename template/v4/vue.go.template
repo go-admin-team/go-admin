@@ -9,8 +9,8 @@
                         {{- if ($x) -}}
                             <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
                                 {{- if ne .FkTableName "" -}}
-                                <el-select v-model="form.{{.JsonField}}"
-                                           placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
+                                <el-select v-model="queryParams.{{.JsonField}}"
+                                           placeholder="请选择" clearable size="small" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
                                     <el-option
                                             v-for="dict in {{.JsonField}}Options"
                                             :key="dict.key"
