@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"go-admin/app/admin/models/system"
 
 	"gorm.io/gorm"
 
@@ -91,10 +92,10 @@ func (e *SysFileDir) UpdateSysFileDir(c *dto.SysFileDirControl, p *actions.DataP
 	var err error
 	data, _ := c.GenerateM()
 
-	db := e.Orm.
+	db := e.Orm.Model(&system.SysRole{RoleId: c.GetId().(int)}).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(c.ID).Updates(data)
+		).Updates(data)
 	if db.Error != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -113,7 +114,7 @@ func (e *SysFileDir) RemoveSysFileDir(d *dto.SysFileDirById, p *actions.DataPerm
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(d.Id).Delete(&data)
+		).Delete(&data, d.Id)
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

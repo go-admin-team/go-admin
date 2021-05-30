@@ -5,6 +5,7 @@ import (
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
+	common "go-admin/common/models"
 	"go-admin/common/service"
 	"gorm.io/gorm"
 )
@@ -68,8 +69,9 @@ func (e *SysOperaLog) InsertSysOperaLog(model *system.SysOperaLog) error {
 func (e *SysOperaLog) UpdateSysOperaLog(c *system.SysOperaLog) error {
 	var err error
 
-	db := e.Orm.Model(c).
-		Where(c.GetId()).Updates(c)
+	db := e.Orm.Model(&system.SysOperaLog{Model: common.Model{
+		Id: c.GetId().(int),
+	}}).Updates(c)
 	if err = db.Error; err != nil {
 		e.Log.Errorf("Service UpdateSysOperaLog error:%s", err.Error())
 		return err
@@ -86,7 +88,7 @@ func (e *SysOperaLog) RemoveSysOperaLog(d *dto.SysOperaLogById) error {
 	var err error
 	var data system.SysOperaLog
 
-	db := e.Orm.Model(&data).Where(d.Ids).Delete(&data)
+	db := e.Orm.Model(&data).Delete(&data, d.Ids)
 	if err = db.Error; err != nil {
 		e.Log.Errorf("Service RemoveSysOperaLog error:%s", err.Error())
 		return err

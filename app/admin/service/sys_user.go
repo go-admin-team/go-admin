@@ -83,7 +83,7 @@ func (e *SysUser) UpdateSysUser(c common.ActiveRecord, p *actions.DataPermission
 	db := e.Orm.Model(c).
 		Scopes(
 			actions.Permission(c.TableName(), p),
-		).Where(c.GetId()).Updates(c)
+		).Where("user_id = ?", c.GetId()).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -103,7 +103,7 @@ func (e *SysUser) RemoveSysUser(d cDto.Control, c common.ActiveRecord, p *action
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(d.GetId()).Delete(c)
+		).Delete(c, d.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
@@ -128,7 +128,7 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 	err = e.Orm.Model(c).
 		Scopes(
 			actions.Permission(c.TableName(), p),
-		).Where(id).Select("UserId", "Password", "Salt").First(c).Error
+		).Where("user_id = ?", id).Select("UserId", "Password", "Salt").First(c).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("无权更新该数据")
@@ -148,7 +148,7 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 		return err
 	}
 	c.Password = newPassword
-	db := e.Orm.Model(c).Where(id).Select("Password", "Salt").Updates(c)
+	db := e.Orm.Model(c).Where("user_id = ?", id).Select("Password", "Salt").Updates(c)
 	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err

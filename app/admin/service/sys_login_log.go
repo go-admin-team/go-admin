@@ -75,7 +75,7 @@ func (e *SysLoginLog) UpdateSysLoginLog(c common.ActiveRecord) error {
 	var data system.SysLoginLog
 
 	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+		Where("id = ?", c.GetId()).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -92,8 +92,7 @@ func (e *SysLoginLog) RemoveSysLoginLog(d *dto.SysLoginLogById, c common.ActiveR
 	var err error
 	var data system.SysLoginLog
 
-	db := e.Orm.Model(&data).
-		Where(d.Ids).Delete(c)
+	db := e.Orm.Model(&data).Delete(c, d.Ids)
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

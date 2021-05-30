@@ -5,6 +5,7 @@ import (
 	"go-admin/app/admin/models/system"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
+	common "go-admin/common/models"
 	"go-admin/common/service"
 	"gorm.io/gorm"
 )
@@ -84,8 +85,9 @@ func (e *SysConfig) InsertSysConfig(model *system.SysConfig) error {
 func (e *SysConfig) UpdateSysConfig(c *system.SysConfig) error {
 	var err error
 
-	db := e.Orm.Model(c).
-		Where(c.GetId()).Updates(c)
+	db := e.Orm.Model(&system.SysConfig{Model: common.Model{
+		Id: c.GetId().(int),
+	}}).Updates(c)
 	err = db.Error
 	if err != nil {
 		e.Log.Errorf("Service UpdateSysConfig error:%s", err)
@@ -103,8 +105,7 @@ func (e *SysConfig) RemoveSysConfig(d *dto.SysConfigById, c *system.SysConfig) e
 	var err error
 	var data system.SysConfig
 
-	db := e.Orm.Model(&data).
-		Where(d.Ids).Delete(c)
+	db := e.Orm.Model(&data).Delete(c, d.Ids)
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Service RemoveSysConfig error:%s", err)

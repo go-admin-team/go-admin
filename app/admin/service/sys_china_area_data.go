@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	common "go-admin/common/models"
 
 	"gorm.io/gorm"
 
@@ -71,10 +72,13 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models.SysChinaAreaData
 
 // UpdateSysChinaAreaData 修改SysChinaAreaData对象
 func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models.SysChinaAreaData, p *actions.DataPermission) error {
-	db := e.Orm.Model(c).
+	db := e.Orm.Model(&models.SysChinaAreaData{
+		Model: common.Model{
+			Id: c.GetId().(int),
+		}}).
 		Scopes(
 			actions.Permission(c.TableName(), p),
-		).Where(c.GetId()).Updates(c)
+		).Updates(c)
 	if err := db.Error; err != nil {
 		e.Log.Errorf("Service UpdateSysChinaAreaData error: %s", err)
 		return err

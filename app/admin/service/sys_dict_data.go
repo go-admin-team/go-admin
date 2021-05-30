@@ -71,10 +71,9 @@ func (e *SysDictData) Insert(model *system.SysDictData) error {
 // Update 修改对象
 func (e *SysDictData) Update(c *system.SysDictData) error {
 	var err error
-	var data system.SysDictData
-
-	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+	db := e.Orm.Model(&system.SysDictData{
+		DictCode: c.GetId().(int),
+	}).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -91,8 +90,7 @@ func (e *SysDictData) Remove(d *dto.SysDictDataById, c *system.SysDictData) erro
 	var err error
 	var data system.SysDictData
 
-	db := e.Orm.Model(&data).
-		Where(d.GetId()).Delete(c)
+	db := e.Orm.Model(&data).Delete(c, d.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
