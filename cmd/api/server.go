@@ -82,6 +82,9 @@ func setup() {
 			log.Fatalf("queue setup error, %s\n", err.Error())
 		}
 		sdk.Runtime.SetQueueAdapter(queueAdapter)
+		defer func() {
+			go queueAdapter.Run()
+		}()
 	}
 
 	//7. 设置分布式锁

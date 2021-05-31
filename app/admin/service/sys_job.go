@@ -19,8 +19,7 @@ type SysJob struct {
 func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 	var err error
 	var data models.SysJob
-	data.JobId = c.Id
-	err = e.Orm.Table(data.TableName()).First(&data).Error
+	err = e.Orm.Table(data.TableName()).First(&data, c.Id).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err

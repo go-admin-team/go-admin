@@ -24,7 +24,7 @@ func (e SysJob) RemoveJobForService(c *gin.Context) {
 		return
 	}
 	var v dto.GeneralDelDto
-	err = c.Bind(&v)
+	err = c.BindUri(&v)
 	if err != nil {
 		log.Warnf("参数验证错误, error: %s", err)
 		e.Error(http.StatusUnprocessableEntity, err, "参数验证失败")

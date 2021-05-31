@@ -107,7 +107,7 @@ func (e *SysMenu) UpdateSysMenu(c *system.SysMenu) error {
 	var data system.SysMenu
 
 	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+		Where("menu_id = ?", c.GetId()).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -124,8 +124,7 @@ func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) error {
 	var err error
 	var data system.SysMenu
 
-	db := e.Orm.Model(&data).
-		Where(d.GetId()).Delete(&data)
+	db := e.Orm.Model(&data).Delete(&data, d.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

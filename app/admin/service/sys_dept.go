@@ -4,7 +4,6 @@ import (
 	"errors"
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/system"
@@ -85,9 +84,9 @@ func (e *SysDept) InsertSysDept(model *system.SysDept) error {
 // UpdateSysDept 修改SysDept对象
 func (e *SysDept) UpdateSysDept(c *system.SysDept) error {
 	var err error
-	var data system.SysDept
-
-	db := e.Orm.Model(&data).
+	db := e.Orm.Model(&system.SysDept{
+		DeptId: c.GetId().(int),
+	}).
 		Where(c.GetId()).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
@@ -97,9 +96,6 @@ func (e *SysDept) UpdateSysDept(c *system.SysDept) error {
 		return errors.New("无权更新该数据")
 	}
 
-	//参数1:是要修改的数据
-	//参数2:是修改的数据
-
 	return nil
 }
 
@@ -108,8 +104,7 @@ func (e *SysDept) RemoveSysDept(d *dto.SysDeptById) error {
 	var err error
 	var data system.SysDept
 
-	db := e.Orm.Model(&data).
-		Where(d.GetId()).Delete(&data)
+	db := e.Orm.Model(&data).Delete(&data, d.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

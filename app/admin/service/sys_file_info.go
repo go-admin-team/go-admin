@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	common "go-admin/common/models"
 
 	"gorm.io/gorm"
 
@@ -89,10 +90,12 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *dto.SysFileInfoControl, p *actions.Da
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
-	err = e.Orm.Debug().Model(&data).
+	err = e.Orm.Debug().Model(&models.SysFileInfo{Model: common.Model{
+		Id: c.ID,
+	}}).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where("id = ?", c.ID).Updates(&data).Error
+		).Updates(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -112,7 +115,7 @@ func (e *SysFileInfo) RemoveSysFileInfo(d *dto.SysFileInfoById, p *actions.DataP
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
-		).Where(d.GetId()).Delete(&data)
+		).Delete(&data, d.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

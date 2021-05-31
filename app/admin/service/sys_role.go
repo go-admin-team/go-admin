@@ -104,7 +104,7 @@ func (e *SysRole) UpdateSysRole(c *system.SysRole) error {
 		}
 	}()
 	db := tx.Model(&c).
-		Where(c.GetId()).Updates(c)
+		Where(" role_id = ?", c.GetId()).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err

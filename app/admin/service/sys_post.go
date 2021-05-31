@@ -74,7 +74,7 @@ func (e *SysPost) UpdateSysPost(c *system.SysPost) error {
 	var data system.SysPost
 
 	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+		Where("post_id = ?", c.GetId()).Updates(c)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
