@@ -9,6 +9,7 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
+	cModels "go-admin/common/models"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 )
@@ -18,24 +19,25 @@ type SysMenu struct {
 }
 
 // GetSysMenuPage 获取SysMenu列表
-func (e *SysMenu) GetSysMenuPage(c *dto.SysMenuSearch) (*[]models.SysMenu, error) {
-	var m = make([]models.SysMenu, 0)
-	var err error
+func (e *SysMenu) GetSysMenuPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) *SysMenu {
 	var menu = make([]models.SysMenu, 0)
-	err = e.getSysMenuPage(c, &menu)
+	err := e.getSysMenuPage(c, &menu).Error
+	if err != nil {
+		_ = e.AddError(err)
+		return e
+	}
 	for i := 0; i < len(menu); i++ {
 		if menu[i].ParentId != 0 {
 			continue
 		}
 		menusInfo := menuCall(&menu, menu[i])
-
-		m = append(m, menusInfo)
+		*menus = append(*menus, menusInfo)
 	}
-	return &m, err
+	return e
 }
 
-// getSysMenuPage 菜单列表
-func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
+// getSysMenuPage 菜单分页列表
+func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -46,14 +48,15 @@ func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]models.SysMenu) e
 		).
 		Find(list).Error
 	if err != nil {
-		e.Log.Errorf("db error:%s", err)
-		return err
+		e.Log.Errorf("getSysMenuPage error:%s", err)
+		_ = e.AddError(err)
+		return e
 	}
-	return nil
+	return e
 }
 
 // GetSysMenu 获取SysMenu对象
-func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) error {
+func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -62,19 +65,21 @@ func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) error {
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
-		e.Log.Errorf("db error:%s", err)
-		return err
+		e.Log.Errorf("GetSysMenu error:%s", err)
+		_ = e.AddError(err)
+		return e
 	}
-	if db.Error != nil {
+	if err != nil {
 		e.Log.Errorf("db error:%s", err)
-		return err
+		_ = e.AddError(err)
+		return e
 	}
 	apis := make([]int, 0)
 	for _, v := range model.SysApi {
 		apis = append(apis, v.Id)
 	}
 	model.Apis = apis
-	return nil
+	return e
 }
 
 // InsertSysMenu 创建SysMenu对象
@@ -132,8 +137,7 @@ func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) *SysMenu {
 	var err error
 	var data models.SysMenu
 
-	db := e.Orm.Model(&data).
-		Where(d.Ids).Delete(&data)
+	db := e.Orm.Model(&data).Delete(&data, d.Ids)
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
@@ -239,8 +243,9 @@ func menuLabelCall(elist *[]models.SysMenu, dept dto.MenuLabel) dto.MenuLabel {
 	return dept
 }
 
-func menuCall(menulist *[]models.SysMenu, menu models.SysMenu) models.SysMenu {
-	list := *menulist
+// menuCall 构建菜单树
+func menuCall(menuList *[]models.SysMenu, menu models.SysMenu) models.SysMenu {
+	list := *menuList
 
 	min := make([]models.SysMenu, 0)
 	for j := 0; j < len(list); j++ {
@@ -266,14 +271,12 @@ func menuCall(menulist *[]models.SysMenu, menu models.SysMenu) models.SysMenu {
 		mi.CreatedAt = list[j].CreatedAt
 		mi.Children = []models.SysMenu{}
 
-		if mi.MenuType != "F" {
-			ms := menuCall(menulist, mi)
+		if mi.MenuType != cModels.Button {
+			ms := menuCall(menuList, mi)
 			min = append(min, ms)
-
 		} else {
 			min = append(min, mi)
 		}
-
 	}
 	menu.Children = min
 	return menu
