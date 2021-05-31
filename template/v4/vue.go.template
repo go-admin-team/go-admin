@@ -294,8 +294,7 @@
                 // 表单校验
                 rules: {
                 {{- range .Columns -}}
-                {{- $x := .IsQuery -}}
-                {{- if ($x) -}}
+                {{- if eq .IsRequired "1" -}}
                 {{.JsonField}}:
                 [
                     {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'}
