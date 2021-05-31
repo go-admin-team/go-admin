@@ -138,16 +138,14 @@ func (e *SysConfig) UpdateSetSysConfig(c *[]dto.GetSetSysConfigReq) error {
 	for _, req := range m {
 		var data models.SysConfig
 		if err := e.Orm.Where("config_key = ?", req.ConfigKey).
-			First(&data).Error;
-			err != nil {
+			First(&data).Error; err != nil {
 			e.Log.Errorf("Service GetSysConfigPage error:%s", err)
 			return err
 		}
 		if data.ConfigValue != req.ConfigValue {
 			data.ConfigValue = req.ConfigValue
 
-			if err := e.Orm.Save(&data).Error;
-				err != nil {
+			if err := e.Orm.Save(&data).Error; err != nil {
 				e.Log.Errorf("Service GetSysConfigPage error:%s", err)
 				return err
 			}

@@ -31,7 +31,7 @@ type SysRoleOrder struct {
 	RoleIdOrder    string `search:"type:order;column:role_id;table:sys_role" form:"roleIdOrder"`
 	RoleNameOrder  string `search:"type:order;column:role_name;table:sys_role" form:"roleNameOrder"`
 	RoleSortOrder  string `search:"type:order;column:role_sort;table:sys_role" form:"usernameOrder"`
-	StatusOrder  string `search:"type:order;column:status;table:sys_role" form:"statusOrder"`
+	StatusOrder    string `search:"type:order;column:status;table:sys_role" form:"statusOrder"`
 	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_role" form:"createdAtOrder"`
 }
 

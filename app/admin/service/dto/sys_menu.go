@@ -24,7 +24,6 @@ func (m *SysMenuSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-
 // SysMenuControl 增、改使用的结构体
 type SysMenuControl struct {
 	MenuId     int             `uri:"id" comment:"编码"`            // 编码
@@ -96,7 +95,6 @@ type SysMenuById struct {
 	Ids []int `json:"ids"`
 	common.ControlBy
 }
-
 
 func (s *SysMenuById) Generate() *SysMenuById {
 	cp := *s

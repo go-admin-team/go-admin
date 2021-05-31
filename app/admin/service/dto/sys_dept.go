@@ -99,7 +99,6 @@ func (s *SysDeptById) GetId() interface{} {
 	return s.Id
 }
 
-
 func (s *SysDeptById) GenerateM() (*models.SysDept, error) {
 	return &models.SysDept{}, nil
 }

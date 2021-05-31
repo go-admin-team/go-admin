@@ -55,9 +55,9 @@ func (s *SysChinaAreaDataControl) Bind(ctx *gin.Context) error {
 
 func (s *SysChinaAreaDataControl) Generate() (*models2.SysChinaAreaData, error) {
 	return &models2.SysChinaAreaData{
-		Model:      common.Model{Id: s.Id},
-		PId:        s.PId,
-		Name:       s.Name,
+		Model: common.Model{Id: s.Id},
+		PId:   s.PId,
+		Name:  s.Name,
 	}, nil
 }
 

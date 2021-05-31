@@ -10,7 +10,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 )
 
-//权限检查中间件
+// AuthCheckRole 权限检查中间件
 func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := api.GetRequestLogger(c)

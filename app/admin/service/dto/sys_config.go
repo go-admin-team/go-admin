@@ -61,7 +61,7 @@ func (s *SysConfigControl) GetId() interface{} {
 
 // GetSetSysConfigReq 增、改使用的结构体
 type GetSetSysConfigReq struct {
-	ConfigKey   string      `json:"configKey" comment:""`
+	ConfigKey   string `json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
 }
 
@@ -69,6 +69,7 @@ type GetSetSysConfigReq struct {
 func (s *GetSetSysConfigReq) Generate(model *models.SysConfig) {
 	model.ConfigValue = s.ConfigValue
 }
+
 type UpdateSetSysConfigReq map[string]string
 
 // SysConfigByKeyReq 根据Key获取配置

@@ -212,7 +212,7 @@ func (e SysDictData) GetSysDictDataAll(c *gin.Context) {
 	d := &dto.SysDictDataSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d,binding.Form).
+		Bind(d, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

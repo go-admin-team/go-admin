@@ -37,7 +37,7 @@ func (e SysApi) GetSysApiList(c *gin.Context) {
 	d := new(dto.SysApiSearch)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d,binding.Form).
+		Bind(d, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -71,7 +71,7 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 	s := new(service.SysApi)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control,nil).
+		Bind(control, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

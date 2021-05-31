@@ -4595,7 +4595,7 @@ func _1614270163879Test(db *gorm.DB, version string) error {
     "820007": "路氹填海區",
     "820008": "聖方濟各堂區"
   }
-}`  )
+}`)
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		err := tx.Migrator().AutoMigrate(models.SysChinaAreaData{})
@@ -4617,7 +4617,7 @@ func _1614270163879Test(db *gorm.DB, version string) error {
 				fmt.Println(k, k1, v1)
 				var id = 0
 				id, _ = pkg.StringToInt(k1)
-				list = append(list, models.SysChinaAreaData{PId: k, Model: common.Model{Id: id}, Name: v1.(string),ModelTime:common.ModelTime{CreatedAt: time.Now(),UpdatedAt: time.Now()}})
+				list = append(list, models.SysChinaAreaData{PId: k, Model: common.Model{Id: id}, Name: v1.(string), ModelTime: common.ModelTime{CreatedAt: time.Now(), UpdatedAt: time.Now()}})
 			}
 		}
 		err = tx.Create(list).Error

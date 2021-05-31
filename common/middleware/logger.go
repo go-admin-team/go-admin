@@ -39,7 +39,7 @@ func LoggerToFile() gin.HandlerFunc {
 			}
 			rb, _ := ioutil.ReadAll(bf)
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rb))
-			body  =string(rb)
+			body = string(rb)
 		}
 
 		c.Next()
@@ -53,7 +53,6 @@ func LoggerToFile() gin.HandlerFunc {
 		if c.Request.Method == http.MethodOptions {
 			return
 		}
-		
 
 		rt, bl := c.Get("result")
 		var result = ""
