@@ -22,12 +22,12 @@ type SysMenu struct {
 // @Description 获取JSON
 // @Tags 菜单
 // @Param menuName query string false "menuName"
+// @Param menuName query string false "menuName"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menulist [get]
 // @Security Bearer
 func (e SysMenu) GetSysMenuList(c *gin.Context) {
-
 	s := service.SysMenu{}
 	d := new(dto.SysMenuSearch)
 	err := e.MakeContext(c).
@@ -41,13 +41,12 @@ func (e SysMenu) GetSysMenuList(c *gin.Context) {
 		return
 	}
 
-	var list *[]models.SysMenu
-	list, err = s.GetSysMenuPage(d)
+	var list = make([]models.SysMenu, 0)
+	err = s.GetSysMenuPage(d, &list).Error
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
-
 	e.OK(list, "查询成功")
 }
 
@@ -73,14 +72,13 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 		e.Logger.Error(err)
 		return
 	}
-	var object models.SysMenu
+	var object = models.SysMenu{}
 
-	err = s.GetSysMenu(control, &object)
+	err = s.GetSysMenu(control, &object).Error
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
 	}
-
 	e.OK(object, "查看成功")
 }
 
@@ -165,7 +163,7 @@ func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 // @Param data body dto.SysMenuById true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/menu/ [delete]
+// @Router /api/v1/menu [delete]
 func (e SysMenu) DeleteSysMenu(c *gin.Context) {
 	control := new(dto.SysMenuById)
 	s := new(service.SysMenu)
@@ -247,15 +245,16 @@ func (e SysMenu) GetMenuIDS(c *gin.Context) {
 	e.OK(result, "")
 }
 
-// GetMenuTreeSelect 获取菜单树
-// @Summary 获取菜单树
+// GetMenuTreeSelect 根据角色ID查询菜单下拉树结构
+// @Summary 角色修改使用的菜单列表
 // @Description 获取JSON
 // @Tags 菜单
 // @Accept  application/x-www-form-urlencoded
 // @Product application/x-www-form-urlencoded
+// @Param roleId path int true "roleId"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
-// @Router /api/v1/menuTreeselect [get]
+// @Router /api/v1/menuTreeselect/{roleId} [get]
 // @Security Bearer
 func (e SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	s := new(service.SysMenu)
