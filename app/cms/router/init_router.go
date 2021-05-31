@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -24,10 +25,10 @@ func InitRouter() {
 		log.Fatal("not support other engine")
 		os.Exit(-1)
 	}
+	r.Use(common.Sentinel()).
+		Use(common.RequestId(pkg.TrafficKey))
+	common.InitMiddleware(r)
 
-	//r.Use(common.Sentinel()).
-	//	Use(common.RequestId(pkg.TrafficKey))
-	//common.InitMiddleware(r)
 	// the jwt middleware
 	authMiddleware, err := common.AuthInit()
 	if err != nil {
