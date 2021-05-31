@@ -294,7 +294,7 @@
                 // 表单校验
                 rules: {
                 {{- range .Columns -}}
-                {{- $x := .IsQuery -}}
+                {{- $x := .IsRequired -}}
                 {{- if ($x) -}}
                 {{.JsonField}}:
                 [
