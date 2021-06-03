@@ -25,7 +25,7 @@ type SysMenu struct {
 // @Param menuName query string false "menuName"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/menulist [get]
+// @Router /api/v1/menu [get]
 // @Security Bearer
 func (e SysMenu) GetSysMenuList(c *gin.Context) {
 	s := service.SysMenu{}
