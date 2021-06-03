@@ -16,6 +16,21 @@ type SysOperaLog struct {
 }
 
 // GetSysOperaLogList 操作日志列表
+// @Summary 操作日志列表
+// @Description 获取JSON
+// @Tags 操作日志
+// @Param title query string false "title"
+// @Param method query string false "method"
+// @Param requestMethod  query string false "requestMethod"
+// @Param operUrl query string false "operUrl"
+// @Param operIp query string false "operIp"
+// @Param status query string false "status"
+// @Param beginTime query string false "beginTime"
+// @Param endTime query string false "endTime"
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/sys-opera-log [get]
+// @Security Bearer
 func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	s := service.SysOperaLog{}
 	req := new(dto.SysOperaLogSearch)
@@ -42,7 +57,16 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// GetSysOperaLog  操作日志通过id获取
+// GetSysOperaLog 操作日志通过id获取
+// @Summary 操作日志通过id获取
+// @Description 获取JSON
+// @Tags 操作日志
+// @Param id query string false "id"
+// @Param ids body []int false "ids"
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/sys-opera-log/{id} [get]
+// @Security Bearer
 func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 	s := new(service.SysOperaLog)
 	req := new(dto.SysOperaLogById)
@@ -69,12 +93,20 @@ func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 }
 
 // DeleteSysOperaLog 操作日志删除
+// DeleteSysMenu 操作日志删除
+// @Summary 删除操作日志
+// @Description 删除数据
+// @Tags 操作日志
+// @Param data body dto.SysOperaLogById true "body"
+// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Router /api/v1/sys-opera-log [delete]
 func (e SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 	s := new(service.SysOperaLog)
 	req := new(dto.SysOperaLogById)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
