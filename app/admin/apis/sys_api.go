@@ -64,7 +64,7 @@ func (e SysApi) GetSysApiList(c *gin.Context) {
 // @Tags 接口管理
 // @Param id path string false "id"
 // @Success 200 {object} response.Response{data=models.SysApi} "{"code": 200, "data": [...]}"
-// @Router /api/v1/sys_api/{id} [get]
+// @Router /api/v1/sys-api/{id} [get]
 // @Security Bearer
 func (e SysApi) GetSysApi(c *gin.Context) {
 	control := new(dto.SysApiById)
@@ -102,7 +102,7 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 // @Product application/json
 // @Param data body dto.SysApiControl true "body"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
-// @Router /api/v1/sys_api/{id} [put]
+// @Router /api/v1/sys-api/{id} [put]
 // @Security Bearer
 func (e SysApi) UpdateSysApi(c *gin.Context) {
 	req := new(dto.SysApiControl)
@@ -137,7 +137,7 @@ func (e SysApi) UpdateSysApi(c *gin.Context) {
 // @Tags 接口管理
 // @Param ids body []int false "ids"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
-// @Router /api/v1/sys_api [delete]
+// @Router /api/v1/sys-api [delete]
 // @Security Bearer
 func (e SysApi) DeleteSysApi(c *gin.Context) {
 
@@ -145,7 +145,7 @@ func (e SysApi) DeleteSysApi(c *gin.Context) {
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(control, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
