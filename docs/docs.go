@@ -28,6 +28,43 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/app-config": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取系统配置信息，主要注意这里不在验证数据权限",
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取系统前台配置信息，主要注意这里不在验证数据权限",
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/db/columns/page": {
             "get": {
                 "description": "数据库表列分页列表 / database table column page list",
@@ -281,6 +318,37 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/dict-data/option-select": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "数据字典根据key获取",
+                "tags": [
+                    "字典数据"
+                ],
+                "summary": "数据字典根据key获取",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "dictType",
+                        "name": "dictType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dict/data": {
             "get": {
                 "security": [
@@ -434,6 +502,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "删除数据",
                 "tags": [
                     "字典数据"
@@ -557,7 +630,7 @@ var doc = `{
                 "tags": [
                     "字典类型"
                 ],
-                "summary": "字典类型全部数据",
+                "summary": "字典类型全部数据 代码生成使用接口",
                 "parameters": [
                     {
                         "type": "string",
@@ -599,7 +672,7 @@ var doc = `{
                 "tags": [
                     "字典类型"
                 ],
-                "summary": "通过字典id获取字典类型",
+                "summary": "字典类型通过字典id获取",
                 "parameters": [
                     {
                         "type": "integer",
@@ -677,7 +750,69 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/login": {
+            "post": {
+                "description": "获取token\nLoginHandler can be used by clients to get a jwt token.\nPayload needs to be json in the form of {\"username\": \"USERNAME\", \"password\": \"PASSWORD\"}.\nReply will be of the form {\"token\": \"TOKEN\"}.\ndev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password\n注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "登陆",
+                "parameters": [
+                    {
+                        "description": "account",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"expire\": \"2019-08-07T12:45:48+08:00\", \"token\": \".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A\" }",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/menu": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "菜单"
+                ],
+                "summary": "Menu列表数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "menuName",
+                        "name": "menuName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "menuName",
+                        "name": "menuName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -743,9 +878,7 @@ var doc = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/v1/menu/": {
+            },
             "delete": {
                 "description": "删除数据",
                 "tags": [
@@ -844,7 +977,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/menuTreeselect": {
+        "/api/v1/menuTreeselect/{roleId}": {
             "get": {
                 "security": [
                     {
@@ -858,7 +991,16 @@ var doc = `{
                 "tags": [
                     "菜单"
                 ],
-                "summary": "获取菜单树",
+                "summary": "角色修改使用的菜单列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "roleId",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "{\"code\": -1, \"message\": \"添加失败\"}",
@@ -900,36 +1042,6 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/menulist": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取JSON",
-                "tags": [
-                    "菜单"
-                ],
-                "summary": "Menu列表数据",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "menuName",
-                        "name": "menuName",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/menurole": {
             "get": {
                 "security": [
@@ -941,16 +1053,7 @@ var doc = `{
                 "tags": [
                     "菜单"
                 ],
-                "summary": "根据角色名称获取菜单列表数据（左菜单使用）",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "根据登录角色名称获取菜单列表数据（左菜单使用）",
                 "responses": {
                     "200": {
                         "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
@@ -1359,24 +1462,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/setting": {
-            "get": {
-                "description": "获取JSON",
-                "tags": [
-                    "系统信息"
-                ],
-                "summary": "查询系统信息",
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/settings/serverInfo": {
+        "/api/v1/server-monitor": {
             "get": {
                 "description": "获取JSON",
                 "tags": [
@@ -1388,6 +1474,646 @@ var doc = `{
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/set-config": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "界面操作设置配置值的获取",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取配置",
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "界面操作设置配置值",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "设置配置",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.GetSetSysConfigReq"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-api": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取接口管理列表",
+                "tags": [
+                    "接口管理"
+                ],
+                "summary": "获取接口管理列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "地址",
+                        "name": "path",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "类型",
+                        "name": "action",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.Page"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/models.SysApi"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除接口管理",
+                "tags": [
+                    "接口管理"
+                ],
+                "summary": "删除接口管理",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-api/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取接口管理",
+                "tags": [
+                    "接口管理"
+                ],
+                "summary": "获取接口管理",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.SysApi"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改接口管理",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "接口管理"
+                ],
+                "summary": "修改接口管理",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysApiControl"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-config": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取配置管理列表",
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取配置管理列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "名称",
+                        "name": "configName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "key",
+                        "name": "configKey",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "类型",
+                        "name": "configType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "是否前端",
+                        "name": "isFrontend",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.Page"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/models.SysApi"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建配置管理",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "创建配置管理",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysConfigControl"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"创建成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除配置管理",
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "删除配置管理",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-config/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取配置管理",
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "获取配置管理",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.SysConfig"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改配置管理",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "修改配置管理",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysConfigControl"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-opera-log": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "操作日志"
+                ],
+                "summary": "操作日志列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "title",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "method",
+                        "name": "method",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "requestMethod",
+                        "name": "requestMethod",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "operUrl",
+                        "name": "operUrl",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "operIp",
+                        "name": "operIp",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "beginTime",
+                        "name": "beginTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "endTime",
+                        "name": "endTime",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除数据",
+                "tags": [
+                    "操作日志"
+                ],
+                "summary": "删除操作日志",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysOperaLogById"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-opera-log/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "操作日志"
+                ],
+                "summary": "操作日志通过id获取",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1642,34 +2368,6 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/system/setting": {
-            "post": {
-                "description": "获取JSON",
-                "tags": [
-                    "系统信息"
-                ],
-                "summary": "更新或提交系统信息",
-                "parameters": [
-                    {
-                        "description": "body",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.SysSettingControl"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/sysuser/{userId}": {
             "put": {
                 "description": "获取JSON",
@@ -1812,34 +2510,6 @@ var doc = `{
                 }
             }
         },
-        "/login": {
-            "post": {
-                "description": "获取token\nLoginHandler can be used by clients to get a jwt token.\nPayload needs to be json in the form of {\"username\": \"USERNAME\", \"password\": \"PASSWORD\"}.\nReply will be of the form {\"token\": \"TOKEN\"}.\ndev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password\n注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值",
-                "consumes": [
-                    "application/json"
-                ],
-                "summary": "登陆",
-                "parameters": [
-                    {
-                        "description": "account",
-                        "name": "account",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.Login"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"expire\": \"2019-08-07T12:45:48+08:00\", \"token\": \".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A\" }",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/logout": {
             "post": {
                 "security": [
@@ -1864,6 +2534,17 @@ var doc = `{
         }
     },
     "definitions": {
+        "dto.GetSetSysConfigReq": {
+            "type": "object",
+            "properties": {
+                "configKey": {
+                    "type": "string"
+                },
+                "configValue": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.PassWord": {
             "type": "object",
             "required": [
@@ -1876,6 +2557,77 @@ var doc = `{
                 },
                 "oldPassword": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.SysApiControl": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "handle": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "编码",
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysConfigByKeyReq": {
+            "type": "object",
+            "properties": {
+                "configKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SysConfigControl": {
+            "type": "object",
+            "properties": {
+                "configKey": {
+                    "type": "string"
+                },
+                "configName": {
+                    "type": "string"
+                },
+                "configType": {
+                    "type": "string"
+                },
+                "configValue": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "编码",
+                    "type": "integer"
+                },
+                "isFrontend": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
                 }
             }
         },
@@ -1896,6 +2648,9 @@ var doc = `{
         "dto.SysDeptControl": {
             "type": "object",
             "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
                 "deptId": {
                     "description": "编码",
                     "type": "integer"
@@ -1931,12 +2686,18 @@ var doc = `{
                 "status": {
                     "description": "状态",
                     "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
                 }
             }
         },
         "dto.SysDictDataControl": {
             "type": "object",
             "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
                 "cssClass": {
                     "type": "string"
                 },
@@ -1969,12 +2730,18 @@ var doc = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
                 }
             }
         },
         "dto.SysDictTypeControl": {
             "type": "object",
             "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
                 "dictName": {
                     "type": "string"
                 },
@@ -1989,12 +2756,18 @@ var doc = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
                 }
             }
         },
         "dto.SysMenuById": {
             "type": "object",
             "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2003,6 +2776,9 @@ var doc = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "updateBy": {
+                    "type": "integer"
                 }
             }
         },
@@ -2013,6 +2789,12 @@ var doc = `{
                     "description": "请求方式",
                     "type": "string"
                 },
+                "apis": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "breadcrumb": {
                     "description": "是否面包屑",
                     "type": "string"
@@ -2020,6 +2802,9 @@ var doc = `{
                 "component": {
                     "description": "组件",
                     "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
                 },
                 "icon": {
                     "description": "图标",
@@ -2065,9 +2850,18 @@ var doc = `{
                     "description": "排序",
                     "type": "integer"
                 },
+                "sysApi": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysApi"
+                    }
+                },
                 "title": {
                     "description": "显示名称",
                     "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
                 },
                 "visible": {
                     "description": "是否显示",
@@ -2075,9 +2869,26 @@ var doc = `{
                 }
             }
         },
+        "dto.SysOperaLogById": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "dto.SysPostControl": {
             "type": "object",
             "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
                 "postCode": {
                     "description": "编码",
                     "type": "string"
@@ -2101,6 +2912,9 @@ var doc = `{
                 "status": {
                     "description": "状态",
                     "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
                 }
             }
         },
@@ -2123,6 +2937,9 @@ var doc = `{
             "properties": {
                 "admin": {
                     "type": "boolean"
+                },
+                "createBy": {
+                    "type": "integer"
                 },
                 "dataScope": {
                     "type": "string"
@@ -2160,27 +2977,14 @@ var doc = `{
                 "status": {
                     "description": "状态",
                     "type": "string"
-                }
-            }
-        },
-        "dto.SysSettingControl": {
-            "type": "object",
-            "required": [
-                "logo",
-                "name",
-                "settings_id"
-            ],
-            "properties": {
-                "logo": {
-                    "description": "头像",
-                    "type": "string"
                 },
-                "name": {
-                    "description": "名称",
-                    "type": "string"
+                "sysMenu": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysMenu"
+                    }
                 },
-                "settings_id": {
-                    "description": "头像",
+                "updateBy": {
                     "type": "integer"
                 }
             }
@@ -2190,6 +2994,9 @@ var doc = `{
             "properties": {
                 "avatar": {
                     "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
                 },
                 "deptId": {
                     "type": "integer"
@@ -2220,6 +3027,9 @@ var doc = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
                 },
                 "userId": {
                     "description": "用户ID",
@@ -2253,6 +3063,188 @@ var doc = `{
                 }
             }
         },
+        "models.SysApi": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "handle": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SysConfig": {
+            "type": "object",
+            "properties": {
+                "configKey": {
+                    "type": "string"
+                },
+                "configName": {
+                    "type": "string"
+                },
+                "configType": {
+                    "type": "string"
+                },
+                "configValue": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isFrontend": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SysMenu": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "apis": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "breadcrumb": {
+                    "type": "string"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysMenu"
+                    }
+                },
+                "component": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "isFrame": {
+                    "type": "string"
+                },
+                "is_select": {
+                    "type": "boolean"
+                },
+                "menuId": {
+                    "type": "integer"
+                },
+                "menuName": {
+                    "type": "string"
+                },
+                "menuType": {
+                    "type": "string"
+                },
+                "noCache": {
+                    "type": "boolean"
+                },
+                "params": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "paths": {
+                    "type": "string"
+                },
+                "permission": {
+                    "type": "string"
+                },
+                "roleId": {
+                    "type": "integer"
+                },
+                "sort": {
+                    "type": "integer"
+                },
+                "sysApi": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysApi"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Page": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "pageIndex": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.Response": {
             "type": "object",
             "properties": {
@@ -2263,6 +3255,7 @@ var doc = `{
                     "type": "string"
                 },
                 "requestId": {
+                    "description": "数据集",
                     "type": "string"
                 },
                 "status": {
@@ -2429,7 +3422,7 @@ var doc = `{
                     }
                 },
                 "createBy": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "createdAt": {
                     "type": "string"
@@ -2469,8 +3462,12 @@ var doc = `{
                 "logicalDeleteColumn": {
                     "type": "string"
                 },
+                "moduleFrontName": {
+                    "description": "前端文件名",
+                    "type": "string"
+                },
                 "moduleName": {
-                    "description": "模块名",
+                    "description": "go文件名",
                     "type": "string"
                 },
                 "options": {
@@ -2523,7 +3520,7 @@ var doc = `{
                     "type": "string"
                 },
                 "updateBy": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -2551,12 +3548,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "1.3.1",
+	Version:     "2.0.0",
 	Host:        "",
 	BasePath:    "",
 	Schemes:     []string{},
 	Title:       "go-admin API",
-	Description: "基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档\n添加qq群: 74520518 进入技术交流群 请备注，谢谢！",
+	Description: "基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档\n添加qq群: 521386980 进入技术交流群 请先star，谢谢！",
 }
 
 type s struct{}
