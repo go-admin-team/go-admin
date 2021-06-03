@@ -9,7 +9,7 @@ import (
 
 type SysUserSearch struct {
 	dto.Pagination `search:"-"`
-	UserId         int    `form:"UserId" search:"type:exact;column:user_id;table:sys_user" comment:"用户ID"`
+	UserId         int    `form:"userId" search:"type:exact;column:user_id;table:sys_user" comment:"用户ID"`
 	Username       string `form:"username" search:"type:contains;column:username;table:sys_user" comment:"用户名"`
 	NickName       string `form:"nickName" search:"type:contains;column:nick_name;table:sys_user" comment:"昵称"`
 	Phone          string `form:"phone" search:"type:contains;column:phone;table:sys_user" comment:"手机号"`
@@ -29,24 +29,59 @@ type SysUserOrder struct {
 	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_user" form:"createdAtOrder"`
 }
 
+
 func (m *SysUserSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
+type ResetSysUserPwdReq struct {
+	UserId   int    `json:"userId" comment:"用户ID" binding:"required"` // 用户ID
+	Password string `json:"password" comment:"密码" binding:"required"`
+	common.ControlBy
+}
+
+func (s *ResetSysUserPwdReq) GetId() interface{} {
+	return s.UserId
+}
+
+func (s *ResetSysUserPwdReq) Generate(model *models.SysUser) {
+	if s.UserId != 0 {
+		model.UserId = s.UserId
+	}
+	model.Password = s.Password
+}
+
+type UpdateSysUserStatusReq struct {
+	UserId int    `json:"userId" comment:"用户ID" binding:"required"` // 用户ID
+	Status string `json:"status" comment:"状态" binding:"required"`
+	common.ControlBy
+}
+
+func (s *UpdateSysUserStatusReq) GetId() interface{} {
+	return s.UserId
+}
+
+func (s *UpdateSysUserStatusReq) Generate(model *models.SysUser) {
+	if s.UserId != 0 {
+		model.UserId = s.UserId
+	}
+	model.Status = s.Status
+}
+
 type SysUserControl struct {
 	UserId   int    `json:"userId" comment:"用户ID"` // 用户ID
-	Username string `json:"username" comment:"用户名"`
+	Username string `json:"username" comment:"用户名" binding:"required"`
 	Password string `json:"password" comment:"密码"`
-	NickName string `json:"nickName" comment:"昵称"`
-	Phone    string `json:"phone" comment:"手机号"`
+	NickName string `json:"nickName" comment:"昵称" binding:"required"`
+	Phone    string `json:"phone" comment:"手机号" binding:"required"`
 	RoleId   int    `json:"roleId" comment:"角色ID"`
 	Avatar   string `json:"avatar" comment:"头像"`
 	Sex      string `json:"sex" comment:"性别"`
-	Email    string `json:"email" comment:"邮箱"`
-	DeptId   int    `json:"deptId" comment:"部门"`
+	Email    string `json:"email" comment:"邮箱" binding:"required,email"`
+	DeptId   int    `json:"deptId" comment:"部门" binding:"required"`
 	PostId   int    `json:"postId" comment:"岗位"`
 	Remark   string `json:"remark" comment:"备注"`
-	Status   string `json:"status" comment:"状态"`
+	Status   string `json:"status" comment:"状态" binding:"required" default:"1"`
 	common.ControlBy
 }
 

@@ -15,7 +15,7 @@ func init() {
 // 需认证的路由代码
 func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	api := apis.SysUser{}
-	r := v1.Group("/sysUser").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole()).Use(actions.PermissionAction())
+	r := v1.Group("/sys-user").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole()).Use(actions.PermissionAction())
 	{
 		r.GET("", api.GetSysUserList)
 		r.GET("/:id", api.GetSysUser)
@@ -28,7 +28,9 @@ func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	{
 		user.GET("/profile", api.GetSysUserProfile)
 		user.POST("/avatar", api.InsetSysUserAvatar)
-		user.PUT("/pwd", api.SysUserUpdatePwd)
+		user.PUT("/pwd", api.UpdateSysUserPwd)
+		user.PUT("/pwd/reset", api.ResetSysUserPwd)
+		user.PUT("/status", api.UpdateSysUserStatus)
 	}
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc())
 	{

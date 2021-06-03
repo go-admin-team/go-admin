@@ -23,13 +23,12 @@ func (e *SysUser) GetSysUserPage(c *dto.SysUserSearch, p *actions.DataPermission
 	var err error
 	var data models.SysUser
 
-	err = e.Orm.Model(&data).
+	err = e.Orm.Debug().Preload("Dept").
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
 			actions.Permission(data.TableName(), p),
 		).
-		Preload("Dept").
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
@@ -43,7 +42,7 @@ func (e *SysUser) GetSysUserPage(c *dto.SysUserSearch, p *actions.DataPermission
 func (e *SysUser) GetSysUser(d *dto.SysUserById, p *actions.DataPermission, model *models.SysUser) error {
 	var data models.SysUser
 
-	err := e.Orm.Model(&data).
+	err := e.Orm.Model(&data).Debug().
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).
@@ -64,6 +63,17 @@ func (e *SysUser) GetSysUser(d *dto.SysUserById, p *actions.DataPermission, mode
 func (e *SysUser) InsertSysUser(c *dto.SysUserControl) error {
 	var err error
 	var data models.SysUser
+	var i int64
+	err = e.Orm.Model(&data).Where("username = ?", c.Username).Count(&i).Error
+	if err != nil {
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
+	if i > 0 {
+		err := errors.New("用户名已存在！")
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
 	c.Generate(&data)
 	err = e.Orm.Create(&data).Error
 	if err != nil {
@@ -97,6 +107,53 @@ func (e *SysUser) UpdateSysUser(c *dto.SysUserControl, p *actions.DataPermission
 	return nil
 }
 
+// UpdateSysUserStatus 更新用户状态
+func (e *SysUser) UpdateSysUserStatus(c *dto.UpdateSysUserStatusReq, p *actions.DataPermission) error {
+	var err error
+	var model models.SysUser
+	db := e.Orm.Scopes(
+		actions.Permission(model.TableName(), p),
+	).First(&model, c.GetId())
+	if err = db.Error; err != nil {
+		e.Log.Errorf("Service UpdateSysUser error: %s", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+
+	}
+	c.Generate(&model)
+	err = e.Orm.Save(&model).Error
+	if err != nil {
+		e.Log.Errorf("Service UpdateSysUser error: %s", err)
+		return err
+	}
+	return nil
+}
+
+// ResetSysUserPwd 重置用户密码
+func (e *SysUser) ResetSysUserPwd(c *dto.ResetSysUserPwdReq, p *actions.DataPermission) error {
+	var err error
+	var model models.SysUser
+	db := e.Orm.Scopes(
+		actions.Permission(model.TableName(), p),
+	).First(&model, c.GetId())
+	if err = db.Error; err != nil {
+		e.Log.Errorf("At Service ResetSysUserPwd error: %s", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+	c.Generate(&model)
+	err = e.Orm.Save(&model).Error
+	if err != nil {
+		e.Log.Errorf("At Service ResetSysUserPwd error: %s", err)
+		return err
+	}
+	return nil
+}
+
 // RemoveSysUser 删除SysUser
 func (e *SysUser) RemoveSysUser(c *dto.SysUserById, p *actions.DataPermission) error {
 	var err error
@@ -107,7 +164,7 @@ func (e *SysUser) RemoveSysUser(c *dto.SysUserById, p *actions.DataPermission) e
 			actions.Permission(data.TableName(), p),
 		).Delete(&data, c.GetId())
 	if err = db.Error; err != nil {
-		e.Log.Errorf("Delete error: %s", err)
+		e.Log.Errorf("Error found in  RemoveSysUser : %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -128,7 +185,8 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 	err = e.Orm.Model(c).
 		Scopes(
 			actions.Permission(c.TableName(), p),
-		).Where(id).Select("UserId", "Password", "Salt").First(c).Error
+		).Select("UserId", "Password", "Salt").
+		First(c, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("无权更新该数据")
