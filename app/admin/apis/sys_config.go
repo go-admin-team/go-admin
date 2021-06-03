@@ -35,7 +35,7 @@ func (e SysConfig) GetSysConfigList(c *gin.Context) {
 	d := new(dto.SysConfigSearch)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d, binding.Query).
+		Bind(d, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -54,7 +54,13 @@ func (e SysConfig) GetSysConfigList(c *gin.Context) {
 	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
 }
 
-// GetSysConfigBySysApp 获取系统配置信息，主要注意这里不在验证数据权限
+// GetSysConfigBySysApp 获取系统配置信息
+// @Summary 获取系统前台配置信息，主要注意这里不在验证数据权限
+// @Description 获取系统配置信息，主要注意这里不在验证数据权限
+// @Tags 配置管理
+// @Success 200 {object} response.Response{data=map[string]string} "{"code": 200, "data": [...]}"
+// @Router /api/v1/app-config [get]
+// @Security Bearer
 func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 	d := new(dto.SysConfigSearch)
 	s := service.SysConfig{}
@@ -92,8 +98,8 @@ func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 // @Description 获取配置管理
 // @Tags 配置管理
 // @Param id path string false "id"
-// @Success 200 {object} response.Response{data=models.SysApi} "{"code": 200, "data": [...]}"
-// @Router /api/v1/sys_api/{id} [get]
+// @Success 200 {object} response.Response{data=models.SysConfig} "{"code": 200, "data": [...]}"
+// @Router /api/v1/sys-config/{id} [get]
 // @Security Bearer
 func (e SysConfig) GetSysConfig(c *gin.Context) {
 	control := new(dto.SysConfigById)
@@ -120,6 +126,16 @@ func (e SysConfig) GetSysConfig(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
+// InsertSysConfig 创建配置管理
+// @Summary 创建配置管理
+// @Description 创建配置管理
+// @Tags 配置管理
+// @Accept application/json
+// @Product application/json
+// @Param data body dto.SysConfigControl true "body"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "创建成功"}"
+// @Router /api/v1/sys-config [post]
+// @Security Bearer
 func (e SysConfig) InsertSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
 	control := new(dto.SysConfigControl)
@@ -179,6 +195,15 @@ func (e SysConfig) UpdateSysConfig(c *gin.Context) {
 	e.OK(control.GetId(), "更新成功")
 }
 
+// GetSetSysConfig 获取配置
+// @Summary 获取配置
+// @Description 界面操作设置配置值的获取
+// @Tags 配置管理
+// @Accept application/json
+// @Product application/json
+// @Success 200 {object} response.Response{data=map[string]interface{}}	"{"code": 200, "message": "修改成功"}"
+// @Router /api/v1/set-config [get]
+// @Security Bearer
 func (e SysConfig) GetSetSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
@@ -271,24 +296,33 @@ func (e SysConfig) DeleteSysConfig(c *gin.Context) {
 }
 
 // GetSysConfigByKEYForService 根据Key获取SysConfig的Service
+// @Summary 根据Key获取SysConfig的Service
+// @Description 根据Key获取SysConfig的Service
+// @Tags 配置管理
+// @Param configKey path string false "configKey"
+// @Success 200 {object} response.Response{data=dto.SysConfigByKeyReq} "{"code": 200, "data": [...]}"
+// @Router /api/v1/sys-config/{id} [get]
+// @Security Bearer
 func (e SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	var s = new(service.SysConfig)
-	var control = new(dto.SysConfigByKeyReq)
+	var req = new(dto.SysConfigByKeyReq)
+	var resp = new(dto.GetSysConfigByKEYForServiceResp)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(req,nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
-	err = s.GetSysConfigByKEY(control)
+	err = s.GetSysConfigByKEY(req, resp)
 	if err != nil {
 		e.Logger.Errorf("通过Key获取配置失败, error:%s", err)
-		e.Error(500, err, "")
+		e.Error(500, err, err.Error())
 		return
 	}
-	e.OK(control, s.Msg)
+	e.OK(resp, s.Msg)
 }
