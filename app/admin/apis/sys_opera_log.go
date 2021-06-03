@@ -27,8 +27,7 @@ type SysOperaLog struct {
 // @Param status query string false "status"
 // @Param beginTime query string false "beginTime"
 // @Param endTime query string false "endTime"
-// @Success 200 {string} string "{"code": 200, "data": [...]}"
-// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log [get]
 // @Security Bearer
 func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
@@ -40,8 +39,8 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -61,34 +60,29 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 // @Summary 操作日志通过id获取
 // @Description 获取JSON
 // @Tags 操作日志
-// @Param id query string false "id"
-// @Param ids body []int false "ids"
-// @Success 200 {string} string "{"code": 200, "data": [...]}"
-// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Param id path string false "id"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log/{id} [get]
 // @Security Bearer
 func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 	s := new(service.SysOperaLog)
-	req := new(dto.SysOperaLogById)
+	req := dto.SysOperaLogById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
 	var object models.SysOperaLog
-
-	err = s.GetSysOperaLog(req, &object)
+	err = s.GetSysOperaLog(&req, &object)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-
 	e.OK(object, "查看成功")
 }
 
@@ -98,8 +92,7 @@ func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 // @Description 删除数据
 // @Tags 操作日志
 // @Param data body dto.SysOperaLogById true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log [delete]
 func (e SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 	s := new(service.SysOperaLog)
@@ -110,8 +103,8 @@ func (e SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 

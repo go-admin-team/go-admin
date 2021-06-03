@@ -4,13 +4,10 @@ import (
 	"go-admin/app/admin/models"
 	common "go-admin/common/models"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
 	"go-admin/common/dto"
 )
 
-// SysConfigSearch 列表或者搜索使用结构体
+// SysDeptSearch 列表或者搜索使用结构体
 type SysDeptSearch struct {
 	dto.Pagination `search:"-"`
 	DeptId         int    `form:"deptId" search:"type:exact;column:dept_id;table:sys_dept" comment:"id"`       //id
@@ -28,15 +25,6 @@ func (m *SysDeptSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-// Bind 映射上下文中的结构体数据
-func (m *SysDeptSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
 
 // SysDeptControl 增、改使用的结构体
 type SysDeptControl struct {
@@ -50,14 +38,6 @@ type SysDeptControl struct {
 	Email    string `form:"email" comment:"邮箱"`      //邮箱
 	Status   string `form:"status" comment:"状态"`     //状态
 	common.ControlBy
-}
-
-func (s *SysDeptControl) SetCreateBy(id int) {
-	s.CreateBy = id
-}
-
-func (s *SysDeptControl) SetUpdateBy(id int) {
-	s.UpdateBy = id
 }
 
 // Generate 结构体数据转化 从 SysDeptControl 至 SysDept 对应的模型
@@ -80,7 +60,7 @@ func (s *SysDeptControl) GetId() interface{} {
 	return s.DeptId
 }
 
-// SysConfigById 获取单个或者删除的结构体
+// SysDeptById 获取单个或者删除的结构体
 type SysDeptById struct {
 	Id  int   `uri:"id"`
 	Ids []int `json:"ids"`

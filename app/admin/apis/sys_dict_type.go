@@ -32,28 +32,25 @@ type SysDictType struct {
 // @Security Bearer
 func (e SysDictType) GetSysDictTypeList(c *gin.Context) {
 	s := service.SysDictType{}
-	d := &dto.SysDictTypeSearch{}
+	req := dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d, binding.Form).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
 	list := make([]models.SysDictType, 0)
 	var count int64
-
-	err = s.GetPage(d, &list, &count)
+	err = s.GetPage(&req, &list, &count)
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-
-	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
 // GetSysDictType 字典类型通过字典id获取
@@ -66,24 +63,23 @@ func (e SysDictType) GetSysDictTypeList(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) GetSysDictType(c *gin.Context) {
 	s := service.SysDictType{}
-	d := &dto.SysDictTypeById{}
+	req := dto.SysDictTypeById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 	var object models.SysDictType
-	err = s.Get(d, &object)
+	err = s.Get(&req, &object)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-
 	e.OK(object, "查看成功")
 }
 
@@ -100,28 +96,25 @@ func (e SysDictType) GetSysDictType(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) InsertSysDictType(c *gin.Context) {
 	s := service.SysDictType{}
-	d := &dto.SysDictTypeControl{}
+	req := dto.SysDictTypeControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
-	d.SetCreateBy(user.GetUserId(c))
-
-	err = s.Insert(d)
+	req.SetCreateBy(user.GetUserId(c))
+	err = s.Insert(&req)
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(http.StatusInternalServerError, err, "创建失败")
+		e.Error(500, err, "创建失败")
 		return
 	}
-
-	e.OK(d.GetId(), "创建成功")
+	e.OK(req.GetId(), "创建成功")
 }
 
 // UpdateSysDictType
@@ -137,10 +130,10 @@ func (e SysDictType) InsertSysDictType(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) UpdateSysDictType(c *gin.Context) {
 	s := service.SysDictType{}
-	d := &dto.SysDictTypeControl{}
+	req := dto.SysDictTypeControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -148,15 +141,13 @@ func (e SysDictType) UpdateSysDictType(c *gin.Context) {
 		e.Logger.Error(err)
 		return
 	}
-
-	d.SetUpdateBy(user.GetUserId(c))
-
-	err = s.Update(d)
+	req.SetUpdateBy(user.GetUserId(c))
+	err = s.Update(&req)
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
-	e.OK(d.GetId(), "更新成功")
+	e.OK(req.GetId(), "更新成功")
 }
 
 // DeleteSysDictType
@@ -169,25 +160,24 @@ func (e SysDictType) UpdateSysDictType(c *gin.Context) {
 // @Router /api/v1/dict/type/{dictId} [delete]
 func (e SysDictType) DeleteSysDictType(c *gin.Context) {
 	s := service.SysDictType{}
-	d := new(dto.SysDictTypeById)
+	req := dto.SysDictTypeById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-	// 设置编辑人
-	d.SetUpdateBy(user.GetUserId(c))
-	err = s.Remove(d)
+	req.SetUpdateBy(user.GetUserId(c))
+	err = s.Remove(&req)
 	if err != nil {
-		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-	e.OK(d.GetId(), "删除成功")
+	e.OK(req.GetId(), "删除成功")
 }
 
 // GetSysDictTypeAll
@@ -202,25 +192,22 @@ func (e SysDictType) DeleteSysDictType(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) GetSysDictTypeAll(c *gin.Context) {
 	s := service.SysDictType{}
-	d := &dto.SysDictTypeSearch{}
+	req := dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
 	list := make([]models.SysDictType, 0)
-
-	err = s.GetAll(d, &list)
+	err = s.GetAll(&req, &list)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-
 	e.OK(list, "查询成功")
 }

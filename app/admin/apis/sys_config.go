@@ -1,8 +1,6 @@
 package apis
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
@@ -32,10 +30,10 @@ type SysConfig struct {
 // @Security Bearer
 func (e SysConfig) GetSysConfigList(c *gin.Context) {
 	s := service.SysConfig{}
-	d := new(dto.SysConfigSearch)
+	req := dto.SysConfigSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d, binding.Form).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -45,13 +43,12 @@ func (e SysConfig) GetSysConfigList(c *gin.Context) {
 
 	list := make([]models.SysConfig, 0)
 	var count int64
-	err = s.GetSysConfigPage(d, &list, &count)
+	err = s.GetSysConfigPage(&req, &list, &count)
 	if err != nil {
-		e.Logger.Errorf("GetSysConfigPage 查询失败, error:%s", err)
 		e.Error(500, err, "查询失败")
 		return
 	}
-	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
 // GetSysConfigBySysApp 获取系统配置信息
@@ -62,24 +59,22 @@ func (e SysConfig) GetSysConfigList(c *gin.Context) {
 // @Router /api/v1/app-config [get]
 // @Security Bearer
 func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
-	d := new(dto.SysConfigSearch)
+	req := dto.SysConfigSearch{}
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d, nil).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
-
 	// 控制只读前台的数据
-	d.IsFrontend = 1
+	req.IsFrontend = 1
 	list := make([]models.SysConfig, 0)
-	err = s.GetSysConfigByKey(d, &list)
+	err = s.GetSysConfigByKey(&req, &list)
 	if err != nil {
-		e.Logger.Errorf("GetSysConfigPage 查询失败, error:%s", err)
 		e.Error(500, err, "查询失败")
 		return
 	}
@@ -102,24 +97,23 @@ func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 // @Router /api/v1/sys-config/{id} [get]
 // @Security Bearer
 func (e SysConfig) GetSysConfig(c *gin.Context) {
-	control := new(dto.SysConfigById)
+	req := dto.SysConfigById{}
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 	var object models.SysConfig
 
-	err = s.GetSysConfig(control, &object)
+	err = s.GetSysConfig(&req, &object)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
-		e.Logger.Errorf("Orm获取失败, error:%s", err)
-		e.Error(500, err, "Orm获取失败")
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -138,27 +132,25 @@ func (e SysConfig) GetSysConfig(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) InsertSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
-	control := new(dto.SysConfigControl)
+	req := dto.SysConfigControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
+	req.SetCreateBy(user.GetUserId(c))
 
-	// 设置创建人
-	control.SetCreateBy(user.GetUserId(c))
-
-	err = s.InsertSysConfig(control)
+	err = s.InsertSysConfig(&req)
 	if err != nil {
-		e.Logger.Error(err)
-		e.Error(http.StatusInternalServerError, err, "创建失败")
+		e.Error(500, err, "创建失败")
 		return
 	}
-	e.OK(control.GetId(), "创建成功")
+	e.OK(req.GetId(), "创建成功")
 }
 
 // UpdateSysConfig 修改配置管理
@@ -173,26 +165,24 @@ func (e SysConfig) InsertSysConfig(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) UpdateSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
-	control := new(dto.SysConfigControl)
+	req := dto.SysConfigControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
-	control.SetUpdateBy(user.GetUserId(c))
-
-	err = s.UpdateSysConfig(control)
+	req.SetUpdateBy(user.GetUserId(c))
+	err = s.UpdateSysConfig(&req)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "更新失败")
-		e.Logger.Errorf("Orm获取失败, error:%s", err)
+		e.Error(500, err, "更新失败")
 		return
 	}
-	e.OK(control.GetId(), "更新成功")
+	e.OK(req.GetId(), "更新成功")
 }
 
 // GetSetSysConfig 获取配置
@@ -206,25 +196,24 @@ func (e SysConfig) UpdateSysConfig(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) GetSetSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
+	req := make([]dto.GetSetSysConfigReq, 1)
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
-	d := make([]dto.GetSetSysConfigReq, 0)
-	err = s.GetSetSysConfig(&d)
+	err = s.GetSetSysConfig(&req)
 	if err != nil {
-		e.Logger.Errorf("GetSetSysConfig 查询失败, error:%s", err)
 		e.Error(500, err, "查询失败")
 		return
 	}
 	m := make(map[string]interface{}, 0)
-	for _, req := range d {
-		m[req.ConfigKey] = req.ConfigValue
+	for _, v := range req {
+		m[v.ConfigKey] = v.ConfigValue
 	}
 	e.OK(m, "查询成功")
 }
@@ -249,12 +238,12 @@ func (e SysConfig) UpdateSetSysConfig(c *gin.Context) {
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
 	err = s.UpdateSetSysConfig(&d)
 	if err != nil {
-		e.Logger.Errorf("GetSetSysConfig 更新失败, error:%s", err)
 		e.Error(500, err, err.Error())
 		return
 	}
@@ -272,27 +261,25 @@ func (e SysConfig) UpdateSetSysConfig(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) DeleteSysConfig(c *gin.Context) {
 	s := service.SysConfig{}
-	control := new(dto.SysConfigById)
+	req := dto.SysConfigById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
+	req.SetUpdateBy(user.GetUserId(c))
 
-	// 设置编辑人
-	control.SetUpdateBy(user.GetUserId(c))
-
-	err = s.RemoveSysConfig(control)
+	err = s.RemoveSysConfig(&req)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "删除失败")
-		e.Logger.Errorf("Orm获取失败, error:%s", err)
+		e.Error(500, err, "删除失败")
 		return
 	}
-	e.OK(control.GetId(), "删除成功")
+	e.OK(req.GetId(), "删除成功")
 }
 
 // GetSysConfigByKEYForService 根据Key获取SysConfig的Service
@@ -309,7 +296,7 @@ func (e SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	var resp = new(dto.GetSysConfigByKEYForServiceResp)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req,nil).
+		Bind(req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -320,7 +307,6 @@ func (e SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 
 	err = s.GetSysConfigByKEY(req, resp)
 	if err != nil {
-		e.Logger.Errorf("通过Key获取配置失败, error:%s", err)
 		e.Error(500, err, err.Error())
 		return
 	}

@@ -32,28 +32,27 @@ type SysDictData struct {
 // @Security Bearer
 func (e SysDictData) GetSysDictDataList(c *gin.Context) {
 	s := service.SysDictData{}
-	d := &dto.SysDictDataSearch{}
+	req := dto.SysDictDataSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d, binding.Form).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
 	list := make([]models.SysDictData, 0)
 	var count int64
-	err = s.GetPage(d, &list, &count)
+	err = s.GetPage(&req, &list, &count)
 	if err != nil {
-		e.Logger.Errorf("GetPage error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 
-	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
 // GetSysDictData
@@ -66,21 +65,21 @@ func (e SysDictData) GetSysDictDataList(c *gin.Context) {
 // @Security Bearer
 func (e SysDictData) GetSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
-	d := &dto.SysDictDataById{}
+	req := dto.SysDictDataById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
 	var object models.SysDictData
 
-	err = s.Get(d, &object)
+	err = s.Get(&req, &object)
 	if err != nil {
 		e.Logger.Warnf("Get error: %s", err.Error())
 		e.Error(http.StatusInternalServerError, err, "查询失败")
@@ -103,29 +102,25 @@ func (e SysDictData) GetSysDictData(c *gin.Context) {
 // @Security Bearer
 func (e SysDictData) InsertSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
-	d := &dto.SysDictDataControl{}
+	req := dto.SysDictDataControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
-	// 设置创建人
-	d.SetCreateBy(user.GetUserId(c))
-
-	err = s.Insert(d)
+	req.SetCreateBy(user.GetUserId(c))
+	err = s.Insert(&req)
 	if err != nil {
-		e.Logger.Errorf("Insert error, %s", err)
-		e.Error(http.StatusInternalServerError, err, "创建失败")
+		e.Error(500, err, "创建失败")
 		return
 	}
 
-	e.OK(d.GetId(), "创建成功")
+	e.OK(req.GetId(), "创建成功")
 }
 
 // UpdateSysDictData
@@ -141,26 +136,24 @@ func (e SysDictData) InsertSysDictData(c *gin.Context) {
 // @Security Bearer
 func (e SysDictData) UpdateSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
-	d := &dto.SysDictDataControl{}
+	req := dto.SysDictDataControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
-	d.SetUpdateBy(user.GetUserId(c))
-	err = s.Update(d)
+	req.SetUpdateBy(user.GetUserId(c))
+	err = s.Update(&req)
 	if err != nil {
-		e.Logger.Errorf("Update error, %s", err)
-		e.Error(http.StatusInternalServerError, err, "更新失败")
+		e.Error(500, err, "更新失败")
 		return
 	}
-	e.OK(d.GetId(), "更新成功")
+	e.OK(req.GetId(), "更新成功")
 }
 
 // DeleteSysDictData
@@ -174,28 +167,24 @@ func (e SysDictData) UpdateSysDictData(c *gin.Context) {
 // @Security Bearer
 func (e SysDictData) DeleteSysDictData(c *gin.Context) {
 	s := service.SysDictData{}
-	d := new(dto.SysDictDataById)
+	req := dto.SysDictDataById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
-	// 设置编辑人
-	d.SetUpdateBy(user.GetUserId(c))
-
-	err = s.Remove(d)
+	req.SetUpdateBy(user.GetUserId(c))
+	err = s.Remove(&req)
 	if err != nil {
-		e.Logger.Errorf("Remove error, %s", err)
-		e.Error(http.StatusInternalServerError, err, "删除失败")
+		e.Error(500, err, "删除失败")
 		return
 	}
-	e.OK(d.GetId(), "删除成功")
+	e.OK(req.GetId(), "删除成功")
 }
 
 // GetSysDictDataAll 数据字典根据key获取 业务页面使用
@@ -209,26 +198,22 @@ func (e SysDictData) DeleteSysDictData(c *gin.Context) {
 // @Security Bearer
 func (e SysDictData) GetSysDictDataAll(c *gin.Context) {
 	s := service.SysDictData{}
-	d := &dto.SysDictDataSearch{}
+	req := dto.SysDictDataSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d, binding.Form).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
 	list := make([]models.SysDictData, 0)
-
-	err = s.GetAll(d, &list)
+	err = s.GetAll(&req, &list)
 	if err != nil {
-		e.Logger.Errorf("GetAll error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-
 	e.OK(list, "查询成功")
 }

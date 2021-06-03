@@ -38,8 +38,8 @@ func (e SysUser) GetSysUserList(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -51,7 +51,7 @@ func (e SysUser) GetSysUserList(c *gin.Context) {
 
 	err = s.GetSysUserPage(&req, p, &list, &count)
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 
@@ -75,8 +75,8 @@ func (e SysUser) GetSysUser(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 	var object models.SysUser
@@ -109,8 +109,8 @@ func (e SysUser) InsertSysUser(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 	// 设置创建人
@@ -118,7 +118,7 @@ func (e SysUser) InsertSysUser(c *gin.Context) {
 	err = s.InsertSysUser(&req)
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -144,8 +144,8 @@ func (e SysUser) UpdateSysUser(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -179,8 +179,8 @@ func (e SysUser) DeleteSysUser(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -215,8 +215,8 @@ func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 	// 数据权限检查
@@ -231,7 +231,7 @@ func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
 		err = c.SaveUploadedFile(file, filPath)
 		if err != nil {
 			e.Logger.Errorf("save file error, %s", err.Error())
-			e.Error(http.StatusInternalServerError, err, "")
+			e.Error(500, err, "")
 			return
 		}
 	}
@@ -265,8 +265,8 @@ func (e SysUser) UpdateSysUserStatus(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -302,8 +302,8 @@ func (e SysUser) ResetSysUserPwd(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -339,8 +339,8 @@ func (e SysUser) UpdateSysUserPwd(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -371,8 +371,8 @@ func (e SysUser) GetSysUserProfile(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
@@ -384,7 +384,7 @@ func (e SysUser) GetSysUserProfile(c *gin.Context) {
 	err = s.GetSysUserProfile(&req, user, &roles, &posts)
 	if err != nil {
 		e.Logger.Errorf("get user profile error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "获取用户信息失败")
+		e.Error(500, err, "获取用户信息失败")
 		return
 	}
 	e.OK(gin.H{
@@ -402,8 +402,8 @@ func (e SysUser) GetInfo(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 

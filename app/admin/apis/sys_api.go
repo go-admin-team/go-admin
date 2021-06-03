@@ -1,10 +1,8 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin/binding"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
@@ -33,29 +31,28 @@ type SysApi struct {
 // @Router /api/v1/sys-api [get]
 // @Security Bearer
 func (e SysApi) GetSysApiList(c *gin.Context) {
-	s := new(service.SysApi)
-	d := new(dto.SysApiSearch)
+	s := service.SysApi{}
+	req := dto.SysApiSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d, binding.Form).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 	list := make([]models.SysApi, 0)
 	var count int64
-	err = s.GetSysApiPage(d, p, &list, &count)
+	err = s.GetSysApiPage(&req, p, &list, &count)
 	if err != nil {
-		e.Logger.Errorf("Get SysApi Page error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-	e.PageOK(list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
 // GetSysApi 获取接口管理
@@ -67,30 +64,25 @@ func (e SysApi) GetSysApiList(c *gin.Context) {
 // @Router /api/v1/sys-api/{id} [get]
 // @Security Bearer
 func (e SysApi) GetSysApi(c *gin.Context) {
-	control := new(dto.SysApiById)
-	s := new(service.SysApi)
+	req := dto.SysApiById{}
+	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control, nil).
+		Bind(&req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
-
-	var object models.SysApi
-
-	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
-
-	err = s.GetSysApi(control, p, &object).Error
+	var object models.SysApi
+	err = s.GetSysApi(&req, p, &object).Error
 	if err != nil {
-		e.Logger.Errorf("Get SysApi error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
-
 	e.OK(object, "查看成功")
 }
 
@@ -105,27 +97,22 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 // @Router /api/v1/sys-api/{id} [put]
 // @Security Bearer
 func (e SysApi) UpdateSysApi(c *gin.Context) {
-	req := new(dto.SysApiControl)
-	s := new(service.SysApi)
+	req := dto.SysApiControl{}
+	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
-
 	req.SetUpdateBy(user.GetUserId(c))
-
-	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
-
-	err = s.UpdateSysApi(req, p)
+	err = s.UpdateSysApi(&req, p)
 	if err != nil {
-		e.Logger.Errorf("Update SysApi error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "更新失败")
+		e.Error(500, err, "更新失败")
 		return
 	}
 	e.OK(req.GetId(), "更新成功")
@@ -140,30 +127,23 @@ func (e SysApi) UpdateSysApi(c *gin.Context) {
 // @Router /api/v1/sys-api [delete]
 // @Security Bearer
 func (e SysApi) DeleteSysApi(c *gin.Context) {
-
-	control := new(dto.SysApiById)
+	req := dto.SysApiById{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(control, binding.Form).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
-
-	// 设置编辑人
-	control.SetUpdateBy(user.GetUserId(c))
-
-	// 数据权限检查
+	req.SetUpdateBy(user.GetUserId(c))
 	p := actions.GetPermissionFromContext(c)
-
-	err = s.RemoveSysApi(control, p)
+	err = s.RemoveSysApi(&req, p)
 	if err != nil {
-		e.Logger.Errorf("Remove SysApi error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "删除失败")
+		e.Error(500, err, "删除失败")
 		return
 	}
-	e.OK(control.GetId(), "删除成功")
+	e.OK(req.GetId(), "删除成功")
 }
