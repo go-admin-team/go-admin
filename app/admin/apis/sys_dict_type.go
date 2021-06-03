@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"net/http"
 
@@ -34,7 +35,7 @@ func (e SysDictType) GetSysDictTypeList(c *gin.Context) {
 	d := &dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(d, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

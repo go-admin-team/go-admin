@@ -81,6 +81,11 @@ func (m *SysConfigByKeyReq) GetNeedSearch() interface{} {
 	return *m
 }
 
+type GetSysConfigByKEYForServiceResp struct {
+	ConfigKey   string `json:"configKey" comment:""`
+	ConfigValue string `json:"configValue" comment:""`
+}
+
 // SysConfigById 获取单个或者删除的结构体
 type SysConfigById struct {
 	Id  int   `uri:"id"`

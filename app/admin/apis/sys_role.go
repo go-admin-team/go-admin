@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"go-admin/app/admin/models"
 	"net/http"
@@ -32,11 +33,11 @@ type SysRole struct {
 // @Router /api/v1/role [get]
 // @Security Bearer
 func (e SysRole) GetSysRoleList(c *gin.Context) {
-	s := new(service.SysRole)
-	req := new(dto.SysRoleSearch)
+	s := service.SysRole{}
+	req := dto.SysRoleSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -48,7 +49,7 @@ func (e SysRole) GetSysRoleList(c *gin.Context) {
 	list := make([]models.SysRole, 0)
 	var count int64
 
-	err = s.GetSysRolePage(req, &list, &count)
+	err = s.GetSysRolePage(&req, &list, &count)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -68,10 +69,10 @@ func (e SysRole) GetSysRoleList(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) GetSysRole(c *gin.Context) {
 	s := service.SysRole{}
-	req := new(dto.SysRoleById)
+	req := dto.SysRoleById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -82,7 +83,7 @@ func (e SysRole) GetSysRole(c *gin.Context) {
 
 	var object models.SysRole
 
-	err = s.GetSysRole(req, &object)
+	err = s.GetSysRole(&req, &object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -104,10 +105,10 @@ func (e SysRole) GetSysRole(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) InsertSysRole(c *gin.Context) {
 	s := service.SysRole{}
-	req := new(dto.SysRoleControl)
+	req := dto.SysRoleControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -122,7 +123,7 @@ func (e SysRole) InsertSysRole(c *gin.Context) {
 		req.Status = "2"
 	}
 
-	err = s.InsertSysRole(req)
+	err = s.InsertSysRole(&req)
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")

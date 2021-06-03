@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"net/http"
 
@@ -21,7 +22,7 @@ func (e SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 	d := new(dto.SysLoginLogSearch)
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(d).
+		Bind(d, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
