@@ -4,9 +4,6 @@ import (
 	"go-admin/app/admin/models"
 	common "go-admin/common/models"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
 	"go-admin/common/dto"
 )
 
@@ -23,16 +20,6 @@ type SysPostSearch struct {
 
 func (m *SysPostSearch) GetNeedSearch() interface{} {
 	return *m
-}
-
-// Bind 映射上下文中的结构体数据
-func (m *SysPostSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 // SysPostControl 增、改使用的结构体
@@ -91,20 +78,6 @@ func (s *SysPostById) GetId() interface{} {
 		return s.Ids
 	}
 	return s.Id
-}
-
-func (s *SysPostById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 func (s *SysPostById) GenerateM() (*models.SysPost, error) {

@@ -1,12 +1,9 @@
 package dto
 
 import (
-	"go-admin/app/admin/models"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
+	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -49,20 +46,6 @@ type SysOperaLogControl struct {
 	UserAgent     string    `json:"userAgent" comment:"ua"`
 }
 
-func (s *SysOperaLogControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
 func (s *SysOperaLogControl) Generate() (*models.SysOperaLog, error) {
 	return &models.SysOperaLog{
 		Model:         common.Model{Id: s.ID},
@@ -102,20 +85,6 @@ func (s *SysOperaLogById) GetId() interface{} {
 		return s.Ids
 	}
 	return s.Id
-}
-
-func (s *SysOperaLogById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(&s.Ids)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 func (s *SysOperaLogById) SetUpdateBy(id int) {

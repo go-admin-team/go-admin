@@ -1,10 +1,8 @@
 package dto
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-admin/app/admin/models"
 
-	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -23,20 +21,6 @@ type SysDictTypeOrder struct {
 
 func (m *SysDictTypeSearch) GetNeedSearch() interface{} {
 	return *m
-}
-
-func (m *SysDictTypeSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
-func (m *SysDictTypeSearch) Generate() dto.Index {
-	o := *m
-	return &o
 }
 
 type SysDictTypeControl struct {

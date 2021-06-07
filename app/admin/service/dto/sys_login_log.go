@@ -4,9 +4,6 @@ import (
 	"go-admin/app/admin/models"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -29,15 +26,6 @@ func (m *SysLoginLogSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-func (m *SysLoginLogSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
 type SysLoginLogControl struct {
 	ID            int       `uri:"Id" comment:"主键"` // 主键
 	Username      string    `json:"username" comment:"用户名"`
@@ -50,20 +38,6 @@ type SysLoginLogControl struct {
 	LoginTime     time.Time `json:"loginTime" comment:"登录时间"`
 	Remark        string    `json:"remark" comment:"备注"`
 	Msg           string    `json:"msg" comment:"信息"`
-}
-
-func (s *SysLoginLogControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 func (s *SysLoginLogControl) Generate() (*models.SysLoginLog, error) {
@@ -94,20 +68,6 @@ type SysLoginLogById struct {
 
 func (s *SysLoginLogById) GetId() interface{} {
 	return s.Id
-}
-
-func (s *SysLoginLogById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(&s.Ids)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 func (s *SysLoginLogById) Generate() *SysLoginLogById {
