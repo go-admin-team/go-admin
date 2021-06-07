@@ -2,11 +2,10 @@ package tools
 
 import (
 	"errors"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-
-	"gorm.io/gorm"
 
 	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"gorm.io/gorm"
 )
 
 type DBColumns struct {
