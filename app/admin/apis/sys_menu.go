@@ -17,7 +17,7 @@ type SysMenu struct {
 	api.Api
 }
 
-// GetSysMenuList Menu列表数据
+// GetPage Menu列表数据
 // @Summary Menu列表数据
 // @Description 获取JSON
 // @Tags 菜单
@@ -26,7 +26,7 @@ type SysMenu struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [get]
 // @Security Bearer
-func (e SysMenu) GetList(c *gin.Context) {
+func (e SysMenu) GetPage(c *gin.Context) {
 	s := service.SysMenu{}
 	req := dto.SysMenuSearch{}
 	err := e.MakeContext(c).
@@ -48,7 +48,7 @@ func (e SysMenu) GetList(c *gin.Context) {
 	e.OK(list, "查询成功")
 }
 
-// GetSysMenu 获取菜单详情
+// Get 获取菜单详情
 // @Summary Menu详情数据
 // @Description 获取JSON
 // @Tags 菜单
@@ -79,7 +79,7 @@ func (e SysMenu) Get(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-// InsertSysMenu 创建菜单
+// Insert 创建菜单
 // @Summary 创建菜单
 // @Description 获取JSON
 // @Tags 菜单
@@ -112,7 +112,7 @@ func (e SysMenu) Insert(c *gin.Context) {
 	e.OK(req.GetId(), "创建成功")
 }
 
-// UpdateSysMenu 修改菜单
+// Update 修改菜单
 // @Summary 修改菜单
 // @Description 获取JSON
 // @Tags 菜单
@@ -146,7 +146,7 @@ func (e SysMenu) Update(c *gin.Context) {
 	e.OK(req.GetId(), "更新成功")
 }
 
-// DeleteSysMenu 删除菜单
+// Delete 删除菜单
 // @Summary 删除菜单
 // @Description 删除数据
 // @Tags 菜单

@@ -15,7 +15,7 @@ type SysLoginLog struct {
 	api.Api
 }
 
-// GetSysLoginLogList 登录日志列表
+// GetPage 登录日志列表
 // @Summary 登录日志列表
 // @Description 获取JSON
 // @Tags 登录日志
@@ -28,7 +28,7 @@ type SysLoginLog struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-login-log [get]
 // @Security Bearer
-func (e SysLoginLog) GetList(c *gin.Context) {
+func (e SysLoginLog) GetPage(c *gin.Context) {
 	s := service.SysLoginLog{}
 	req := dto.SysLoginLogSearch {}
 	err := e.MakeContext(c).

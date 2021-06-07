@@ -17,7 +17,7 @@ type SysDept struct {
 	api.Api
 }
 
-// GetList
+// GetPage
 // @Summary 分页部门列表数据
 // @Description 分页列表
 // @Tags 部门
@@ -27,7 +27,7 @@ type SysDept struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept [get]
 // @Security Bearer
-func (e SysDept) GetList(c *gin.Context) {
+func (e SysDept) GetPage(c *gin.Context) {
 	s := service.SysDept{}
 	req := dto.SysDeptSearch{}
 	err := e.MakeContext(c).

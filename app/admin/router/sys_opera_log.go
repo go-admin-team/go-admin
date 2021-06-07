@@ -18,6 +18,6 @@ func registerSysOperaLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMi
 	{
 		r.GET("", api.GetPage)
 		r.GET("/:id", api.Get)
-		r.DELETE("", api.Remove)
+		r.DELETE("", api.Delete)
 	}
 }

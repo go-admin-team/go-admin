@@ -16,10 +16,10 @@ func registerSyPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 	api := apis.SysPost{}
 	r := v1.Group("/post").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysPostList)
-		r.GET("/:id", api.GetSysPost)
-		r.POST("", api.InsertSysPost)
-		r.PUT("/:id", api.UpdateSysPost)
-		r.DELETE("/:id", api.DeleteSysPost)
+		r.GET("", api.GetPage)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("/:id", api.Update)
+		r.DELETE("/:id", api.Delete)
 	}
 }

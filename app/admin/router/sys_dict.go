@@ -17,14 +17,14 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 
-		dicts.GET("/data", dataApi.GetList)
+		dicts.GET("/data", dataApi.GetPage)
 		dicts.GET("/data/:dictCode", dataApi.Get)
 		dicts.POST("/data", dataApi.Insert)
 		dicts.PUT("/data/:dictCode", dataApi.Update)
 		dicts.DELETE("/data", dataApi.Delete)
 
-		dicts.GET("/type-option-select", dictApi.GetSysDictTypeAll)
-		dicts.GET("/type", dictApi.GetList)
+		dicts.GET("/type-option-select", dictApi.GetAll)
+		dicts.GET("/type", dictApi.GetPage)
 		dicts.GET("/type/:id", dictApi.Get)
 		dicts.POST("/type", dictApi.Insert)
 		dicts.PUT("/type/:id", dictApi.Update)

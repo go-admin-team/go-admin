@@ -150,7 +150,7 @@ func (e *SysMenu) Remove(d *dto.SysMenuById) *SysMenu {
 	return e
 }
 
-// GetSysMenuList 获取菜单数据
+// GetList 获取菜单数据
 func (e *SysMenu) GetList(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
 	var err error
 	var data models.SysMenu
@@ -167,7 +167,7 @@ func (e *SysMenu) GetList(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
 	return nil
 }
 
-// SetSysMenuLabel 设置菜单数据
+// SetLabel 修改角色中 设置菜单基础数据
 func (e *SysMenu) SetLabel() (m []dto.MenuLabel, err error) {
 	var list []models.SysMenu
 	err = e.GetList(&dto.SysMenuSearch{}, &list)

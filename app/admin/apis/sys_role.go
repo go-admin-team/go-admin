@@ -20,7 +20,7 @@ type SysRole struct {
 	api.Api
 }
 
-// GetList
+// GetPage
 // @Summary 角色列表数据
 // @Description Get JSON
 // @Tags 角色/Role
@@ -32,7 +32,7 @@ type SysRole struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/role [get]
 // @Security Bearer
-func (e SysRole) GetList(c *gin.Context) {
+func (e SysRole) GetPage(c *gin.Context) {
 	s := service.SysRole{}
 	req := dto.SysRoleSearch{}
 	err := e.MakeContext(c).
@@ -122,8 +122,8 @@ func (e SysRole) Insert(c *gin.Context) {
 	if req.Status == "" {
 		req.Status = "2"
 	}
-
-	err = s.Insert(&req)
+	cb := sdk.Runtime.GetCasbinKey(c.Request.Host)
+	err = s.Insert(&req, cb)
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(500, err, "创建失败")
@@ -148,7 +148,7 @@ func (e SysRole) Insert(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/role/{id} [put]
 // @Security Bearer
-func (e SysRole) Update (c *gin.Context) {
+func (e SysRole) Update(c *gin.Context) {
 	s := service.SysRole{}
 	req := dto.SysRoleControl{}
 	err := e.MakeContext(c).

@@ -18,7 +18,7 @@ type SysDictType struct {
 	api.Api
 }
 
-// GetSysDictTypeList 字典类型列表数据
+// GetPage 字典类型列表数据
 // @Summary 字典类型列表数据
 // @Description 获取JSON
 // @Tags 字典类型
@@ -30,7 +30,7 @@ type SysDictType struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type [get]
 // @Security Bearer
-func (e SysDictType) GetList(c *gin.Context) {
+func (e SysDictType) GetPage(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).
@@ -53,7 +53,7 @@ func (e SysDictType) GetList(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// GetSysDictType 字典类型通过字典id获取
+// Get 字典类型通过字典id获取
 // @Summary 字典类型通过字典id获取
 // @Description 获取JSON
 // @Tags 字典类型
@@ -83,7 +83,7 @@ func (e SysDictType) Get(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-//InsertSysDictType 字典类型创建
+//Insert 字典类型创建
 // @Summary 添加字典类型
 // @Description 获取JSON
 // @Tags 字典类型
@@ -117,7 +117,7 @@ func (e SysDictType) Insert(c *gin.Context) {
 	e.OK(req.GetId(), "创建成功")
 }
 
-// UpdateSysDictType
+// Update
 // @Summary 修改字典类型
 // @Description 获取JSON
 // @Tags 字典类型
@@ -150,7 +150,7 @@ func (e SysDictType) Update(c *gin.Context) {
 	e.OK(req.GetId(), "更新成功")
 }
 
-// DeleteSysDictType
+// Delete
 // @Summary 删除字典类型
 // @Description 删除数据
 // @Tags 字典类型
@@ -180,7 +180,7 @@ func (e SysDictType) Delete(c *gin.Context) {
 	e.OK(req.GetId(), "删除成功")
 }
 
-// GetSysDictTypeAll
+// GetAll
 // @Summary 字典类型全部数据 代码生成使用接口
 // @Description 获取JSON
 // @Tags 字典类型
@@ -190,7 +190,7 @@ func (e SysDictType) Delete(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type-option-select [get]
 // @Security Bearer
-func (e SysDictType) GetSysDictTypeAll(c *gin.Context) {
+func (e SysDictType) GetAll(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).

@@ -18,7 +18,7 @@ type SysDictData struct {
 	api.Api
 }
 
-// GetList
+// GetPage
 // @Summary 字典数据列表
 // @Description 获取JSON
 // @Tags 字典数据
@@ -30,7 +30,7 @@ type SysDictData struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data [get]
 // @Security Bearer
-func (e SysDictData) GetList(c *gin.Context) {
+func (e SysDictData) GetPage(c *gin.Context) {
 	s := service.SysDictData{}
 	req := dto.SysDictDataSearch{}
 	err := e.MakeContext(c).

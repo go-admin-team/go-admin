@@ -10,8 +10,8 @@ import (
 // SysMenuSearch 列表或者搜索使用结构体
 type SysMenuSearch struct {
 	dto.Pagination `search:"-"`
-	Title          string `form:"title" search:"type:contains;column:title;table:sys_menu" comment:"菜单名称"`     // 菜单名称
-	Visible        int `form:"visible" search:"type:exact;column:visible;table:sys_menu" comment:"显示状态"` // 显示状态
+	Title          string `form:"title" search:"type:contains;column:title;table:sys_menu" comment:"菜单名称"`  // 菜单名称
+	Visible        int    `form:"visible" search:"type:exact;column:visible;table:sys_menu" comment:"显示状态"` // 显示状态
 }
 
 func (m *SysMenuSearch) GetNeedSearch() interface{} {
@@ -108,9 +108,9 @@ func (s *SysMenuById) GenerateM() (*models.SysMenu, error) {
 }
 
 type MenuLabel struct {
-	Id       int         `json:"id" gorm:"-"`
-	Label    string      `json:"label" gorm:"-"`
-	Children []MenuLabel `json:"children" gorm:"-"`
+	Id       int         `json:"id,omitempty" gorm:"-"`
+	Label    string      `json:"label,omitempty" gorm:"-"`
+	Children []MenuLabel `json:"children,omitempty" gorm:"-"`
 }
 
 type MenuRole struct {

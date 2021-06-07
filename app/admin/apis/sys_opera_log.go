@@ -86,7 +86,7 @@ func (e SysOperaLog) Get(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-// Remove 操作日志删除
+// Delete 操作日志删除
 // DeleteSysMenu 操作日志删除
 // @Summary 删除操作日志
 // @Description 删除数据
@@ -94,7 +94,7 @@ func (e SysOperaLog) Get(c *gin.Context) {
 // @Param data body dto.SysOperaLogById true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log [delete]
-func (e SysOperaLog) Remove(c *gin.Context) {
+func (e SysOperaLog) Delete(c *gin.Context) {
 	s := new(service.SysOperaLog)
 	req := new(dto.SysOperaLogById)
 	err := e.MakeContext(c).

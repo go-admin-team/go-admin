@@ -17,7 +17,7 @@ func registerSysLoginLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMi
 
 	r := v1.Group("/sys-login-log").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetList)
+		r.GET("", api.GetPage)
 		r.GET("/:id", api.Get)
 		r.DELETE("", api.Delete)
 	}

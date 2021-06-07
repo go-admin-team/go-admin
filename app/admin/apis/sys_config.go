@@ -15,7 +15,7 @@ type SysConfig struct {
 	api.Api
 }
 
-// GetList 获取配置管理列表
+// GetPage 获取配置管理列表
 // @Summary 获取配置管理列表
 // @Description 获取配置管理列表
 // @Tags 配置管理
@@ -28,7 +28,7 @@ type SysConfig struct {
 // @Success 200 {object} response.Response{data=response.Page{list=[]models.SysApi}} "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-config [get]
 // @Security Bearer
-func (e SysConfig) GetList(c *gin.Context) {
+func (e SysConfig) GetPage(c *gin.Context) {
 	s := service.SysConfig{}
 	req := dto.SysConfigSearch{}
 	err := e.MakeContext(c).
