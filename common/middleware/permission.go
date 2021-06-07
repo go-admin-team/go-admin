@@ -22,7 +22,6 @@ func AuthCheckRole() gin.HandlerFunc {
 		//检查权限
 		if v["rolekey"] == "admin" {
 			res = true
-			log.Infof("info:%s method:%s path:%s", v["rolekey"], c.Request.Method, c.Request.URL.Path)
 		} else {
 			res, err = e.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
 			if err != nil {
