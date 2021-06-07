@@ -17,16 +17,16 @@ func registerSysDeptRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 
 	r := v1.Group("/dept").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysDeptList)
-		r.GET("/:id", api.GetSysDept)
-		r.POST("", api.InsertSysDept)
-		r.PUT("/:id", api.UpdateSysDept)
-		r.DELETE("/:id", api.DeleteSysDept)
+		r.GET("", api.GetList)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("/:id", api.Update)
+		r.DELETE("/:id", api.Delete)
 	}
 
 	r1 := v1.Group("").Use(authMiddleware.MiddlewareFunc())
 	{
-		r1.GET("/deptTree", api.GetDeptTree)
+		r1.GET("/deptTree", api.Get2Tree)
 	}
 
 }

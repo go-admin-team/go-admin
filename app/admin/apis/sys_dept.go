@@ -17,7 +17,7 @@ type SysDept struct {
 	api.Api
 }
 
-// GetSysDeptList
+// GetList
 // @Summary 分页部门列表数据
 // @Description 分页列表
 // @Tags 部门
@@ -27,7 +27,7 @@ type SysDept struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept [get]
 // @Security Bearer
-func (e SysDept) GetSysDeptList(c *gin.Context) {
+func (e SysDept) GetList(c *gin.Context) {
 	s := service.SysDept{}
 	req := dto.SysDeptSearch{}
 	err := e.MakeContext(c).
@@ -49,7 +49,7 @@ func (e SysDept) GetSysDeptList(c *gin.Context) {
 	e.OK(list, "查询成功")
 }
 
-// GetSysDept
+// Get
 // @Summary 部门列表数据
 // @Description 获取JSON
 // @Tags 部门
@@ -58,12 +58,12 @@ func (e SysDept) GetSysDeptList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dept/{deptId} [get]
 // @Security Bearer
-func (e SysDept) GetSysDept(c *gin.Context) {
-	s :=service.SysDept{}
+func (e SysDept) Get(c *gin.Context) {
+	s := service.SysDept{}
 	req := dto.SysDeptById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -73,7 +73,7 @@ func (e SysDept) GetSysDept(c *gin.Context) {
 	}
 	var object models.SysDept
 
-	err = s.GetSysDept(&req, &object)
+	err = s.Get(&req, &object)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -82,7 +82,7 @@ func (e SysDept) GetSysDept(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-// InsertSysDept 添加部门
+// Insert 添加部门
 // @Summary 添加部门
 // @Description 获取JSON
 // @Tags 部门
@@ -93,12 +93,12 @@ func (e SysDept) GetSysDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept [post]
 // @Security Bearer
-func (e SysDept) InsertSysDept(c *gin.Context) {
+func (e SysDept) Insert(c *gin.Context) {
 	s := service.SysDept{}
 	req := dto.SysDeptControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -109,7 +109,7 @@ func (e SysDept) InsertSysDept(c *gin.Context) {
 
 	// 设置创建人
 	req.SetCreateBy(user.GetUserId(c))
-	err = s.InsertSysDept(&req)
+	err = s.Insert(&req)
 	if err != nil {
 		e.Error(500, err, "创建失败")
 		return
@@ -117,7 +117,7 @@ func (e SysDept) InsertSysDept(c *gin.Context) {
 	e.OK(req.GetId(), "创建成功")
 }
 
-// UpdateSysDept
+// Update
 // @Summary 修改部门
 // @Description 获取JSON
 // @Tags 部门
@@ -129,12 +129,12 @@ func (e SysDept) InsertSysDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept/{deptId} [put]
 // @Security Bearer
-func (e SysDept) UpdateSysDept(c *gin.Context) {
+func (e SysDept) Update(c *gin.Context) {
 	s := service.SysDept{}
 	req := dto.SysDeptControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -143,7 +143,7 @@ func (e SysDept) UpdateSysDept(c *gin.Context) {
 		return
 	}
 	req.SetUpdateBy(user.GetUserId(c))
-	err = s.UpdateSysDept(&req)
+	err = s.Update(&req)
 	if err != nil {
 		e.Error(500, err, err.Error())
 		return
@@ -151,7 +151,7 @@ func (e SysDept) UpdateSysDept(c *gin.Context) {
 	e.OK(req.GetId(), "更新成功")
 }
 
-// DeleteSysDept
+// Delete
 // @Summary 删除部门
 // @Description 删除数据
 // @Tags 部门
@@ -159,12 +159,12 @@ func (e SysDept) UpdateSysDept(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dept [delete]
-func (e SysDept) DeleteSysDept(c *gin.Context) {
+func (e SysDept) Delete(c *gin.Context) {
 	s := service.SysDept{}
 	req := dto.SysDeptById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -173,7 +173,7 @@ func (e SysDept) DeleteSysDept(c *gin.Context) {
 		return
 	}
 
-	err = s.RemoveSysDept(&req)
+	err = s.Remove(&req)
 	if err != nil {
 		e.Error(500, err, "删除失败")
 		return
@@ -181,13 +181,13 @@ func (e SysDept) DeleteSysDept(c *gin.Context) {
 	e.OK(req.GetId(), "删除成功")
 }
 
-// GetDeptTree 用户管理 左侧部门树
-func (e SysDept) GetDeptTree(c *gin.Context) {
+// Get2Tree 用户管理 左侧部门树
+func (e SysDept) Get2Tree(c *gin.Context) {
 	s := service.SysDept{}
 	req := dto.SysDeptSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req,binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -195,9 +195,7 @@ func (e SysDept) GetDeptTree(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-
 	list := make([]dto.DeptLabel, 0)
-
 	list, err = s.SetDeptTree(&req)
 	if err != nil {
 		e.Error(500, err, "查询失败")
@@ -227,7 +225,7 @@ func (e SysDept) GetDeptTreeRoleSelect(c *gin.Context) {
 	}
 	menuIds := make([]int, 0)
 	if id != 0 {
-		menuIds, err = s.GetRoleDeptId(id)
+		menuIds, err = s.GetWithRoleId(id)
 		if err != nil {
 			e.Error(500, err, err.Error())
 			return

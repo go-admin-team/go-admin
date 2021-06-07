@@ -69,7 +69,7 @@ func registerBaseRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		v1auth.GET("/roleMenuTreeselect/:roleId", api.GetMenuTreeSelect)
-		v1.GET("/menuTreeselect", api.GetMenuTreeSelect)
+		//v1.GET("/menuTreeselect", api.GetMenuTreeSelect)
 		v1auth.GET("/roleDeptTreeselect/:roleId", api2.GetDeptTreeRoleSelect)
 		v1auth.POST("/logout", handler.LogOut)
 	}

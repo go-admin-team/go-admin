@@ -26,7 +26,7 @@ type SysMenu struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [get]
 // @Security Bearer
-func (e SysMenu) GetSysMenuList(c *gin.Context) {
+func (e SysMenu) GetList(c *gin.Context) {
 	s := service.SysMenu{}
 	req := dto.SysMenuSearch{}
 	err := e.MakeContext(c).
@@ -39,8 +39,8 @@ func (e SysMenu) GetSysMenuList(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	var list = make([]models.SysMenu, 1)
-	err = s.GetSysMenuPage(&req, &list).Error
+	var list = make([]models.SysMenu, 0)
+	err = s.GetPage(&req, &list).Error
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -56,7 +56,7 @@ func (e SysMenu) GetSysMenuList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu/{id} [get]
 // @Security Bearer
-func (e SysMenu) GetSysMenu(c *gin.Context) {
+func (e SysMenu) Get(c *gin.Context) {
 	req := dto.SysMenuById{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
@@ -71,7 +71,7 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 	}
 	var object = models.SysMenu{}
 
-	err = s.GetSysMenu(&req, &object).Error
+	err = s.Get(&req, &object).Error
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -89,7 +89,7 @@ func (e SysMenu) GetSysMenu(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [post]
 // @Security Bearer
-func (e SysMenu) InsertSysMenu(c *gin.Context) {
+func (e SysMenu) Insert(c *gin.Context) {
 	req := dto.SysMenuControl{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
@@ -104,7 +104,7 @@ func (e SysMenu) InsertSysMenu(c *gin.Context) {
 	}
 	// 设置创建人
 	req.SetCreateBy(user.GetUserId(c))
-	err = s.InsertSysMenu(&req).Error
+	err = s.Insert(&req).Error
 	if err != nil {
 		e.Error(500, err, "创建失败")
 		return
@@ -123,7 +123,7 @@ func (e SysMenu) InsertSysMenu(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu/{id} [put]
 // @Security Bearer
-func (e SysMenu) UpdateSysMenu(c *gin.Context) {
+func (e SysMenu) Update(c *gin.Context) {
 	req := dto.SysMenuControl{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
@@ -138,7 +138,7 @@ func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 	}
 
 	req.SetUpdateBy(user.GetUserId(c))
-	err = s.UpdateSysMenu(&req).Error
+	err = s.Update(&req).Error
 	if err != nil {
 		e.Error(500, err, "更新失败")
 		return
@@ -153,7 +153,7 @@ func (e SysMenu) UpdateSysMenu(c *gin.Context) {
 // @Param data body dto.SysMenuById true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [delete]
-func (e SysMenu) DeleteSysMenu(c *gin.Context) {
+func (e SysMenu) Delete(c *gin.Context) {
 	control := new(dto.SysMenuById)
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
@@ -166,7 +166,7 @@ func (e SysMenu) DeleteSysMenu(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	err = s.RemoveSysMenu(control).Error
+	err = s.Remove(control).Error
 	if err != nil {
 		e.Logger.Errorf("RemoveSysMenu error, %s", err)
 		e.Error(http.StatusInternalServerError, err, "删除失败")
@@ -205,7 +205,7 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 }
 
 // GetMenuIDS 获取角色对应的菜单id数组
-// @Summary 获取角色对应的菜单id数组
+// @Summary 获取角色对应的菜单id数组，设置角色权限使用
 // @Description 获取JSON
 // @Tags 菜单
 // @Param id path int true "id"
@@ -261,7 +261,7 @@ func (e SysMenu) GetMenuTreeSelect(c *gin.Context) {
 		return
 	}
 
-	result, err := m.SetSysMenuLabel()
+	result, err := m.SetLabel()
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return

@@ -17,11 +17,11 @@ func registerSysRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	api := apis.SysRole{}
 	r := v1.Group("/role").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysRoleList)
-		r.GET("/:id", api.GetSysRole)
-		r.POST("", api.InsertSysRole)
-		r.PUT("/:id", api.UpdateSysRole)
-		r.DELETE("", api.DeleteSysRole)
+		r.GET("", api.GetList)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("/:id", api.Update)
+		r.DELETE("", api.Delete)
 	}
-	v1.PUT("/roledatascope", api.UpdateRoleDataScope)
+	v1.PUT("/roledatascope", api.Update2DataScope)
 }

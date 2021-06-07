@@ -16,11 +16,11 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 	api := apis.SysConfig{}
 	r := v1.Group("/config").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysConfigList)
-		r.GET("/:id", api.GetSysConfig)
-		r.POST("", api.InsertSysConfig)
-		r.PUT("/:id", api.UpdateSysConfig)
-		r.DELETE("", api.DeleteSysConfig)
+		r.GET("", api.GetList)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("/:id", api.Update)
+		r.DELETE("", api.Delete)
 	}
 
 	r1 := v1.Group("/configKey").Use(authMiddleware.MiddlewareFunc())
@@ -35,8 +35,8 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 
 	r3 := v1.Group("/set-config")
 	{
-		r3.PUT("", api.UpdateSetSysConfig)
-		r3.GET("", api.GetSetSysConfig)
+		r3.PUT("", api.Update2Set)
+		r3.GET("", api.Get2Set)
 	}
 
 }

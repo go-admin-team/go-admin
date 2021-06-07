@@ -28,7 +28,7 @@ type SysLoginLog struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-login-log [get]
 // @Security Bearer
-func (e SysLoginLog) GetSysLoginLogList(c *gin.Context) {
+func (e SysLoginLog) GetList(c *gin.Context) {
 	s := service.SysLoginLog{}
 	req := dto.SysLoginLogSearch {}
 	err := e.MakeContext(c).
@@ -43,7 +43,7 @@ func (e SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 	}
 	list := make([]models.SysLoginLog, 0)
 	var count int64
-	err = s.GetSysLoginLogPage(&req, &list, &count)
+	err = s.GetPage(&req, &list, &count)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -59,7 +59,7 @@ func (e SysLoginLog) GetSysLoginLogList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-login-log/{id} [get]
 // @Security Bearer
-func (e SysLoginLog) GetSysLoginLog(c *gin.Context) {
+func (e SysLoginLog) Get(c *gin.Context) {
 	s := service.SysLoginLog{}
 	req := dto.SysLoginLogById{}
 	err := e.MakeContext(c).
@@ -73,7 +73,7 @@ func (e SysLoginLog) GetSysLoginLog(c *gin.Context) {
 		return
 	}
 	var object models.SysLoginLog
-	err = s.GetSysLoginLog(&req, &object)
+	err = s.Get(&req, &object)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -88,7 +88,7 @@ func (e SysLoginLog) GetSysLoginLog(c *gin.Context) {
 // @Param data body dto.SysLoginLogById true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-login-log [delete]
-func (e SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
+func (e SysLoginLog) Delete(c *gin.Context) {
 	s := service.SysLoginLog{}
 	req := dto.SysLoginLogById{}
 	err := e.MakeContext(c).
@@ -102,7 +102,7 @@ func (e SysLoginLog) DeleteSysLoginLog(c *gin.Context) {
 		return
 	}
 	req.SetUpdateBy(user.GetUserId(c))
-	err = s.RemoveSysLoginLog(&req)
+	err = s.Remove(&req)
 	if err != nil {
 		e.Error(500, err, "删除失败")
 		return

@@ -17,8 +17,8 @@ func registerSysApiRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 	api := apis.SysApi{}
 	r := v1.Group("/sys-api").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysApiList)
-		r.GET("/:id", api.GetSysApi)
-		r.PUT("/:id", api.UpdateSysApi)
+		r.GET("", api.GetPage)
+		r.GET("/:id", api.Get)
+		r.PUT("/:id", api.Update)
 	}
 }

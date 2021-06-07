@@ -16,8 +16,8 @@ func registerSysOperaLogRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMi
 	api := apis.SysOperaLog{}
 	r := v1.Group("/sys-opera-log").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysOperaLogList)
-		r.GET("/:id", api.GetSysOperaLog)
-		r.DELETE("", api.DeleteSysOperaLog)
+		r.GET("", api.GetPage)
+		r.GET("/:id", api.Get)
+		r.DELETE("", api.Remove)
 	}
 }

@@ -25,9 +25,8 @@ type SysUser struct {
 // @Description 获取JSON
 // @Tags 用户
 // @Param username query string false "username"
-// @Success 200 {string} string "{"code": 200, "data": [...]}"
-// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
-// @Router /api/v1/sysUser [get]
+// @Success 200 {string} {object} response.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/sys-user [get]
 // @Security Bearer
 func (e SysUser) GetSysUserList(c *gin.Context) {
 	s := service.SysUser{}
@@ -97,8 +96,7 @@ func (e SysUser) GetSysUser(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param data body dto.SysUserControl true "用户数据"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sysUser [post]
 func (e SysUser) InsertSysUser(c *gin.Context) {
 	s := service.SysUser{}
@@ -132,9 +130,8 @@ func (e SysUser) InsertSysUser(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param data body dto.SysUserControl true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
-// @Router /api/v1/sysuser/{userId} [put]
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/sys-user/{userId} [put]
 func (e SysUser) UpdateSysUser(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.SysUserControl{}
@@ -167,15 +164,14 @@ func (e SysUser) UpdateSysUser(c *gin.Context) {
 // @Description 删除数据
 // @Tags 用户
 // @Param userId path int true "userId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sysuser/{userId} [delete]
 func (e SysUser) DeleteSysUser(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.SysUserById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.JSON, nil).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -204,8 +200,7 @@ func (e SysUser) DeleteSysUser(c *gin.Context) {
 // @Tags 用户
 // @Accept multipart/form-data
 // @Param file formData file true "file"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/avatar [post]
 func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
 	s := service.SysUser{}
@@ -253,15 +248,14 @@ func (e SysUser) InsetSysUserAvatar(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param data body dto.UpdateSysUserStatusReq true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/status [put]
 func (e SysUser) UpdateSysUserStatus(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.UpdateSysUserStatusReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -290,15 +284,14 @@ func (e SysUser) UpdateSysUserStatus(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param data body dto.ResetSysUserPwdReq true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/pwd/reset [put]
 func (e SysUser) ResetSysUserPwd(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.ResetSysUserPwdReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -378,22 +371,29 @@ func (e SysUser) GetSysUserProfile(c *gin.Context) {
 
 	req.Id = user.GetUserId(c)
 
-	user := new(models.SysUser)
+	sysUser := models.SysUser{}
 	roles := make([]models.SysRole, 0)
 	posts := make([]models.SysPost, 0)
-	err = s.GetSysUserProfile(&req, user, &roles, &posts)
+	err = s.GetSysUserProfile(&req, &sysUser, &roles, &posts)
 	if err != nil {
 		e.Logger.Errorf("get user profile error, %s", err.Error())
 		e.Error(500, err, "获取用户信息失败")
 		return
 	}
 	e.OK(gin.H{
-		"user":  user,
+		"user":  sysUser,
 		"roles": roles,
 		"posts": posts,
 	}, "查询成功")
 }
 
+// GetInfo
+// @Summary 获取个人信息
+// @Description 获取JSON
+// @Tags 个人中心
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/getinfo [get]
+// @Security Bearer
 func (e SysUser) GetInfo(c *gin.Context) {
 	req := dto.SysUserById{}
 	s := service.SysUser{}
@@ -406,10 +406,7 @@ func (e SysUser) GetInfo(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-
-	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
-
 	var roles = make([]string, 1)
 	roles[0] = user.GetRoleName(c)
 
@@ -433,7 +430,7 @@ func (e SysUser) GetInfo(c *gin.Context) {
 		mp["buttons"] = list
 	}
 
-	var sysUser models.SysUser
+	sysUser := models.SysUser{}
 
 	req.Id = user.GetUserId(c)
 

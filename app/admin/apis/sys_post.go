@@ -68,7 +68,7 @@ func (e SysPost) GetSysPost(c *gin.Context) {
 	req := dto.SysPostById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -103,7 +103,7 @@ func (e SysPost) InsertSysPost(c *gin.Context) {
 	req := dto.SysPostControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -141,7 +141,7 @@ func (e SysPost) UpdateSysPost(c *gin.Context) {
 	req := dto.SysPostControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -173,7 +173,7 @@ func (e SysPost) DeleteSysPost(c *gin.Context) {
 	req := dto.SysPostById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

@@ -17,18 +17,18 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	dicts := v1.Group("/dict").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 
-		dicts.GET("/data", dataApi.GetSysDictDataList)
-		dicts.GET("/data/:dictCode", dataApi.GetSysDictData)
-		dicts.POST("/data", dataApi.InsertSysDictData)
-		dicts.PUT("/data/:dictCode", dataApi.UpdateSysDictData)
-		dicts.DELETE("/data", dataApi.DeleteSysDictData)
+		dicts.GET("/data", dataApi.GetList)
+		dicts.GET("/data/:dictCode", dataApi.Get)
+		dicts.POST("/data", dataApi.Insert)
+		dicts.PUT("/data/:dictCode", dataApi.Update)
+		dicts.DELETE("/data", dataApi.Delete)
 
 		dicts.GET("/type-option-select", dictApi.GetSysDictTypeAll)
-		dicts.GET("/type", dictApi.GetSysDictTypeList)
-		dicts.GET("/type/:id", dictApi.GetSysDictType)
-		dicts.POST("/type", dictApi.InsertSysDictType)
-		dicts.PUT("/type/:id", dictApi.UpdateSysDictType)
-		dicts.DELETE("/type", dictApi.DeleteSysDictType)
+		dicts.GET("/type", dictApi.GetList)
+		dicts.GET("/type/:id", dictApi.Get)
+		dicts.POST("/type", dictApi.Insert)
+		dicts.PUT("/type/:id", dictApi.Update)
+		dicts.DELETE("/type", dictApi.Delete)
 	}
 	v1.Group("/dict-data").Use(authMiddleware.MiddlewareFunc()).GET("/option-select", dataApi.GetSysDictDataAll)
 }

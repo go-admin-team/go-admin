@@ -18,7 +18,7 @@ type SysDictData struct {
 	api.Api
 }
 
-// GetSysDictDataList
+// GetList
 // @Summary 字典数据列表
 // @Description 获取JSON
 // @Tags 字典数据
@@ -30,7 +30,7 @@ type SysDictData struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data [get]
 // @Security Bearer
-func (e SysDictData) GetSysDictDataList(c *gin.Context) {
+func (e SysDictData) GetList(c *gin.Context) {
 	s := service.SysDictData{}
 	req := dto.SysDictDataSearch{}
 	err := e.MakeContext(c).
@@ -63,7 +63,7 @@ func (e SysDictData) GetSysDictDataList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/data/{dictCode} [get]
 // @Security Bearer
-func (e SysDictData) GetSysDictData(c *gin.Context) {
+func (e SysDictData) Get(c *gin.Context) {
 	s := service.SysDictData{}
 	req := dto.SysDictDataById{}
 	err := e.MakeContext(c).
@@ -100,7 +100,7 @@ func (e SysDictData) GetSysDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data [post]
 // @Security Bearer
-func (e SysDictData) InsertSysDictData(c *gin.Context) {
+func (e SysDictData) Insert(c *gin.Context) {
 	s := service.SysDictData{}
 	req := dto.SysDictDataControl{}
 	err := e.MakeContext(c).
@@ -134,7 +134,7 @@ func (e SysDictData) InsertSysDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/data/{dictCode} [put]
 // @Security Bearer
-func (e SysDictData) UpdateSysDictData(c *gin.Context) {
+func (e SysDictData) Update(c *gin.Context) {
 	s := service.SysDictData{}
 	req := dto.SysDictDataControl{}
 	err := e.MakeContext(c).
@@ -165,7 +165,7 @@ func (e SysDictData) UpdateSysDictData(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/data/{dictCode} [delete]
 // @Security Bearer
-func (e SysDictData) DeleteSysDictData(c *gin.Context) {
+func (e SysDictData) Delete(c *gin.Context) {
 	s := service.SysDictData{}
 	req := dto.SysDictDataById{}
 	err := e.MakeContext(c).

@@ -15,7 +15,7 @@ type SysOperaLog struct {
 	api.Api
 }
 
-// GetSysOperaLogList 操作日志列表
+// GetPage 操作日志列表
 // @Summary 操作日志列表
 // @Description 获取JSON
 // @Tags 操作日志
@@ -30,7 +30,7 @@ type SysOperaLog struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log [get]
 // @Security Bearer
-func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
+func (e SysOperaLog) GetPage(c *gin.Context) {
 	s := service.SysOperaLog{}
 	req := new(dto.SysOperaLogSearch)
 	err := e.MakeContext(c).
@@ -47,7 +47,7 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	list := make([]models.SysOperaLog, 0)
 	var count int64
 
-	err = s.GetSysOperaLogPage(req, &list, &count)
+	err = s.GetPage(req, &list, &count)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -56,7 +56,7 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// GetSysOperaLog 操作日志通过id获取
+// Get 操作日志通过id获取
 // @Summary 操作日志通过id获取
 // @Description 获取JSON
 // @Tags 操作日志
@@ -64,7 +64,7 @@ func (e SysOperaLog) GetSysOperaLogList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log/{id} [get]
 // @Security Bearer
-func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
+func (e SysOperaLog) Get(c *gin.Context) {
 	s := new(service.SysOperaLog)
 	req := dto.SysOperaLogById{}
 	err := e.MakeContext(c).
@@ -78,7 +78,7 @@ func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 		return
 	}
 	var object models.SysOperaLog
-	err = s.GetSysOperaLog(&req, &object)
+	err = s.Get(&req, &object)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -86,7 +86,7 @@ func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-// DeleteSysOperaLog 操作日志删除
+// Remove 操作日志删除
 // DeleteSysMenu 操作日志删除
 // @Summary 删除操作日志
 // @Description 删除数据
@@ -94,7 +94,7 @@ func (e SysOperaLog) GetSysOperaLog(c *gin.Context) {
 // @Param data body dto.SysOperaLogById true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log [delete]
-func (e SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
+func (e SysOperaLog) Remove(c *gin.Context) {
 	s := new(service.SysOperaLog)
 	req := new(dto.SysOperaLogById)
 	err := e.MakeContext(c).
@@ -108,7 +108,7 @@ func (e SysOperaLog) DeleteSysOperaLog(c *gin.Context) {
 		return
 	}
 
-	err = s.RemoveSysOperaLog(req)
+	err = s.Remove(req)
 	if err != nil {
 		e.Logger.Error(err)
 		return

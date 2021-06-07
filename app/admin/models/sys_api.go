@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
@@ -52,7 +53,11 @@ func SaveSysApi(message storage.Messager) (err error) {
 	dbList := sdk.Runtime.GetDb()
 	for _, d := range dbList {
 		for _, v := range l.List {
-			if v.HttpMethod != "HEAD" {
+			if v.HttpMethod != "HEAD" ||
+				strings.Contains(v.RelativePath, "/swagger/") ||
+				strings.Contains(v.RelativePath, "/static/") ||
+				strings.Contains(v.RelativePath, "/form-generator/") ||
+				strings.Contains(v.RelativePath, "/sys/tables") {
 				err := d.Debug().Where(SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
 					Attrs(SysApi{Handle: v.Handler}).
 					FirstOrCreate(&SysApi{}).Error

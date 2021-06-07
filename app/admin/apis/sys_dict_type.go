@@ -30,7 +30,7 @@ type SysDictType struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type [get]
 // @Security Bearer
-func (e SysDictType) GetSysDictTypeList(c *gin.Context) {
+func (e SysDictType) GetList(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).
@@ -61,7 +61,7 @@ func (e SysDictType) GetSysDictTypeList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/{dictId} [get]
 // @Security Bearer
-func (e SysDictType) GetSysDictType(c *gin.Context) {
+func (e SysDictType) Get(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeById{}
 	err := e.MakeContext(c).
@@ -94,7 +94,7 @@ func (e SysDictType) GetSysDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/type [post]
 // @Security Bearer
-func (e SysDictType) InsertSysDictType(c *gin.Context) {
+func (e SysDictType) Insert(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeControl{}
 	err := e.MakeContext(c).
@@ -128,7 +128,7 @@ func (e SysDictType) InsertSysDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dict/type/{dictId} [put]
 // @Security Bearer
-func (e SysDictType) UpdateSysDictType(c *gin.Context) {
+func (e SysDictType) Update(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeControl{}
 	err := e.MakeContext(c).
@@ -158,7 +158,7 @@ func (e SysDictType) UpdateSysDictType(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/type/{dictId} [delete]
-func (e SysDictType) DeleteSysDictType(c *gin.Context) {
+func (e SysDictType) Delete(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeById{}
 	err := e.MakeContext(c).

@@ -27,9 +27,6 @@ func InitExamplesRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gi
 func examplesNoCheckRoleRouter(r *gin.Engine) {
 	// 可根据业务需求来设置接口版本
 	v1 := r.Group("/api/v1")
-	// 空接口防止v1定义无使用报错
-	v1.GET("/nilcheckrole", nil)
-
 	for _, f := range routerNoCheckRole {
 		f(v1)
 	}
@@ -39,9 +36,6 @@ func examplesNoCheckRoleRouter(r *gin.Engine) {
 func examplesCheckRoleRouter(r *gin.Engine, authMiddleware *jwtauth.GinJWTMiddleware) {
 	// 可根据业务需求来设置接口版本
 	v1 := r.Group("/api/v1")
-	// 空接口防止v1定义无使用报错
-	v1.GET("/checkrole", nil)
-
 	for _, f := range routerCheckRole {
 		f(v1, authMiddleware)
 	}

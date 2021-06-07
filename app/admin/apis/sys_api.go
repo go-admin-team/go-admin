@@ -17,7 +17,7 @@ type SysApi struct {
 	api.Api
 }
 
-// GetSysApiList 获取接口管理列表
+// GetPage 获取接口管理列表
 // @Summary 获取接口管理列表
 // @Description 获取接口管理列表
 // @Tags 接口管理
@@ -30,7 +30,7 @@ type SysApi struct {
 // @Success 200 {object} response.Response{data=response.Page{list=[]models.SysApi}} "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-api [get]
 // @Security Bearer
-func (e SysApi) GetSysApiList(c *gin.Context) {
+func (e SysApi) GetPage(c *gin.Context) {
 	s := service.SysApi{}
 	req := dto.SysApiSearch{}
 	err := e.MakeContext(c).
@@ -47,7 +47,7 @@ func (e SysApi) GetSysApiList(c *gin.Context) {
 	p := actions.GetPermissionFromContext(c)
 	list := make([]models.SysApi, 0)
 	var count int64
-	err = s.GetSysApiPage(&req, p, &list, &count)
+	err = s.GetPage(&req, p, &list, &count)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -55,7 +55,7 @@ func (e SysApi) GetSysApiList(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// GetSysApi 获取接口管理
+// Get 获取接口管理
 // @Summary 获取接口管理
 // @Description 获取接口管理
 // @Tags 接口管理
@@ -63,7 +63,7 @@ func (e SysApi) GetSysApiList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=models.SysApi} "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-api/{id} [get]
 // @Security Bearer
-func (e SysApi) GetSysApi(c *gin.Context) {
+func (e SysApi) Get(c *gin.Context) {
 	req := dto.SysApiById{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
@@ -78,7 +78,7 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 	}
 	p := actions.GetPermissionFromContext(c)
 	var object models.SysApi
-	err = s.GetSysApi(&req, p, &object).Error
+	err = s.Get(&req, p, &object).Error
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -86,7 +86,7 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-// UpdateSysApi 修改接口管理
+// Update 修改接口管理
 // @Summary 修改接口管理
 // @Description 修改接口管理
 // @Tags 接口管理
@@ -96,7 +96,7 @@ func (e SysApi) GetSysApi(c *gin.Context) {
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
 // @Router /api/v1/sys-api/{id} [put]
 // @Security Bearer
-func (e SysApi) UpdateSysApi(c *gin.Context) {
+func (e SysApi) Update(c *gin.Context) {
 	req := dto.SysApiControl{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
@@ -110,7 +110,7 @@ func (e SysApi) UpdateSysApi(c *gin.Context) {
 	}
 	req.SetUpdateBy(user.GetUserId(c))
 	p := actions.GetPermissionFromContext(c)
-	err = s.UpdateSysApi(&req, p)
+	err = s.Update(&req, p)
 	if err != nil {
 		e.Error(500, err, "更新失败")
 		return
@@ -140,7 +140,7 @@ func (e SysApi) DeleteSysApi(c *gin.Context) {
 	}
 	req.SetUpdateBy(user.GetUserId(c))
 	p := actions.GetPermissionFromContext(c)
-	err = s.RemoveSysApi(&req, p)
+	err = s.Remove(&req, p)
 	if err != nil {
 		e.Error(500, err, "删除失败")
 		return

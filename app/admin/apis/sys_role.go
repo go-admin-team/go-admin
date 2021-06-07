@@ -20,7 +20,7 @@ type SysRole struct {
 	api.Api
 }
 
-// GetSysRoleList
+// GetList
 // @Summary 角色列表数据
 // @Description Get JSON
 // @Tags 角色/Role
@@ -32,7 +32,7 @@ type SysRole struct {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/role [get]
 // @Security Bearer
-func (e SysRole) GetSysRoleList(c *gin.Context) {
+func (e SysRole) GetList(c *gin.Context) {
 	s := service.SysRole{}
 	req := dto.SysRoleSearch{}
 	err := e.MakeContext(c).
@@ -49,16 +49,16 @@ func (e SysRole) GetSysRoleList(c *gin.Context) {
 	list := make([]models.SysRole, 0)
 	var count int64
 
-	err = s.GetSysRolePage(&req, &list, &count)
+	err = s.GetPage(&req, &list, &count)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// GetSysRole
+// Get
 // @Summary 获取Role数据
 // @Description 获取JSON
 // @Tags 角色/Role
@@ -67,12 +67,12 @@ func (e SysRole) GetSysRoleList(c *gin.Context) {
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/role/{id} [get]
 // @Security Bearer
-func (e SysRole) GetSysRole(c *gin.Context) {
+func (e SysRole) Get(c *gin.Context) {
 	s := service.SysRole{}
 	req := dto.SysRoleById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -83,7 +83,7 @@ func (e SysRole) GetSysRole(c *gin.Context) {
 
 	var object models.SysRole
 
-	err = s.GetSysRole(&req, &object)
+	err = s.Get(&req, &object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -92,7 +92,7 @@ func (e SysRole) GetSysRole(c *gin.Context) {
 	e.OK(object, "查看成功")
 }
 
-// InsertSysRole
+// Insert
 // @Summary 创建角色
 // @Description 获取JSON
 // @Tags 角色/Role
@@ -103,12 +103,12 @@ func (e SysRole) GetSysRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/role [post]
 // @Security Bearer
-func (e SysRole) InsertSysRole(c *gin.Context) {
+func (e SysRole) Insert(c *gin.Context) {
 	s := service.SysRole{}
 	req := dto.SysRoleControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -123,21 +123,21 @@ func (e SysRole) InsertSysRole(c *gin.Context) {
 		req.Status = "2"
 	}
 
-	err = s.InsertSysRole(&req)
+	err = s.Insert(&req)
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(http.StatusInternalServerError, err, "创建失败")
+		e.Error(500, err, "创建失败")
 		return
 	}
 	_, err = global.LoadPolicy(c)
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	e.OK(req.GetId(), "创建成功")
 }
 
-// UpdateSysRole 修改用户角色
+// Update 修改用户角色
 // @Summary 修改用户角色
 // @Description 获取JSON
 // @Tags 角色/Role
@@ -148,12 +148,12 @@ func (e SysRole) InsertSysRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/role/{id} [put]
 // @Security Bearer
-func (e SysRole) UpdateSysRole(c *gin.Context) {
+func (e SysRole) Update (c *gin.Context) {
 	s := service.SysRole{}
-	req := new(dto.SysRoleControl)
+	req := dto.SysRoleControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req, nil, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -165,7 +165,7 @@ func (e SysRole) UpdateSysRole(c *gin.Context) {
 
 	req.SetUpdateBy(user.GetUserId(c))
 
-	err = s.UpdateSysRole(req, cb)
+	err = s.Update(&req, cb)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -178,7 +178,7 @@ func (e SysRole) UpdateSysRole(c *gin.Context) {
 	e.OK(req.GetId(), "更新成功")
 }
 
-// DeleteSysRole
+// Delete
 // @Summary 删除用户角色
 // @Description 删除数据
 // @Tags 角色/Role
@@ -187,12 +187,12 @@ func (e SysRole) UpdateSysRole(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/role [delete]
 // @Security Bearer
-func (e SysRole) DeleteSysRole(c *gin.Context) {
+func (e SysRole) Delete(c *gin.Context) {
 	s := new(service.SysRole)
-	req := new(dto.SysRoleById)
+	req := dto.SysRoleById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -201,7 +201,7 @@ func (e SysRole) DeleteSysRole(c *gin.Context) {
 		return
 	}
 
-	err = s.RemoveSysRole(req)
+	err = s.Remove(&req)
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "")
@@ -215,13 +215,13 @@ func (e SysRole) DeleteSysRole(c *gin.Context) {
 	e.OK(req.GetId(), "删除成功")
 }
 
-// UpdateRoleDataScope 更新角色数据权限
-func (e SysRole) UpdateRoleDataScope(c *gin.Context) {
+// Update2DataScope 更新角色数据权限
+func (e SysRole) Update2DataScope(c *gin.Context) {
 	s := &service.SysRole{}
-	req := new(dto.RoleDataScopeReq)
+	req := dto.RoleDataScopeReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -235,7 +235,6 @@ func (e SysRole) UpdateRoleDataScope(c *gin.Context) {
 		DeptIds:   req.DeptIds,
 	}
 	data.UpdateBy = user.GetUserId(c)
-
 	err = s.UpdateDataScope(data)
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "")
