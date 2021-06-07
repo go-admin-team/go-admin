@@ -15,8 +15,8 @@ type SysOperaLog struct {
 	service.Service
 }
 
-// GetSysOperaLogPage 获取SysOperaLog列表
-func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]models.SysOperaLog, count *int64) error {
+// GetPage 获取SysOperaLog列表
+func (e *SysOperaLog) GetPage(c *dto.SysOperaLogSearch, list *[]models.SysOperaLog, count *int64) error {
 	var err error
 	var data models.SysOperaLog
 
@@ -34,8 +34,8 @@ func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]model
 	return nil
 }
 
-// GetSysOperaLog 获取SysOperaLog对象
-func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *models.SysOperaLog) error {
+// Get 获取SysOperaLog对象
+func (e *SysOperaLog) Get(d *dto.SysOperaLogById, model *models.SysOperaLog) error {
 	var data models.SysOperaLog
 
 	err := e.Orm.Model(&data).
@@ -52,8 +52,8 @@ func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *models.SysOp
 	return nil
 }
 
-// InsertSysOperaLog 创建SysOperaLog对象
-func (e *SysOperaLog) InsertSysOperaLog(model *models.SysOperaLog) error {
+// Insert 创建SysOperaLog对象
+func (e *SysOperaLog) Insert(model *models.SysOperaLog) error {
 	var err error
 	var data models.SysOperaLog
 
@@ -66,25 +66,8 @@ func (e *SysOperaLog) InsertSysOperaLog(model *models.SysOperaLog) error {
 	return nil
 }
 
-// UpdateSysOperaLog 修改SysOperaLog对象
-func (e *SysOperaLog) UpdateSysOperaLog(c *models.SysOperaLog) error {
-	var err error
-
-	db := e.Orm.Model(c).
-		Where(c.GetId()).Updates(c)
-	if err = db.Error; err != nil {
-		e.Log.Errorf("Service UpdateSysOperaLog error:%s", err.Error())
-		return err
-	}
-	if db.RowsAffected == 0 {
-		return errors.New("无权更新该数据")
-
-	}
-	return nil
-}
-
-// RemoveSysOperaLog 删除SysOperaLog
-func (e *SysOperaLog) RemoveSysOperaLog(d *dto.SysOperaLogById) error {
+// Remove 删除SysOperaLog
+func (e *SysOperaLog) Remove(d *dto.SysOperaLogById) error {
 	var err error
 	var data models.SysOperaLog
 

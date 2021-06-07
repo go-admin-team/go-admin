@@ -1,13 +1,8 @@
 package dto
 
 import (
-	"encoding/json"
 	"go-admin/app/admin/models"
 	common "go-admin/common/models"
-
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/common/dto"
 )
@@ -39,16 +34,6 @@ func (m *SysRoleSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-// Bind 映射上下文中的结构体数据
-func (m *SysRoleSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
 // SysConfigControl 增、改使用的结构体
 type SysRoleControl struct {
 	RoleId    int              `uri:"id" comment:"角色编码"`        // 角色编码
@@ -73,28 +58,7 @@ func (s *SysRoleControl) SetUpdateBy(id int) {
 	s.UpdateBy = id
 }
 
-// Bind 映射上下文中的结构体数据
-func (s *SysRoleControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindBodyWith(s, binding.JSON)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	err = ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	var jsonStr []byte
-	jsonStr, err = json.Marshal(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	ctx.Set("body", string(jsonStr))
-	return err
-}
-
-// Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
+// Generate 结构体数据转化
 func (s *SysRoleControl) Generate(model *models.SysRole) {
 	if s.RoleId != 0 {
 		model.RoleId = s.RoleId
@@ -107,7 +71,7 @@ func (s *SysRoleControl) Generate(model *models.SysRole) {
 	model.Remark = s.Remark
 	model.Admin = s.Admin
 	model.DataScope = s.DataScope
-	model.SysMenu = s.SysMenu
+	model.SysMenu = &s.SysMenu
 
 }
 

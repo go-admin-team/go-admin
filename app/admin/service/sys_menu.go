@@ -19,9 +19,9 @@ type SysMenu struct {
 }
 
 // GetSysMenuPage 获取SysMenu列表
-func (e *SysMenu) GetSysMenuPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) *SysMenu {
+func (e *SysMenu) GetPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) *SysMenu {
 	var menu = make([]models.SysMenu, 0)
-	err := e.getSysMenuPage(c, &menu).Error
+	err := e.getPage(c, &menu).Error
 	if err != nil {
 		_ = e.AddError(err)
 		return e
@@ -37,7 +37,7 @@ func (e *SysMenu) GetSysMenuPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) 
 }
 
 // getSysMenuPage 菜单分页列表
-func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu {
+func (e *SysMenu) getPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -56,7 +56,7 @@ func (e *SysMenu) getSysMenuPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *
 }
 
 // GetSysMenu 获取SysMenu对象
-func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) *SysMenu {
+func (e *SysMenu) Get(d *dto.SysMenuById, model *models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -83,7 +83,7 @@ func (e *SysMenu) GetSysMenu(d *dto.SysMenuById, model *models.SysMenu) *SysMenu
 }
 
 // InsertSysMenu 创建SysMenu对象
-func (e *SysMenu) InsertSysMenu(c *dto.SysMenuControl) *SysMenu {
+func (e *SysMenu) Insert(c *dto.SysMenuControl) *SysMenu {
 	var err error
 	var data models.SysMenu
 	c.Generate(&data)
@@ -114,7 +114,7 @@ func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 }
 
 // UpdateSysMenu 修改SysMenu对象
-func (e *SysMenu) UpdateSysMenu(c *dto.SysMenuControl) *SysMenu {
+func (e *SysMenu) Update(c *dto.SysMenuControl) *SysMenu {
 	var err error
 	var model = models.SysMenu{}
 	e.Orm.First(&model, c.GetId())
@@ -133,7 +133,7 @@ func (e *SysMenu) UpdateSysMenu(c *dto.SysMenuControl) *SysMenu {
 }
 
 // RemoveSysMenu 删除SysMenu
-func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) *SysMenu {
+func (e *SysMenu) Remove(d *dto.SysMenuById) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -151,7 +151,7 @@ func (e *SysMenu) RemoveSysMenu(d *dto.SysMenuById) *SysMenu {
 }
 
 // GetSysMenuList 获取菜单数据
-func (e *SysMenu) GetSysMenuList(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
+func (e *SysMenu) GetList(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
 	var err error
 	var data models.SysMenu
 
@@ -168,9 +168,9 @@ func (e *SysMenu) GetSysMenuList(c *dto.SysMenuSearch, list *[]models.SysMenu) e
 }
 
 // SetSysMenuLabel 设置菜单数据
-func (e *SysMenu) SetSysMenuLabel() (m []dto.MenuLabel, err error) {
+func (e *SysMenu) SetLabel() (m []dto.MenuLabel, err error) {
 	var list []models.SysMenu
-	err = e.GetSysMenuList(&dto.SysMenuSearch{}, &list)
+	err = e.GetList(&dto.SysMenuSearch{}, &list)
 
 	m = make([]dto.MenuLabel, 0)
 	for i := 0; i < len(list); i++ {
@@ -188,12 +188,18 @@ func (e *SysMenu) SetSysMenuLabel() (m []dto.MenuLabel, err error) {
 }
 
 // GetSysMenuByRoleName 左侧菜单
-func (e *SysMenu) GetSysMenuByRoleName(roleName string) ([]models.SysMenu, error) {
+func (e *SysMenu) GetSysMenuByRoleName(roleName ...string) ([]models.SysMenu, error) {
 	var MenuList []models.SysMenu
 	var role models.SysRole
 	var err error
+	admin := false
+	for _, s := range roleName {
+		if s == "admin" {
+			admin = true
+		}
+	}
 
-	if roleName == "admin" {
+	if len(roleName) > 0 && admin {
 		var data []models.SysMenu
 		err = e.Orm.Where(" menu_type in ('M','C')").
 			Order("sort").
@@ -203,9 +209,9 @@ func (e *SysMenu) GetSysMenuByRoleName(roleName string) ([]models.SysMenu, error
 	} else {
 		err = e.Orm.Model(&role).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
 			return db.Where(" menu_type in ('M','C')").Order("sort")
-		}).Where("role_name=?", roleName).Find(&role).
+		}).Where("role_name in ?", roleName).Find(&role).
 			Error
-		MenuList = role.SysMenu
+		MenuList = *role.SysMenu
 	}
 
 	if err != nil {
@@ -215,8 +221,8 @@ func (e *SysMenu) GetSysMenuByRoleName(roleName string) ([]models.SysMenu, error
 }
 
 // menuLabelCall 递归构造组织数据
-func menuLabelCall(elist *[]models.SysMenu, dept dto.MenuLabel) dto.MenuLabel {
-	list := *elist
+func menuLabelCall(eList *[]models.SysMenu, dept dto.MenuLabel) dto.MenuLabel {
+	list := *eList
 
 	min := make([]dto.MenuLabel, 0)
 	for j := 0; j < len(list); j++ {
@@ -229,7 +235,7 @@ func menuLabelCall(elist *[]models.SysMenu, dept dto.MenuLabel) dto.MenuLabel {
 		mi.Label = list[j].Title
 		mi.Children = []dto.MenuLabel{}
 		if list[j].MenuType != "F" {
-			ms := menuLabelCall(elist, mi)
+			ms := menuLabelCall(eList, mi)
 			min = append(min, ms)
 		} else {
 			min = append(min, mi)
@@ -309,7 +315,7 @@ func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
 		err = e.Orm.Model(&role).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
 			return db.Where(" menu_type in ('M','C')").Order("sort")
 		}).Where("role_name=?", roleName).Find(&role).Error
-		MenuList = role.SysMenu
+		MenuList = *role.SysMenu
 	}
 
 	if err != nil {

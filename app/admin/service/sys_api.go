@@ -18,8 +18,8 @@ type SysApi struct {
 	service.Service
 }
 
-// GetSysApiPage 获取SysApi列表
-func (e *SysApi) GetSysApiPage(c *dto.SysApiSearch, p *actions.DataPermission, list *[]models.SysApi, count *int64) error {
+// GetPage 获取SysApi列表
+func (e *SysApi) GetPage(c *dto.SysApiSearch, p *actions.DataPermission, list *[]models.SysApi, count *int64) error {
 	var err error
 	var data models.SysApi
 
@@ -38,8 +38,8 @@ func (e *SysApi) GetSysApiPage(c *dto.SysApiSearch, p *actions.DataPermission, l
 	return nil
 }
 
-// GetSysApi 获取SysApi对象
-func (e *SysApi) GetSysApi(d *dto.SysApiById, p *actions.DataPermission, model *models.SysApi) *SysApi {
+// Get 获取SysApi对象with id
+func (e *SysApi) Get(d *dto.SysApiById, p *actions.DataPermission, model *models.SysApi) *SysApi {
 	var data models.SysApi
 	err := e.Orm.Model(&data).
 		Scopes(
@@ -60,22 +60,8 @@ func (e *SysApi) GetSysApi(d *dto.SysApiById, p *actions.DataPermission, model *
 	return e
 }
 
-// CheckStorageSysApi 创建SysApi对象
-func (e *SysApi) CheckStorageSysApi(c *[]runtime.Router) error {
-	for _, v := range *c {
-		err := e.Orm.Debug().Where(models.SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
-			Attrs(models.SysApi{Handle: v.Handler}).
-			FirstOrCreate(&models.SysApi{}).Error
-		if err != nil {
-			err := fmt.Errorf("Service CheckStorageSysApi error: %s \r\n ", err.Error())
-			return err
-		}
-	}
-	return nil
-}
-
-// UpdateSysApi 修改SysApi对象
-func (e *SysApi) UpdateSysApi(c *dto.SysApiControl, p *actions.DataPermission) error {
+// Update 修改SysApi对象
+func (e *SysApi) Update(c *dto.SysApiControl, p *actions.DataPermission) error {
 	var model = models.SysApi{}
 	db := e.Orm.Debug().First(&model, c.GetId())
 	if db.RowsAffected == 0 {
@@ -91,8 +77,8 @@ func (e *SysApi) UpdateSysApi(c *dto.SysApiControl, p *actions.DataPermission) e
 	return nil
 }
 
-// RemoveSysApi 删除SysApi
-func (e *SysApi) RemoveSysApi(d *dto.SysApiById, p *actions.DataPermission) error {
+// Remove 删除SysApi
+func (e *SysApi) Remove(d *dto.SysApiById, p *actions.DataPermission) error {
 	var data models.SysApi
 
 	db := e.Orm.Model(&data).
@@ -105,6 +91,20 @@ func (e *SysApi) RemoveSysApi(d *dto.SysApiById, p *actions.DataPermission) erro
 	}
 	if db.RowsAffected == 0 {
 		return errors.New("无权删除该数据")
+	}
+	return nil
+}
+
+// CheckStorageSysApi 创建SysApi对象
+func (e *SysApi) CheckStorageSysApi(c *[]runtime.Router) error {
+	for _, v := range *c {
+		err := e.Orm.Debug().Where(models.SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
+			Attrs(models.SysApi{Handle: v.Handler}).
+			FirstOrCreate(&models.SysApi{}).Error
+		if err != nil {
+			err := fmt.Errorf("Service CheckStorageSysApi error: %s \r\n ", err.Error())
+			return err
+		}
 	}
 	return nil
 }

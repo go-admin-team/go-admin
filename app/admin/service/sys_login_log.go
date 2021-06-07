@@ -16,7 +16,7 @@ type SysLoginLog struct {
 }
 
 // GetSysLoginLogPage 获取SysLoginLog列表
-func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginLog, count *int64) error {
+func (e *SysLoginLog) GetPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginLog, count *int64) error {
 	var err error
 	var data models.SysLoginLog
 
@@ -35,7 +35,7 @@ func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]model
 }
 
 // GetSysLoginLog 获取SysLoginLog对象
-func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *models.SysLoginLog) error {
+func (e *SysLoginLog) Get(d *dto.SysLoginLogById, model *models.SysLoginLog) error {
 	var err error
 	db := e.Orm.First(model, d.GetId())
 	err = db.Error
@@ -52,7 +52,7 @@ func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *models.SysLo
 }
 
 // RemoveSysLoginLog 删除SysLoginLog
-func (e *SysLoginLog) RemoveSysLoginLog(c *dto.SysLoginLogById) error {
+func (e *SysLoginLog) Remove(c *dto.SysLoginLogById) error {
 	var err error
 	var data models.SysLoginLog
 
