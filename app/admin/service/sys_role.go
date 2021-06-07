@@ -58,7 +58,7 @@ func (e *SysRole) Get(d *dto.SysRoleById, model *models.SysRole) error {
 }
 
 // Insert 创建SysRole对象
-func (e *SysRole) Insert(c *dto.SysRoleControl) error {
+func (e *SysRole) Insert(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error {
 	var err error
 	var data models.SysRole
 	var dataMenu []models.SysMenu
@@ -78,22 +78,28 @@ func (e *SysRole) Insert(c *dto.SysRoleControl) error {
 		}
 	}()
 
-	err = tx.Model(&data).
-		Create(c).Error
+	err = tx.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	if len(c.MenuIds) > 0 {
-		s := SysRoleMenu{}
-		s.Orm = e.Orm
-		s.Log = e.Log
-		err = s.ReloadRule(tx, c.RoleId, c.MenuIds)
-		if err != nil {
-			e.Log.Errorf("reload casbin rule error, %", err.Error())
-			return err
+
+	for _, menu := range dataMenu {
+		for _, api := range menu.SysApi {
+			_, err = cb.AddNamedPolicy("p", data.RoleKey, api.Path, api.Action)
 		}
 	}
+	_ = cb.SavePolicy()
+	//if len(c.MenuIds) > 0 {
+	//	s := SysRoleMenu{}
+	//	s.Orm = e.Orm
+	//	s.Log = e.Log
+	//	err = s.ReloadRule(tx, c.RoleId, c.MenuIds)
+	//	if err != nil {
+	//		e.Log.Errorf("reload casbin rule error, %", err.Error())
+	//		return err
+	//	}
+	//}
 	return nil
 }
 
