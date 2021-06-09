@@ -6,8 +6,6 @@ import (
 )
 
 type SysUser struct {
-	ControlBy
-	ModelTime
 	UserId   int    `gorm:"primaryKey;autoIncrement;comment:编码"  json:"userId"`
 	Username string `json:"username" gorm:"type:varchar(64);comment:用户名"`
 	Password string `json:"-" gorm:"type:varchar(128);comment:密码"`
@@ -22,6 +20,8 @@ type SysUser struct {
 	PostId   int    `json:"postId" gorm:"type:bigint(20);comment:岗位"`
 	Remark   string `json:"remark" gorm:"type:varchar(255);comment:备注"`
 	Status   string `json:"status" gorm:"type:varchar(4);comment:状态"`
+	ControlBy
+	ModelTime
 }
 
 func (SysUser) TableName() string {
