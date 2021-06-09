@@ -30,28 +30,6 @@ type SysMenu struct {
 	models.ModelTime
 }
 
-//type SysMenus struct {
-//	MenuId     int       `json:"menuId" gorm:"column:menu_id;primaryKey;autoIncrement;"`
-//	MenuName   string    `json:"menuName" gorm:"column:menu_name"`
-//	Title      string    `json:"title" gorm:"column:title"`
-//	Icon       string    `json:"icon" gorm:"column:icon"`
-//	Path       string    `json:"path" gorm:"column:path"`
-//	MenuType   string    `json:"menuType" gorm:"column:menu_type"`
-//	Action     string    `json:"action" gorm:"column:action"`
-//	Permission string    `json:"permission" gorm:"column:permission"`
-//	ParentId   int       `json:"parentId" gorm:"column:parent_id"`
-//	NoCache    bool      `json:"noCache" gorm:"column:no_cache"`
-//	Breadcrumb string    `json:"breadcrumb" gorm:"column:breadcrumb"`
-//	Component  string    `json:"component" gorm:"column:component"`
-//	Sort       int       `json:"sort" gorm:"column:sort"`
-//	Visible    string    `json:"visible" gorm:"column:visible"`
-//	Children   []SysMenu `json:"children" gorm:"-"`
-//	models.ControlBy
-//	models.ModelTime
-//	DataScope string `json:"dataScope" gorm:"-"`
-//	Params    string `json:"params" gorm:"-"`
-//}
-
 func (SysMenu) TableName() string {
 	return "sys_menu"
 }

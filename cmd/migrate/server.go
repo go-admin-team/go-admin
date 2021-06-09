@@ -49,7 +49,7 @@ func run() {
 	if !generate {
 		fmt.Println(`start init`)
 		//1. 读取配置
-		config.Setup(file.NewSource, file.WithPath(configYml))
+		config.Setup(file.NewSource(file.WithPath(configYml)))
 		//2. 设置日志
 		sdk.Runtime.SetLogger(
 			logger.SetupLogger(
