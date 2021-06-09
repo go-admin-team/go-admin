@@ -139,6 +139,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	}
 }
 
+// LogOut
 // @Summary 退出登录
 // @Description 获取token
 // LoginHandler can be used by clients to get a jwt token.
@@ -167,7 +168,6 @@ func Authorizator(data interface{}, c *gin.Context) bool {
 		c.Set("userId", u.UserId)
 		c.Set("userName", u.Username)
 		c.Set("dataScope", r.DataScope)
-
 		return true
 	}
 	return false
