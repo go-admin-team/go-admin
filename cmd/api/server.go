@@ -58,8 +58,7 @@ func setup() {
 	// 注入配置扩展项
 	config.ExtendConfig = &ext.ExtConfig
 	//1. 读取配置
-	config.Setup(file.NewSource, file.WithPath(configYml))
-	go config.Watch()
+	config.Setup(file.NewSource(file.WithPath(configYml)))
 	//2. 设置日志
 	sdk.Runtime.SetLogger(
 		logger.SetupLogger(
@@ -70,8 +69,6 @@ func setup() {
 	//3. 初始化数据库链接
 	database.Setup()
 
-	//list := sdk.Runtime.GetDb()
-	//list["*"]
 	//4. 设置缓存
 	cacheAdapter, err := config.CacheConfig.Setup()
 	if err != nil {
@@ -113,8 +110,6 @@ func setup() {
 }
 
 func run() error {
-	defer config.Stop()
-
 	if config.ApplicationConfig.Mode == pkg.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
