@@ -21,7 +21,6 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/router"
-	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
 	ext "go-admin/config"
@@ -126,11 +125,7 @@ func run() error {
 		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
 		Handler: sdk.Runtime.GetEngine(),
 	}
-	go func() {
-		jobs.InitJob()
-		jobs.Setup(sdk.Runtime.GetDb())
 
-	}()
 	if apiCheck {
 		var routers = sdk.Runtime.GetRouter()
 		q := sdk.Runtime.GetMemoryQueue("")

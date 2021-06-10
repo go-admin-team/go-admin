@@ -2,6 +2,8 @@ package tools
 
 import (
 	"bytes"
+	"go-admin/app/admin/service"
+	"go-admin/app/admin/service/dto"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,7 +15,6 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
-	"go-admin/app/admin/models"
 	"go-admin/app/admin/models/tools"
 )
 
@@ -250,14 +251,20 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 }
 
 func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
-	e.Context = c
-	log := e.GetLogger()
+	err := e.MakeContext(c).
+		MakeOrm().
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
 
 	basePath := "template/"
 
 	t1, err := template.ParseFiles(basePath + "api_migrate.template")
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(500, err, "")
 		return
 	}
@@ -273,8 +280,15 @@ func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 }
 
 func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
-	e.Context = c
-	log := api.GetRequestLogger(c)
+	err := e.MakeContext(c).
+		MakeOrm().
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
+
 	basePath := "template/v4/"
 	routerFile := basePath + "actions/router_check_role.go.template"
 
@@ -284,31 +298,31 @@ func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 
 	t1, err := template.ParseFiles(basePath + "model.go.template")
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(500, err, "")
 		return
 	}
 	t3, err := template.ParseFiles(routerFile)
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(500, err, "")
 		return
 	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(500, err, "")
 		return
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(500, err, "")
 		return
 	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
 	if err != nil {
-		log.Error(err)
+		e.Logger.Error(err)
 		e.Error(500, err, "")
 		return
 	}
@@ -338,25 +352,26 @@ func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 }
 
 func (e Gen) GenMenuAndApi(c *gin.Context) {
-	e.Context = c
-	log := e.GetLogger()
-
-	table := tools.SysTables{}
-	timeNow := pkg.GetCurrentTime()
-	id, err := pkg.StringToInt(c.Param("tableId"))
-	pkg.HasError(err, "", -1)
-
-	db, err := pkg.GetOrm(c)
+	s:=service.SysMenu{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 
+	table := tools.SysTables{}
+	id, err := pkg.StringToInt(c.Param("tableId"))
+	pkg.HasError(err, "", -1)
+
+
 	table.TableId = id
-	tab, _ := table.Get(db)
-	Mmenu := models.Menu{}
-	//Mmenu.MenuName =
+	tab, _ := table.Get(e.Orm)
+
+	Mmenu := dto.SysMenuControl{}
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
 	Mmenu.Path = "/" + strings.Replace(tab.TBName, "_", "-", -1)
@@ -368,13 +383,10 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	Mmenu.Sort = 0
 	Mmenu.Visible = "0"
 	Mmenu.IsFrame = "0"
-	Mmenu.CreateBy = "1"
-	Mmenu.UpdateBy = "1"
-	Mmenu.CreatedAt = timeNow
-	Mmenu.UpdatedAt = timeNow
-	Mmenu.MenuId, err = Mmenu.Create(db)
+	Mmenu.CreateBy = 1
+	s.Insert(&Mmenu)
 
-	Cmenu := models.Menu{}
+	Cmenu := dto.SysMenuControl{}
 	Cmenu.MenuName = tab.ClassName + "Manage"
 	Cmenu.Title = tab.TableComment
 	Cmenu.Icon = "pass"
@@ -388,13 +400,11 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	Cmenu.Sort = 0
 	Cmenu.Visible = "0"
 	Cmenu.IsFrame = "0"
-	Cmenu.CreateBy = "1"
-	Cmenu.UpdateBy = "1"
-	Cmenu.CreatedAt = timeNow
-	Cmenu.UpdatedAt = timeNow
-	Cmenu.MenuId, err = Cmenu.Create(db)
+	Cmenu.CreateBy = 1
+	Cmenu.UpdateBy = 1
+	s.Insert(&Cmenu)
 
-	MList := models.Menu{}
+	MList := dto.SysMenuControl{}
 	MList.MenuName = ""
 	MList.Title = "分页获取" + tab.TableComment
 	MList.Icon = ""
@@ -407,13 +417,11 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MList.Sort = 0
 	MList.Visible = "0"
 	MList.IsFrame = "0"
-	MList.CreateBy = "1"
-	MList.UpdateBy = "1"
-	MList.CreatedAt = timeNow
-	MList.UpdatedAt = timeNow
-	MList.MenuId, err = MList.Create(db)
+	MList.CreateBy = 1
+	MList.UpdateBy = 1
+	s.Insert(&MList)
 
-	MCreate := models.Menu{}
+	MCreate := dto.SysMenuControl{}
 	MCreate.MenuName = ""
 	MCreate.Title = "创建" + tab.TableComment
 	MCreate.Icon = ""
@@ -426,13 +434,11 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MCreate.Sort = 0
 	MCreate.Visible = "0"
 	MCreate.IsFrame = "0"
-	MCreate.CreateBy = "1"
-	MCreate.UpdateBy = "1"
-	MCreate.CreatedAt = timeNow
-	MCreate.UpdatedAt = timeNow
-	MCreate.MenuId, err = MCreate.Create(db)
+	MCreate.CreateBy = 1
+	MCreate.UpdateBy = 1
+	s.Insert(&MCreate)
 
-	MUpdate := models.Menu{}
+	MUpdate := dto.SysMenuControl{}
 	MUpdate.MenuName = ""
 	MUpdate.Title = "修改" + tab.TableComment
 	MUpdate.Icon = ""
@@ -445,13 +451,11 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MUpdate.Sort = 0
 	MUpdate.Visible = "0"
 	MUpdate.IsFrame = "0"
-	MUpdate.CreateBy = "1"
-	MUpdate.UpdateBy = "1"
-	MUpdate.CreatedAt = timeNow
-	MUpdate.UpdatedAt = timeNow
-	MUpdate.MenuId, err = MUpdate.Create(db)
+	MUpdate.CreateBy = 1
+	MUpdate.UpdateBy = 1
+	s.Insert(&MUpdate)
 
-	MDelete := models.Menu{}
+	MDelete := dto.SysMenuControl{}
 	MDelete.MenuName = ""
 	MDelete.Title = "删除" + tab.TableComment
 	MDelete.Icon = ""
@@ -464,95 +468,10 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MDelete.Sort = 0
 	MDelete.Visible = "0"
 	MDelete.IsFrame = "0"
-	MDelete.CreateBy = "1"
-	MDelete.UpdateBy = "1"
-	MDelete.CreatedAt = timeNow
-	MDelete.UpdatedAt = timeNow
-	MDelete.MenuId, err = MDelete.Create(db)
+	MDelete.CreateBy = 1
+	MDelete.UpdateBy = 1
+	s.Insert(&MDelete)
 
-	var InterfaceId = 63
-	Amenu := models.Menu{}
-	Amenu.MenuName = tab.TBName
-	Amenu.Title = tab.TableComment
-	Amenu.Icon = "bug"
-	Amenu.Path = tab.TBName
-	Amenu.MenuType = "M"
-	Amenu.Action = "无"
-	Amenu.ParentId = InterfaceId
-	Amenu.NoCache = false
-	Amenu.Sort = 0
-	Amenu.Visible = "1"
-	Amenu.IsFrame = "0"
-	Amenu.CreateBy = "1"
-	Amenu.UpdateBy = "1"
-	Amenu.CreatedAt = timeNow
-	Amenu.UpdatedAt = timeNow
-	Amenu.MenuId, err = Amenu.Create(db)
-
-	//AList := models.SysApi{}
-	//AList.Name = ""
-	//AList.Title = "分页获取" + tab.TableComment
-	//AList.Path = "/api/v1/" + tab.ModuleFrontName
-	//AList.Action = "GET"
-	//AList.ParentId = Amenu.MenuId
-	//AList.Sort = 0
-	//AList.CreateBy = 1
-	//AList.UpdateBy = 1
-	//AList.CreatedAt = timeNow
-	//AList.UpdatedAt = timeNow
-	//AList.Id, err = AList.Create(db)
-	//
-	//AGet := models.SysApi{}
-	//AList.Name = ""
-	//AGet.Title = "根据id获取" + tab.TableComment
-	//AGet.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
-	//AGet.Action = "GET"
-	//AGet.ParentId = Amenu.MenuId
-	//AGet.Sort = 0
-	//AGet.CreateBy = 1
-	//AGet.UpdateBy = 1
-	//AGet.CreatedAt = timeNow
-	//AGet.UpdatedAt = timeNow
-	//AGet.Id, err = AGet.Create(db)
-	//
-	//ACreate := models.SysApi{}
-	//AList.Name = ""
-	//ACreate.Title = "创建" + tab.TableComment
-	//ACreate.Path = "/api/v1/" + tab.ModuleFrontName
-	//ACreate.Action = "POST"
-	//ACreate.ParentId = Amenu.MenuId
-	//ACreate.Sort = 0
-	//ACreate.CreateBy = 1
-	//ACreate.UpdateBy = 1
-	//ACreate.CreatedAt = timeNow
-	//ACreate.UpdatedAt = timeNow
-	//ACreate.Id, err = ACreate.Create(db)
-	//
-	//AUpdate := models.SysApi{}
-	//AList.Name = ""
-	//AUpdate.Title = "修改" + tab.TableComment
-	//AUpdate.Path = "/api/v1/" + tab.ModuleFrontName + "/:id"
-	//AUpdate.Action = "PUT"
-	//AUpdate.ParentId = Amenu.MenuId
-	//AUpdate.Sort = 0
-	//AUpdate.CreateBy = 1
-	//AUpdate.UpdateBy = 1
-	//AUpdate.CreatedAt = timeNow
-	//AUpdate.UpdatedAt = timeNow
-	//AUpdate.Id, err = AUpdate.Create(db)
-	//
-	//ADelete := models.SysApi{}
-	//AList.Name = ""
-	//ADelete.Title = "删除" + tab.TableComment
-	//ADelete.Path = "/api/v1/" + tab.ModuleFrontName
-	//ADelete.Action = "DELETE"
-	//ADelete.ParentId = Amenu.MenuId
-	//ADelete.Sort = 0
-	//ADelete.CreateBy = 1
-	//ADelete.UpdateBy = 1
-	//ADelete.CreatedAt = timeNow
-	//ADelete.UpdatedAt = timeNow
-	//ADelete.Id, err = ADelete.Create(db)
 
 	e.OK("", "数据生成成功！")
 }
