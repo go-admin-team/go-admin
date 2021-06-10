@@ -18,7 +18,7 @@ type SysMenu struct {
 	service.Service
 }
 
-// GetSysMenuPage 获取SysMenu列表
+// GetPage 获取SysMenu列表
 func (e *SysMenu) GetPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) *SysMenu {
 	var menu = make([]models.SysMenu, 0)
 	err := e.getPage(c, &menu).Error
@@ -36,7 +36,7 @@ func (e *SysMenu) GetPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) *SysMen
 	return e
 }
 
-// getSysMenuPage 菜单分页列表
+// getPage 菜单分页列表
 func (e *SysMenu) getPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
@@ -55,7 +55,7 @@ func (e *SysMenu) getPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu
 	return e
 }
 
-// GetSysMenu 获取SysMenu对象
+// Get 获取SysMenu对象
 func (e *SysMenu) Get(d *dto.SysMenuById, model *models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
@@ -82,7 +82,7 @@ func (e *SysMenu) Get(d *dto.SysMenuById, model *models.SysMenu) *SysMenu {
 	return e
 }
 
-// InsertSysMenu 创建SysMenu对象
+// Insert 创建SysMenu对象
 func (e *SysMenu) Insert(c *dto.SysMenuControl) *SysMenu {
 	var err error
 	var data models.SysMenu
@@ -92,6 +92,7 @@ func (e *SysMenu) Insert(c *dto.SysMenuControl) *SysMenu {
 		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
 	}
+	c.MenuId = data.MenuId
 	return e
 }
 
@@ -113,7 +114,7 @@ func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 	return err
 }
 
-// UpdateSysMenu 修改SysMenu对象
+// Update 修改SysMenu对象
 func (e *SysMenu) Update(c *dto.SysMenuControl) *SysMenu {
 	var err error
 	var model = models.SysMenu{}
@@ -132,7 +133,7 @@ func (e *SysMenu) Update(c *dto.SysMenuControl) *SysMenu {
 	return e
 }
 
-// RemoveSysMenu 删除SysMenu
+// Remove 删除SysMenu
 func (e *SysMenu) Remove(d *dto.SysMenuById) *SysMenu {
 	var err error
 	var data models.SysMenu
