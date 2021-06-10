@@ -61,10 +61,12 @@ func setup() {
 	//2. 设置日志
 	sdk.Runtime.SetLogger(
 		logger.SetupLogger(
-			config.LoggerConfig.Type,
-			config.LoggerConfig.Path,
-			config.LoggerConfig.Level,
-			config.LoggerConfig.Stdout))
+			logger.WithType(config.LoggerConfig.Type),
+			logger.WithPath(config.LoggerConfig.Path),
+			logger.WithLevel(config.LoggerConfig.Level),
+			logger.WithStdout(config.LoggerConfig.Stdout),
+			logger.WithCap(config.LoggerConfig.Cap),
+		))
 	//3. 初始化数据库链接
 	database.Setup()
 
