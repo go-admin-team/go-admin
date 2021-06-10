@@ -9,8 +9,8 @@ require (
 	github.com/bytedance/go-tagexpr/v2 v2.7.10
 	github.com/casbin/casbin/v2 v2.25.1
 	github.com/gin-gonic/gin v1.7.1
-	github.com/go-admin-team/go-admin-core v1.3.5-rc.5
-	github.com/go-admin-team/go-admin-core/sdk v1.3.5-rc.5
+	github.com/go-admin-team/go-admin-core v1.3.5-rc.5.0.20210610090758-13967b971b9f
+	github.com/go-admin-team/go-admin-core/sdk v1.3.5-rc.5.0.20210610090758-13967b971b9f
 	github.com/google/uuid v1.2.0
 	github.com/mssola/user_agent v0.5.2
 	github.com/opentracing/opentracing-go v1.1.0

@@ -14,8 +14,6 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
 	"github.com/spf13/cobra"
 
@@ -23,6 +21,7 @@ import (
 	"go-admin/app/admin/router"
 	"go-admin/common/database"
 	"go-admin/common/global"
+	"go-admin/common/storage"
 	ext "go-admin/config"
 )
 
@@ -57,57 +56,20 @@ func setup() {
 	// 注入配置扩展项
 	config.ExtendConfig = &ext.ExtConfig
 	//1. 读取配置
-	config.Setup(file.NewSource(file.WithPath(configYml)))
-	//2. 设置日志
-	sdk.Runtime.SetLogger(
-		logger.SetupLogger(
-			logger.WithType(config.LoggerConfig.Type),
-			logger.WithPath(config.LoggerConfig.Path),
-			logger.WithLevel(config.LoggerConfig.Level),
-			logger.WithStdout(config.LoggerConfig.Stdout),
-			logger.WithCap(config.LoggerConfig.Cap),
-		))
-	//3. 初始化数据库链接
-	database.Setup()
-
-	//4. 设置缓存
-	cacheAdapter, err := config.CacheConfig.Setup()
-	if err != nil {
-		log.Fatalf("cache setup error, %s\n", err.Error())
-	}
-	sdk.Runtime.SetCacheAdapter(cacheAdapter)
-	//5. 设置验证码store
-	captcha.SetStore(captcha.NewCacheStore(cacheAdapter, 600))
-
-	//6. 设置队列
-	if !config.QueueConfig.Empty() {
-		queueAdapter, err := config.QueueConfig.Setup()
-		if err != nil {
-			log.Fatalf("queue setup error, %s\n", err.Error())
-		}
-		sdk.Runtime.SetQueueAdapter(queueAdapter)
-		defer func() {
-			go queueAdapter.Run()
-		}()
-	}
-
-	//7. 设置分布式锁
-	if !config.LockerConfig.Empty() {
-		lockerAdapter, err := config.LockerConfig.Setup()
-		if err != nil {
-			log.Fatalf("locker setup error, %s\n", err.Error())
-		}
-		sdk.Runtime.SetLockerAdapter(lockerAdapter)
-	}
-
-	usageStr := `starting api server...`
-	log.Println(usageStr)
+	config.Setup(
+		file.NewSource(file.WithPath(configYml)),
+		database.Setup,
+		storage.Setup,
+	)
 	//注册监听函数
 	queue := sdk.Runtime.GetMemoryQueue("")
 	queue.Register(global.LoginLog, models.SaveLoginLog)
 	queue.Register(global.OperateLog, models.SaveOperaLog)
 	queue.Register(global.ApiCheck, models.SaveSysApi)
 	go queue.Run()
+
+	usageStr := `starting api server...`
+	log.Println(usageStr)
 }
 
 func run() error {
