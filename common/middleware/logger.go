@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	gaConfig "go-admin/config"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -104,7 +105,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	l["_fullPath"] = c.FullPath()
 	l["operUrl"] = reqUri
 	l["operIp"] = clientIP
-	l["operLocation"] = pkg.GetLocation(clientIP)
+	l["operLocation"] = pkg.GetLocation(clientIP, gaConfig.ExtConfig.AMap.Key)
 	l["operName"] = user.GetUserName(c)
 	l["requestMethod"] = c.Request.Method
 	l["operParam"] = body
