@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	gaConfig "go-admin/config"
 	"io"
 	"io/ioutil"
@@ -80,6 +81,11 @@ func LoggerToFile() gin.HandlerFunc {
 		statusCode := c.Writer.Status()
 		// 请求IP
 		clientIP := c.ClientIP()
+
+
+		fmt.Println("Headers:", c.Request.Header.Get("X-Real-IP"))
+
+		fmt.Println("clientIP:", clientIP)
 		// 执行时间
 		latencyTime := endTime.Sub(startTime)
 		// 日志格式

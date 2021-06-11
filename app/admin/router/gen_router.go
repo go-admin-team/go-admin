@@ -12,10 +12,14 @@ func init() {
 }
 
 func sysNoCheckRoleRouter(v1 *gin.RouterGroup ,authMiddleware *jwt.GinJWTMiddleware) {
-	r := v1.Group("").Use(authMiddleware.MiddlewareFunc())
+	r1 := v1.Group("")
 	{
 		sys := apis.System{}
-		r.GET("/getCaptcha", sys.GenerateCaptchaHandler)
+		r1.GET("/getCaptcha", sys.GenerateCaptchaHandler)
+	}
+
+	r := v1.Group("").Use(authMiddleware.MiddlewareFunc())
+	{
 		gen := tools.Gen{}
 		r.GET("/gen/preview/:tableId", gen.Preview)
 		r.GET("/gen/toproject/:tableId", gen.GenCode)

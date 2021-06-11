@@ -3,7 +3,6 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strings"
 )
 
 func DemoEvn() gin.HandlerFunc {
@@ -11,8 +10,8 @@ func DemoEvn() gin.HandlerFunc {
 		method := c.Request.Method
 		if method == "GET" ||
 			method == "OPTIONS" ||
-			strings.Contains(c.Request.RequestURI, "/login") ||
-			strings.Contains(c.Request.RequestURI, "/logout") {
+			c.Request.RequestURI == "/api/v1/login" ||
+			c.Request.RequestURI == "/api/v1/logout" {
 			c.Next()
 		} else {
 			c.JSON(http.StatusOK, gin.H{
