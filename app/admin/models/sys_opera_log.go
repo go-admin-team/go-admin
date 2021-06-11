@@ -71,11 +71,6 @@ func SaveOperaLog(message storage.Messager) (err error) {
 		log.Errorf("json Unmarshal error, %s", err.Error())
 		return err
 	}
-	if l.Title == "" {
-		m := &SysMenu{}
-		db.Model(m).Select("Title").Where("action = ?", l.Method).Where("path = ?", message.GetValues()["_fullPath"]).First(m)
-		l.Title = m.Title
-	}
 	err = db.Create(&l).Error
 	if err != nil {
 		log.Errorf("db create error, %s", err.Error())
