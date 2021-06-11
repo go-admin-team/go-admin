@@ -28,12 +28,12 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 		r1.GET("/:configKey", api.GetSysConfigByKEYForService)
 	}
 
-	r2 := v1.Group("/app-config")
+	r2 := v1.Group("/app-config").Use(authMiddleware.MiddlewareFunc())
 	{
 		r2.GET("", api.GetSysConfigBySysApp)
 	}
 
-	r3 := v1.Group("/set-config")
+	r3 := v1.Group("/set-config").Use(authMiddleware.MiddlewareFunc())
 	{
 		r3.PUT("", api.Update2Set)
 		r3.GET("", api.Get2Set)
