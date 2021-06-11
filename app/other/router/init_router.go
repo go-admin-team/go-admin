@@ -14,8 +14,8 @@ func InitRouter() {
 	var r *gin.Engine
 	h := sdk.Runtime.GetEngine()
 	if h == nil {
-		h = gin.New()
-		sdk.Runtime.SetEngine(h)
+		log.Fatal("not found engine...")
+		os.Exit(-1)
 	}
 	switch h.(type) {
 	case *gin.Engine:
@@ -24,10 +24,6 @@ func InitRouter() {
 		log.Fatal("not support other engine")
 		os.Exit(-1)
 	}
-
-	//r.Use(common.Sentinel()).
-	//	Use(common.RequestId(pkg.TrafficKey))
-	common.InitMiddleware(r)
 	// the jwt middleware
 	authMiddleware, err := common.AuthInit()
 	if err != nil {

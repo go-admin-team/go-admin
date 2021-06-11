@@ -237,3 +237,31 @@ func (e *SysRole) UpdateDataScope(c *models.SysRole) (err error) {
 	}
 	return err
 }
+
+// UpdateStatus 修改SysRole对象status
+func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
+	var err error
+
+	tx := e.Orm.Debug().Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+	var model = models.SysRole{}
+	tx.First(&model, c.GetId())
+	c.Generate(&model)
+	db := tx.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
+
+	if db.Error != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+
+	return nil
+}

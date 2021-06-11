@@ -14,6 +14,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/mssola/user_agent"
+	gaConfig "go-admin/config"
 
 	"go-admin/common/global"
 )
@@ -115,7 +116,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 
 	ua := user_agent.New(c.Request.UserAgent())
 	l["ipaddr"] = c.ClientIP()
-	l["loginLocation"] = pkg.GetLocation(c.ClientIP())
+	l["loginLocation"] = pkg.GetLocation(c.ClientIP(),gaConfig.ExtConfig.AMap.Key)
 	l["loginTime"] = pkg.GetCurrentTime()
 	l["status"] = status
 	l["remark"] = c.Request.UserAgent()
@@ -139,6 +140,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	}
 }
 
+// LogOut
 // @Summary 退出登录
 // @Description 获取token
 // LoginHandler can be used by clients to get a jwt token.
@@ -167,7 +169,6 @@ func Authorizator(data interface{}, c *gin.Context) bool {
 		c.Set("userId", u.UserId)
 		c.Set("userName", u.Username)
 		c.Set("dataScope", r.DataScope)
-
 		return true
 	}
 	return false

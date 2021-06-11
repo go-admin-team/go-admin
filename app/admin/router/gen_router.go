@@ -2,16 +2,17 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/apis"
 	"go-admin/app/admin/apis/tools"
 )
 
 func init() {
-	routerNoCheckRole = append(routerNoCheckRole, sysNoCheckRoleRouter, registerDBRouter, registerSysTableRouter)
+	routerCheckRole = append(routerCheckRole, sysNoCheckRoleRouter, registerDBRouter, registerSysTableRouter)
 }
 
-func sysNoCheckRoleRouter(v1 *gin.RouterGroup) {
-	r := v1.Group("")
+func sysNoCheckRoleRouter(v1 *gin.RouterGroup ,authMiddleware *jwt.GinJWTMiddleware) {
+	r := v1.Group("").Use(authMiddleware.MiddlewareFunc())
 	{
 		sys := apis.System{}
 		r.GET("/getCaptcha", sys.GenerateCaptchaHandler)
@@ -25,8 +26,8 @@ func sysNoCheckRoleRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func registerDBRouter(v1 *gin.RouterGroup) {
-	db := v1.Group("/db")
+func registerDBRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	db := v1.Group("/db").Use(authMiddleware.MiddlewareFunc())
 	{
 		gen := tools.Gen{}
 		db.GET("/tables/page", gen.GetDBTableList)
@@ -34,12 +35,12 @@ func registerDBRouter(v1 *gin.RouterGroup) {
 	}
 }
 
-func registerSysTableRouter(v1 *gin.RouterGroup) {
+func registerSysTableRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	tables := v1.Group("/sys/tables")
 	{
 		sysTable := tools.SysTable{}
-		tables.GET("/page", sysTable.GetSysTableList)
-		tablesInfo := tables.Group("/info")
+		tables.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/page", sysTable.GetSysTableList)
+		tablesInfo := tables.Group("/info").Use(authMiddleware.MiddlewareFunc())
 		{
 			tablesInfo.POST("", sysTable.InsertSysTable)
 			tablesInfo.PUT("", sysTable.UpdateSysTable)

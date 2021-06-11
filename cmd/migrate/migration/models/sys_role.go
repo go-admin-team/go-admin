@@ -11,8 +11,8 @@ type SysRole struct {
 	Admin     bool      `json:"admin" gorm:"size:4;"`
 	DataScope string    `json:"dataScope" gorm:"size:128;"`
 	SysMenu   []SysMenu `json:"sysMenu" gorm:"many2many:sys_role_menu;foreignKey:RoleId;joinForeignKey:role_id;references:MenuId;joinReferences:menu_id;"`
-	ModelTime
 	ControlBy
+	ModelTime
 }
 
 func (SysRole) TableName() string {

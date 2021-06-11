@@ -34,7 +34,6 @@ func (m *SysRoleSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-// SysConfigControl 增、改使用的结构体
 type SysRoleControl struct {
 	RoleId    int              `uri:"id" comment:"角色编码"`        // 角色编码
 	RoleName  string           `form:"roleName" comment:"角色名称"` // 角色名称
@@ -80,7 +79,25 @@ func (s *SysRoleControl) GetId() interface{} {
 	return s.RoleId
 }
 
-// SysConfigById 获取单个或者删除的结构体
+type UpdateStatusReq struct {
+	RoleId    int              `form:"roleId" comment:"角色编码"`        // 角色编码
+	Status    string           `form:"status" comment:"状态"`     // 状态
+	common.ControlBy
+}
+
+func (s *UpdateStatusReq) Generate(model *models.SysRole) {
+	if s.RoleId != 0 {
+		model.RoleId = s.RoleId
+	}
+	model.Status = s.Status
+}
+
+func (s *UpdateStatusReq) GetId() interface{} {
+	return s.RoleId
+}
+
+
+// SysRoleById 获取单个或者删除的结构体
 type SysRoleById struct {
 	dto.ObjectById
 }
