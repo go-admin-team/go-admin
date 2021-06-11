@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/config/source/file"
 	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
@@ -19,8 +20,11 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/router"
+	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
+	common "go-admin/common/middleware"
+	"go-admin/common/middleware/handler"
 	"go-admin/common/storage"
 	ext "go-admin/config"
 )
@@ -76,10 +80,7 @@ func run() error {
 	if config.ApplicationConfig.Mode == pkg.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	engine := sdk.Runtime.GetEngine()
-	if engine == nil {
-		engine = gin.New()
-	}
+	initRouter()
 
 	for _, f := range AppRouters {
 		f()
@@ -89,6 +90,12 @@ func run() error {
 		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
 		Handler: sdk.Runtime.GetEngine(),
 	}
+
+	go func() {
+		jobs.InitJob()
+		jobs.Setup(sdk.Runtime.GetDb())
+
+	}()
 
 	if apiCheck {
 		var routers = sdk.Runtime.GetRouter()
@@ -149,4 +156,30 @@ var Router runtime.Router
 func tip() {
 	usageStr := `欢迎使用 ` + pkg.Green(`go-admin `+global.Version) + ` 可以使用 ` + pkg.Red(`-h`) + ` 查看命令`
 	fmt.Printf("%s \n\n", usageStr)
+}
+
+func initRouter() {
+	var r *gin.Engine
+	h := sdk.Runtime.GetEngine()
+	if h == nil {
+		h = gin.New()
+		sdk.Runtime.SetEngine(h)
+	}
+	switch h.(type) {
+	case *gin.Engine:
+		r = h.(*gin.Engine)
+	default:
+		log.Fatal("not support other engine")
+		os.Exit(-1)
+	}
+	if config.SslConfig.Enable {
+		r.Use(handler.TlsHandler())
+	}
+	//r.Use(middleware.Metrics())
+	r.Use(common.Sentinel()).
+		Use(common.RequestId(pkg.TrafficKey)).
+		Use(api.SetRequestLogger)
+
+	common.InitMiddleware(r)
+
 }
