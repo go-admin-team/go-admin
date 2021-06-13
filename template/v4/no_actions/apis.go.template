@@ -1,9 +1,10 @@
-package {{.ModuleName}}
+package apis
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
@@ -11,11 +12,10 @@ import (
 	"go-admin/app/{{.PackageName}}/service"
 	"go-admin/app/{{.PackageName}}/service/dto"
 	"go-admin/common/actions"
-	"go-admin/common/apis"
 )
 
 type {{.ClassName}} struct {
-	apis.Api
+	api.Api
 }
 
 // Get{{.ClassName}}List 获取{{.TableComment}}列表
@@ -111,7 +111,7 @@ func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 		return
 	}
 
-	e.OK( object, "查看成功")
+	e.OK( object, "查询成功")
 }
 
 // Insert{{.ClassName}} 创建{{.TableComment}}

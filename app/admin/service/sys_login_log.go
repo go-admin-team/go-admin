@@ -3,13 +3,12 @@ package service
 import (
 	"errors"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	common "go-admin/common/models"
-	"go-admin/common/service"
 )
 
 type SysLoginLog struct {
@@ -17,9 +16,9 @@ type SysLoginLog struct {
 }
 
 // GetSysLoginLogPage 获取SysLoginLog列表
-func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]system.SysLoginLog, count *int64) error {
+func (e *SysLoginLog) GetPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginLog, count *int64) error {
 	var err error
-	var data system.SysLoginLog
+	var data models.SysLoginLog
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -36,12 +35,9 @@ func (e *SysLoginLog) GetSysLoginLogPage(c *dto.SysLoginLogSearch, list *[]syste
 }
 
 // GetSysLoginLog 获取SysLoginLog对象
-func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *system.SysLoginLog) error {
+func (e *SysLoginLog) Get(d *dto.SysLoginLogById, model *models.SysLoginLog) error {
 	var err error
-	var data system.SysLoginLog
-
-	db := e.Orm.Model(&data).
-		First(model, d.GetId())
+	db := e.Orm.First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
@@ -55,44 +51,12 @@ func (e *SysLoginLog) GetSysLoginLog(d *dto.SysLoginLogById, model *system.SysLo
 	return nil
 }
 
-// InsertSysLoginLog 创建SysLoginLog对象
-func (e *SysLoginLog) InsertSysLoginLog(model common.ActiveRecord) error {
-	var err error
-	var data system.SysLoginLog
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
-	if err != nil {
-		e.Log.Errorf("db error:%s", err)
-		return err
-	}
-	return nil
-}
-
-// UpdateSysLoginLog 修改SysLoginLog对象
-func (e *SysLoginLog) UpdateSysLoginLog(c common.ActiveRecord) error {
-	var err error
-	var data system.SysLoginLog
-
-	db := e.Orm.Model(&data).
-		Where("id = ?", c.GetId()).Updates(c)
-	if db.Error != nil {
-		e.Log.Errorf("db error:%s", err)
-		return err
-	}
-	if db.RowsAffected == 0 {
-		return errors.New("无权更新该数据")
-
-	}
-	return nil
-}
-
 // RemoveSysLoginLog 删除SysLoginLog
-func (e *SysLoginLog) RemoveSysLoginLog(d *dto.SysLoginLogById, c common.ActiveRecord) error {
+func (e *SysLoginLog) Remove(c *dto.SysLoginLogById) error {
 	var err error
-	var data system.SysLoginLog
+	var data models.SysLoginLog
 
-	db := e.Orm.Model(&data).Delete(c, d.Ids)
+	db := e.Orm.Delete(&data, c.Ids)
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)

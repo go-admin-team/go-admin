@@ -14,10 +14,11 @@ type ALiYunOSS struct {
 }
 
 func (e *ALiYunOSS) Setup() error {
-	e.AccessKeyId = "LTAI4G3S4hDLxg6Zmu4UTBwG"
-	e.AccessKeySecret = "C8sj70orL03bwk6wNXX0jbNjAbLCb8"
-	e.Endpoint = "oss-cn-shanghai.aliyuncs.com"
-	e.BucketName = "youshikeji"
+	// TODO: 如果需要使用阿里云OSS请在此处填写对应信息
+	e.AccessKeyId = ""
+	e.AccessKeySecret = ""
+	e.Endpoint = ""
+	e.BucketName = ""
 
 	client, err := oss.New(e.Endpoint, e.AccessKeyId, e.AccessKeySecret)
 	if err != nil {

@@ -1,17 +1,13 @@
 package dto
 
 import (
-	"encoding/json"
+	"go-admin/app/admin/models"
+	common "go-admin/common/models"
 
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 )
 
-// SysConfigSearch 列表或者搜索使用结构体
+// SysDeptSearch 列表或者搜索使用结构体
 type SysDeptSearch struct {
 	dto.Pagination `search:"-"`
 	DeptId         int    `form:"deptId" search:"type:exact;column:dept_id;table:sys_dept" comment:"id"`       //id
@@ -29,17 +25,8 @@ func (m *SysDeptSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-// Bind 映射上下文中的结构体数据
-func (m *SysDeptSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
 
-// SysConfigControl 增、改使用的结构体
+// SysDeptControl 增、改使用的结构体
 type SysDeptControl struct {
 	DeptId   int    `uri:"id" comment:"编码"`          // 编码
 	ParentId int    `form:"parentId" comment:"上级部门"` //上级部门
@@ -50,42 +37,22 @@ type SysDeptControl struct {
 	Phone    string `form:"phone" comment:"手机"`      //手机
 	Email    string `form:"email" comment:"邮箱"`      //邮箱
 	Status   string `form:"status" comment:"状态"`     //状态
+	common.ControlBy
 }
 
-// Bind 映射上下文中的结构体数据
-func (s *SysDeptControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
+// Generate 结构体数据转化 从 SysDeptControl 至 SysDept 对应的模型
+func (s *SysDeptControl) Generate(model *models.SysDept) {
+	if s.DeptId != 0 {
+		model.DeptId = s.DeptId
 	}
-	err = ctx.ShouldBindBodyWith(s, binding.JSON)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	var jsonStr []byte
-	jsonStr, err = json.Marshal(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	ctx.Set("body", string(jsonStr))
-	return err
-}
-
-// Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysDeptControl) Generate() (*system.SysDept, error) {
-	return &system.SysDept{
-		DeptId:   s.DeptId,
-		DeptName: s.DeptName,
-		ParentId: s.ParentId,
-		DeptPath: s.DeptPath,
-		Sort:     s.Sort,
-		Leader:   s.Leader,
-		Phone:    s.Phone,
-		Email:    s.Email,
-		Status:   s.Status,
-	}, nil
+	model.DeptName = s.DeptName
+	model.ParentId = s.ParentId
+	model.DeptPath = s.DeptPath
+	model.Sort = s.Sort
+	model.Leader = s.Leader
+	model.Phone = s.Phone
+	model.Email = s.Email
+	model.Status = s.Status
 }
 
 // GetId 获取数据对应的ID
@@ -93,7 +60,7 @@ func (s *SysDeptControl) GetId() interface{} {
 	return s.DeptId
 }
 
-// SysConfigById 获取单个或者删除的结构体
+// SysDeptById 获取单个或者删除的结构体
 type SysDeptById struct {
 	Id  int   `uri:"id"`
 	Ids []int `json:"ids"`
@@ -105,25 +72,15 @@ func (s *SysDeptById) Generate() *SysDeptById {
 }
 
 func (s *SysDeptById) GetId() interface{} {
+	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
+		return s.Ids
+	}
 	return s.Id
 }
 
-func (s *SysDeptById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
-func (s *SysDeptById) GenerateM() (*system.SysDept, error) {
-	return &system.SysDept{}, nil
+func (s *SysDeptById) GenerateM() (*models.SysDept, error) {
+	return &models.SysDept{}, nil
 }
 
 type DeptLabel struct {

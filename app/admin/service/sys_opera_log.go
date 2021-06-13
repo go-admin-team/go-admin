@@ -2,11 +2,12 @@ package service
 
 import (
 	"errors"
-	"go-admin/app/admin/models/system"
+
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	common "go-admin/common/models"
-	"go-admin/common/service"
+
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 )
 
@@ -14,10 +15,10 @@ type SysOperaLog struct {
 	service.Service
 }
 
-// GetSysOperaLogPage 获取SysOperaLog列表
-func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]system.SysOperaLog, count *int64) error {
+// GetPage 获取SysOperaLog列表
+func (e *SysOperaLog) GetPage(c *dto.SysOperaLogSearch, list *[]models.SysOperaLog, count *int64) error {
 	var err error
-	var data system.SysOperaLog
+	var data models.SysOperaLog
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -33,9 +34,9 @@ func (e *SysOperaLog) GetSysOperaLogPage(c *dto.SysOperaLogSearch, list *[]syste
 	return nil
 }
 
-// GetSysOperaLog 获取SysOperaLog对象
-func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *system.SysOperaLog) error {
-	var data system.SysOperaLog
+// Get 获取SysOperaLog对象
+func (e *SysOperaLog) Get(d *dto.SysOperaLogById, model *models.SysOperaLog) error {
+	var data models.SysOperaLog
 
 	err := e.Orm.Model(&data).
 		First(model, d.GetId()).Error
@@ -51,10 +52,10 @@ func (e *SysOperaLog) GetSysOperaLog(d *dto.SysOperaLogById, model *system.SysOp
 	return nil
 }
 
-// InsertSysOperaLog 创建SysOperaLog对象
-func (e *SysOperaLog) InsertSysOperaLog(model *system.SysOperaLog) error {
+// Insert 创建SysOperaLog对象
+func (e *SysOperaLog) Insert(model *models.SysOperaLog) error {
 	var err error
-	var data system.SysOperaLog
+	var data models.SysOperaLog
 
 	err = e.Orm.Model(&data).
 		Create(model).Error
@@ -65,28 +66,10 @@ func (e *SysOperaLog) InsertSysOperaLog(model *system.SysOperaLog) error {
 	return nil
 }
 
-// UpdateSysOperaLog 修改SysOperaLog对象
-func (e *SysOperaLog) UpdateSysOperaLog(c *system.SysOperaLog) error {
+// Remove 删除SysOperaLog
+func (e *SysOperaLog) Remove(d *dto.SysOperaLogById) error {
 	var err error
-
-	db := e.Orm.Model(&system.SysOperaLog{Model: common.Model{
-		Id: c.GetId().(int),
-	}}).Updates(c)
-	if err = db.Error; err != nil {
-		e.Log.Errorf("Service UpdateSysOperaLog error:%s", err.Error())
-		return err
-	}
-	if db.RowsAffected == 0 {
-		return errors.New("无权更新该数据")
-
-	}
-	return nil
-}
-
-// RemoveSysOperaLog 删除SysOperaLog
-func (e *SysOperaLog) RemoveSysOperaLog(d *dto.SysOperaLogById) error {
-	var err error
-	var data system.SysOperaLog
+	var data models.SysOperaLog
 
 	db := e.Orm.Model(&data).Delete(&data, d.Ids)
 	if err = db.Error; err != nil {

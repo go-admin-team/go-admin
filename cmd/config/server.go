@@ -27,7 +27,7 @@ func init() {
 }
 
 func run() {
-	config.Setup(file.NewSource, file.WithPath(configYml))
+	config.Setup(file.NewSource(file.WithPath(configYml)))
 
 	application, errs := json.MarshalIndent(config.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
 	if errs != nil {

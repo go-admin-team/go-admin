@@ -1,12 +1,7 @@
 package dto
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -24,20 +19,6 @@ func (m *SysDictDataSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-func (m *SysDictDataSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
-func (m *SysDictDataSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
 type SysDictDataControl struct {
 	Id        int    `uri:"dictCode" comment:""`
 	DictSort  int    `json:"dictSort" comment:""`
@@ -50,41 +31,22 @@ type SysDictDataControl struct {
 	Status    string `json:"status" comment:""`
 	Default   string `json:"default" comment:""`
 	Remark    string `json:"remark" comment:""`
+	common.ControlBy
 }
 
-func (s *SysDictDataControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
+func (s *SysDictDataControl) Generate(model *models.SysDictData) {
 
-func (s *SysDictDataControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysDictDataControl) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysDictData{
-		DictCode:  s.Id,
-		DictSort:  s.DictSort,
-		DictLabel: s.DictLabel,
-		DictValue: s.DictValue,
-		DictType:  s.DictType,
-		CssClass:  s.CssClass,
-		ListClass: s.ListClass,
-		IsDefault: s.IsDefault,
-		Status:    s.Status,
-		Default:   s.Default,
-		Remark:    s.Remark,
-	}, nil
+	model.DictCode = s.Id
+	model.DictSort = s.DictSort
+	model.DictLabel = s.DictLabel
+	model.DictValue = s.DictValue
+	model.DictType = s.DictType
+	model.CssClass = s.CssClass
+	model.ListClass = s.ListClass
+	model.IsDefault = s.IsDefault
+	model.Status = s.Status
+	model.Default = s.Default
+	model.Remark = s.Remark
 }
 
 func (s *SysDictDataControl) GetId() interface{} {
@@ -94,33 +56,17 @@ func (s *SysDictDataControl) GetId() interface{} {
 type SysDictDataById struct {
 	Id  int   `uri:"dictCode"`
 	Ids []int `json:"ids"`
-}
-
-func (s *SysDictDataById) Bind(ctx *gin.Context) error {
-	if ctx.Request.Method == http.MethodDelete {
-		err := ctx.ShouldBind(&s.Ids)
-		if err != nil {
-			return err
-		}
-		if len(s.Ids) > 0 {
-			return nil
-		}
-	}
-	return ctx.ShouldBindUri(s)
+	common.ControlBy
 }
 
 func (s *SysDictDataById) GetId() interface{} {
 	if len(s.Ids) > 0 {
+		s.Ids = append(s.Ids, s.Id)
 		return s.Ids
 	}
 	return s.Id
 }
 
-func (s *SysDictDataById) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
 func (s *SysDictDataById) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysDictData{}, nil
+	return &models.SysDictData{}, nil
 }

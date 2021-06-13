@@ -1,7 +1,14 @@
 package middleware
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"go-admin/common"
+	gaConfig "go-admin/config"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -19,26 +26,35 @@ import (
 // LoggerToFile 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log := api.GetRequestLogger(c)
 		// 开始时间
 		startTime := time.Now()
 		// 处理请求
+		var body string
+		switch c.Request.Method {
+		case http.MethodPost, http.MethodPut, http.MethodDelete:
+			bf := bytes.NewBuffer(nil)
+			wt := bufio.NewWriter(bf)
+			_, err := io.Copy(wt, c.Request.Body)
+			if err != nil {
+				log.Warnf("copy body error, %s", err.Error())
+				err = nil
+			}
+			rb, _ := ioutil.ReadAll(bf)
+			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rb))
+			body = string(rb)
+		}
 
 		c.Next()
-		if strings.Index(c.Request.RequestURI, "/api/v1/logout") > -1 ||
-			strings.Index(c.Request.RequestURI, "/login") > -1 {
+		url := c.Request.RequestURI
+		if strings.Index(url, "logout") > -1 ||
+			strings.Index(url, "login") > -1 {
 			return
 		}
 		// 结束时间
 		endTime := time.Now()
 		if c.Request.Method == http.MethodOptions {
 			return
-		}
-		log := api.GetRequestLogger(c)
-
-		bd, bl := c.Get("body")
-		var body = ""
-		if bl {
-			body = bd.(string)
 		}
 
 		rt, bl := c.Get("result")
@@ -65,7 +81,7 @@ func LoggerToFile() gin.HandlerFunc {
 		// 状态码
 		statusCode := c.Writer.Status()
 		// 请求IP
-		clientIP := c.ClientIP()
+		clientIP := common.GetClientIP(c)
 		// 执行时间
 		latencyTime := endTime.Sub(startTime)
 		// 日志格式
@@ -76,10 +92,9 @@ func LoggerToFile() gin.HandlerFunc {
 			"method":      reqMethod,
 			"uri":         reqUri,
 		}
-		log.Info(logData)
-		//l := logger.Logger{Logger: log.Fields(logData)}
-		//l.Info(logData)
-		if c.Request.Method != "GET" && c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB {
+		log.WithFields(logData).Info()
+
+		if c.Request.Method != "OPTIONS" && c.Request.Method != "GET" && config.LoggerConfig.EnabledDB {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, statusBus)
 		}
 	}
@@ -91,32 +106,16 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	l := make(map[string]interface{})
 	l["_fullPath"] = c.FullPath()
 	l["operUrl"] = reqUri
-	l["method"] = reqMethod
 	l["operIp"] = clientIP
-	l["operLocation"] = pkg.GetLocation(clientIP)
+	fmt.Println("gaConfig.ExtConfig.AMap.Key", gaConfig.ExtConfig.AMap.Key)
+	l["operLocation"] = pkg.GetLocation(clientIP, gaConfig.ExtConfig.AMap.Key)
 	l["operName"] = user.GetUserName(c)
 	l["requestMethod"] = c.Request.Method
 	l["operParam"] = body
 	l["operTime"] = time.Now()
-	if reqUri == "/login" {
-		l["businessType"] = "10"
-		l["title"] = "用户登录"
-		l["operName"] = "-"
-	} else if strings.Contains(reqUri, "/api/v1/logout") {
-		l["businessType"] = "11"
-		l["title"] = "退出登录"
-	} else if strings.Contains(reqUri, "/api/v1/getCaptcha") {
-		l["businessType"] = "12"
-		l["title"] = "验证码"
-	} else {
-		if reqMethod == "POST" {
-			l["businessType"] = "1"
-		} else if reqMethod == "PUT" {
-			l["businessType"] = "2"
-		} else if reqMethod == "DELETE" {
-			l["businessType"] = "3"
-		}
-	}
+	l["jsonResult"] = result
+	l["latencyTime"] = latencyTime.String()
+	l["statusCode"] = statusCode
 	if status == http.StatusOK {
 		l["status"] = "2"
 	} else {

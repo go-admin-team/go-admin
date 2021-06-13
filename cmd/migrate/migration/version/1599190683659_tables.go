@@ -25,13 +25,13 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.SysMenu),
 		new(models.SysLoginLog),
 		new(models.SysOperaLog),
-		new(models.RoleMenu),
 		new(models.SysRoleDept),
 		new(models.SysUser),
 		new(models.SysRole),
-		new(models.Post),
+		new(models.SysPost),
 		new(models.DictData),
 		new(models.DictType),
+		new(models.SysChinaAreaData),
 		new(models.SysJob),
 		new(models.SysConfig),
 		new(models.SysSetting),
@@ -39,6 +39,8 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 		new(models.SysFileInfo),
 		new(models.SysCategory),
 		new(models.SysContent),
+		new(models.SysApi),
+		new(models.SysChinaAreaData),
 	)
 	if err != nil {
 		return err

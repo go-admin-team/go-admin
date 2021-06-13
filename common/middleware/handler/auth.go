@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"fmt"
+	"go-admin/app/admin/models"
+	"go-admin/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +16,8 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/mssola/user_agent"
+	gaConfig "go-admin/config"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/global"
 )
 
@@ -46,6 +49,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 	}
 }
 
+// Authenticator 获取token
 // @Summary 登陆
 // @Description 获取token
 // @Description LoginHandler can be used by clients to get a jwt token.
@@ -57,7 +61,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Product application/json
 // @Param account body Login  true "account"
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
-// @Router /login [post]
+// @Router /api/v1/login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
 	log := api.GetRequestLogger(c)
 	db, err := pkg.GetOrm(c)
@@ -113,8 +117,9 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	l := make(map[string]interface{})
 
 	ua := user_agent.New(c.Request.UserAgent())
-	l["ipaddr"] = c.ClientIP()
-	l["loginLocation"] = pkg.GetLocation(c.ClientIP())
+	l["ipaddr"] = common.GetClientIP(c)
+	fmt.Println("gaConfig.ExtConfig.AMap.Key", gaConfig.ExtConfig.AMap.Key)
+	l["loginLocation"] = pkg.GetLocation(common.GetClientIP(c),gaConfig.ExtConfig.AMap.Key)
 	l["loginTime"] = pkg.GetCurrentTime()
 	l["status"] = status
 	l["remark"] = c.Request.UserAgent()
@@ -138,6 +143,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	}
 }
 
+// LogOut
 // @Summary 退出登录
 // @Description 获取token
 // LoginHandler can be used by clients to get a jwt token.
@@ -159,14 +165,13 @@ func LogOut(c *gin.Context) {
 func Authorizator(data interface{}, c *gin.Context) bool {
 
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(system.SysUser)
-		r, _ := v["role"].(system.SysRole)
+		u, _ := v["user"].(models.SysUser)
+		r, _ := v["role"].(models.SysRole)
 		c.Set("role", r.RoleName)
 		c.Set("roleIds", r.RoleId)
 		c.Set("userId", u.UserId)
 		c.Set("userName", u.Username)
 		c.Set("dataScope", r.DataScope)
-
 		return true
 	}
 	return false

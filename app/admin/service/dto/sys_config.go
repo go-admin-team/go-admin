@@ -1,13 +1,7 @@
 package dto
 
 import (
-	"encoding/json"
-
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
@@ -15,80 +9,88 @@ import (
 // SysConfigSearch 列表或者搜索使用结构体
 type SysConfigSearch struct {
 	dto.Pagination `search:"-"`
-	ConfigName     string `form:"configName" search:"type:contains;column:config_name;table:sys_config" comment:""`
-	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config" comment:""`
-	ConfigType     string `form:"configType" search:"type:exact;column:config_type;table:sys_config" comment:""`
-	IsFrontend     int    `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config" comment:""`
+	ConfigName     string `form:"configName" search:"type:contains;column:config_name;table:sys_config"`
+	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config"`
+	ConfigType     string `form:"configType" search:"type:exact;column:config_type;table:sys_config"`
+	IsFrontend     int    `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config"`
+	SysConfigOrder
+}
+
+type SysConfigOrder struct {
+	IdOrder         string `search:"type:order;column:id;table:sys_config" form:"idOrder"`
+	ConfigNameOrder string `search:"type:order;column:config_name;table:sys_config" form:"configNameOrder"`
+	ConfigKeyOrder  string `search:"type:order;column:config_key;table:sys_config" form:"configKeyOrder"`
+	ConfigTypeOrder string `search:"type:order;column:config_type;table:sys_config" form:"configTypeOrder"`
+	CreatedAtOrder  string `search:"type:order;column:created_at;table:sys_config" form:"createdAtOrder"`
 }
 
 func (m *SysConfigSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-// Bind 映射上下文中的结构体数据
-func (m *SysConfigSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
 // SysConfigControl 增、改使用的结构体
 type SysConfigControl struct {
-	ID          int    `uri:"Id" comment:"编码"` // 编码
+	Id          int    `uri:"Id" comment:"编码"` // 编码
 	ConfigName  string `json:"configName" comment:""`
 	ConfigKey   string `uri:"configKey" json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
 	ConfigType  string `json:"configType" comment:""`
 	IsFrontend  int    `json:"isFrontend"`
 	Remark      string `json:"remark" comment:""`
-}
-
-// Bind 映射上下文中的结构体数据
-func (s *SysConfigControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBindBodyWith(s, binding.JSON)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	var jsonStr []byte
-	jsonStr, err = json.Marshal(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	ctx.Set("body", string(jsonStr))
-	return err
+	common.ControlBy
 }
 
 // Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysConfigControl) Generate() (*system.SysConfig, error) {
-	return &system.SysConfig{
-		Model:       common.Model{Id: s.ID},
-		ConfigName:  s.ConfigName,
-		ConfigKey:   s.ConfigKey,
-		ConfigValue: s.ConfigValue,
-		ConfigType:  s.ConfigType,
-		IsFrontend:  s.IsFrontend,
-		Remark:      s.Remark,
-	}, nil
+func (s *SysConfigControl) Generate(model *models.SysConfig) {
+	if s.Id == 0 {
+		model.Model = common.Model{Id: s.Id}
+	}
+	model.ConfigName = s.ConfigName
+	model.ConfigKey = s.ConfigKey
+	model.ConfigValue = s.ConfigValue
+	model.ConfigType = s.ConfigType
+	model.IsFrontend = s.IsFrontend
+	model.Remark = s.Remark
+
 }
 
 // GetId 获取数据对应的ID
 func (s *SysConfigControl) GetId() interface{} {
-	return s.ID
+	return s.Id
+}
+
+// GetSetSysConfigReq 增、改使用的结构体
+type GetSetSysConfigReq struct {
+	ConfigKey   string `json:"configKey" comment:""`
+	ConfigValue string `json:"configValue" comment:""`
+}
+
+// Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
+func (s *GetSetSysConfigReq) Generate(model *models.SysConfig) {
+	model.ConfigValue = s.ConfigValue
+}
+
+type UpdateSetSysConfigReq map[string]string
+
+// SysConfigByKeyReq 根据Key获取配置
+type SysConfigByKeyReq struct {
+	ConfigKey string `uri:"configKey" search:"type:contains;column:config_key;table:sys_config"`
+}
+
+func (m *SysConfigByKeyReq) GetNeedSearch() interface{} {
+	return *m
+}
+
+type GetSysConfigByKEYForServiceResp struct {
+	ConfigKey   string `json:"configKey" comment:""`
+	ConfigValue string `json:"configValue" comment:""`
 }
 
 // SysConfigById 获取单个或者删除的结构体
 type SysConfigById struct {
-	Id         int   `uri:"id"`
-	Ids        []int `json:"ids"`
+	Id  int   `uri:"id"`
+	Ids []int `json:"ids"`
+	common.ControlBy
 }
 
 func (s *SysConfigById) Generate() *SysConfigById {
@@ -102,22 +104,4 @@ func (s *SysConfigById) GetId() interface{} {
 		return s.Ids
 	}
 	return s.Id
-}
-
-func (s *SysConfigById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
-func (s *SysConfigById) GenerateM() (*system.SysConfig, error) {
-	return &system.SysConfig{}, nil
 }

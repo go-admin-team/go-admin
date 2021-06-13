@@ -34,7 +34,7 @@
 
 - 支持 Swagger 文档(基于swaggo)
 
-- 基于 GORM 的数据库存储，可扩展多种类型数据库 
+- 基于 GORM 的数据库存储，可扩展多种类型数据库
 
 - 配置文件简单的模型映射，快速能够得到想要的配置
 
@@ -74,9 +74,9 @@
 
 [步骤一 - 基础内容介绍](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial01.html)
 
-[步骤二 - 实际应用 - 编写增删改查](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial02.html) 
+[步骤二 - 实际应用 - 编写增删改查](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial02.html)
 
-### 手把手教你从入门到放弃 - 视频教程 
+### 手把手教你从入门到放弃 - 视频教程
 
 [如何启动go-admin](https://www.bilibili.com/video/BV1z5411x7JG)
 

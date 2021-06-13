@@ -3,9 +3,9 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
-	"go-admin/app/admin/apis/sys_user"
+	"go-admin/app/admin/apis"
 	"go-admin/common/actions"
-	middleware2 "go-admin/common/middleware"
+	"go-admin/common/middleware"
 )
 
 func init() {
@@ -14,21 +14,23 @@ func init() {
 
 // 需认证的路由代码
 func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := sys_user.SysUser{}
-	r := v1.Group("/sysUser").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole()).Use(actions.PermissionAction())
+	api := apis.SysUser{}
+	r := v1.Group("/sys-user").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole()).Use(actions.PermissionAction())
 	{
-		r.GET("", api.GetSysUserList)
-		r.GET("/:id", api.GetSysUser)
-		r.POST("", api.InsertSysUser)
-		r.PUT("", api.UpdateSysUser)
-		r.DELETE("", api.DeleteSysUser)
+		r.GET("", api.GetPage)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("", api.Update)
+		r.DELETE("", api.Delete)
 	}
 
-	user := v1.Group("/user").Use(authMiddleware.MiddlewareFunc()).Use(middleware2.AuthCheckRole()).Use(actions.PermissionAction())
+	user := v1.Group("/user").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole()).Use(actions.PermissionAction())
 	{
-		user.GET("/profile", api.GetSysUserProfile)
-		user.POST("/avatar", api.InsetSysUserAvatar)
-		user.PUT("/pwd", api.SysUserUpdatePwd)
+		user.GET("/profile", api.GetProfile)
+		user.POST("/avatar", api.InsetAvatar)
+		user.PUT("/pwd", api.UpdatePwd)
+		user.PUT("/pwd/reset", api.ResetPwd)
+		user.PUT("/status", api.UpdateStatus)
 	}
 	v1auth := v1.Group("").Use(authMiddleware.MiddlewareFunc())
 	{

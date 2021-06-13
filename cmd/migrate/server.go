@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/logger"
 	"go-admin/cmd/migrate/migration"
 	_ "go-admin/cmd/migrate/migration/version"
 	_ "go-admin/cmd/migrate/migration/version-local"
@@ -49,15 +48,10 @@ func run() {
 	if !generate {
 		fmt.Println(`start init`)
 		//1. 读取配置
-		config.Setup(file.NewSource, file.WithPath(configYml))
-		//2. 设置日志
-		sdk.Runtime.SetLogger(
-			logger.SetupLogger(
-				config.LoggerConfig.Type,
-				config.LoggerConfig.Path,
-				config.LoggerConfig.Level,
-				config.LoggerConfig.Stdout))
-		_ = initDB()
+		config.Setup(
+			file.NewSource(file.WithPath(configYml)),
+			initDB,
+		)
 	} else {
 		fmt.Println(`generate migration file`)
 		_ = genFile()
@@ -81,14 +75,13 @@ func migrateModel() error {
 	migration.Migrate.Migrate()
 	return err
 }
-func initDB() error {
+func initDB() {
 	//3. 初始化数据库链接
 	database.Setup()
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
 	_ = migrateModel()
 	fmt.Println(`数据库基础数据初始化成功`)
-	return nil
 }
 
 func genFile() error {

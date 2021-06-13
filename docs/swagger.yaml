@@ -1,4 +1,11 @@
 definitions:
+  dto.GetSetSysConfigReq:
+    properties:
+      configKey:
+        type: string
+      configValue:
+        type: string
+    type: object
   dto.PassWord:
     properties:
       newPassword:
@@ -8,6 +15,53 @@ definitions:
     required:
     - newPassword
     - oldPassword
+    type: object
+  dto.SysApiControl:
+    properties:
+      action:
+        type: string
+      createBy:
+        type: integer
+      handle:
+        type: string
+      id:
+        description: 编码
+        type: integer
+      path:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  dto.SysConfigByKeyReq:
+    properties:
+      configKey:
+        type: string
+    type: object
+  dto.SysConfigControl:
+    properties:
+      configKey:
+        type: string
+      configName:
+        type: string
+      configType:
+        type: string
+      configValue:
+        type: string
+      createBy:
+        type: integer
+      id:
+        description: 编码
+        type: integer
+      isFrontend:
+        type: integer
+      remark:
+        type: string
+      updateBy:
+        type: integer
     type: object
   dto.SysDeptById:
     properties:
@@ -20,6 +74,8 @@ definitions:
     type: object
   dto.SysDeptControl:
     properties:
+      createBy:
+        type: integer
       deptId:
         description: 编码
         type: integer
@@ -47,9 +103,13 @@ definitions:
       status:
         description: 状态
         type: string
+      updateBy:
+        type: integer
     type: object
   dto.SysDictDataControl:
     properties:
+      createBy:
+        type: integer
       cssClass:
         type: string
       default:
@@ -72,9 +132,13 @@ definitions:
         type: string
       status:
         type: string
+      updateBy:
+        type: integer
     type: object
   dto.SysDictTypeControl:
     properties:
+      createBy:
+        type: integer
       dictName:
         type: string
       dictType:
@@ -85,27 +149,39 @@ definitions:
         type: string
       status:
         type: string
+      updateBy:
+        type: integer
     type: object
   dto.SysMenuById:
     properties:
+      createBy:
+        type: integer
       id:
         type: integer
       ids:
         items:
           type: integer
         type: array
+      updateBy:
+        type: integer
     type: object
   dto.SysMenuControl:
     properties:
       action:
         description: 请求方式
         type: string
+      apis:
+        items:
+          type: integer
+        type: array
       breadcrumb:
         description: 是否面包屑
         type: string
       component:
         description: 组件
         type: string
+      createBy:
+        type: integer
       icon:
         description: 图标
         type: string
@@ -139,15 +215,32 @@ definitions:
       sort:
         description: 排序
         type: integer
+      sysApi:
+        items:
+          $ref: '#/definitions/models.SysApi'
+        type: array
       title:
         description: 显示名称
         type: string
+      updateBy:
+        type: integer
       visible:
         description: 是否显示
         type: string
     type: object
+  dto.SysOperaLogById:
+    properties:
+      id:
+        type: integer
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
   dto.SysPostControl:
     properties:
+      createBy:
+        type: integer
       postCode:
         description: 编码
         type: string
@@ -166,6 +259,8 @@ definitions:
       status:
         description: 状态
         type: integer
+      updateBy:
+        type: integer
     type: object
   dto.SysRoleById:
     properties:
@@ -180,6 +275,8 @@ definitions:
     properties:
       admin:
         type: boolean
+      createBy:
+        type: integer
       dataScope:
         type: string
       flag:
@@ -207,27 +304,19 @@ definitions:
       status:
         description: 状态
         type: string
-    type: object
-  dto.SysSettingControl:
-    properties:
-      logo:
-        description: 头像
-        type: string
-      name:
-        description: 名称
-        type: string
-      settings_id:
-        description: 头像
+      sysMenu:
+        items:
+          $ref: '#/definitions/models.SysMenu'
+        type: array
+      updateBy:
         type: integer
-    required:
-    - logo
-    - name
-    - settings_id
     type: object
   dto.SysUserControl:
     properties:
       avatar:
         type: string
+      createBy:
+        type: integer
       deptId:
         type: integer
       email:
@@ -248,6 +337,8 @@ definitions:
         type: string
       status:
         type: string
+      updateBy:
+        type: integer
       userId:
         description: 用户ID
         type: integer
@@ -270,6 +361,126 @@ definitions:
     - username
     - uuid
     type: object
+  models.SysApi:
+    properties:
+      action:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      handle:
+        type: string
+      id:
+        type: integer
+      path:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.SysConfig:
+    properties:
+      configKey:
+        type: string
+      configName:
+        type: string
+      configType:
+        type: string
+      configValue:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: integer
+      isFrontend:
+        type: integer
+      remark:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.SysMenu:
+    properties:
+      action:
+        type: string
+      apis:
+        items:
+          type: integer
+        type: array
+      breadcrumb:
+        type: string
+      children:
+        items:
+          $ref: '#/definitions/models.SysMenu'
+        type: array
+      component:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      dataScope:
+        type: string
+      icon:
+        type: string
+      is_select:
+        type: boolean
+      isFrame:
+        type: string
+      menuId:
+        type: integer
+      menuName:
+        type: string
+      menuType:
+        type: string
+      noCache:
+        type: boolean
+      params:
+        type: string
+      parentId:
+        type: integer
+      path:
+        type: string
+      paths:
+        type: string
+      permission:
+        type: string
+      roleId:
+        type: integer
+      sort:
+        type: integer
+      sysApi:
+        items:
+          $ref: '#/definitions/models.SysApi'
+        type: array
+      title:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+      visible:
+        type: string
+    type: object
+  response.Page:
+    properties:
+      count:
+        type: integer
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
   response.Response:
     properties:
       code:
@@ -277,6 +488,7 @@ definitions:
       msg:
         type: string
       requestId:
+        description: 数据集
         type: string
       status:
         type: string
@@ -387,7 +599,7 @@ definitions:
           $ref: '#/definitions/tools.SysColumns'
         type: array
       createBy:
-        type: string
+        type: integer
       createdAt:
         type: string
       crud:
@@ -414,8 +626,11 @@ definitions:
         type: boolean
       logicalDeleteColumn:
         type: string
+      moduleFrontName:
+        description: 前端文件名
+        type: string
       moduleName:
-        description: 模块名
+        description: go文件名
         type: string
       options:
         type: string
@@ -452,7 +667,7 @@ definitions:
       treeParentCode:
         type: string
       updateBy:
-        type: string
+        type: integer
       updatedAt:
         type: string
     type: object
@@ -460,13 +675,33 @@ info:
   contact: {}
   description: |-
     基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档
-    添加qq群: 74520518 进入技术交流群 请备注，谢谢！
+    添加qq群: 521386980 进入技术交流群 请先star，谢谢！
   license:
     name: MIT
     url: https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md
   title: go-admin API
-  version: 1.3.1
+  version: 2.0.0
 paths:
+  /api/v1/app-config:
+    get:
+      description: 获取系统配置信息，主要注意这里不在验证数据权限
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取系统前台配置信息，主要注意这里不在验证数据权限
+      tags:
+      - 配置管理
   /api/v1/db/columns/page:
     get:
       description: 数据库表列分页列表 / database table column page list
@@ -627,6 +862,25 @@ paths:
       summary: 修改部门
       tags:
       - 部门
+  /api/v1/dict-data/option-select:
+    get:
+      description: 数据字典根据key获取
+      parameters:
+      - description: dictType
+        in: query
+        name: dictType
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: '{"code": -1, "message": "删除失败"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 数据字典根据key获取
+      tags:
+      - 字典数据
   /api/v1/dict/data:
     get:
       description: 获取JSON
@@ -696,6 +950,8 @@ paths:
           description: '{"code": -1, "message": "删除失败"}'
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 删除字典数据
       tags:
       - 字典数据
@@ -816,7 +1072,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: 字典类型全部数据
+      summary: 字典类型全部数据 代码生成使用接口
       tags:
       - 字典类型
   /api/v1/dict/type/{dictId}:
@@ -851,7 +1107,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: 通过字典id获取字典类型
+      summary: 字典类型通过字典id获取
       tags:
       - 字典类型
     put:
@@ -875,7 +1131,71 @@ paths:
       summary: 修改字典类型
       tags:
       - 字典类型
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        获取token
+        LoginHandler can be used by clients to get a jwt token.
+        Payload needs to be json in the form of {"username": "USERNAME", "password": "PASSWORD"}.
+        Reply will be of the form {"token": "TOKEN"}.
+        dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
+        注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
+      parameters:
+      - description: account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handler.Login'
+      responses:
+        "200":
+          description: '{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token":
+            ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A"
+            }'
+          schema:
+            type: string
+      summary: 登陆
   /api/v1/menu:
+    delete:
+      description: 删除数据
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysMenuById'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "删除失败"}'
+          schema:
+            type: string
+      summary: 删除菜单
+      tags:
+      - 菜单
+    get:
+      description: 获取JSON
+      parameters:
+      - description: menuName
+        in: query
+        name: menuName
+        type: string
+      - description: menuName
+        in: query
+        name: menuName
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Menu列表数据
+      tags:
+      - 菜单
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -918,24 +1238,6 @@ paths:
       security:
       - Bearer: []
       summary: 创建菜单
-      tags:
-      - 菜单
-  /api/v1/menu/:
-    delete:
-      description: 删除数据
-      parameters:
-      - description: body
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/dto.SysMenuById'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "删除失败"}'
-          schema:
-            type: string
-      summary: 删除菜单
       tags:
       - 菜单
   /api/v1/menu/{id}:
@@ -982,11 +1284,17 @@ paths:
       summary: 修改菜单
       tags:
       - 菜单
-  /api/v1/menuTreeselect:
+  /api/v1/menuTreeselect/{roleId}:
     get:
       consumes:
       - application/x-www-form-urlencoded
       description: 获取JSON
+      parameters:
+      - description: roleId
+        in: path
+        name: roleId
+        required: true
+        type: integer
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -994,7 +1302,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 获取菜单树
+      summary: 角色修改使用的菜单列表
       tags:
       - 菜单
   /api/v1/menuids/{id}:
@@ -1016,33 +1324,9 @@ paths:
       summary: 获取角色对应的菜单id数组
       tags:
       - 菜单
-  /api/v1/menulist:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: menuName
-        in: query
-        name: menuName
-        type: string
-      responses:
-        "200":
-          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: Menu列表数据
-      tags:
-      - 菜单
   /api/v1/menurole:
     get:
       description: 获取JSON
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: integer
       responses:
         "200":
           description: '{"code": -1, "message": "抱歉未找到相关信息"}'
@@ -1050,7 +1334,7 @@ paths:
             type: string
       security:
       - Bearer: []
-      summary: 根据角色名称获取菜单列表数据（左菜单使用）
+      summary: 根据登录角色名称获取菜单列表数据（左菜单使用）
       tags:
       - 菜单
   /api/v1/post:
@@ -1302,18 +1586,7 @@ paths:
       summary: 修改用户角色
       tags:
       - 角色/Role
-  /api/v1/setting:
-    get:
-      description: 获取JSON
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      summary: 查询系统信息
-      tags:
-      - 系统信息
-  /api/v1/settings/serverInfo:
+  /api/v1/server-monitor:
     get:
       description: 获取JSON
       responses:
@@ -1324,6 +1597,387 @@ paths:
       summary: 系统信息
       tags:
       - 系统信息
+  /api/v1/set-config:
+    get:
+      consumes:
+      - application/json
+      description: 界面操作设置配置值的获取
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取配置
+      tags:
+      - 配置管理
+    put:
+      consumes:
+      - application/json
+      description: 界面操作设置配置值
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/dto.GetSetSysConfigReq'
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 设置配置
+      tags:
+      - 配置管理
+  /api/v1/sys-api:
+    delete:
+      description: 删除接口管理
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "删除成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除接口管理
+      tags:
+      - 接口管理
+    get:
+      description: 获取接口管理列表
+      parameters:
+      - description: 名称
+        in: query
+        name: name
+        type: string
+      - description: 标题
+        in: query
+        name: title
+        type: string
+      - description: 地址
+        in: query
+        name: path
+        type: string
+      - description: 类型
+        in: query
+        name: action
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.Page'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.SysApi'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取接口管理列表
+      tags:
+      - 接口管理
+  /api/v1/sys-api/{id}:
+    get:
+      description: 获取接口管理
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.SysApi'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取接口管理
+      tags:
+      - 接口管理
+    put:
+      consumes:
+      - application/json
+      description: 修改接口管理
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysApiControl'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改接口管理
+      tags:
+      - 接口管理
+  /api/v1/sys-config:
+    delete:
+      description: 删除配置管理
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "删除成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除配置管理
+      tags:
+      - 配置管理
+    get:
+      description: 获取配置管理列表
+      parameters:
+      - description: 名称
+        in: query
+        name: configName
+        type: string
+      - description: key
+        in: query
+        name: configKey
+        type: string
+      - description: 类型
+        in: query
+        name: configType
+        type: string
+      - description: 是否前端
+        in: query
+        name: isFrontend
+        type: integer
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.Page'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.SysApi'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取配置管理列表
+      tags:
+      - 配置管理
+    post:
+      consumes:
+      - application/json
+      description: 创建配置管理
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysConfigControl'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "创建成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 创建配置管理
+      tags:
+      - 配置管理
+  /api/v1/sys-config/{id}:
+    get:
+      description: 获取配置管理
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.SysConfig'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取配置管理
+      tags:
+      - 配置管理
+    put:
+      consumes:
+      - application/json
+      description: 修改配置管理
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysConfigControl'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改配置管理
+      tags:
+      - 配置管理
+  /api/v1/sys-opera-log:
+    delete:
+      description: 删除数据
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysOperaLogById'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "删除失败"}'
+          schema:
+            type: string
+      summary: 删除操作日志
+      tags:
+      - 操作日志
+    get:
+      description: 获取JSON
+      parameters:
+      - description: title
+        in: query
+        name: title
+        type: string
+      - description: method
+        in: query
+        name: method
+        type: string
+      - description: requestMethod
+        in: query
+        name: requestMethod
+        type: string
+      - description: operUrl
+        in: query
+        name: operUrl
+        type: string
+      - description: operIp
+        in: query
+        name: operIp
+        type: string
+      - description: status
+        in: query
+        name: status
+        type: string
+      - description: beginTime
+        in: query
+        name: beginTime
+        type: string
+      - description: endTime
+        in: query
+        name: endTime
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 操作日志列表
+      tags:
+      - 操作日志
+  /api/v1/sys-opera-log/{id}:
+    get:
+      description: 获取JSON
+      parameters:
+      - description: id
+        in: query
+        name: id
+        type: string
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 操作日志通过id获取
+      tags:
+      - 操作日志
   /api/v1/sys/tables/info:
     post:
       consumes:
@@ -1480,24 +2134,6 @@ paths:
       summary: 获取用户
       tags:
       - 用户
-  /api/v1/system/setting:
-    post:
-      description: 获取JSON
-      parameters:
-      - description: body
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/dto.SysSettingControl'
-      responses:
-        "200":
-          description: '{"code": -1, "message": "添加失败"}'
-          schema:
-            type: string
-      summary: 更新或提交系统信息
-      tags:
-      - 系统信息
   /api/v1/sysuser/{userId}:
     delete:
       description: 删除数据
@@ -1588,32 +2224,6 @@ paths:
       summary: 重置密码
       tags:
       - 用户
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: |-
-        获取token
-        LoginHandler can be used by clients to get a jwt token.
-        Payload needs to be json in the form of {"username": "USERNAME", "password": "PASSWORD"}.
-        Reply will be of the form {"token": "TOKEN"}.
-        dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
-        注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
-      parameters:
-      - description: account
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/handler.Login'
-      responses:
-        "200":
-          description: '{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token":
-            ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A"
-            }'
-          schema:
-            type: string
-      summary: 登陆
   /logout:
     post:
       consumes:

@@ -3,12 +3,12 @@ package service
 import (
 	"errors"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysDictType struct {
@@ -16,9 +16,9 @@ type SysDictType struct {
 }
 
 // GetPage 获取列表
-func (e *SysDictType) GetPage(c *dto.SysDictTypeSearch, list *[]system.SysDictType, count *int64) error {
+func (e *SysDictType) GetPage(c *dto.SysDictTypeSearch, list *[]models.SysDictType, count *int64) error {
 	var err error
-	var data system.SysDictType
+	var data models.SysDictType
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -35,12 +35,10 @@ func (e *SysDictType) GetPage(c *dto.SysDictTypeSearch, list *[]system.SysDictTy
 }
 
 // Get 获取对象
-func (e *SysDictType) Get(d *dto.SysDictTypeById, model *system.SysDictType) error {
+func (e *SysDictType) Get(d *dto.SysDictTypeById, model *models.SysDictType) error {
 	var err error
-	var data system.SysDictType
 
-	db := e.Orm.Model(&data).
-		First(model, d.GetId())
+	db := e.Orm.First(model, d.GetId())
 	err = db.Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
@@ -55,12 +53,11 @@ func (e *SysDictType) Get(d *dto.SysDictTypeById, model *system.SysDictType) err
 }
 
 // Insert 创建对象
-func (e *SysDictType) Insert(model *system.SysDictType) error {
+func (e *SysDictType) Insert(c *dto.SysDictTypeControl) error {
 	var err error
-	var data system.SysDictType
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	var data models.SysDictType
+	c.Generate(&data)
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -69,11 +66,12 @@ func (e *SysDictType) Insert(model *system.SysDictType) error {
 }
 
 // Update 修改对象
-func (e *SysDictType) Update(c *system.SysDictType) error {
+func (e *SysDictType) Update(c *dto.SysDictTypeControl) error {
 	var err error
-	db := e.Orm.Model(&system.SysDictType{
-		ID: c.GetId().(int),
-	}).Updates(c)
+	var model = models.SysDictType{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
+	db := e.Orm.Save(&model)
 	if db.Error != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -86,11 +84,11 @@ func (e *SysDictType) Update(c *system.SysDictType) error {
 }
 
 // Remove 删除
-func (e *SysDictType) Remove(d *dto.SysDictTypeById, c *system.SysDictType) error {
+func (e *SysDictType) Remove(d *dto.SysDictTypeById) error {
 	var err error
-	var data system.SysDictType
+	var data models.SysDictType
 
-	db := e.Orm.Model(&data).Delete(c, d.GetId())
+	db := e.Orm.Delete(&data, d.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
@@ -104,9 +102,9 @@ func (e *SysDictType) Remove(d *dto.SysDictTypeById, c *system.SysDictType) erro
 }
 
 // GetAll 获取所有
-func (e *SysDictType) GetAll(c *dto.SysDictTypeSearch, list *[]system.SysDictType) error {
+func (e *SysDictType) GetAll(c *dto.SysDictTypeSearch, list *[]models.SysDictType) error {
 	var err error
-	var data system.SysDictType
+	var data models.SysDictType
 
 	err = e.Orm.Model(&data).
 		Scopes(

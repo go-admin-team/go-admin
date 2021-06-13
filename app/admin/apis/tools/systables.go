@@ -5,18 +5,19 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models/tools"
-	"go-admin/common/apis"
 )
 
 type SysTable struct {
-	apis.Api
+	api.Api
 }
 
+// GetSysTableList 分页列表数据
 // @Summary 分页列表数据
 // @Description 生成表分页列表
 // @Tags 工具 - 生成表
@@ -25,7 +26,7 @@ type SysTable struct {
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/page [get]
-func (e *SysTable) GetSysTableList(c *gin.Context) {
+func (e SysTable) GetSysTableList(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	var data tools.SysTables
@@ -66,7 +67,7 @@ func (e *SysTable) GetSysTableList(c *gin.Context) {
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/info/{tableId} [get]
 // @Security Bearer
-func (e *SysTable) GetSysTables(c *gin.Context) {
+func (e SysTable) GetSysTables(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()
@@ -91,7 +92,7 @@ func (e *SysTable) GetSysTables(c *gin.Context) {
 	e.OK(mp, "")
 }
 
-func (e *SysTable) GetSysTablesInfo(c *gin.Context) {
+func (e SysTable) GetSysTablesInfo(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()
@@ -120,7 +121,7 @@ func (e *SysTable) GetSysTablesInfo(c *gin.Context) {
 	//c.JSON(http.StatusOK, res.ReturnOK())
 }
 
-func (e *SysTable) GetSysTablesTree(c *gin.Context) {
+func (e SysTable) GetSysTablesTree(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()
@@ -151,7 +152,7 @@ func (e *SysTable) GetSysTablesTree(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [post]
 // @Security Bearer
-func (e *SysTable) InsertSysTable(c *gin.Context) {
+func (e SysTable) InsertSysTable(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()
@@ -187,7 +188,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.CreateBy = 0
+	data.CreateBy = user.GetUserId(c)
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get(tx)
@@ -204,12 +205,13 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 		//data.PackageName += strings.ToLower(strStart) + strings.ToLower(strend)
 		data.ModuleName += strings.ToLower(strStart) + strings.ToLower(strend)
 	}
+	data.ModuleFrontName = strings.ReplaceAll(data.ModuleName, "_", "-")
 	data.PackageName = "admin"
 	data.TplCategory = "crud"
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList(tx)
-	data.CreateBy = 0
+	data.CreateBy = user.GetUserId(c)
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -295,7 +297,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [put]
 // @Security Bearer
-func (e *SysTable) UpdateSysTable(c *gin.Context) {
+func (e SysTable) UpdateSysTable(c *gin.Context) {
 	var data tools.SysTables
 	err := c.Bind(&data)
 	pkg.HasError(err, "数据解析失败", 500)
@@ -309,7 +311,7 @@ func (e *SysTable) UpdateSysTable(c *gin.Context) {
 		return
 	}
 
-	data.UpdateBy = 0
+	data.UpdateBy = user.GetUserId(c)
 	result, err := data.Update(db)
 	if err != nil {
 		log.Errorf("Update error, %s", err.Error())
@@ -326,7 +328,7 @@ func (e *SysTable) UpdateSysTable(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/sys/tables/info/{tableId} [delete]
-func (e *SysTable) DeleteSysTables(c *gin.Context) {
+func (e SysTable) DeleteSysTables(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	db, err := e.GetOrm()

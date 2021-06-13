@@ -3,12 +3,12 @@ package service
 import (
 	"errors"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysDictData struct {
@@ -16,9 +16,9 @@ type SysDictData struct {
 }
 
 // GetPage 获取列表
-func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]system.SysDictData, count *int64) error {
+func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]models.SysDictData, count *int64) error {
 	var err error
-	var data system.SysDictData
+	var data models.SysDictData
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -35,9 +35,9 @@ func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]system.SysDictDa
 }
 
 // Get 获取对象
-func (e *SysDictData) Get(d *dto.SysDictDataById, model *system.SysDictData) error {
+func (e *SysDictData) Get(d *dto.SysDictDataById, model *models.SysDictData) error {
 	var err error
-	var data system.SysDictData
+	var data models.SysDictData
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
@@ -55,12 +55,11 @@ func (e *SysDictData) Get(d *dto.SysDictDataById, model *system.SysDictData) err
 }
 
 // Insert 创建对象
-func (e *SysDictData) Insert(model *system.SysDictData) error {
+func (e *SysDictData) Insert(c *dto.SysDictDataControl) error {
 	var err error
-	var data system.SysDictData
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	var data = new(models.SysDictData)
+	c.Generate(data)
+	err = e.Orm.Create(data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -69,12 +68,13 @@ func (e *SysDictData) Insert(model *system.SysDictData) error {
 }
 
 // Update 修改对象
-func (e *SysDictData) Update(c *system.SysDictData) error {
+func (e *SysDictData) Update(c *dto.SysDictDataControl) error {
 	var err error
-	db := e.Orm.Model(&system.SysDictData{
-		DictCode: c.GetId().(int),
-	}).Updates(c)
-	if db.Error != nil {
+	var model = models.SysDictData{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
+	db := e.Orm.Save(model)
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
@@ -86,11 +86,11 @@ func (e *SysDictData) Update(c *system.SysDictData) error {
 }
 
 // Remove 删除
-func (e *SysDictData) Remove(d *dto.SysDictDataById, c *system.SysDictData) error {
+func (e *SysDictData) Remove(c *dto.SysDictDataById) error {
 	var err error
-	var data system.SysDictData
+	var data models.SysDictData
 
-	db := e.Orm.Model(&data).Delete(c, d.GetId())
+	db := e.Orm.Delete(&data, c.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
@@ -104,9 +104,9 @@ func (e *SysDictData) Remove(d *dto.SysDictDataById, c *system.SysDictData) erro
 }
 
 // GetAll 获取所有
-func (e *SysDictData) GetAll(c *dto.SysDictDataSearch, list *[]system.SysDictData) error {
+func (e *SysDictData) GetAll(c *dto.SysDictDataSearch, list *[]models.SysDictData) error {
 	var err error
-	var data system.SysDictData
+	var data models.SysDictData
 
 	err = e.Orm.Model(&data).
 		Scopes(
