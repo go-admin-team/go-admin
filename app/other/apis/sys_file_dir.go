@@ -18,7 +18,7 @@ type SysFileDir struct {
 	api.Api
 }
 
-func (e SysFileDir) GetSysFileDirList(c *gin.Context) {
+func (e SysFileDir) GetPage(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	search := new(dto.SysFileDirSearch)
@@ -47,7 +47,7 @@ func (e SysFileDir) GetSysFileDirList(c *gin.Context) {
 	e.OK(list, "查询成功")
 }
 
-func (e SysFileDir) GetSysFileDir(c *gin.Context) {
+func (e SysFileDir) Get(c *gin.Context) {
 	control := new(dto.SysFileDirById)
 	e.Context = c
 	log := e.GetLogger()
@@ -76,10 +76,10 @@ func (e SysFileDir) GetSysFileDir(c *gin.Context) {
 		return
 	}
 
-	e.OK(object, "查看成功")
+	e.OK(object, "查询成功")
 }
 
-func (e SysFileDir) InsertSysFileDir(c *gin.Context) {
+func (e SysFileDir) Insert(c *gin.Context) {
 	control := new(dto.SysFileDirControl)
 	e.Context = c
 	log := e.GetLogger()
@@ -118,7 +118,7 @@ func (e SysFileDir) InsertSysFileDir(c *gin.Context) {
 	e.OK(control.Id, "创建成功")
 }
 
-func (e SysFileDir) UpdateSysFileDir(c *gin.Context) {
+func (e SysFileDir) Update(c *gin.Context) {
 	control := new(dto.SysFileDirControl)
 	e.Context = c
 	log := e.GetLogger()
@@ -156,7 +156,7 @@ func (e SysFileDir) UpdateSysFileDir(c *gin.Context) {
 	e.OK(control.Id, "更新成功")
 }
 
-func (e SysFileDir) DeleteSysFileDir(c *gin.Context) {
+func (e SysFileDir) Delete(c *gin.Context) {
 	control := new(dto.SysFileDirById)
 	e.Context = c
 	log := e.GetLogger()

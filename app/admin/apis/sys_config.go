@@ -80,7 +80,7 @@ func (e SysConfig) Get(c *gin.Context) {
 		return
 	}
 
-	e.OK(object, "查看成功")
+	e.OK(object, "查询成功")
 }
 
 // Insert 创建配置管理

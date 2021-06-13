@@ -17,7 +17,7 @@ type SysFileInfo struct {
 	api.Api
 }
 
-func (e SysFileInfo) GetSysFileInfoList(c *gin.Context) {
+func (e SysFileInfo) GetPage(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	search := new(dto2.SysFileInfoSearch)
@@ -51,7 +51,7 @@ func (e SysFileInfo) GetSysFileInfoList(c *gin.Context) {
 	e.PageOK(list, int(count), search.PageIndex, search.PageSize, "查询成功")
 }
 
-func (e SysFileInfo) GetSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) Get(c *gin.Context) {
 	control := new(dto2.SysFileInfoById)
 	e.Context = c
 	log := e.GetLogger()
@@ -84,10 +84,10 @@ func (e SysFileInfo) GetSysFileInfo(c *gin.Context) {
 		return
 	}
 
-	e.OK(object, "查看成功")
+	e.OK(object, "查询成功")
 }
 
-func (e SysFileInfo) InsertSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) Insert(c *gin.Context) {
 	control := new(dto2.SysFileInfoControl)
 	e.Context = c
 	log := e.GetLogger()
@@ -126,7 +126,7 @@ func (e SysFileInfo) InsertSysFileInfo(c *gin.Context) {
 	e.OK(control.Id, "创建成功")
 }
 
-func (e SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) Update(c *gin.Context) {
 	control := new(dto2.SysFileInfoControl)
 	e.Context = c
 	log := e.GetLogger()
@@ -166,7 +166,7 @@ func (e SysFileInfo) UpdateSysFileInfo(c *gin.Context) {
 	e.OK(control.Id, "更新成功")
 }
 
-func (e SysFileInfo) DeleteSysFileInfo(c *gin.Context) {
+func (e SysFileInfo) Delete(c *gin.Context) {
 	control := new(dto2.SysFileInfoById)
 	e.Context = c
 	log := e.GetLogger()

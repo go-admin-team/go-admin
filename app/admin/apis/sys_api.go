@@ -83,7 +83,7 @@ func (e SysApi) Get(c *gin.Context) {
 		e.Error(500, err, "查询失败")
 		return
 	}
-	e.OK(object, "查看成功")
+	e.OK(object, "查询成功")
 }
 
 // Update 修改接口管理

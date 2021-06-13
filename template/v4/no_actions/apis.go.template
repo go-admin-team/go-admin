@@ -111,7 +111,7 @@ func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 		return
 	}
 
-	e.OK( object, "查看成功")
+	e.OK( object, "查询成功")
 }
 
 // Insert{{.ClassName}} 创建{{.TableComment}}
