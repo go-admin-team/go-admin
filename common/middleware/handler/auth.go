@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"fmt"
 	"go-admin/app/admin/models"
+	"go-admin/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -115,8 +117,9 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	l := make(map[string]interface{})
 
 	ua := user_agent.New(c.Request.UserAgent())
-	l["ipaddr"] = c.ClientIP()
-	l["loginLocation"] = pkg.GetLocation(c.ClientIP(),gaConfig.ExtConfig.AMap.Key)
+	l["ipaddr"] = common.GetClientIP(c)
+	fmt.Println("gaConfig.ExtConfig.AMap.Key", gaConfig.ExtConfig.AMap.Key)
+	l["loginLocation"] = pkg.GetLocation(common.GetClientIP(c),gaConfig.ExtConfig.AMap.Key)
 	l["loginTime"] = pkg.GetCurrentTime()
 	l["status"] = status
 	l["remark"] = c.Request.UserAgent()

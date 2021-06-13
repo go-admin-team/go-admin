@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go-admin/common"
 	gaConfig "go-admin/config"
 	"io"
 	"io/ioutil"
@@ -80,12 +81,7 @@ func LoggerToFile() gin.HandlerFunc {
 		// 状态码
 		statusCode := c.Writer.Status()
 		// 请求IP
-		clientIP := c.ClientIP()
-
-
-		fmt.Println("Headers:", c.Request.Header.Get("X-Real-IP"))
-
-		fmt.Println("clientIP:", clientIP)
+		clientIP := common.GetClientIP(c)
 		// 执行时间
 		latencyTime := endTime.Sub(startTime)
 		// 日志格式
@@ -111,6 +107,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	l["_fullPath"] = c.FullPath()
 	l["operUrl"] = reqUri
 	l["operIp"] = clientIP
+	fmt.Println("gaConfig.ExtConfig.AMap.Key", gaConfig.ExtConfig.AMap.Key)
 	l["operLocation"] = pkg.GetLocation(clientIP, gaConfig.ExtConfig.AMap.Key)
 	l["operName"] = user.GetUserName(c)
 	l["requestMethod"] = c.Request.Method
