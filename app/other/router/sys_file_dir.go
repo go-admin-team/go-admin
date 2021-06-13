@@ -16,10 +16,10 @@ func registerSysFileDirRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMid
 	api := apis.SysFileDir{}
 	r := v1.Group("/file-dir").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysFileDirList)
-		r.GET("/:id", api.GetSysFileDir)
-		r.POST("", api.InsertSysFileDir)
-		r.PUT("/:id", api.UpdateSysFileDir)
-		r.DELETE("/:id", api.DeleteSysFileDir)
+		r.GET("", api.GetPage)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("/:id", api.Update)
+		r.DELETE("/:id", api.Delete)
 	}
 }

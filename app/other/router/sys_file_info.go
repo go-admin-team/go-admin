@@ -16,10 +16,10 @@ func registerSysFileInfoRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMi
 	api := apis.SysFileInfo{}
 	r := v1.Group("/file-info").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		r.GET("", api.GetSysFileInfoList)
-		r.GET("/:id", api.GetSysFileInfo)
-		r.POST("", api.InsertSysFileInfo)
-		r.PUT("/:id", api.UpdateSysFileInfo)
-		r.DELETE("/:id", api.DeleteSysFileInfo)
+		r.GET("", api.GetPage)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("/:id", api.Update)
+		r.DELETE("/:id", api.Delete)
 	}
 }
