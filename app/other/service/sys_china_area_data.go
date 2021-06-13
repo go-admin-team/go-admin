@@ -16,8 +16,8 @@ type SysChinaAreaData struct {
 	service.Service
 }
 
-// GetSysChinaAreaDataPage 获取SysChinaAreaData列表
-func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto.SysChinaAreaDataSearch, p *actions.DataPermission, list *[]models.SysChinaAreaData, count *int64) error {
+// GetPage 获取SysChinaAreaData列表
+func (e *SysChinaAreaData) GetPage(c *dto.SysChinaAreaDataSearch, p *actions.DataPermission, list *[]models.SysChinaAreaData, count *int64) error {
 	var data models.SysChinaAreaData
 
 	err := e.Orm.Model(&data).
@@ -35,8 +35,8 @@ func (e *SysChinaAreaData) GetSysChinaAreaDataPage(c *dto.SysChinaAreaDataSearch
 	return nil
 }
 
-// GetSysChinaAreaData 获取SysChinaAreaData对象
-func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto.SysChinaAreaDataById, p *actions.DataPermission, model *models.SysChinaAreaData) error {
+// Get 获取SysChinaAreaData对象
+func (e *SysChinaAreaData) Get(d *dto.SysChinaAreaDataById, p *actions.DataPermission, model *models.SysChinaAreaData) error {
 	var data models.SysChinaAreaData
 
 	err := e.Orm.Model(&data).
@@ -56,8 +56,8 @@ func (e *SysChinaAreaData) GetSysChinaAreaData(d *dto.SysChinaAreaDataById, p *a
 	return nil
 }
 
-// InsertSysChinaAreaData 创建SysChinaAreaData对象
-func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models.SysChinaAreaData) error {
+// Insert 创建SysChinaAreaData对象
+func (e *SysChinaAreaData) Insert(model *models.SysChinaAreaData) error {
 	var data models.SysChinaAreaData
 
 	err := e.Orm.Model(&data).
@@ -69,8 +69,8 @@ func (e *SysChinaAreaData) InsertSysChinaAreaData(model *models.SysChinaAreaData
 	return nil
 }
 
-// UpdateSysChinaAreaData 修改SysChinaAreaData对象
-func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models.SysChinaAreaData, p *actions.DataPermission) error {
+// Update 修改SysChinaAreaData对象
+func (e *SysChinaAreaData) Update(c *models.SysChinaAreaData, p *actions.DataPermission) error {
 	db := e.Orm.Model(c).
 		Scopes(
 			actions.Permission(c.TableName(), p),
@@ -85,8 +85,8 @@ func (e *SysChinaAreaData) UpdateSysChinaAreaData(c *models.SysChinaAreaData, p 
 	return nil
 }
 
-// RemoveSysChinaAreaData 删除SysChinaAreaData
-func (e *SysChinaAreaData) RemoveSysChinaAreaData(d *dto.SysChinaAreaDataById, p *actions.DataPermission) error {
+// Remove 删除SysChinaAreaData
+func (e *SysChinaAreaData) Remove(d *dto.SysChinaAreaDataById, p *actions.DataPermission) error {
 
 	var data models.SysChinaAreaData
 
