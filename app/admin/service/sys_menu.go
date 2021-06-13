@@ -45,7 +45,7 @@ func (e *SysMenu) getPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu
 		Scopes(
 			cDto.OrderDest("sort", false),
 			cDto.MakeCondition(c.GetNeedSearch()),
-		).
+		).Preload("SysApi").
 		Find(list).Error
 	if err != nil {
 		e.Log.Errorf("getSysMenuPage error:%s", err)
@@ -117,10 +117,27 @@ func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 // Update 修改SysMenu对象
 func (e *SysMenu) Update(c *dto.SysMenuControl) *SysMenu {
 	var err error
+	tx := e.Orm.Debug().Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+	var alist = make([]models.SysApi, 0)
 	var model = models.SysMenu{}
-	e.Orm.First(&model, c.GetId())
+	tx.Preload("SysApi").First(&model, c.GetId())
+	tx.Where("id in ?", c.Apis).Find(&alist)
+	err = tx.Model(&model).Association("SysApi").Delete(model.SysApi)
+	if err != nil {
+		e.Log.Errorf("delete policy error:%s", err)
+		_ = e.AddError(err)
+		return e
+	}
 	c.Generate(&model)
-	db := e.Orm.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
+	model.SysApi = alist
+	db := tx.Model(&model).Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
@@ -276,6 +293,7 @@ func menuCall(menuList *[]models.SysMenu, menu models.SysMenu) models.SysMenu {
 		mi.Sort = list[j].Sort
 		mi.Visible = list[j].Visible
 		mi.CreatedAt = list[j].CreatedAt
+		mi.SysApi = list[j].SysApi
 		mi.Children = []models.SysMenu{}
 
 		if mi.MenuType != cModels.Button {
@@ -313,10 +331,13 @@ func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
 		err = e.Orm.Where(" menu_type in ('M','C')").Order("sort").Find(&data).Error
 		MenuList = data
 	} else {
-		err = e.Orm.Model(&role).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
+		role.RoleKey = roleName
+		err = e.Orm.Debug().Model(&role).Where("role_key = ? ", roleName).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
 			return db.Where(" menu_type in ('M','C')").Order("sort")
-		}).Where("role_name=?", roleName).Find(&role).Error
-		MenuList = *role.SysMenu
+		}).Find(&role).Error
+		if role.SysMenu != nil {
+			MenuList = *role.SysMenu
+		}
 	}
 
 	if err != nil {
