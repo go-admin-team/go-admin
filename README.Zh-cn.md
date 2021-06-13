@@ -9,7 +9,6 @@
 
 [English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | 简体中文
 
-
 基于Gin + Vue + Element UI的前后端分离权限管理系统,系统初始化极度简单，只需要配置文件中，修改数据库连接，系统支持多指令操作，迁移指令可以让初始化数据库信息变得更简单，服务指令可以很简单的启动api服务
 
 [在线文档](https://doc.go-admin.dev)
@@ -44,11 +43,13 @@
 
 - 多指令模式
 
-- TODO: 单元测试
+- 多租户的支持
 
+- TODO: 单元测试
 
 ## 🎁 内置
 
+1. 多租户：系统默认支持多租户，按库分离，一个库一个租户。
 1. 用户管理：用户是系统操作者，该功能主要完成系统用户配置。
 2. 部门管理：配置系统组织机构（公司、部门、小组），树结构展现支持数据权限。
 3. 岗位管理：配置系统用户所属担任职务。
@@ -63,6 +64,7 @@
 1. 表单构建：自定义页面样式，拖拉拽实现页面布局。
 1. 服务监控：查看一些服务器的基本信息。
 1. 内容管理：demo功能，下设分类管理、内容管理。可以参考使用方便快速入门。
+1. 定时任务：自动化任务，目前支持接口调用和函数调用。
 
 ## 准备工作
 
@@ -94,7 +96,6 @@
 
 [go-admin数据权限使用说明](https://www.bilibili.com/video/BV1LK4y1s71e) [必看]
 
-
 **如有问题请先看上述使用文档和文章，若不能满足，欢迎 issue 和 pr ，视频教程和文档持续更新中**
 
 ## 📦 本地开发
@@ -120,7 +121,6 @@ git clone https://github.com/go-admin-team/go-admin.git
 git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ```
-
 
 ### 启动说明
 
@@ -193,8 +193,6 @@ docker build -t go-admin .
 docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin-server
 ```
 
-
-
 #### 文档生成
 
 ```bash
@@ -202,6 +200,7 @@ go generate
 ```
 
 #### 交叉编译
+
 ```bash
 # windows
 env GOOS=windows GOARCH=amd64 go build main.go
@@ -225,10 +224,10 @@ npm run dev
 ```
 
 ## 🎬 在线体验
-> admin  /  123456
+
+> admin / 123456
 
 演示地址：[http://www.go-admin.dev](http://www.go-admin.dev/#/login)
-
 
 ## 📨 互动
 
@@ -252,16 +251,14 @@ npm run dev
 <a href="https://github.com/chengxiao"> <img src="https://avatars.githubusercontent.com/u/1379545?s=460&u=557da5503d0ac4a8628df6b4075b17853d5edcd9&v=4" width="80px"></a>
 <a href="https://github.com/bing127"> <img src="https://avatars.githubusercontent.com/u/31166183?s=460&u=c085bff88df10bb7676c8c0351ba9dcd031d1fb3&v=4" width="80px"></a>
 
-
-
 ## JetBrains 开源证书支持
 
 `go-admin` 项目一直以来都是在 JetBrains 公司旗下的 GoLand 集成开发环境中进行开发，基于 **free JetBrains Open Source license(s)** 正版免费授权，在此表达我的谢意。
 
 <a href="https://www.jetbrains.com/?from=kubeadm-ha" target="_blank"><img src="https://raw.githubusercontent.com/panjf2000/illustrations/master/jetbrains/jetbrains-variant-4.png" width="250" align="middle"/></a>
 
-
 ## 🤝 特别感谢
+
 1. [chengxiao](https://github.com/chengxiao)
 2. [gin](https://github.com/gin-gonic/gin)
 2. [casbin](https://github.com/casbin/casbin)
@@ -280,6 +277,7 @@ npm run dev
 <img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="200px" >
 
 ## 🤝 链接
+
 [Go开发者成长线路图](http://www.golangroadmap.com/)
 
 ## 🔑 License
