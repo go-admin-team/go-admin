@@ -60,7 +60,9 @@ func SaveSysApi(message storage.Messager) (err error) {
 				strings.Contains(v.RelativePath, "/sys/tables") {
 				err := d.Debug().Where(SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
 					Attrs(SysApi{Handle: v.Handler}).
-					FirstOrCreate(&SysApi{}).Error
+					FirstOrCreate(&SysApi{}).
+					//Update("handle", v.Handler).
+					Error
 				if err != nil {
 					err := fmt.Errorf("Models SaveSysApi error: %s \r\n ", err.Error())
 					return err
