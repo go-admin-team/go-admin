@@ -106,7 +106,6 @@ func (e *SysRole) Insert(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error
 // Update 修改SysRole对象
 func (e *SysRole) Update(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error {
 	var err error
-
 	tx := e.Orm.Debug().Begin()
 	defer func() {
 		if err != nil {
