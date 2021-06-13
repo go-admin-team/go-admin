@@ -30,5 +30,8 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 		dicts.PUT("/type/:id", dictApi.Update)
 		dicts.DELETE("/type", dictApi.Delete)
 	}
-	v1.Group("/dict-data").Use(authMiddleware.MiddlewareFunc()).GET("/option-select", dataApi.GetSysDictDataAll)
+	opSelect := v1.Group("/dict-data").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		opSelect.GET("/option-select", dataApi.GetSysDictDataAll)
+	}
 }
