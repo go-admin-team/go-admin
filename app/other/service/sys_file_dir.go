@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
-	"go-admin/app/admin/models/system"
+	common "go-admin/common/models"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
@@ -88,11 +88,11 @@ func (e *SysFileDir) InsertSysFileDir(model *dto.SysFileDirControl) error {
 }
 
 // UpdateSysFileDir 修改SysFileDir对象
-func (e *SysFileDir) UpdateSysFileDir(c *dto.SysFileDirControl, p *actions.DataPermission) error {
+func (e *SysFileDir) Update(c *dto.SysFileDirControl, p *actions.DataPermission) error {
 	var err error
 	data, _ := c.GenerateM()
 
-	db := e.Orm.Model(&system.SysRole{RoleId: c.GetId().(int)}).
+	db := e.Orm.Model(&models.SysFileDir{Model: common.Model{Id: c.GetId().(int)}}).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Updates(data)

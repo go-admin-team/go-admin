@@ -147,7 +147,7 @@ func (e SysFileDir) Update(c *gin.Context) {
 	serviceSysFileDir := service.SysFileDir{}
 	serviceSysFileDir.Orm = db
 	serviceSysFileDir.Log = log
-	err = serviceSysFileDir.UpdateSysFileDir(control, p)
+	err = serviceSysFileDir.Update(control, p)
 	if err != nil {
 		log.Errorf("UpdateSysFileDir error, %s", err)
 		e.Error(http.StatusInternalServerError, err, "更新失败")

@@ -188,7 +188,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	var dbTable tools.DBTables
 	var dbColumn tools.DBColumns
 	data.TBName = tablesList[i]
-	data.CreateBy = user.GetUserId(c)
+	data.CreateBy = 0
 
 	dbTable.TableName = data.TBName
 	dbtable, err := dbTable.Get(tx)
@@ -211,7 +211,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	data.Crud = true
 
 	dbcolumn, err := dbColumn.GetList(tx)
-	data.CreateBy = user.GetUserId(c)
+	data.CreateBy = 0
 	data.TableComment = dbtable.TableComment
 	if dbtable.TableComment == "" {
 		data.TableComment = data.ClassName
@@ -311,7 +311,7 @@ func (e SysTable) UpdateSysTable(c *gin.Context) {
 		return
 	}
 
-	data.UpdateBy = user.GetUserId(c)
+	data.UpdateBy = 0
 	result, err := data.Update(db)
 	if err != nil {
 		log.Errorf("Update error, %s", err.Error())

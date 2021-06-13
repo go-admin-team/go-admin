@@ -92,7 +92,7 @@ func (e *SysFileInfo) UpdateSysFileInfo(c *dto.SysFileInfoControl, p *actions.Da
 		return err
 	}
 	err = e.Orm.Debug().Model(&models.SysFileInfo{Model: common.Model{
-		Id: c.ID,
+		Id: c.Id,
 	}}).
 		Scopes(
 			actions.Permission(data.TableName(), p),
