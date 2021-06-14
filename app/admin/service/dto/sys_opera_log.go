@@ -18,6 +18,11 @@ type SysOperaLogSearch struct {
 	Status         int    `form:"status" search:"type:exact;column:status;table:sys_opera_log" comment:"状态"`
 	BeginTime      string `form:"beginTime" search:"type:gte;column:ctime;table:sys_opera_log" comment:"创建时间"`
 	EndTime        string `form:"endTime" search:"type:lte;column:ctime;table:sys_opera_log" comment:"创建时间"`
+	SysOperaLogOrder
+}
+
+type SysOperaLogOrder struct {
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_opera_log" form:"createdAtOrder"`
 }
 
 func (m *SysOperaLogSearch) GetNeedSearch() interface{} {
