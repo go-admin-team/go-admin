@@ -51,12 +51,12 @@ func (e *SysLoginLog) Get(d *dto.SysLoginLogById, model *models.SysLoginLog) err
 	return nil
 }
 
-// RemoveSysLoginLog 删除SysLoginLog
+// Remove 删除SysLoginLog
 func (e *SysLoginLog) Remove(c *dto.SysLoginLogById) error {
 	var err error
 	var data models.SysLoginLog
 
-	db := e.Orm.Delete(&data, c.Ids)
+	db := e.Orm.Delete(&data, c.GetId())
 	if db.Error != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
