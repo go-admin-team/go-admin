@@ -10,7 +10,6 @@ import (
 	"go-admin/app/other/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
-	common "go-admin/common/models"
 )
 
 type SysChinaAreaData struct {
@@ -97,9 +96,8 @@ func (e *SysChinaAreaData) Insert(model *models.SysChinaAreaData) error {
 // Update 修改SysChinaAreaData对象
 func (e *SysChinaAreaData) Update(c *models.SysChinaAreaData, p *actions.DataPermission) error {
 	db := e.Orm.Model(&models.SysChinaAreaData{
-		Model: common.Model{
-			Id: c.GetId().(int),
-		}}).
+		Id: c.GetId().(int),
+	}).
 		Scopes(
 			actions.Permission(c.TableName(), p),
 		).Updates(c)
@@ -115,14 +113,11 @@ func (e *SysChinaAreaData) Update(c *models.SysChinaAreaData, p *actions.DataPer
 
 // Remove 删除SysChinaAreaData
 func (e *SysChinaAreaData) Remove(d *dto.SysChinaAreaDataById, p *actions.DataPermission) error {
-
 	var data models.SysChinaAreaData
-
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Delete(&data, d.GetId())
-
 	if err := db.Error; err != nil {
 		e.Log.Errorf("Service RemoveSysChinaAreaData error: %s", err)
 		return err
