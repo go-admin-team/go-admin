@@ -32,7 +32,7 @@ func LoggerToFile() gin.HandlerFunc {
 		// 处理请求
 		var body string
 		switch c.Request.Method {
-		case http.MethodPost, http.MethodPut, http.MethodDelete:
+		case http.MethodPost, http.MethodPut, http.MethodGet, http.MethodDelete:
 			bf := bytes.NewBuffer(nil)
 			wt := bufio.NewWriter(bf)
 			_, err := io.Copy(wt, c.Request.Body)
@@ -94,7 +94,7 @@ func LoggerToFile() gin.HandlerFunc {
 		}
 		log.WithFields(logData).Info()
 
-		if c.Request.Method != "OPTIONS" && c.Request.Method != "GET" && config.LoggerConfig.EnabledDB {
+		if c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB && statusCode != 404 {
 			SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, statusBus)
 		}
 	}

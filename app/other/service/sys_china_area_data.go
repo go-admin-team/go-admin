@@ -2,15 +2,15 @@ package service
 
 import (
 	"errors"
-	"go-admin/app/other/models"
-	"go-admin/app/other/service/dto"
-	common "go-admin/common/models"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
+	"go-admin/app/other/models"
+	"go-admin/app/other/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
+	common "go-admin/common/models"
 )
 
 type SysChinaAreaData struct {
@@ -18,22 +18,46 @@ type SysChinaAreaData struct {
 }
 
 // GetPage 获取SysChinaAreaData列表
-func (e *SysChinaAreaData) GetPage(c *dto.SysChinaAreaDataSearch, p *actions.DataPermission, list *[]models.SysChinaAreaData, count *int64) error {
+func (e *SysChinaAreaData) GetPage(c *dto.SysChinaAreaDataSearch, list *[]models.SysChinaAreaData) *SysChinaAreaData {
 	var data models.SysChinaAreaData
-
+	var areaDataList []models.SysChinaAreaData
 	err := e.Orm.Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
-			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
-			actions.Permission(data.TableName(), p),
 		).
-		Find(list).Limit(-1).Offset(-1).
-		Count(count).Error
+		Find(&areaDataList).Error
 	if err != nil {
 		e.Log.Errorf("Service GetSysChinaAreaDataPage error:%s", err)
-		return err
+		_ = e.AddError(err)
+		return e
 	}
-	return nil
+	for i := 0; i < len(areaDataList); i++ {
+		if areaDataList[i].PId != 86 {
+			continue
+		}
+		menusInfo := areaDataCall(&areaDataList, areaDataList[i])
+		*list = append(*list, menusInfo)
+	}
+	return e
+}
+
+// areaDataCall 构建树
+func areaDataCall(areaDataList *[]models.SysChinaAreaData, areaData models.SysChinaAreaData) models.SysChinaAreaData {
+	list := *areaDataList
+
+	min := make([]models.SysChinaAreaData, 0)
+	for j := 0; j < len(list); j++ {
+		if areaData.Id != list[j].PId {
+			continue
+		}
+		mi := models.SysChinaAreaData{}
+		mi = list[j]
+		mi.Children = []models.SysChinaAreaData{}
+		ms := areaDataCall(areaDataList, mi)
+		min = append(min, ms)
+	}
+	areaData.Children = min
+	return areaData
 }
 
 // Get 获取SysChinaAreaData对象

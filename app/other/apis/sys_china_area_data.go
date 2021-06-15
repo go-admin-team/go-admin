@@ -32,18 +32,15 @@ func (e SysChinaAreaData) GetPage(c *gin.Context) {
 		return
 	}
 
-	//数据权限检查
-	p := actions.GetPermissionFromContext(c)
-
 	list := make([]models.SysChinaAreaData, 0)
-	var count int64
-	err = s.GetPage(&req, p, &list, &count)
+	err = s.GetPage(&req, &list).Error
 	if err != nil {
+		e.Logger.Error(err)
 		e.Error(http.StatusInternalServerError, err, "查询失败")
 		return
 	}
 
-	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+	e.OK(list, "查询成功")
 }
 
 func (e SysChinaAreaData) Get(c *gin.Context) {
@@ -51,7 +48,7 @@ func (e SysChinaAreaData) Get(c *gin.Context) {
 	req := dto.SysChinaAreaDataById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.Form).
+		Bind(&req, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"net/http"
@@ -96,10 +97,10 @@ func (e SysOperaLog) Get(c *gin.Context) {
 // @Router /api/v1/sys-opera-log [delete]
 func (e SysOperaLog) Delete(c *gin.Context) {
 	s := new(service.SysOperaLog)
-	req := new(dto.SysOperaLogById)
+	req := dto.SysOperaLogById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(req, binding.Form).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -108,9 +109,10 @@ func (e SysOperaLog) Delete(c *gin.Context) {
 		return
 	}
 
-	err = s.Remove(req)
+	err = s.Remove(&req)
 	if err != nil {
 		e.Logger.Error(err)
+		e.Error(500,err, fmt.Sprintf("删除失败！错误详情：%s", err.Error()))
 		return
 	}
 	e.OK(req.GetId(), "删除成功")

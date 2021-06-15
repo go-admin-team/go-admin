@@ -71,7 +71,7 @@ func (e *SysOperaLog) Remove(d *dto.SysOperaLogById) error {
 	var err error
 	var data models.SysOperaLog
 
-	db := e.Orm.Model(&data).Delete(&data, d.Ids)
+	db := e.Orm.Model(&data).Delete(&data, d.GetId())
 	if err = db.Error; err != nil {
 		e.Log.Errorf("Service RemoveSysOperaLog error:%s", err.Error())
 		return err
