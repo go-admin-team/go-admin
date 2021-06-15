@@ -159,7 +159,7 @@ values  (1, '系统开关', 'sys_normal_disable', '2', '系统开关列表', 1, 
         (9, '操作类型', 'sys_oper_type', '2', '操作类型列表', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
         (10, '通知状态', 'sys_notice_status', '2', '通知状态列表', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
         (11, '内容状态', 'sys_content_status', '2', '', 1, 1, '2021-05-13 19:56:40.813', '2021-05-13 19:56:40.813', null);
-insert into sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, default, remark, create_by, update_by, created_at, updated_at, deleted_at)
+insert into sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, `default`, remark, create_by, update_by, created_at, updated_at, deleted_at)
 values  (1, 0, '正常', '2', 'sys_normal_disable', '', '', '', '2', '', '系统正常', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:40.168', null),
         (2, 0, '停用', '1', 'sys_normal_disable', '', '', '', '2', '', '系统停用', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
         (3, 0, '男', '0', 'sys_user_sex', '', '', '', '2', '', '性别男', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
