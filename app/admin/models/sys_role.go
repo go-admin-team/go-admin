@@ -15,6 +15,7 @@ type SysRole struct {
 	Params    string    `json:"params" gorm:"-"`
 	MenuIds   []int     `json:"menuIds" gorm:"-"`
 	DeptIds   []int     `json:"deptIds" gorm:"-"`
+	SysDept   []SysDept `json:"sysDept" gorm:"many2many:sys_role_dept;foreignKey:RoleId;joinForeignKey:role_id;references:DeptId;joinReferences:dept_id;"`
 	SysMenu   *[]SysMenu `json:"sysMenu" gorm:"many2many:sys_role_menu;foreignKey:RoleId;joinForeignKey:role_id;references:MenuId;joinReferences:menu_id;"`
 	models.ControlBy
 	models.ModelTime

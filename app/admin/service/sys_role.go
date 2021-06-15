@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"gorm.io/gorm/clause"
 
 	"github.com/casbin/casbin/v2"
 
@@ -152,10 +153,8 @@ func (e *SysRole) Update(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error
 }
 
 // Remove 删除SysRole
-func (e *SysRole) Remove(d *dto.SysRoleById) error {
+func (e *SysRole) Remove(c *dto.SysRoleById) error {
 	var err error
-	var data models.SysRole
-
 	tx := e.Orm.Begin()
 	defer func() {
 		if err != nil {
@@ -164,31 +163,21 @@ func (e *SysRole) Remove(d *dto.SysRoleById) error {
 			tx.Commit()
 		}
 	}()
+	var model = models.SysRole{}
+	tx.Preload("SysMenu").Preload("SysDept").First(&model, c.GetId())
+	db := tx.Select(clause.Associations).Delete(&model)
 
-	s := SysRoleMenu{}
-	s.Orm = tx
-	s.Log = e.Log
-	for _, roleId := range d.Ids {
-		err = s.DeleteRoleMenu(tx, roleId)
-		if err != nil {
-			e.Log.Errorf("insert role menu error, %", err.Error())
-			return err
-		}
-	}
-	db := tx.Model(&data).Delete(&data, d.Ids)
 	if db.Error != nil {
-		err = db.Error
-		e.Log.Errorf("Delete error: %s", err)
+		e.Log.Errorf("db error:%s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
-		err = errors.New("无权删除该数据")
-		return err
+		return errors.New("无权更新该数据")
 	}
 	return nil
 }
 
-// 获取角色对应的菜单ids
+// GetRoleMenuId 获取角色对应的菜单ids
 func (e *SysRole) GetRoleMenuId(roleId int) ([]int, error) {
 	menuIds := make([]int, 0)
 	model := models.SysRole{}
@@ -203,7 +192,8 @@ func (e *SysRole) GetRoleMenuId(roleId int) ([]int, error) {
 	return menuIds, nil
 }
 
-func (e *SysRole) UpdateDataScope(c *models.SysRole) (err error) {
+func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
+	var err error
 	tx := e.Orm.Begin()
 	defer func() {
 		if err != nil {
@@ -212,36 +202,34 @@ func (e *SysRole) UpdateDataScope(c *models.SysRole) (err error) {
 			tx.Commit()
 		}
 	}()
-	err = tx.Model(&models.SysRole{}).Where("role_id = ?", c.RoleId).Select("data_scope", "update_by").Updates(c).Error
+	var dlist = make([]models.SysDept, 0)
+	var model = models.SysRole{}
+	tx.Preload("SysDept").First(&model, c.DeptIds)
+	tx.Where("id in ?", c.DeptIds).Find(&dlist)
+	err = tx.Model(&model).Association("SysDept").Delete(model.SysDept)
 	if err != nil {
-		return err
+		e.Log.Errorf("delete SysDept error:%s", err)
+		_ = e.AddError(err)
+		return e
 	}
-
-	err = tx.Where("role_id = ?", c.RoleId).Delete(&models.SysRoleDept{}).Error
-	if err != nil {
-		return err
+	c.Generate(&model)
+	model.SysDept = dlist
+	db := tx.Model(&model).Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
+	if db.Error != nil {
+		e.Log.Errorf("db error:%s", err)
+		_ = e.AddError(err)
+		return e
 	}
-
-	if c.DataScope == "2" {
-		deptRoles := make([]models.SysRoleDept, len(c.DeptIds))
-		for i := range c.DeptIds {
-			deptRoles[i] = models.SysRoleDept{
-				RoleId: c.RoleId,
-				DeptId: c.DeptIds[i],
-			}
-		}
-		err = tx.Create(&deptRoles).Error
-		if err != nil {
-			return err
-		}
+	if db.RowsAffected == 0 {
+		_ = e.AddError(errors.New("无权更新该数据"))
+		return e
 	}
-	return err
+	return e
 }
 
 // UpdateStatus 修改SysRole对象status
 func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	var err error
-
 	tx := e.Orm.Debug().Begin()
 	defer func() {
 		if err != nil {
@@ -254,7 +242,6 @@ func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	tx.First(&model, c.GetId())
 	c.Generate(&model)
 	db := tx.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
-
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -262,6 +249,27 @@ func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
 	}
+	return nil
+}
 
+// Get 获取SysRole对象
+func (e *SysRole) GetWithName(d *dto.SysRoleByName, model *models.SysRole) error {
+	var err error
+	db := e.Orm.Where("role_name = ?",d.RoleName).First(model)
+	err = db.Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	model.MenuIds, err = e.GetRoleMenuId(model.RoleId)
+	if err != nil {
+		e.Log.Errorf("get menuIds error, %s", err.Error())
+		return err
+	}
 	return nil
 }

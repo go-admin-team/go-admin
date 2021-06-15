@@ -46,6 +46,8 @@ type SysRoleControl struct {
 	DataScope string           `form:"dataScope"`
 	SysMenu   []models.SysMenu `form:"sysMenu"`
 	MenuIds   []int            `form:"menuIds"`
+	SysDept   []models.SysDept `form:"sysDept"`
+	DeptIds   []int            `form:"deptIds"`
 	common.ControlBy
 }
 
@@ -71,6 +73,7 @@ func (s *SysRoleControl) Generate(model *models.SysRole) {
 	model.Admin = s.Admin
 	model.DataScope = s.DataScope
 	model.SysMenu = &s.SysMenu
+	model.SysDept = s.SysDept
 
 }
 
@@ -80,8 +83,8 @@ func (s *SysRoleControl) GetId() interface{} {
 }
 
 type UpdateStatusReq struct {
-	RoleId    int              `form:"roleId" comment:"角色编码"`        // 角色编码
-	Status    string           `form:"status" comment:"状态"`     // 状态
+	RoleId int    `form:"roleId" comment:"角色编码"` // 角色编码
+	Status string `form:"status" comment:"状态"`   // 状态
 	common.ControlBy
 }
 
@@ -96,6 +99,9 @@ func (s *UpdateStatusReq) GetId() interface{} {
 	return s.RoleId
 }
 
+type SysRoleByName struct {
+	RoleName string `form:"role"` // 角色编码
+}
 
 // SysRoleById 获取单个或者删除的结构体
 type SysRoleById struct {
@@ -124,6 +130,14 @@ type RoleDataScopeReq struct {
 	RoleId    int    `json:"roleId" binding:"required"`
 	DataScope string `json:"dataScope" binding:"required"`
 	DeptIds   []int  `json:"deptIds"`
+}
+
+func (s *RoleDataScopeReq) Generate(model *models.SysRole) {
+	if s.RoleId != 0 {
+		model.RoleId = s.RoleId
+	}
+	model.DataScope = s.DataScope
+	model.DeptIds = s.DeptIds
 }
 
 type DeptIdList struct {

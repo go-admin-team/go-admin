@@ -214,19 +214,25 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 // @Security Bearer
 func (e SysMenu) GetMenuIDS(c *gin.Context) {
 	s := new(service.SysMenu)
+	r := service.SysRole{}
+	m := dto.SysRoleByName{}
 	err := e.MakeContext(c).
 		MakeOrm().
+		Bind(&m, binding.JSON).
 		MakeService(&s.Service).
+		MakeService(&r.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(500, err, err.Error())
 		return
 	}
+	r.GetWithName(&m)
 	var data models.RoleMenu
 	data.RoleName = c.GetString("role")
 	data.UpdateBy = user.GetUserId(c)
 	result, err := data.GetIDS(s.Orm)
+
 	if err != nil {
 		e.Logger.Errorf("GetIDS error, %s", err.Error())
 		e.Error(500, err, "获取失败")

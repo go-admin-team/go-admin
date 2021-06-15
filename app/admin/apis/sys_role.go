@@ -232,7 +232,7 @@ func (e SysRole) Update2Status(c *gin.Context) {
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err,  fmt.Sprintf("更新角色状态失败，失败原因：%s ", err.Error()))
+		e.Error(500, err, fmt.Sprintf("更新角色状态失败，失败原因：%s ", err.Error()))
 		return
 	}
 	req.SetUpdateBy(user.GetUserId(c))
@@ -273,7 +273,7 @@ func (e SysRole) Update2DataScope(c *gin.Context) {
 		DeptIds:   req.DeptIds,
 	}
 	data.UpdateBy = user.GetUserId(c)
-	err = s.UpdateDataScope(data)
+	err = s.UpdateDataScope(&req).Error
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "")
 		return
