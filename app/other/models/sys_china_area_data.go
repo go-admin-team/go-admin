@@ -5,9 +5,10 @@ import (
 )
 
 type SysChinaAreaData struct {
-	models.Model
-	PId  string `json:"p_id" gorm:"size:11;comment:上级编码"`
-	Name string `json:"name" gorm:"size:128;comment:名称"`
+	Id       int                `json:"id" gorm:"primaryKey;comment:主键编码"`
+	PId      int                `json:"pId" gorm:"size:11;comment:上级编码"`
+	Name     string             `json:"name" gorm:"size:128;comment:名称"`
+	Children []SysChinaAreaData `json:"children,omitempty" gorm:"-"`
 	models.ControlBy
 	models.ModelTime
 }

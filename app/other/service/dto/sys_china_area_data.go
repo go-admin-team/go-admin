@@ -1,14 +1,13 @@
 package dto
 
 import (
-	models2 "go-admin/app/other/models"
+	"go-admin/app/other/models"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 
 	"go-admin/common/dto"
-	common "go-admin/common/models"
 )
 
 type SysChinaAreaDataSearch struct {
@@ -32,7 +31,7 @@ func (m *SysChinaAreaDataSearch) Bind(ctx *gin.Context) error {
 
 type SysChinaAreaDataControl struct {
 	Id         int       `uri:"id" comment:"编码"` // 编码
-	PId        string    `json:"pId" comment:"上级编码"`
+	PId        int       `json:"pId" comment:"上级编码"`
 	Name       string    `json:"name" comment:"名称"`
 	CreateTime time.Time `json:"createTime" comment:""`
 	UpdateTime time.Time `json:"updateTime" comment:""`
@@ -53,11 +52,11 @@ func (s *SysChinaAreaDataControl) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysChinaAreaDataControl) Generate() (*models2.SysChinaAreaData, error) {
-	return &models2.SysChinaAreaData{
-		Model: common.Model{Id: s.Id},
-		PId:   s.PId,
-		Name:  s.Name,
+func (s *SysChinaAreaDataControl) Generate() (*models.SysChinaAreaData, error) {
+	return &models.SysChinaAreaData{
+		Id:   s.Id,
+		PId:  s.PId,
+		Name: s.Name,
 	}, nil
 }
 
