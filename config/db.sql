@@ -3,7 +3,7 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 BEGIN;
-insert into sys_api (id, handle, title, path, type, action, created_at, updated_at, deleted_at, create_by, update_by)
+insert into sys_api (id, handle, title, `path`, `type`, `action`, created_at, updated_at, deleted_at, create_by, update_by)
 values  (5, 'go-admin/app/admin/apis.SysLoginLog.Get-fm', '登陆日志通过id获取', '/api/v1/sys-login-log/:id', 'BUS', 'GET', '2021-05-13 19:59:00.728', '2021-06-13 20:53:47.671', null, 0, 0),
         (6, 'go-admin/app/admin/apis.SysOperaLog.GetPage-fm', '操作日志列表', '/api/v1/sys-opera-log', 'BUS', 'GET', '2021-05-13 19:59:00.778', '2021-06-13 20:53:47.712', null, 0, 0),
         (7, 'go-admin/app/admin/apis.SysOperaLog.Get-fm', '操作日志通过id获取', '/api/v1/sys-opera-log/:id', 'BUS', 'GET', '2021-05-13 19:59:00.821', '2021-06-13 20:53:47.754', null, 0, 0),
@@ -159,7 +159,7 @@ values  (1, '系统开关', 'sys_normal_disable', '2', '系统开关列表', 1, 
         (9, '操作类型', 'sys_oper_type', '2', '操作类型列表', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
         (10, '通知状态', 'sys_notice_status', '2', '通知状态列表', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
         (11, '内容状态', 'sys_content_status', '2', '', 1, 1, '2021-05-13 19:56:40.813', '2021-05-13 19:56:40.813', null);
-insert into sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, default, remark, create_by, update_by, created_at, updated_at, deleted_at)
+insert into sys_dict_data (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, `default`, remark, create_by, update_by, created_at, updated_at, deleted_at)
 values  (1, 0, '正常', '2', 'sys_normal_disable', '', '', '', '2', '', '系统正常', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:40.168', null),
         (2, 0, '停用', '1', 'sys_normal_disable', '', '', '', '2', '', '系统停用', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
         (3, 0, '男', '0', 'sys_user_sex', '', '', '', '2', '', '性别男', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
@@ -193,12 +193,12 @@ values  (1, 0, '正常', '2', 'sys_normal_disable', '', '', '', '2', '', '系统
         (31, 0, '获取验证码', '12', 'sys_oper_type', '', '', '', '2', '', '获取验证码', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:37.914', null),
         (32, 0, '正常', '1', 'sys_content_status', '', '', '', '1', '', '', 1, 1, '2021-05-13 19:56:40.845', '2021-05-13 19:56:40.845', null),
         (33, 1, '禁用', '2', 'sys_content_status', '', '', '', '1', '', '', 1, 1, '2021-05-13 19:56:40.845', '2021-05-13 19:56:40.845', null);
-insert into sys_file_dir (id, label, p_id, sort, path, create_by, update_by, created_at, updated_at, deleted_at)
+insert into sys_file_dir (id, label, p_id, sort, `path`, create_by, update_by, created_at, updated_at, deleted_at)
 values  (1, '根目录', 0, 0, '', 1, 1, '2021-05-13 19:56:39.773', '2021-05-13 19:56:39.773', null);
 insert into sys_job (job_id, job_name, job_group, job_type, cron_expression, invoke_target, args, misfire_policy, concurrent, status, entry_id, created_at, updated_at, deleted_at, create_by, update_by)
-values  (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ', 'http://localhost:8000', '', 1, 1, 1, 0, '2021-05-13 19:56:37.914', '2021-06-10 22:31:05.762', null, 1, 1),
+values  (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ', 'https://www.baidu.com', '', 1, 1, 1, 0, '2021-05-13 19:56:37.914', '2021-06-10 22:31:05.762', null, 1, 1),
         (2, '函数测试', 'DEFAULT', 2, '0/5 * * * * ', 'ExamplesOne', '参数', 1, 1, 1, 0, '2021-05-13 19:56:37.914', '2021-05-31 23:55:37.221', null, 1, 1);
-insert into sys_menu (menu_id, menu_name, title, icon, path, paths, menu_type, action, permission, parent_id, no_cache, breadcrumb, component, sort, visible, is_frame, create_by, update_by, created_at, updated_at, deleted_at)
+insert into sys_menu (menu_id, menu_name, title, icon, `path`, paths, menu_type, `action`, permission, parent_id, no_cache, breadcrumb, component, sort, visible, is_frame, create_by, update_by, created_at, updated_at, deleted_at)
 values  (2, 'Admin', '系统管理', 'api-server', '/admin', '/0/2', 'M', '无', '', 0, 1, '', 'Layout', 10, '0', '1', 0, 1, '2021-05-20 21:58:45.679', '2021-06-12 23:53:56.276', null),
         (3, 'SysUserManage', '管理员管理', 'user', '/admin/sys-user', '/0/2/3', 'C', '无', 'admin:sysUser:list', 2, 0, '', '/admin/sys-user/index', 10, '0', '1', 0, 1, '2021-05-20 22:08:44.526', '2021-06-13 19:44:27.795', null),
         (43, '', '新增管理员', 'app-group-fill', '/api/v1/sysuser', '/0/2/3/43', 'F', 'POST', 'admin:sysUser:add', 3, 0, '', '', 10, '0', '1', 0, 1, '2021-05-20 22:08:44.526', '2021-06-13 19:47:30.539', null),
@@ -308,12 +308,12 @@ insert into sys_post (post_id, post_name, post_code, sort, status, remark, creat
 values  (1, '首席执行官', 'CEO', 0, '2', '首席执行官', '2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', null, 1, 1),
         (2, '首席技术执行官', 'CTO', 2, '2', '首席技术执行官', '2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', null, 1, 1),
         (3, '首席运营官', 'COO', 3, '2', '测试工程师', '2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', null, 1, 1);
-insert into sys_role (role_id, role_name, status, role_key, role_sort, flag, remark, admin, data_scope, created_at, updated_at, deleted_at, create_by, update_by)
+insert into sys_role (role_id, role_name, status, role_key, role_sort, flag, remark, `admin`, data_scope, created_at, updated_at, deleted_at, create_by, update_by)
 values  (1, '系统管理员', '2', 'admin', 1, '', '', 1, '', '2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', null, 1, 1),
         (2, '测试', '2', 'Test', 0, '', '', 0, '5', '2021-05-19 17:55:06.545', '2021-06-12 23:53:56.262', null, 1, 0);
-insert into sys_user (create_by, update_by, created_at, updated_at, deleted_at, user_id, username, password, nick_name, phone, role_id, salt, avatar, sex, email, dept_id, post_id, remark, status)
-values  (1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:40.205', null, 1, 'admin', '$2a$10$/Glr4g9Svr6O0kvjsRJCXu3f0W8/dsP3XZyVNi1019ratWpSPMyw.', 'zhangwj', '13818888888', 1, '', '', '1', '1@qq.com', 1, 1, '', '2'),
-        (0, 0, '2021-05-24 17:14:20.826', '2021-06-12 23:50:35.803', null, 2, 'test', '$2a$10$VlnBKPkbmSpK4XaNpjCf0es.ILCuW2NaVgLAo.m8SGmmzIScH5GSa', '测试用户1', '13111111111', 2, '', '', '0', 'qq@qq.com', 7, 3, '', '2');
+insert into sys_user (user_id, username, password, nick_name, phone, role_id, salt, avatar, sex, email, dept_id, post_id, remark, status, create_by, update_by, created_at, updated_at, deleted_at)
+values  ( 1, 'admin', '$2a$10$/Glr4g9Svr6O0kvjsRJCXu3f0W8/dsP3XZyVNi1019ratWpSPMyw.', 'zhangwj', '13818888888', 1, '', '', '1', '1@qq.com', 1, 1, '', '2', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:40.205', null),
+        ( 2, 'test', '$2a$10$VlnBKPkbmSpK4XaNpjCf0es.ILCuW2NaVgLAo.m8SGmmzIScH5GSa', '测试用户1', '13111111111', 2, '', '', '0', 'qq@qq.com', 7, 3, '', '2', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:40.205', null);
 insert into sys_menu_api_rule (sys_menu_menu_id, sys_api_id)
 values  (58, 21),
         (236, 21),

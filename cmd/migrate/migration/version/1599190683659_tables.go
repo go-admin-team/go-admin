@@ -41,7 +41,6 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 			new(models.SysCategory),
 			new(models.SysContent),
 			new(models.SysApi),
-			new(models.SysChinaAreaData),
 		)
 		if err != nil {
 			return err
