@@ -397,8 +397,10 @@ func (e SysUser) GetProfile(c *gin.Context) {
 func (e SysUser) GetInfo(c *gin.Context) {
 	req := dto.SysUserById{}
 	s := service.SysUser{}
+	r := service.SysRole{}
 	err := e.MakeContext(c).
 		MakeOrm().
+		MakeService(&r.Service).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -413,15 +415,16 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	permissions[0] = "*:*:*"
 	var buttons = make([]string, 1)
 	buttons[0] = "*:*:*"
-	RoleMenu := models.RoleMenu{}
-	RoleMenu.RoleId = user.GetRoleId(c)
+	//RoleMenu := models.RoleMenu{}
+	//RoleMenu.RoleId = user.GetRoleId(c)
+
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
 	if user.GetRoleName(c) == "admin" || user.GetRoleName(c) == "系统管理员" {
 		mp["permissions"] = permissions
 		mp["buttons"] = buttons
 	} else {
-		list, _ := RoleMenu.GetPermis(e.Orm)
+		list, _ := r.GetById(user.GetRoleId(c))
 		mp["permissions"] = list
 		mp["buttons"] = list
 	}
