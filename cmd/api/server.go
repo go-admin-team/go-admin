@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"os/signal"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +14,8 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
+	"github.com/go-admin-team/go-admin-core/server"
+	"github.com/go-admin-team/go-admin-core/server/listener"
 	"github.com/spf13/cobra"
 
 	"go-admin/app/admin/models"
@@ -86,11 +86,6 @@ func run() error {
 		f()
 	}
 
-	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
-		Handler: sdk.Runtime.GetEngine(),
-	}
-
 	go func() {
 		jobs.InitJob()
 		jobs.Setup(sdk.Runtime.GetDb())
@@ -116,39 +111,26 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	go func() {
-		// 服务连接
-		if config.SslConfig.Enable {
-			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
-				log.Fatal("listen: ", err)
-			}
-		} else {
-			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				log.Fatal("listen: ", err)
-			}
-		}
-	}()
-	fmt.Println(pkg.Red(string(global.LogoContent)))
-	tip()
-	fmt.Println(pkg.Green("Server run at:"))
-	fmt.Printf("-  Local:   http://localhost:%d/ \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%d/ \r\n", pkg.GetLocaHonst(), config.ApplicationConfig.Port)
-	fmt.Println(pkg.Green("Swagger run at:"))
-	fmt.Printf("-  Local:   http://localhost:%d/swagger/index.html \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: http://%s:%d/swagger/index.html \r\n", pkg.GetLocaHonst(), config.ApplicationConfig.Port)
-	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
-	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	fmt.Printf("%s Shutdown Server ... \r\n", pkg.GetCurrentTimeStr())
+	if !config.SslConfig.Enable {
+		config.SslConfig.Pem, config.SslConfig.KeyStr = "", ""
+	}
+	s := listener.New("go-admin",
+		listener.WithAddr(fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port)),
+		listener.WithHandler(sdk.Runtime.GetEngine()),
+		listener.WithStartedHook(startedHook),
+		listener.WithEndHook(endHook),
+	)
+	m := listener.NewMetrics()
+	h := listener.NewHealthz()
 
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+	mgr := server.New()
+	mgr.Add(m, h, s)
+	if err := mgr.Start(ctx); err != nil {
+		log.Fatal("listen: ", err)
 	}
 	log.Println("Server exiting")
-
 	return nil
+
 }
 
 var Router runtime.Router
@@ -182,4 +164,21 @@ func initRouter() {
 
 	common.InitMiddleware(r)
 
+}
+
+func startedHook() {
+	time.Sleep(time.Millisecond)
+	fmt.Println(pkg.Red(string(global.LogoContent)))
+	tip()
+	fmt.Println(pkg.Green("Server run at:"))
+	fmt.Printf("-  Local:   http://localhost:%d/ \r\n", config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%d/ \r\n", pkg.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Println(pkg.Green("Swagger run at:"))
+	fmt.Printf("-  Local:   http://localhost:%d/swagger/index.html \r\n", config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: http://%s:%d/swagger/index.html \r\n", pkg.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
+}
+
+func endHook() {
+	fmt.Printf("%s Shutdown Server ... \r\n", pkg.GetCurrentTimeStr())
 }
