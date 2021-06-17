@@ -12,21 +12,21 @@ import (
 	cDto "go-admin/common/dto"
 )
 
-type SysChinaAreaData struct {
+type SysAreaData struct {
 	service.Service
 }
 
-// GetPage 获取SysChinaAreaData列表
-func (e *SysChinaAreaData) GetPage(c *dto.SysChinaAreaDataSearch, list *[]models.SysChinaAreaData) *SysChinaAreaData {
-	var data models.SysChinaAreaData
-	var areaDataList []models.SysChinaAreaData
+// GetPage 获取SysAreaData列表
+func (e *SysAreaData) GetPage(c *dto.SysAreaDataSearch, list *[]models.SysAreaData) *SysAreaData {
+	var data models.SysAreaData
+	var areaDataList []models.SysAreaData
 	err := e.Orm.Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 		).
 		Find(&areaDataList).Error
 	if err != nil {
-		e.Log.Errorf("Service GetSysChinaAreaDataPage error:%s", err)
+		e.Log.Errorf("Service GetSysAreaDataPage error:%s", err)
 		_ = e.AddError(err)
 		return e
 	}
@@ -41,17 +41,17 @@ func (e *SysChinaAreaData) GetPage(c *dto.SysChinaAreaDataSearch, list *[]models
 }
 
 // areaDataCall 构建树
-func areaDataCall(areaDataList *[]models.SysChinaAreaData, areaData models.SysChinaAreaData) models.SysChinaAreaData {
+func areaDataCall(areaDataList *[]models.SysAreaData, areaData models.SysAreaData) models.SysAreaData {
 	list := *areaDataList
 
-	min := make([]models.SysChinaAreaData, 0)
+	min := make([]models.SysAreaData, 0)
 	for j := 0; j < len(list); j++ {
 		if areaData.Id != list[j].PId {
 			continue
 		}
-		mi := models.SysChinaAreaData{}
+		mi := models.SysAreaData{}
 		mi = list[j]
-		mi.Children = []models.SysChinaAreaData{}
+		mi.Children = []models.SysAreaData{}
 		ms := areaDataCall(areaDataList, mi)
 		min = append(min, ms)
 	}
@@ -59,9 +59,9 @@ func areaDataCall(areaDataList *[]models.SysChinaAreaData, areaData models.SysCh
 	return areaData
 }
 
-// Get 获取SysChinaAreaData对象
-func (e *SysChinaAreaData) Get(d *dto.SysChinaAreaDataById, p *actions.DataPermission, model *models.SysChinaAreaData) error {
-	var data models.SysChinaAreaData
+// Get 获取SysAreaData对象
+func (e *SysAreaData) Get(d *dto.SysAreaDataById, p *actions.DataPermission, model *models.SysAreaData) error {
+	var data models.SysAreaData
 
 	err := e.Orm.Model(&data).
 		Scopes(
@@ -74,35 +74,35 @@ func (e *SysChinaAreaData) Get(d *dto.SysChinaAreaDataById, p *actions.DataPermi
 		return err
 	}
 	if err != nil {
-		e.Log.Errorf("Service GetSysChinaAreaData error:%s", err)
+		e.Log.Errorf("Service GetSysAreaData error:%s", err)
 		return err
 	}
 	return nil
 }
 
-// Insert 创建SysChinaAreaData对象
-func (e *SysChinaAreaData) Insert(model *models.SysChinaAreaData) error {
-	var data models.SysChinaAreaData
+// Insert 创建SysAreaData对象
+func (e *SysAreaData) Insert(model *models.SysAreaData) error {
+	var data models.SysAreaData
 
 	err := e.Orm.Model(&data).
 		Create(model).Error
 	if err != nil {
-		e.Log.Errorf("Service InsertSysChinaAreaData error:%s", err)
+		e.Log.Errorf("Service InsertSysAreaData error:%s", err)
 		return err
 	}
 	return nil
 }
 
-// Update 修改SysChinaAreaData对象
-func (e *SysChinaAreaData) Update(c *models.SysChinaAreaData, p *actions.DataPermission) error {
-	db := e.Orm.Model(&models.SysChinaAreaData{
+// Update 修改SysAreaData对象
+func (e *SysAreaData) Update(c *models.SysAreaData, p *actions.DataPermission) error {
+	db := e.Orm.Model(&models.SysAreaData{
 		Id: c.GetId().(int),
 	}).
 		Scopes(
 			actions.Permission(c.TableName(), p),
 		).Updates(c)
 	if err := db.Error; err != nil {
-		e.Log.Errorf("Service UpdateSysChinaAreaData error: %s", err)
+		e.Log.Errorf("Service UpdateSysAreaData error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
@@ -111,15 +111,15 @@ func (e *SysChinaAreaData) Update(c *models.SysChinaAreaData, p *actions.DataPer
 	return nil
 }
 
-// Remove 删除SysChinaAreaData
-func (e *SysChinaAreaData) Remove(d *dto.SysChinaAreaDataById, p *actions.DataPermission) error {
-	var data models.SysChinaAreaData
+// Remove 删除SysAreaData
+func (e *SysAreaData) Remove(d *dto.SysAreaDataById, p *actions.DataPermission) error {
+	var data models.SysAreaData
 	db := e.Orm.Model(&data).
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Delete(&data, d.GetId())
 	if err := db.Error; err != nil {
-		e.Log.Errorf("Service RemoveSysChinaAreaData error: %s", err)
+		e.Log.Errorf("Service RemoveSysAreaData error: %s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {

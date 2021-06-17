@@ -10,17 +10,17 @@ import (
 	"go-admin/common/dto"
 )
 
-type SysChinaAreaDataSearch struct {
+type SysAreaDataSearch struct {
 	dto.Pagination `search:"-"`
 	PId            string `form:"pId" search:"type:exact;column:p_id;table:sys_china_area_data" comment:"上级编码"`
 	Name           string `form:"name" search:"type:exact;column:name;table:sys_china_area_data" comment:"名称"`
 }
 
-func (m *SysChinaAreaDataSearch) GetNeedSearch() interface{} {
+func (m *SysAreaDataSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-func (m *SysChinaAreaDataSearch) Bind(ctx *gin.Context) error {
+func (m *SysAreaDataSearch) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBind(m)
 	if err != nil {
@@ -29,7 +29,7 @@ func (m *SysChinaAreaDataSearch) Bind(ctx *gin.Context) error {
 	return err
 }
 
-type SysChinaAreaDataControl struct {
+type SysAreaDataControl struct {
 	Id         int       `uri:"id" comment:"编码"` // 编码
 	PId        int       `json:"pId" comment:"上级编码"`
 	Name       string    `json:"name" comment:"名称"`
@@ -38,7 +38,7 @@ type SysChinaAreaDataControl struct {
 	DeleteTime time.Time `json:"deleteTime" comment:""`
 }
 
-func (s *SysChinaAreaDataControl) Bind(ctx *gin.Context) error {
+func (s *SysAreaDataControl) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
@@ -52,24 +52,24 @@ func (s *SysChinaAreaDataControl) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysChinaAreaDataControl) Generate() (*models.SysChinaAreaData, error) {
-	return &models.SysChinaAreaData{
+func (s *SysAreaDataControl) Generate() (*models.SysAreaData, error) {
+	return &models.SysAreaData{
 		Id:   s.Id,
 		PId:  s.PId,
 		Name: s.Name,
 	}, nil
 }
 
-func (s *SysChinaAreaDataControl) GetId() interface{} {
+func (s *SysAreaDataControl) GetId() interface{} {
 	return s.Id
 }
 
-type SysChinaAreaDataById struct {
+type SysAreaDataById struct {
 	Id  int   `uri:"id"`
 	Ids []int `json:"ids"`
 }
 
-func (s *SysChinaAreaDataById) GetId() interface{} {
+func (s *SysAreaDataById) GetId() interface{} {
 	if len(s.Ids) > 0 {
 		s.Ids = append(s.Ids, s.Id)
 		return s.Ids
@@ -77,7 +77,7 @@ func (s *SysChinaAreaDataById) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysChinaAreaDataById) Bind(ctx *gin.Context) error {
+func (s *SysAreaDataById) Bind(ctx *gin.Context) error {
 	log := api.GetRequestLogger(ctx)
 	err := ctx.ShouldBindUri(s)
 	if err != nil {
@@ -91,6 +91,6 @@ func (s *SysChinaAreaDataById) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (s *SysChinaAreaDataById) SetUpdateBy(id int) {
+func (s *SysAreaDataById) SetUpdateBy(id int) {
 
 }

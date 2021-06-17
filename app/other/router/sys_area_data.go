@@ -8,12 +8,12 @@ import (
 )
 
 func init() {
-	routerCheckRole = append(routerCheckRole, registerSysChinaAreaDataRouter)
+	routerCheckRole = append(routerCheckRole, registerSysAreaDataRouter)
 }
 
 // 需认证的路由代码
-func registerSysChinaAreaDataRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := apis.SysChinaAreaData{}
+func registerSysAreaDataRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	api := apis.SysAreaData{}
 	r := v1.Group("/sys-area-data").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		r.GET("", api.GetPage)

@@ -14,13 +14,13 @@ import (
 	"go-admin/common/actions"
 )
 
-type SysChinaAreaData struct {
+type SysAreaData struct {
 	api.Api
 }
 
-func (e SysChinaAreaData) GetPage(c *gin.Context) {
-	s := service.SysChinaAreaData{}
-	req := dto.SysChinaAreaDataSearch{}
+func (e SysAreaData) GetPage(c *gin.Context) {
+	s := service.SysAreaData{}
+	req := dto.SysAreaDataSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -32,7 +32,7 @@ func (e SysChinaAreaData) GetPage(c *gin.Context) {
 		return
 	}
 
-	list := make([]models.SysChinaAreaData, 0)
+	list := make([]models.SysAreaData, 0)
 	err = s.GetPage(&req, &list).Error
 	if err != nil {
 		e.Logger.Error(err)
@@ -43,9 +43,9 @@ func (e SysChinaAreaData) GetPage(c *gin.Context) {
 	e.OK(list, "查询成功")
 }
 
-func (e SysChinaAreaData) Get(c *gin.Context) {
-	s := service.SysChinaAreaData{}
-	req := dto.SysChinaAreaDataById{}
+func (e SysAreaData) Get(c *gin.Context) {
+	s := service.SysAreaData{}
+	req := dto.SysAreaDataById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -56,7 +56,7 @@ func (e SysChinaAreaData) Get(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	var object models.SysChinaAreaData
+	var object models.SysAreaData
 	p := actions.GetPermissionFromContext(c)
 	err = s.Get(&req, p, &object)
 	if err != nil {
@@ -67,10 +67,10 @@ func (e SysChinaAreaData) Get(c *gin.Context) {
 	e.OK(object, "查询成功")
 }
 
-func (e SysChinaAreaData) Insert(c *gin.Context) {
+func (e SysAreaData) Insert(c *gin.Context) {
 	e.MakeContext(c)
 	log := e.GetLogger()
-	control := new(dto.SysChinaAreaDataControl)
+	control := new(dto.SysAreaDataControl)
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
@@ -91,10 +91,10 @@ func (e SysChinaAreaData) Insert(c *gin.Context) {
 	// 设置创建人
 	object.SetCreateBy(user.GetUserId(c))
 
-	serviceSysChinaAreaData := service.SysChinaAreaData{}
-	serviceSysChinaAreaData.Orm = db
-	serviceSysChinaAreaData.Log = log
-	err = serviceSysChinaAreaData.Insert(object)
+	serviceSysAreaData := service.SysAreaData{}
+	serviceSysAreaData.Orm = db
+	serviceSysAreaData.Log = log
+	err = serviceSysAreaData.Insert(object)
 	if err != nil {
 		log.Error(err)
 		e.Error(http.StatusInternalServerError, err, "创建失败")
@@ -104,10 +104,10 @@ func (e SysChinaAreaData) Insert(c *gin.Context) {
 	e.OK(object.GetId(), "创建成功")
 }
 
-func (e SysChinaAreaData) Update(c *gin.Context) {
+func (e SysAreaData) Update(c *gin.Context) {
 	e.MakeContext(c)
 	log := e.GetLogger()
-	control := new(dto.SysChinaAreaDataControl)
+	control := new(dto.SysAreaDataControl)
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
@@ -130,10 +130,10 @@ func (e SysChinaAreaData) Update(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysChinaAreaData := service.SysChinaAreaData{}
-	serviceSysChinaAreaData.Orm = db
-	serviceSysChinaAreaData.Log = log
-	err = serviceSysChinaAreaData.Update(object, p)
+	serviceSysAreaData := service.SysAreaData{}
+	serviceSysAreaData.Orm = db
+	serviceSysAreaData.Log = log
+	err = serviceSysAreaData.Update(object, p)
 	if err != nil {
 		log.Error(err)
 		return
@@ -141,10 +141,10 @@ func (e SysChinaAreaData) Update(c *gin.Context) {
 	e.OK(object.GetId(), "更新成功")
 }
 
-func (e SysChinaAreaData) Delete(c *gin.Context) {
+func (e SysAreaData) Delete(c *gin.Context) {
 	e.MakeContext(c)
 	log := e.GetLogger()
-	control := new(dto.SysChinaAreaDataById)
+	control := new(dto.SysAreaDataById)
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Error(err)
@@ -165,12 +165,12 @@ func (e SysChinaAreaData) Delete(c *gin.Context) {
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	serviceSysChinaAreaData := service.SysChinaAreaData{}
-	serviceSysChinaAreaData.Orm = db
-	serviceSysChinaAreaData.Log = log
-	err = serviceSysChinaAreaData.Remove(control, p)
+	serviceSysAreaData := service.SysAreaData{}
+	serviceSysAreaData.Orm = db
+	serviceSysAreaData.Log = log
+	err = serviceSysAreaData.Remove(control, p)
 	if err != nil {
-		log.Errorf("RemoveSysChinaAreaData error, %s", err)
+		log.Errorf("RemoveSysAreaData error, %s", err)
 		e.Error(http.StatusInternalServerError, err, "删除失败")
 		return
 	}
