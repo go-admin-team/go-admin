@@ -49,33 +49,33 @@ func (e *DataPermission) GetDataScope(tableName string, db *gorm.DB) (*gorm.DB, 
 	return db, nil
 }
 
-func DataScopes(tableName string, userId int) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		user := new(SysUser)
-		role := new(SysRole)
-		user.UserId = userId
-		err := db.Find(user, userId).Error
-		if err != nil {
-			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
-			return db
-		}
-		err = db.Find(role, user.RoleId).Error
-		if err != nil {
-			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
-			return db
-		}
-		if role.DataScope == "2" {
-			return db.Where(tableName+".create_by in (select sys_user.user_id from sys_role_dept left join sys_user on sys_user.dept_id=sys_role_dept.dept_id where sys_role_dept.role_id = ?)", user.RoleId)
-		}
-		if role.DataScope == "3" {
-			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", user.DeptId)
-		}
-		if role.DataScope == "4" {
-			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+pkg.IntToString(user.DeptId)+"%")
-		}
-		if role.DataScope == "5" || role.DataScope == "" {
-			return db.Where(tableName+".create_by = ?", userId)
-		}
-		return db
-	}
-}
+//func DataScopes(tableName string, userId int) func(db *gorm.DB) *gorm.DB {
+//	return func(db *gorm.DB) *gorm.DB {
+//		user := new(SysUser)
+//		role := new(SysRole)
+//		user.UserId = userId
+//		err := db.Find(user, userId).Error
+//		if err != nil {
+//			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
+//			return db
+//		}
+//		err = db.Find(role, user.RoleId).Error
+//		if err != nil {
+//			db.Error = errors.New("获取用户数据出错 msg:" + err.Error())
+//			return db
+//		}
+//		if role.DataScope == "2" {
+//			return db.Where(tableName+".create_by in (select sys_user.user_id from sys_role_dept left join sys_user on sys_user.dept_id=sys_role_dept.dept_id where sys_role_dept.role_id = ?)", user.RoleId)
+//		}
+//		if role.DataScope == "3" {
+//			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", user.DeptId)
+//		}
+//		if role.DataScope == "4" {
+//			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+pkg.IntToString(user.DeptId)+"%")
+//		}
+//		if role.DataScope == "5" || role.DataScope == "" {
+//			return db.Where(tableName+".create_by = ?", userId)
+//		}
+//		return db
+//	}
+//}
