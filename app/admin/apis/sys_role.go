@@ -267,12 +267,12 @@ func (e SysRole) Update2DataScope(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	data := &models.SysRole{
-		RoleId:    req.RoleId,
-		DataScope: req.DataScope,
-		DeptIds:   req.DeptIds,
-	}
-	data.UpdateBy = user.GetUserId(c)
+	//data := &models.SysRole{
+	//	RoleId:    req.RoleId,
+	//	DataScope: req.DataScope,
+	//	DeptIds:   req.DeptIds,
+	//}
+	//data.UpdateBy = user.GetUserId(c)
 	err = s.UpdateDataScope(&req).Error
 	if err != nil {
 		e.Error(http.StatusInternalServerError, err, "")

@@ -61,6 +61,7 @@ func (s *SysMenuControl) Generate(model *models.SysMenu) {
 	model.Paths = s.Paths
 	model.MenuType = s.MenuType
 	model.Action = s.Action
+	model.Apis = s.Apis
 	model.SysApi = s.SysApi
 	model.Permission = s.Permission
 	model.ParentId = s.ParentId

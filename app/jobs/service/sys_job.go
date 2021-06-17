@@ -78,7 +78,7 @@ func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
 		return err
 	}
 
-	err = e.Orm.Table(data.TableName()).Where(c.Id).Updates(&data).Error
+	err = e.Orm.Table(data.TableName()).Where("job_id = ?",c.Id).Updates(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 	}
