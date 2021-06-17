@@ -204,10 +204,8 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	}()
 	var dlist = make([]models.SysDept, 0)
 	var model = models.SysRole{}
-	tx.Preload("SysDept").First(&model, c.RoleId)
-	if c.DataScope == "2" {
-		tx.Where("dept_id in ?", c.DeptIds).Find(&dlist)
-	}
+	tx.Preload("SysDept").First(&model, c.DeptIds)
+	tx.Where("id in ?", c.DeptIds).Find(&dlist)
 	err = tx.Model(&model).Association("SysDept").Delete(model.SysDept)
 	if err != nil {
 		e.Log.Errorf("delete SysDept error:%s", err)

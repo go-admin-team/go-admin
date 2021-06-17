@@ -1,15 +1,16 @@
 package common
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 func GetClientIP(c *gin.Context) string {
 	ClientIP := c.ClientIP()
-	//fmt.Println("ClientIP:", ClientIP)
+	fmt.Println("ClientIP:", ClientIP)
 	RemoteIP, _ := c.RemoteIP()
-	//fmt.Println("RemoteIP:", RemoteIP)
+	fmt.Println("RemoteIP:", RemoteIP)
 	ip := c.Request.Header.Get("X-Forwarded-For")
 	if strings.Contains(ip, "127.0.0.1") || ip == "" {
 		ip = c.Request.Header.Get("X-real-ip")
@@ -23,6 +24,6 @@ func GetClientIP(c *gin.Context) string {
 	if ClientIP != "127.0.0.1" {
 		ip = ClientIP
 	}
-	//fmt.Println("ip:", ip)
+	fmt.Println("ip:", ip)
 	return ip
 }

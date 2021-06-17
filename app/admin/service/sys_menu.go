@@ -87,9 +87,6 @@ func (e *SysMenu) Insert(c *dto.SysMenuControl) *SysMenu {
 	var err error
 	var data models.SysMenu
 	c.Generate(&data)
-	sysApi := make([]models.SysApi, 0)
-	e.Orm.Where("id in ?", c.Apis).Find(&sysApi)
-	data.SysApi = sysApi
 	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
