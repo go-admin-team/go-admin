@@ -28,7 +28,7 @@ func (SysUser) TableName() string {
 	return "sys_user"
 }
 
-//加密
+// Encrypt 加密
 func (e *SysUser) Encrypt() (err error) {
 	if e.Password == "" {
 		return

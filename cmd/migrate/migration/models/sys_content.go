@@ -13,7 +13,6 @@ type SysContent struct {
 	ModelTime
 }
 
-// TableName
 func (SysContent) TableName() string {
 	return "sys_content"
 }
