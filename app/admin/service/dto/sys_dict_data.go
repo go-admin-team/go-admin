@@ -56,7 +56,7 @@ func (s *SysDictDataControl) GetId() interface{} {
 type SysDictDataById struct {
 	Id  int   `uri:"dictCode"`
 	Ids []int `json:"ids"`
-	common.ControlBy
+	common.ControlBy `json:"-"`
 }
 
 func (s *SysDictDataById) GetId() interface{} {
