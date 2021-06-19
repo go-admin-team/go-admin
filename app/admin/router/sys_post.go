@@ -20,6 +20,6 @@ func registerSyPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 		r.GET("/:id", api.Get)
 		r.POST("", api.Insert)
 		r.PUT("/:id", api.Update)
-		r.DELETE("/:id", api.Delete)
+		r.DELETE("", api.Delete)
 	}
 }

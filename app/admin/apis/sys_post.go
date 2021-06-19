@@ -162,13 +162,13 @@ func (e SysPost) Update(c *gin.Context) {
 // @Param id path int true "id"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 500 {string} string	"{"code": 500, "message": "删除失败"}"
-// @Router /api/v1/post/{postId} [delete]
+// @Router /api/v1/post [delete]
 func (e SysPost) Delete(c *gin.Context) {
 	s := service.SysPost{}
 	req := dto.SysPostById{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.JSON, nil).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
