@@ -9,8 +9,8 @@ require (
 	github.com/bytedance/go-tagexpr/v2 v2.7.10
 	github.com/casbin/casbin/v2 v2.25.1
 	github.com/gin-gonic/gin v1.7.1
-	github.com/go-admin-team/go-admin-core v1.3.5-rc.6
-	github.com/go-admin-team/go-admin-core/sdk v1.3.5-rc.6
+	github.com/go-admin-team/go-admin-core v1.3.5-rc.6.0.20210619151458-e7f05c83652b
+	github.com/go-admin-team/go-admin-core/sdk v1.3.5-rc.6.0.20210619151458-e7f05c83652b
 	github.com/google/uuid v1.2.0
 	github.com/mssola/user_agent v0.5.2
 	github.com/opentracing/opentracing-go v1.1.0
@@ -32,6 +32,6 @@ require (
 )
 
 //replace (
-//	github.com/go-admin-team/go-admin-core v1.3.5-rc.6 => ../go-admin-core
-//	github.com/go-admin-team/go-admin-core/sdk v1.3.5-rc.6 => ../go-admin-core/sdk
+//	github.com/go-admin-team/go-admin-core => ../go-admin-core
+//	github.com/go-admin-team/go-admin-core/sdk => ../go-admin-core/sdk
 //)
