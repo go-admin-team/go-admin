@@ -98,7 +98,7 @@ func (e SysDept) Insert(c *gin.Context) {
 	req := dto.SysDeptControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.JSON, nil).
+		Bind(&req, binding.JSON).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {

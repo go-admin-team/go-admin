@@ -28,7 +28,7 @@ type SysDictDataControl struct {
 	CssClass  string `json:"cssClass" comment:""`
 	ListClass string `json:"listClass" comment:""`
 	IsDefault string `json:"isDefault" comment:""`
-	Status    string `json:"status" comment:""`
+	Status    int `json:"status" comment:""`
 	Default   string `json:"default" comment:""`
 	Remark    string `json:"remark" comment:""`
 	common.ControlBy
@@ -56,7 +56,7 @@ func (s *SysDictDataControl) GetId() interface{} {
 type SysDictDataById struct {
 	Id  int   `uri:"dictCode"`
 	Ids []int `json:"ids"`
-	common.ControlBy
+	common.ControlBy `json:"-"`
 }
 
 func (s *SysDictDataById) GetId() interface{} {

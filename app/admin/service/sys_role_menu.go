@@ -1,11 +1,7 @@
 package service
 
 import (
-	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/service"
-	"gorm.io/gorm"
-
-	"go-admin/app/admin/models"
 )
 
 // SysRoleMenu 即将弃用结构体
@@ -71,44 +67,44 @@ type SysRoleMenu struct {
 //	return
 //}
 
-func (e *SysRoleMenu) DeleteRoleMenu(tx *gorm.DB, roleId int) (err error) {
-	msgID := e.MsgID
-	err = tx.Where("role_id = ?", roleId).
-		Delete(&models.SysRoleDept{}).Error
-	if err != nil {
-		log.Errorf("msgID[%s] delete role's dept error, %s", msgID, err.Error())
-		return
-	}
-	err = tx.Where("role_id = ?", roleId).
-		Delete(&models.RoleMenu{}).Error
-	if err != nil {
-		log.Errorf("msgID[%s] delete role's menu error, %s", msgID, err.Error())
-		return
-	}
-	var role models.SysRole
-	err = tx.Where("role_id = ?", roleId).
-		First(&role).Error
-	if err != nil {
-		log.Errorf("msgID[%s] get role error, %s", msgID, err.Error())
-		return
-	}
-	err = tx.Where("v0 = ?", role.RoleKey).
-		Delete(&models.CasbinRule{}).Error
-	if err != nil {
-		log.Errorf("msgID[%s] delete casbin rule error, %s", msgID, err.Error())
-		return
-	}
-	return
-}
-
-func (e *SysRoleMenu) GetIDS(tx *gorm.DB, roleName string) ([]models.MenuPath, error) {
-	var r []models.MenuPath
-	table := tx.Select("sys_menu.path").Table("sys_role_menu")
-	table = table.Joins("left join sys_role on sys_role.role_id=sys_role_menu.role_id")
-	table = table.Joins("left join sys_menu on sys_menu.id=sys_role_menu.menu_id")
-	table = table.Where("sys_role.role_name = ? and sys_menu.type=1", roleName)
-	if err := table.Find(&r).Error; err != nil {
-		return nil, err
-	}
-	return r, nil
-}
+//func (e *SysRoleMenu) DeleteRoleMenu(tx *gorm.DB, roleId int) (err error) {
+//	msgID := e.MsgID
+//	err = tx.Where("role_id = ?", roleId).
+//		Delete(&models.SysRoleDept{}).Error
+//	if err != nil {
+//		log.Errorf("msgID[%s] delete role's dept error, %s", msgID, err.Error())
+//		return
+//	}
+//	err = tx.Where("role_id = ?", roleId).
+//		Delete(&models.RoleMenu{}).Error
+//	if err != nil {
+//		log.Errorf("msgID[%s] delete role's menu error, %s", msgID, err.Error())
+//		return
+//	}
+//	var role models.SysRole
+//	err = tx.Where("role_id = ?", roleId).
+//		First(&role).Error
+//	if err != nil {
+//		log.Errorf("msgID[%s] get role error, %s", msgID, err.Error())
+//		return
+//	}
+//	err = tx.Where("v0 = ?", role.RoleKey).
+//		Delete(&models.CasbinRule{}).Error
+//	if err != nil {
+//		log.Errorf("msgID[%s] delete casbin rule error, %s", msgID, err.Error())
+//		return
+//	}
+//	return
+//}
+//
+//func (e *SysRoleMenu) GetIDS(tx *gorm.DB, roleName string) ([]models.MenuPath, error) {
+//	var r []models.MenuPath
+//	table := tx.Select("sys_menu.path").Table("sys_role_menu")
+//	table = table.Joins("left join sys_role on sys_role.role_id=sys_role_menu.role_id")
+//	table = table.Joins("left join sys_menu on sys_menu.id=sys_role_menu.menu_id")
+//	table = table.Where("sys_role.role_name = ? and sys_menu.type=1", roleName)
+//	if err := table.Find(&r).Error; err != nil {
+//		return nil, err
+//	}
+//	return r, nil
+//}

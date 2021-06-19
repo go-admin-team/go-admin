@@ -18,8 +18,8 @@ type SysUser struct {
 	service.Service
 }
 
-// GetSysUserPage 获取SysUser列表
-func (e *SysUser) GetSysUserPage(c *dto.SysUserSearch, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
+// GetPage 获取SysUser列表
+func (e *SysUser) GetPage(c *dto.SysUserSearch, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
 	var err error
 	var data models.SysUser
 
@@ -38,8 +38,8 @@ func (e *SysUser) GetSysUserPage(c *dto.SysUserSearch, p *actions.DataPermission
 	return nil
 }
 
-// GetSysUser 获取SysUser对象
-func (e *SysUser) GetSysUser(d *dto.SysUserById, p *actions.DataPermission, model *models.SysUser) error {
+// Get 获取SysUser对象
+func (e *SysUser) Get(d *dto.SysUserById, p *actions.DataPermission, model *models.SysUser) error {
 	var data models.SysUser
 
 	err := e.Orm.Model(&data).Debug().
@@ -59,8 +59,8 @@ func (e *SysUser) GetSysUser(d *dto.SysUserById, p *actions.DataPermission, mode
 	return nil
 }
 
-// InsertSysUser 创建SysUser对象
-func (e *SysUser) InsertSysUser(c *dto.SysUserControl) error {
+// Insert 创建SysUser对象
+func (e *SysUser) Insert(c *dto.SysUserControl) error {
 	var err error
 	var data models.SysUser
 	var i int64
@@ -83,8 +83,8 @@ func (e *SysUser) InsertSysUser(c *dto.SysUserControl) error {
 	return nil
 }
 
-// UpdateSysUser 修改SysUser对象
-func (e *SysUser) UpdateSysUser(c *dto.SysUserControl, p *actions.DataPermission) error {
+// Update 修改SysUser对象
+func (e *SysUser) Update(c *dto.SysUserControl, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -154,8 +154,8 @@ func (e *SysUser) ResetSysUserPwd(c *dto.ResetSysUserPwdReq, p *actions.DataPerm
 	return nil
 }
 
-// RemoveSysUser 删除SysUser
-func (e *SysUser) RemoveSysUser(c *dto.SysUserById, p *actions.DataPermission) error {
+// Remove 删除SysUser
+func (e *SysUser) Remove(c *dto.SysUserById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysUser
 

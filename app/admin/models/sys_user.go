@@ -7,8 +7,6 @@ import (
 )
 
 type SysUser struct {
-	models.ControlBy
-	models.ModelTime
 	UserId   int      `gorm:"primaryKey;autoIncrement;comment:编码"  json:"userId"`
 	Username string   `json:"username" gorm:"size:64;comment:用户名"`
 	Password string   `json:"-" gorm:"size:128;comment:密码"`
@@ -27,6 +25,8 @@ type SysUser struct {
 	PostIds  []int    `json:"postIds" gorm:"-"`
 	RoleIds  []int    `json:"roleIds" gorm:"-"`
 	Dept     *SysDept `json:"dept"`
+	models.ControlBy
+	models.ModelTime
 }
 
 func (SysUser) TableName() string {

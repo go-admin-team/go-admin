@@ -1,14 +1,13 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin/binding"
-	"go-admin/app/admin/models"
-	"net/http"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"go-admin/app/admin/models"
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
@@ -111,7 +110,7 @@ func (e SysDictType) Insert(c *gin.Context) {
 	err = s.Insert(&req)
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "创建失败")
+		e.Error(500, err,fmt.Sprintf(" 创建字典类型失败，详情：%s", err.Error()))
 		return
 	}
 	e.OK(req.GetId(), "创建成功")
@@ -137,7 +136,7 @@ func (e SysDictType) Update(c *gin.Context) {
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, err.Error())
+		e.Error(500, err, err.Error())
 		e.Logger.Error(err)
 		return
 	}
@@ -157,7 +156,7 @@ func (e SysDictType) Update(c *gin.Context) {
 // @Param dictId path int true "dictId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/dict/type/{dictId} [delete]
+// @Router /api/v1/dict/type [delete]
 func (e SysDictType) Delete(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeById{}
@@ -206,7 +205,7 @@ func (e SysDictType) GetAll(c *gin.Context) {
 	list := make([]models.SysDictType, 0)
 	err = s.GetAll(&req, &list)
 	if err != nil {
-		e.Error(500, err, "查询失败")
+		e.Error(500, err, err.Error())
 		return
 	}
 	e.OK(list, "查询成功")

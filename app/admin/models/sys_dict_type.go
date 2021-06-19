@@ -5,14 +5,13 @@ import (
 )
 
 type SysDictType struct {
-	models.ControlBy
-	models.ModelTime
-
 	ID       int    `json:"id" gorm:"primaryKey;column:dict_id;autoIncrement;comment:主键编码"`
 	DictName string `json:"dictName" gorm:"size:128;comment:DictName"`
 	DictType string `json:"dictType" gorm:"size:128;comment:DictType"`
-	Status   string `json:"status" gorm:"size:4;comment:Status"`
+	Status   int    `json:"status" gorm:"size:4;comment:Status"`
 	Remark   string `json:"remark" gorm:"size:255;comment:Remark"`
+	models.ControlBy
+	models.ModelTime
 }
 
 func (SysDictType) TableName() string {

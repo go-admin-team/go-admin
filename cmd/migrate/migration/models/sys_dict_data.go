@@ -9,7 +9,7 @@ type DictData struct {
 	CssClass  string `gorm:"size:128;" json:"cssClass"`                             //
 	ListClass string `gorm:"size:128;" json:"listClass"`                            //
 	IsDefault string `gorm:"size:8;" json:"isDefault"`                              //
-	Status    string `gorm:"size:4;" json:"status"`                                 //状态
+	Status    int    `gorm:"size:4;" json:"status"`                                 //状态
 	Default   string `gorm:"size:8;" json:"default"`                                //
 	Remark    string `gorm:"size:255;" json:"remark"`                               //备注
 	ControlBy

@@ -55,7 +55,7 @@ func (e SysDictData) GetPage(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// GetSysDictData
+// Get
 // @Summary 通过编码获取字典数据
 // @Description 获取JSON
 // @Tags 字典数据
@@ -89,7 +89,7 @@ func (e SysDictData) Get(c *gin.Context) {
 	e.OK(object, "查询成功")
 }
 
-// InsertSysDictData
+// Insert
 // @Summary 添加字典数据
 // @Description 获取JSON
 // @Tags 字典数据
@@ -123,7 +123,7 @@ func (e SysDictData) Insert(c *gin.Context) {
 	e.OK(req.GetId(), "创建成功")
 }
 
-// UpdateSysDictData
+// Update
 // @Summary 修改字典数据
 // @Description 获取JSON
 // @Tags 字典数据
@@ -156,14 +156,14 @@ func (e SysDictData) Update(c *gin.Context) {
 	e.OK(req.GetId(), "更新成功")
 }
 
-// DeleteSysDictData
+// Delete
 // @Summary 删除字典数据
 // @Description 删除数据
 // @Tags 字典数据
-// @Param dictCode path int true "dictCode"
+// @Param dictCode body dto.SysDictDataById true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/dict/data/{dictCode} [delete]
+// @Router /api/v1/dict/data [delete]
 // @Security Bearer
 func (e SysDictData) Delete(c *gin.Context) {
 	s := service.SysDictData{}

@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-
+	"fmt"
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
@@ -57,6 +57,11 @@ func (e *SysDictType) Insert(c *dto.SysDictTypeControl) error {
 	var err error
 	var data models.SysDictType
 	c.Generate(&data)
+	var count int64
+	e.Orm.Model(&data).Where("dict_type = ?", data.DictType).Count(&count)
+	if count > 0 {
+		return errors.New(fmt.Sprintf("当前字典类型[%s]已经存在！", data.DictType))
+	}
 	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)

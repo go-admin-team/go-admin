@@ -55,12 +55,11 @@ func (e *SysPost) GetSysPost(d *dto.SysPostById, model *models.SysPost) error {
 }
 
 // InsertSysPost 创建SysPost对象
-func (e *SysPost) InsertSysPost(model *dto.SysPostControl) error {
+func (e *SysPost) InsertSysPost(c *dto.SysPostControl) error {
 	var err error
 	var data models.SysPost
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	c.Generate(&data)
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err

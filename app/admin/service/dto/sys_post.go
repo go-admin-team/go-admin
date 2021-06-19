@@ -24,12 +24,12 @@ func (m *SysPostSearch) GetNeedSearch() interface{} {
 
 // SysPostControl 增、改使用的结构体
 type SysPostControl struct {
-	PostId   int    `uri:"id"  comment:"id"`        // id
-	PostName string `form:"postName"  comment:"名称"` // 名称
-	PostCode string `form:"postCode" comment:"编码"`  // 编码
-	Sort     int    `form:"sort" comment:"排序"`      // 排序
-	Status   int    `form:"status"   comment:"状态"`  // 状态
-	Remark   string `form:"remark"   comment:"备注"`  // 备注
+	PostId   int    `uri:"id"  comment:"id"`
+	PostName string `form:"postName"  comment:"名称"`
+	PostCode string `form:"postCode" comment:"编码"`
+	Sort     int    `form:"sort" comment:"排序"`
+	Status   int    `form:"status"   comment:"状态"`
+	Remark   string `form:"remark"   comment:"备注"`
 	common.ControlBy
 }
 
