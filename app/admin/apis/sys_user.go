@@ -48,7 +48,7 @@ func (e SysUser) GetPage(c *gin.Context) {
 	list := make([]models.SysUser, 0)
 	var count int64
 
-	err = s.GetSysUserPage(&req, p, &list, &count)
+	err = s.GetPage(&req, p, &list, &count)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -81,7 +81,7 @@ func (e SysUser) Get(c *gin.Context) {
 	var object models.SysUser
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
-	err = s.GetSysUser(&req, p, &object)
+	err = s.Get(&req, p, &object)
 	if err != nil {
 		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
 		return
@@ -113,7 +113,7 @@ func (e SysUser) Insert(c *gin.Context) {
 	}
 	// 设置创建人
 	req.SetCreateBy(user.GetUserId(c))
-	err = s.InsertSysUser(&req)
+	err = s.Insert(&req)
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(500, err, err.Error())
@@ -151,7 +151,7 @@ func (e SysUser) Update(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.UpdateSysUser(&req, p)
+	err = s.Update(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -186,7 +186,7 @@ func (e SysUser) Delete(c *gin.Context) {
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.RemoveSysUser(&req, p)
+	err = s.Remove(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -233,7 +233,7 @@ func (e SysUser) InsetAvatar(c *gin.Context) {
 	req.UserId = p.UserId
 	req.Avatar = "/" + filPath
 
-	err = s.UpdateSysUser(&req, p)
+	err = s.Update(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -430,7 +430,7 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	}
 	sysUser := models.SysUser{}
 	req.Id = user.GetUserId(c)
-	err = s.GetSysUser(&req, p, &sysUser)
+	err = s.Get(&req, p, &sysUser)
 	if err != nil {
 		e.Error(http.StatusUnauthorized, err, "登录失败")
 		return
