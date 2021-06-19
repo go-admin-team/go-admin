@@ -27,7 +27,7 @@ type SysDictTypeControl struct {
 	Id       int    `uri:"id"`
 	DictName string `json:"dictName"`
 	DictType string `json:"dictType"`
-	Status   string `json:"status"`
+	Status   int    `json:"status"`
 	Remark   string `json:"remark"`
 	common.ControlBy
 }
