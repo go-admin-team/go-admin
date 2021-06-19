@@ -25,18 +25,17 @@ func (m *SysDeptSearch) GetNeedSearch() interface{} {
 	return *m
 }
 
-
 // SysDeptControl 增、改使用的结构体
 type SysDeptControl struct {
 	DeptId   int    `uri:"id" comment:"编码"`          // 编码
-	ParentId int    `form:"parentId" comment:"上级部门"` //上级部门
-	DeptPath string `form:"deptPath" comment:""`     //路径
-	DeptName string `form:"deptName" comment:"部门名称"` //部门名称
-	Sort     int    `form:"sort" comment:"排序"`       //排序
-	Leader   string `form:"leader" comment:"负责人"`    //负责人
-	Phone    string `form:"phone" comment:"手机"`      //手机
-	Email    string `form:"email" comment:"邮箱"`      //邮箱
-	Status   string `form:"status" comment:"状态"`     //状态
+	ParentId int    `json:"parentId" comment:"上级部门"` //上级部门
+	DeptPath string `json:"deptPath" comment:""`     //路径
+	DeptName string `json:"deptName" comment:"部门名称"` //部门名称
+	Sort     int    `json:"sort" comment:"排序"`       //排序
+	Leader   string `json:"leader" comment:"负责人"`    //负责人
+	Phone    string `json:"phone" comment:"手机"`      //手机
+	Email    string `json:"email" comment:"邮箱"`      //邮箱
+	Status   int    `json:"status" comment:"状态"`     //状态
 	common.ControlBy
 }
 

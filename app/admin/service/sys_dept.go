@@ -61,7 +61,15 @@ func (e *SysDept) Insert(c *dto.SysDeptControl) error {
 	var err error
 	var data models.SysDept
 	c.Generate(&data)
-	err = e.Orm.Create(data).Error
+	tx := e.Orm.Debug().Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+	err = tx.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -69,14 +77,14 @@ func (e *SysDept) Insert(c *dto.SysDeptControl) error {
 	deptPath := pkg.IntToString(data.DeptId) + "/"
 	if data.ParentId != 0 {
 		var deptP models.SysDept
-		e.Orm.First(&deptP, data.ParentId)
+		tx.First(&deptP, data.ParentId)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0/" + deptPath
 	}
 	var mp = map[string]string{}
 	mp["dept_path"] = deptPath
-	if err := e.Orm.Update("dept_path", deptPath).Error; err != nil {
+	if err := tx.Model(&data).Update("dept_path", deptPath).Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -87,19 +95,27 @@ func (e *SysDept) Insert(c *dto.SysDeptControl) error {
 func (e *SysDept) Update(c *dto.SysDeptControl) error {
 	var err error
 	var model = models.SysDept{}
-	e.Orm.First(&model, c.GetId())
+	tx := e.Orm.Debug().Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+	tx.First(&model, c.GetId())
 	c.Generate(&model)
 
 	deptPath := pkg.IntToString(model.DeptId) + "/"
 	if model.ParentId != 0 {
 		var deptP models.SysDept
-		e.Orm.First(&deptP, model.ParentId)
+		tx.First(&deptP, model.ParentId)
 		deptPath = deptP.DeptPath + deptPath
 	} else {
 		deptPath = "/0/" + deptPath
 	}
 	model.DeptPath = deptPath
-	db := e.Orm.Save(&model)
+	db := tx.Save(&model)
 	if db.Error != nil {
 		e.Log.Errorf("UpdateSysDept error:%s", err)
 		return err
