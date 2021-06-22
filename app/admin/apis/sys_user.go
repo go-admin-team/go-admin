@@ -321,7 +321,7 @@ func (e SysUser) ResetPwd(c *gin.Context) {
 // @Product application/json
 // @Param data body dto.PassWord true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/user/pwd [post]
+// @Router /api/v1/user/pwd/set [put]
 // @Security Bearer
 func (e SysUser) UpdatePwd(c *gin.Context) {
 	s := service.SysUser{}
