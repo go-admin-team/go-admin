@@ -192,6 +192,7 @@ INSERT INTO `sys_dict_type` VALUES (10, '通知状态', 'sys_notice_status', '2'
 INSERT INTO `sys_dict_type` VALUES (11, '内容状态', 'sys_content_status', '2', '', 1, 1, '2021-05-13 19:56:40.813', '2021-05-13 19:56:40.813', NULL);
 COMMIT;
 
+
 BEGIN;
 INSERT INTO `sys_job` VALUES (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ', 'http://localhost:8000', '', 1, 1, 1, 0, '2021-05-13 19:56:37.914', '2021-06-14 20:59:55.417', NULL, 1, 1);
 INSERT INTO `sys_job` VALUES (2, '函数测试', 'DEFAULT', 2, '0/5 * * * * ', 'ExamplesOne', '参数', 1, 1, 1, 0, '2021-05-13 19:56:37.914', '2021-05-31 23:55:37.221', NULL, 1, 1);
