@@ -28,7 +28,7 @@ func registerSysUserRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	{
 		user.GET("/profile", api.GetProfile)
 		user.POST("/avatar", api.InsetAvatar)
-		user.PUT("/pwd", api.UpdatePwd)
+		user.PUT("/pwd/set", api.UpdatePwd)
 		user.PUT("/pwd/reset", api.ResetPwd)
 		user.PUT("/status", api.UpdateStatus)
 	}
