@@ -1,10 +1,8 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin/binding"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
@@ -46,9 +44,9 @@ func (e SysPost) GetPage(c *gin.Context) {
 	list := make([]models.SysPost, 0)
 	var count int64
 
-	err = s.GetSysPostPage(&req, &list, &count)
+	err = s.GetPage(&req, &list, &count)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 
@@ -78,7 +76,7 @@ func (e SysPost) Get(c *gin.Context) {
 	}
 	var object models.SysPost
 
-	err = s.GetSysPost(&req, &object)
+	err = s.Get(&req, &object)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
@@ -112,7 +110,7 @@ func (e SysPost) Insert(c *gin.Context) {
 		return
 	}
 	req.SetCreateBy(user.GetUserId(c))
-	err = s.InsertSysPost(&req)
+	err = s.Insert(&req)
 	if err != nil {
 		e.Error(500, err, "创建失败")
 		return
@@ -147,7 +145,7 @@ func (e SysPost) Update(c *gin.Context) {
 
 	req.SetUpdateBy(user.GetUserId(c))
 
-	err = s.UpdateSysPost(&req)
+	err = s.Update(&req)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -177,7 +175,7 @@ func (e SysPost) Delete(c *gin.Context) {
 		return
 	}
 	req.SetUpdateBy(user.GetUserId(c))
-	err = s.RemoveSysPost(&req)
+	err = s.Remove(&req)
 	if err != nil {
 		e.Logger.Error(err)
 		return

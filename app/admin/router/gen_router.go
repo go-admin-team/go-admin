@@ -43,13 +43,13 @@ func registerSysTableRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddl
 	tables := v1.Group("/sys/tables")
 	{
 		sysTable := tools.SysTable{}
-		tables.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/page", sysTable.GetSysTableList)
+		tables.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/page", sysTable.GetPage)
 		tablesInfo := tables.Group("/info").Use(authMiddleware.MiddlewareFunc())
 		{
-			tablesInfo.POST("", sysTable.InsertSysTable)
-			tablesInfo.PUT("", sysTable.UpdateSysTable)
-			tablesInfo.DELETE("/:tableId", sysTable.DeleteSysTables)
-			tablesInfo.GET("/:tableId", sysTable.GetSysTables)
+			tablesInfo.POST("", sysTable.Insert)
+			tablesInfo.PUT("", sysTable.Update)
+			tablesInfo.DELETE("/:tableId", sysTable.Delete)
+			tablesInfo.GET("/:tableId", sysTable.Get)
 			tablesInfo.GET("", sysTable.GetSysTablesInfo)
 		}
 	}
