@@ -19,24 +19,18 @@ type {{.ClassName}}Search struct {
     {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
     {{- end }}
     {{- end }}
+    {{.ClassName}}Order
+}
+
+type {{.ClassName}}Order struct {
+    {{- $tablename := .TBName -}}
+    {{- range .Columns -}}
+    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}Order"  search:"type:order;column:{{.ColumnName}};table:{{$tablename}}"`
+    {{- end }}
 }
 
 func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
 	return *m
-}
-
-func (m *{{.ClassName}}Search) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
-func (m *{{.ClassName}}Search) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-    err := ctx.ShouldBind(m)
-    if err != nil {
-    	log.Errorf("ShouldBind error: %s", err.Error())
-    }
-    return err
 }
 
 type {{.ClassName}}Control struct {
@@ -55,42 +49,22 @@ type {{.ClassName}}Control struct {
     {{- end }}
 }
 
-func (s *{{.ClassName}}Control) Generate() dto.Control {
-	o := *s
-	return &o
-}
-
-func (s *{{.ClassName}}Control) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-    err := ctx.ShouldBindUri(s)
-    if err != nil {
-        log.Errorf("ShouldBindUri error: %s", err.Error())
-        return errors.New("数据绑定出错")
+func (s *{{.ClassName}}Control) Generate(model *models.SysConfig)  {
+	 {{- range .Columns -}}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+    if s.{{.GoField}} == 0 {
+        model.Model = common.Model{{{.GoField}}: s.{{.GoField}}}
     }
-    err = ctx.ShouldBind(s)
-    if err != nil {
-        log.Errorf("ShouldBind error: %s", err.Error())
-        err = errors.New("数据绑定出错")
-    }
-    return err
-}
-
-func (s *{{.ClassName}}Control) GenerateM() (common.ActiveRecord, error) {
-	return &models.{{.ClassName}}{
-	{{- range .Columns -}}
-        {{$x := .Pk}}
-        {{- if ($x) }}
-        Model:     common.Model{ {{.GoField}}: s.{{.GoField}} },
-        {{- else if eq .GoField "CreatedAt" -}}
-        {{- else if eq .GoField "UpdatedAt" -}}
-        {{- else if eq .GoField "DeletedAt" -}}
-        {{- else if eq .GoField "CreateBy" -}}
-        {{- else if eq .GoField "UpdateBy" -}}
-        {{- else }}
-        {{.GoField}}:  s.{{.GoField}},
-        {{- end -}}
-        {{- end }}
-	}, nil
+    {{- else if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoField "CreateBy" -}}
+    {{- else if eq .GoField "UpdateBy" -}}
+    {{- else }}
+    model.{{.GoField}} = s.{{.GoField}}
+    {{- end -}}
+    {{- end }}
 }
 
 func (s *{{.ClassName}}Control) GetId() interface{} {
@@ -98,7 +72,8 @@ func (s *{{.ClassName}}Control) GetId() interface{} {
 }
 
 type {{.ClassName}}ById struct {
-	dto.ObjectById
+	Id  int   `uri:"id"`
+    Ids []int `json:"ids"`
 }
 
 func (s *{{.ClassName}}ById) GetId() interface{} {
@@ -109,30 +84,7 @@ func (s *{{.ClassName}}ById) GetId() interface{} {
 	return s.Id
 }
 
-func (s *{{.ClassName}}ById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Errorf("ShouldBindUri error: %s", err.Error())
-		return errors.New("数据绑定出错")
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Errorf("ShouldBind error: %s", err.Error())
-		err = errors.New("数据绑定出错")
-	}
-	return err
-}
-
-func (s *{{.ClassName}}ById) SetUpdateBy(id int) {
-
-}
-
-func (s *{{.ClassName}}ById) Generate() dto.Control {
+func (s *{{.ClassName}}ById) Generate() *{{.ClassName}}ById {
 	o := *s
 	return &o
-}
-
-func (s *{{.ClassName}}ById) GenerateM() (common.ActiveRecord, error) {
-	return &models.{{.ClassName}}{}, nil
 }
