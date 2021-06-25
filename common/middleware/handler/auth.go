@@ -57,6 +57,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Description Reply will be of the form {"token": "TOKEN"}.
 // @Description dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
 // @Description 注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
+// @Tags 登陆
 // @Accept  application/json
 // @Product application/json
 // @Param account body Login  true "account"

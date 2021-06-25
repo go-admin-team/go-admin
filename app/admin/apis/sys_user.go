@@ -415,8 +415,6 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	permissions[0] = "*:*:*"
 	var buttons = make([]string, 1)
 	buttons[0] = "*:*:*"
-	//RoleMenu := models.RoleMenu{}
-	//RoleMenu.RoleId = user.GetRoleId(c)
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
