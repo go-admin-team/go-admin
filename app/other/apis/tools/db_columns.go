@@ -7,7 +7,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/app/admin/models/tools"
+	"go-admin/app/other/models/tools"
 )
 
 // GetDBColumnList 分页列表数据

@@ -10,7 +10,7 @@ import (
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/tools"
+	"go-admin/app/other/models/tools"
 )
 
 type SysTable struct {

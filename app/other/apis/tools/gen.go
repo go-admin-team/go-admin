@@ -15,7 +15,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
-	"go-admin/app/admin/models/tools"
+	"go-admin/app/other/models/tools"
 )
 
 type Gen struct {

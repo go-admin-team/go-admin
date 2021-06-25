@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/apis"
-	"go-admin/app/admin/apis/tools"
+	"go-admin/app/other/apis/tools"
 )
 
 func init() {
@@ -15,7 +15,7 @@ func sysNoCheckRoleRouter(v1 *gin.RouterGroup ,authMiddleware *jwt.GinJWTMiddlew
 	r1 := v1.Group("")
 	{
 		sys := apis.System{}
-		r1.GET("/getCaptcha", sys.GenerateCaptchaHandler)
+		r1.GET("/captcha", sys.GenerateCaptchaHandler)
 	}
 
 	r := v1.Group("").Use(authMiddleware.MiddlewareFunc())
