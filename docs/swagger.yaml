@@ -840,6 +840,28 @@ paths:
       summary: 获取系统前台配置信息，主要注意这里不在验证数据权限
       tags:
       - 配置管理
+  /api/v1/captcha:
+    get:
+      description: 获取验证码
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+                id:
+                  type: string
+                msg:
+                  type: string
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取验证码
+      tags:
+      - 登陆
   /api/v1/db/columns/page:
     get:
       description: 数据库表列分页列表 / database table column page list
@@ -1309,6 +1331,8 @@ paths:
           schema:
             type: string
       summary: 登陆
+      tags:
+      - 登陆
   /api/v1/menu:
     delete:
       description: 删除数据
@@ -2401,28 +2425,6 @@ paths:
       summary: 获取个人中心用户
       tags:
       - 个人中心
-  /api/v1/user/pwd:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: body
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/dto.PassWord'
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - Bearer: []
-      summary: 重置密码
-      tags:
-      - 用户
   /api/v1/user/pwd/reset:
     put:
       consumes:
@@ -2441,6 +2443,28 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: 重置用户密码
+      tags:
+      - 用户
+  /api/v1/user/pwd/set:
+    put:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PassWord'
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 重置密码
       tags:
       - 用户
   /api/v1/user/status:
