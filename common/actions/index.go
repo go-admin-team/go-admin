@@ -44,7 +44,7 @@ func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.H
 				dto.MakeCondition(req.GetNeedSearch()),
 				dto.Paginate(req.GetPageSize(), req.GetPageIndex()),
 				Permission(object.TableName(), p),
-			).
+			).Order("id DESC"). // 默认基于自增ID逆序
 			Find(list).Limit(-1).Offset(-1).
 			Count(&count).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
