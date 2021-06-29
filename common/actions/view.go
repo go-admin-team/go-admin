@@ -34,7 +34,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			response.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			response.Error(c, 500, err, "模型生成失败")
 			return
 		}
 
@@ -58,7 +58,7 @@ func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 		}
 		if err != nil {
 			log.Errorf("MsgID[%s] View error: %s", msgID, err)
-			response.Error(c, http.StatusInternalServerError, err, "查看失败")
+			response.Error(c, 500, err, "查看失败")
 			return
 		}
 		response.OK(c, rsp, "查询成功")

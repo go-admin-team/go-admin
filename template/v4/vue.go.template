@@ -223,7 +223,6 @@
                         <el-button @click="cancel">取 消</el-button>
                     </div>
                 </el-dialog>
-                <FileChoose ref="fileChoose" :dialog-form-visible="fileOpen" @confirm="getImgList" @close="fileClose" />
             </el-card>
         </template>
     </BasicLayout>
@@ -233,17 +232,13 @@
     import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .BusinessName}}'
     {{range .Columns}}
     {{- if ne .FkTableName "" -}}
-     import {list{{.FkTableNameClass}} } from '@/api/{{ .FkTableNamePackage}}'
-
+    import {list{{.FkTableNameClass}} } from '@/api/{{ .FkTableNamePackage}}'
     {{ end -}}
     {{- end -}}
-
-    import FileChoose from '@/components/FileChoose'
 
     export default {
         name: '{{.ClassName}}',
         components: {
-            FileChoose
         },
         data() {
             return {
@@ -262,8 +257,6 @@
                 // 是否显示弹出层
                 open: false,
                 isEdit: false,
-                fileOpen: false,
-                fileIndex: undefined,
                 // 类型数据字典
                 typeOptions: [],
                 {{.ModuleName}}List: [],
@@ -296,10 +289,7 @@
                 {{- range .Columns -}}
                 {{- $x := .IsQuery -}}
                 {{- if (eq $x "1") -}}
-                {{.JsonField}}:
-                [
-                    {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'}
-                ],
+                {{.JsonField}}:  [ {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'} ],
                 {{ end }}
                 {{- end -}}
             }
@@ -309,15 +299,12 @@
             this.getList()
             {{range .Columns}}
             {{- if ne .DictType "" -}}
-
             this.getDicts('{{.DictType}}').then(response => {
                 this.{{.JsonField}}Options = response.data
             })
-
             {{ end -}}
             {{- if ne .FkTableName "" -}}
             this.get{{.FkTableNameClass}}Items()
-
             {{ end -}}
             {{- end -}}
         },

@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +12,13 @@ import (
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/app/{{.PackageName}}/service"
 	"go-admin/app/{{.PackageName}}/service/dto"
-	"go-admin/common/actions"
 )
 
 type {{.ClassName}} struct {
 	api.Api
 }
 
-// Get{{.ClassName}}List 获取{{.TableComment}}列表
+// GetPage 获取{{.TableComment}}列表
 // @Summary 获取{{.TableComment}}列表
 // @Description 获取{{.TableComment}}列表
 // @Tags {{.TableComment}}
@@ -34,43 +34,34 @@ type {{.ClassName}} struct {
 // @Success 200 {object} response.Response{data=response.Page{list=[]models.{{.ClassName}}}} "{"code": 200, "data": [...]}"
 // @Router /api/v1/{{.ModuleName}} [get]
 // @Security Bearer
-func (e {{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
-    e.SetContext(c)
-    log := e.GetLogger()
-	db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
+func (e {{.ClassName}}) GetPage(c *gin.Context) {
+    req := dto.{{.ClassName}}Search{}
+    s := service.{{.ClassName}}{}
+    err := e.MakeContext(c).
+        MakeOrm().
+        Bind(&req, binding.Form).
+        MakeService(&s.Service).
+        Errors
+   	if err != nil {
+   		e.Logger.Error(err)
+   		e.Error(500, err, err.Error())
+   		return
+   	}
 
-	d := new(dto.{{.ClassName}}Search)
-	//查询列表
-	err = d.Bind(c)
-	if err != nil {
-	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-
-	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
-
 	list := make([]models.{{.ClassName}}, 0)
 	var count int64
-	service{{.ClassName}} := service.{{.ClassName}}{}
-	service{{.ClassName}}.Log = log
-	service{{.ClassName}}.Orm = db
-	err = service{{.ClassName}}.Get{{.ClassName}}Page(d, p, &list, &count)
+
+	err = s.GetPage(&req, p, &list, &count)
 	if err != nil {
-		log.Errorf("Get {{.ClassName}} Page error, %s", err.Error())
-		e.Error( http.StatusInternalServerError, err, "查询失败")
-		return
+		e.Error(500, err, fmt.Sprintf("获取{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+        return
 	}
 
-	e.PageOK( list, int(count), d.GetPageIndex(), d.GetPageSize(), "查询成功")
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// Get{{.ClassName}} 获取{{.TableComment}}
+// Get 获取{{.TableComment}}
 // @Summary 获取{{.TableComment}}
 // @Description 获取{{.TableComment}}
 // @Tags {{.TableComment}}
@@ -79,42 +70,31 @@ func (e {{.ClassName}}) Get{{.ClassName}}List(c *gin.Context) {
 // @Router /api/v1/{{.ModuleName}}/{id} [get]
 // @Security Bearer
 func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
-    e.SetContext(c)
-    log := e.GetLogger()
-    db, err := e.GetOrm()
+	req := dto.{{.ClassName}}ById{}
+	s := service.{{.ClassName}}{}
+    err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&req, nil).
+		MakeService(&s.Service).
+		Errors
 	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	control := new(dto.{{.ClassName}}ById)
-
-	//查看详情
-	err = control.Bind(c)
-	if err != nil {
-	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
 		return
 	}
 	var object models.{{.ClassName}}
 
-	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
-
-	service{{.ClassName}} := service.{{.ClassName}}{}
-	service{{.ClassName}}.Log = log
-	service{{.ClassName}}.Orm = db
-	err = service{{.ClassName}}.Get{{.ClassName}}(control, p, &object)
+	err = s.Get(&req, p, &object)
 	if err != nil {
-		log.Errorf("Get {{.ClassName}} error, %s", err.Error())
-		e.Error( http.StatusInternalServerError, err, "查询失败")
-		return
+		e.Error(500, err, fmt.Sprintf("获取{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+        return
 	}
 
 	e.OK( object, "查询成功")
 }
 
-// Insert{{.ClassName}} 创建{{.TableComment}}
+// Insert 创建{{.TableComment}}
 // @Summary 创建{{.TableComment}}
 // @Description 创建{{.TableComment}}
 // @Tags {{.TableComment}}
@@ -124,47 +104,32 @@ func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 // @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
 // @Router /api/v1/{{.ModuleName}} [post]
 // @Security Bearer
-func (e {{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
-    e.SetContext(c)
-    log := e.GetLogger()
-    db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	control := new(dto.{{.ClassName}}Control)
-
-	//新增操作
-	err = control.Bind(c)
-	if err != nil {
-	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.GenerateM()
-	if err != nil {
-		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
-		e.Error( http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
+func (e {{.ClassName}}) Insert(c *gin.Context) {
+    req := dto.{{.ClassName}}Control{}
+    s := service.{{.ClassName}}{}
+    err := e.MakeContext(c).
+        MakeOrm().
+        Bind(&req, binding.JSON).
+        MakeService(&s.Service).
+        Errors
+    if err != nil {
+        e.Logger.Error(err)
+        e.Error(500, err, err.Error())
+        return
+    }
 	// 设置创建人
-	object.SetCreateBy(user.GetUserId(c))
+	req.SetCreateBy(user.GetUserId(c))
 
-	service{{.ClassName}} := service.{{.ClassName}}{}
-	service{{.ClassName}}.Orm = db
-	service{{.ClassName}}.Log = log
-	err = service{{.ClassName}}.Insert{{.ClassName}}(object.(*models.{{.ClassName}}))
+	err = s.Insert(&req)
 	if err != nil {
-		log.Errorf("Insert {{.ClassName}} error, %s", err.Error())
-		e.Error( http.StatusInternalServerError, err, "创建失败")
-		return
+		e.Error(500, err, fmt.Sprintf("创建{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+        return
 	}
 
-	e.OK( object.GetId(), "创建成功")
+	e.OK(req.GetId(), "创建成功")
 }
 
-// Update{{.ClassName}} 修改{{.TableComment}}
+// Update 修改{{.TableComment}}
 // @Summary 修改{{.TableComment}}
 // @Description 修改{{.TableComment}}
 // @Tags {{.TableComment}}
@@ -174,48 +139,31 @@ func (e {{.ClassName}}) Insert{{.ClassName}}(c *gin.Context) {
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
 // @Router /api/v1/{{.ModuleName}}/{id} [put]
 // @Security Bearer
-func (e {{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
-    e.SetContext(c)
-    log := e.GetLogger()
-    db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	control := new(dto.{{.ClassName}}Control)
-
-	//更新操作
-	err = control.Bind(c)
-	if err != nil {
-	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-	object, err := control.GenerateM()
-	if err != nil {
-		log.Errorf("generate {{.ClassName}} model error, %s", err.Error())
-		e.Error( http.StatusInternalServerError, err, "模型生成失败")
-		return
-	}
-	object.SetUpdateBy(user.GetUserId(c))
-
-	//数据权限检查
+func (e {{.ClassName}}) Update(c *gin.Context) {
+    req := dto.{{.ClassName}}Control){}
+    s := service.{{.ClassName}}{}
+    err := e.MakeContext(c).
+        MakeOrm().
+        Bind(&req, binding.JSON, nil).
+        MakeService(&s.Service).
+        Errors
+    if err != nil {
+        e.Logger.Error(err)
+        e.Error(500, err, err.Error())
+        return
+    }
+	req.SetUpdateBy(user.GetUserId(c))
 	p := actions.GetPermissionFromContext(c)
 
-	service{{.ClassName}} := service.{{.ClassName}}{}
-	service{{.ClassName}}.Orm = db
-	service{{.ClassName}}.Log = log
-	err = service{{.ClassName}}.Update{{.ClassName}}(object.(*models.{{.ClassName}}), p)
+	err = s.Update(&req, p)
 	if err != nil {
-		log.Errorf("Update {{.ClassName}} error, %s", err.Error())
-		e.Error( http.StatusInternalServerError, err, "更新失败")
-		return
+		e.Error(500, err, fmt.Sprintf("修改{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+        return
 	}
-	e.OK( object.GetId(), "更新成功")
+	e.OK( object.GetId(), "修改成功")
 }
 
-// Delete{{.ClassName}} 删除{{.TableComment}}
+// Delete 删除{{.TableComment}}
 // @Summary 删除{{.TableComment}}
 // @Description 删除{{.TableComment}}
 // @Tags {{.TableComment}}
@@ -223,39 +171,27 @@ func (e {{.ClassName}}) Update{{.ClassName}}(c *gin.Context) {
 // @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
 // @Router /api/v1/{{.ModuleName}} [delete]
 // @Security Bearer
-func (e {{.ClassName}}) Delete{{.ClassName}}(c *gin.Context) {
-    e.SetContext(c)
-    log := e.GetLogger()
-    db, err := e.GetOrm()
-	if err != nil {
-		log.Error(err)
-		return
-	}
+func (e {{.ClassName}}) Delete(c *gin.Context) {
+    s := service.{{.ClassName}}{}
+    req := dto.{{.ClassName}}ById{}
+    err := e.MakeContext(c).
+        MakeOrm().
+        Bind(&req, binding.JSON).
+        MakeService(&s.Service).
+        Errors
+    if err != nil {
+        e.Logger.Error(err)
+        e.Error(500, err, err.Error())
+        return
+    }
 
-	control := new(dto.{{.ClassName}}ById)
-
-	//删除操作
-	err = control.Bind(c)
-	if err != nil {
-	    log.Warnf("request body bind error, %s", err.Error())
-		e.Error( http.StatusUnprocessableEntity, err, "参数验证失败")
-		return
-	}
-
-	// 设置编辑人
-	control.SetUpdateBy(user.GetUserId(c))
-
-	// 数据权限检查
+	req.SetUpdateBy(user.GetUserId(c))
 	p := actions.GetPermissionFromContext(c)
 
-	service{{.ClassName}} := service.{{.ClassName}}{}
-	service{{.ClassName}}.Orm = db
-	service{{.ClassName}}.Log = log
-	err = service{{.ClassName}}.Remove{{.ClassName}}(control, p)
+	err = s.Remove(&req, p)
 	if err != nil {
-		log.Errorf("Remove {{.ClassName}} error, %s", err.Error())
-		e.Error( http.StatusInternalServerError, err, "删除失败")
-		return
+		e.Error(500, err, fmt.Sprintf("删除{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+        return
 	}
 	e.OK( control.GetId(), "删除成功")
 }

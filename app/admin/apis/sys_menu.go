@@ -1,13 +1,11 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin/binding"
-	"go-admin/app/admin/models"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"go-admin/app/admin/models"
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
@@ -153,6 +151,7 @@ func (e SysMenu) Update(c *gin.Context) {
 // @Param data body dto.SysMenuById true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [delete]
+// @Security Bearer
 func (e SysMenu) Delete(c *gin.Context) {
 	control := new(dto.SysMenuById)
 	s := new(service.SysMenu)
@@ -169,7 +168,7 @@ func (e SysMenu) Delete(c *gin.Context) {
 	err = s.Remove(control).Error
 	if err != nil {
 		e.Logger.Errorf("RemoveSysMenu error, %s", err)
-		e.Error(http.StatusInternalServerError, err, "删除失败")
+		e.Error(500, err, "删除失败")
 		return
 	}
 	e.OK(control.GetId(), "删除成功")
@@ -197,7 +196,7 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 	result, err := s.SetMenuRole(user.GetRoleName(c))
 
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 

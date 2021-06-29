@@ -34,7 +34,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			response.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			response.Error(c, 500, err, "模型生成失败")
 			return
 		}
 
@@ -48,7 +48,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Delete(object)
 		if db.Error != nil {
 			log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
-			response.Error(c, http.StatusInternalServerError, err, "删除失败")
+			response.Error(c, 500, err, "删除失败")
 			return
 		}
 		if db.RowsAffected == 0 {

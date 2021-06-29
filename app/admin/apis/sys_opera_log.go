@@ -2,12 +2,10 @@ package apis
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin/binding"
-	"go-admin/app/admin/models"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 )
@@ -33,7 +31,7 @@ type SysOperaLog struct {
 // @Security Bearer
 func (e SysOperaLog) GetPage(c *gin.Context) {
 	s := service.SysOperaLog{}
-	req := new(dto.SysOperaLogSearch)
+	req := new(dto.SysOperaLogGetPageReq)
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(req, binding.Form).
@@ -50,7 +48,7 @@ func (e SysOperaLog) GetPage(c *gin.Context) {
 
 	err = s.GetPage(req, &list, &count)
 	if err != nil {
-		e.Error(http.StatusUnprocessableEntity, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 
@@ -95,6 +93,7 @@ func (e SysOperaLog) Get(c *gin.Context) {
 // @Param data body dto.SysOperaLogById true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log [delete]
+// @Security Bearer
 func (e SysOperaLog) Delete(c *gin.Context) {
 	s := new(service.SysOperaLog)
 	req := dto.SysOperaLogById{}

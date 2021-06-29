@@ -7,8 +7,8 @@ import (
 	"go-admin/common/dto"
 )
 
-// SysPostSearch 列表或者搜索使用结构体
-type SysPostSearch struct {
+// SysPostPageReq 列表或者搜索使用结构体
+type SysPostPageReq struct {
 	dto.Pagination `search:"-"`
 	PostId         int    `form:"postId" search:"type:exact;column:post_id;table:sys_post" comment:"id"`        // id
 	PostName       string `form:"postName" search:"type:contains;column:post_name;table:sys_post" comment:"名称"` // 名称
@@ -18,12 +18,12 @@ type SysPostSearch struct {
 	Remark         string `form:"remark" search:"type:exact;column:remark;table:sys_post" comment:"备注"`         // 备注
 }
 
-func (m *SysPostSearch) GetNeedSearch() interface{} {
+func (m *SysPostPageReq) GetNeedSearch() interface{} {
 	return *m
 }
 
-// SysPostControl 增、改使用的结构体
-type SysPostControl struct {
+// SysPostInsertReq 增使用的结构体
+type SysPostInsertReq struct {
 	PostId   int    `uri:"id"  comment:"id"`
 	PostName string `form:"postName"  comment:"名称"`
 	PostCode string `form:"postCode" comment:"编码"`
@@ -33,11 +33,7 @@ type SysPostControl struct {
 	common.ControlBy
 }
 
-// Generate 结构体数据转化 从 SysConfigControl 至 system.SysConfig 对应的模型
-func (s *SysPostControl) Generate(model *models.SysPost) {
-	if s.PostId != 0 {
-		model.PostId = s.PostId
-	}
+func (s *SysPostInsertReq) Generate(model *models.SysPost) {
 	model.PostName = s.PostName
 	model.PostCode = s.PostCode
 	model.Sort = s.Sort
@@ -52,18 +48,28 @@ func (s *SysPostControl) Generate(model *models.SysPost) {
 }
 
 // GetId 获取数据对应的ID
-func (s *SysPostControl) GetId() interface{} {
+func (s *SysPostInsertReq) GetId() interface{} {
 	return s.PostId
 }
 
-// SysPostById 获取单个或者删除的结构体
-type SysPostById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
+// SysPostUpdateReq 改使用的结构体
+type SysPostUpdateReq struct {
+	PostId   int    `uri:"id"  comment:"id"`
+	PostName string `form:"postName"  comment:"名称"`
+	PostCode string `form:"postCode" comment:"编码"`
+	Sort     int    `form:"sort" comment:"排序"`
+	Status   int    `form:"status"   comment:"状态"`
+	Remark   string `form:"remark"   comment:"备注"`
 	common.ControlBy
 }
 
-func (s *SysPostById) Generate(model *models.SysPost) {
+func (s *SysPostUpdateReq) Generate(model *models.SysPost) {
+	model.PostId = s.PostId
+	model.PostName = s.PostName
+	model.PostCode = s.PostCode
+	model.Sort = s.Sort
+	model.Status = s.Status
+	model.Remark = s.Remark
 	if s.ControlBy.UpdateBy != 0 {
 		model.UpdateBy = s.UpdateBy
 	}
@@ -72,14 +78,34 @@ func (s *SysPostById) Generate(model *models.SysPost) {
 	}
 }
 
-func (s *SysPostById) GetId() interface{} {
-	if len(s.Ids) > 0 {
-		s.Ids = append(s.Ids, s.Id)
-		return s.Ids
-	}
+func (s *SysPostUpdateReq) GetId() interface{} {
+	return s.PostId
+}
+
+// SysPostGetReq 获取单个的结构体
+type SysPostGetReq struct {
+	Id int `uri:"id"`
+}
+
+func (s *SysPostGetReq) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysPostById) GenerateM() (*models.SysPost, error) {
-	return &models.SysPost{}, nil
+// SysPostDeleteReq 删除的结构体
+type SysPostDeleteReq struct {
+	Ids []int `json:"ids"`
+	common.ControlBy
+}
+
+func (s *SysPostDeleteReq) Generate(model *models.SysPost) {
+	if s.ControlBy.UpdateBy != 0 {
+		model.UpdateBy = s.UpdateBy
+	}
+	if s.ControlBy.CreateBy != 0 {
+		model.CreateBy = s.CreateBy
+	}
+}
+
+func (s *SysPostDeleteReq) GetId() interface{} {
+	return s.Ids
 }

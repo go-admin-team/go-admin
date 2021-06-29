@@ -30,10 +30,10 @@ type SysUser struct {
 // @Security Bearer
 func (e SysUser) GetPage(c *gin.Context) {
 	s := service.SysUser{}
-	req := dto.SysUserSearch{}
+	req := dto.SysUserGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.Form).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -63,7 +63,7 @@ func (e SysUser) GetPage(c *gin.Context) {
 // @Tags 用户
 // @Param userId path int true "用户编码"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/sysUser/{userId} [get]
+// @Router /api/v1/sys-user/{userId} [get]
 // @Security Bearer
 func (e SysUser) Get(c *gin.Context) {
 	s := service.SysUser{}
@@ -97,7 +97,8 @@ func (e SysUser) Get(c *gin.Context) {
 // @Product application/json
 // @Param data body dto.SysUserControl true "用户数据"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
-// @Router /api/v1/sysUser [post]
+// @Router /api/v1/sys-user [post]
+// @Security Bearer
 func (e SysUser) Insert(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.SysUserControl{}
@@ -132,12 +133,13 @@ func (e SysUser) Insert(c *gin.Context) {
 // @Param data body dto.SysUserControl true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-user/{userId} [put]
+// @Security Bearer
 func (e SysUser) Update(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.SysUserControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.JSON, nil).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -166,6 +168,7 @@ func (e SysUser) Update(c *gin.Context) {
 // @Param userId path int true "userId"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-user/{userId} [delete]
+// @Security Bearer
 func (e SysUser) Delete(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.SysUserById{}
@@ -202,6 +205,7 @@ func (e SysUser) Delete(c *gin.Context) {
 // @Param file formData file true "file"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/avatar [post]
+// @Security Bearer
 func (e SysUser) InsetAvatar(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.SysUserControl{}
@@ -250,6 +254,7 @@ func (e SysUser) InsetAvatar(c *gin.Context) {
 // @Param data body dto.UpdateSysUserStatusReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/status [put]
+// @Security Bearer
 func (e SysUser) UpdateStatus(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.UpdateSysUserStatusReq{}
@@ -286,6 +291,7 @@ func (e SysUser) UpdateStatus(c *gin.Context) {
 // @Param data body dto.ResetSysUserPwdReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/user/pwd/reset [put]
+// @Security Bearer
 func (e SysUser) ResetPwd(c *gin.Context) {
 	s := service.SysUser{}
 	req := dto.ResetSysUserPwdReq{}
@@ -415,8 +421,6 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	permissions[0] = "*:*:*"
 	var buttons = make([]string, 1)
 	buttons[0] = "*:*:*"
-	//RoleMenu := models.RoleMenu{}
-	//RoleMenu.RoleId = user.GetRoleId(c)
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles

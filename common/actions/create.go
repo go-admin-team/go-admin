@@ -33,14 +33,14 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			response.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			response.Error(c, 500, err, "模型生成失败")
 			return
 		}
 		object.SetCreateBy(user.GetUserId(c))
 		err = db.WithContext(c).Create(object).Error
 		if err != nil {
 			log.Errorf("Create error: %s", err)
-			response.Error(c, http.StatusInternalServerError, err, "创建失败")
+			response.Error(c, 500, err, "创建失败")
 			return
 		}
 		response.OK(c, object.GetId(), "创建成功")

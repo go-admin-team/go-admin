@@ -7,7 +7,7 @@ import (
 	common "go-admin/common/models"
 )
 
-type SysUserSearch struct {
+type SysUserGetPageReq struct {
 	dto.Pagination `search:"-"`
 	UserId         int    `form:"userId" search:"type:exact;column:user_id;table:sys_user" comment:"用户ID"`
 	Username       string `form:"username" search:"type:contains;column:username;table:sys_user" comment:"用户名"`
@@ -33,7 +33,7 @@ type DeptJoin struct {
 	DeptId string `search:"type:contains;column:dept_path;table:sys_dept" form:"deptId"`
 }
 
-func (m *SysUserSearch) GetNeedSearch() interface{} {
+func (m *SysUserGetPageReq) GetNeedSearch() interface{} {
 	return *m
 }
 

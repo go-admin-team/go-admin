@@ -2,20 +2,18 @@ package tools
 
 import (
 	"errors"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
-	"go-admin/app/admin/models/tools"
+	"go-admin/app/other/models/tools"
 )
 
 // GetDBTableList 分页列表数据
 // @Summary 分页列表数据 / page list data
 // @Description 数据库表分页列表 / database table page list
-// @Tags 工具 / Tools
+// @Tags 工具 / 生成工具
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
@@ -47,7 +45,7 @@ func (e *Gen) GetDBTableList(c *gin.Context) {
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 

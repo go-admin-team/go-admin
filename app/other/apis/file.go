@@ -40,6 +40,7 @@ type File struct {
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/public/uploadFile [post]
+// @Security Bearer
 func (e File) UploadFile(c *gin.Context) {
 	e.MakeContext(c)
 	tag, _ := c.GetPostForm("type")

@@ -2,7 +2,6 @@ package actions
 
 import (
 	"errors"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/go-admin-team/go-admin-core/logger"
@@ -34,7 +33,7 @@ func PermissionAction() gin.HandlerFunc {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
 				log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
-				response.Error(c, http.StatusInternalServerError, err, "权限范围鉴定错误")
+				response.Error(c, 500, err, "权限范围鉴定错误")
 				c.Abort()
 				return
 			}

@@ -2,15 +2,19 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/other/apis"
 )
 
 func init() {
-	routerNoCheckRole = append(routerNoCheckRole, registerFileRouter)
+	routerCheckRole = append(routerCheckRole, registerFileRouter)
 }
 
 // 需认证的路由代码
-func registerFileRouter(v1 *gin.RouterGroup) {
+func registerFileRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	var api = apis.File{}
-	v1.POST("/public/uploadFile", api.UploadFile)
+	r := v1.Group("").Use(authMiddleware.MiddlewareFunc())
+	{
+		r.POST("/public/uploadFile", api.UploadFile)
+	}
 }

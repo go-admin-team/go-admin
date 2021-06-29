@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"go-admin/app/admin/apis"
-	"go-admin/app/admin/apis/tools"
+	"go-admin/app/other/apis/tools"
 )
 
 func init() {
@@ -15,7 +15,7 @@ func sysNoCheckRoleRouter(v1 *gin.RouterGroup ,authMiddleware *jwt.GinJWTMiddlew
 	r1 := v1.Group("")
 	{
 		sys := apis.System{}
-		r1.GET("/getCaptcha", sys.GenerateCaptchaHandler)
+		r1.GET("/captcha", sys.GenerateCaptchaHandler)
 	}
 
 	r := v1.Group("").Use(authMiddleware.MiddlewareFunc())
@@ -43,13 +43,13 @@ func registerSysTableRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddl
 	tables := v1.Group("/sys/tables")
 	{
 		sysTable := tools.SysTable{}
-		tables.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/page", sysTable.GetSysTableList)
+		tables.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/page", sysTable.GetPage)
 		tablesInfo := tables.Group("/info").Use(authMiddleware.MiddlewareFunc())
 		{
-			tablesInfo.POST("", sysTable.InsertSysTable)
-			tablesInfo.PUT("", sysTable.UpdateSysTable)
-			tablesInfo.DELETE("/:tableId", sysTable.DeleteSysTables)
-			tablesInfo.GET("/:tableId", sysTable.GetSysTables)
+			tablesInfo.POST("", sysTable.Insert)
+			tablesInfo.PUT("", sysTable.Update)
+			tablesInfo.DELETE("/:tableId", sysTable.Delete)
+			tablesInfo.GET("/:tableId", sysTable.Get)
 			tablesInfo.GET("", sysTable.GetSysTablesInfo)
 		}
 	}

@@ -19,7 +19,7 @@ type SysApi struct {
 }
 
 // GetPage 获取SysApi列表
-func (e *SysApi) GetPage(c *dto.SysApiSearch, p *actions.DataPermission, list *[]models.SysApi, count *int64) error {
+func (e *SysApi) GetPage(c *dto.SysApiGetPageReq, p *actions.DataPermission, list *[]models.SysApi, count *int64) error {
 	var err error
 	var data models.SysApi
 
@@ -39,7 +39,7 @@ func (e *SysApi) GetPage(c *dto.SysApiSearch, p *actions.DataPermission, list *[
 }
 
 // Get 获取SysApi对象with id
-func (e *SysApi) Get(d *dto.SysApiById, p *actions.DataPermission, model *models.SysApi) *SysApi {
+func (e *SysApi) Get(d *dto.SysApiGetReq, p *actions.DataPermission, model *models.SysApi) *SysApi {
 	var data models.SysApi
 	err := e.Orm.Model(&data).
 		Scopes(
@@ -61,7 +61,7 @@ func (e *SysApi) Get(d *dto.SysApiById, p *actions.DataPermission, model *models
 }
 
 // Update 修改SysApi对象
-func (e *SysApi) Update(c *dto.SysApiControl, p *actions.DataPermission) error {
+func (e *SysApi) Update(c *dto.SysApiUpdateReq, p *actions.DataPermission) error {
 	var model = models.SysApi{}
 	db := e.Orm.Debug().First(&model, c.GetId())
 	if db.RowsAffected == 0 {
@@ -78,7 +78,7 @@ func (e *SysApi) Update(c *dto.SysApiControl, p *actions.DataPermission) error {
 }
 
 // Remove 删除SysApi
-func (e *SysApi) Remove(d *dto.SysApiById, p *actions.DataPermission) error {
+func (e *SysApi) Remove(d *dto.SysApiDeleteReq, p *actions.DataPermission) error {
 	var data models.SysApi
 
 	db := e.Orm.Model(&data).

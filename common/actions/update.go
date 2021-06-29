@@ -33,7 +33,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		var object models.ActiveRecord
 		object, err = req.GenerateM()
 		if err != nil {
-			response.Error(c, http.StatusInternalServerError, err, "模型生成失败")
+			response.Error(c, 500, err, "模型生成失败")
 			return
 		}
 		object.SetUpdateBy(user.GetUserId(c))
@@ -46,7 +46,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		).Where(req.GetId()).Updates(object)
 		if db.Error != nil {
 			log.Errorf("MsgID[%s] Update error: %s", msgID, err)
-			response.Error(c, http.StatusInternalServerError, err, "更新失败")
+			response.Error(c, 500, err, "更新失败")
 			return
 		}
 		if db.RowsAffected == 0 {
