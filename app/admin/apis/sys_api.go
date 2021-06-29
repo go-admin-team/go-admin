@@ -32,7 +32,7 @@ type SysApi struct {
 // @Security Bearer
 func (e SysApi) GetPage(c *gin.Context) {
 	s := service.SysApi{}
-	req := dto.SysApiSearch{}
+	req := dto.SysApiGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -64,7 +64,7 @@ func (e SysApi) GetPage(c *gin.Context) {
 // @Router /api/v1/sys-api/{id} [get]
 // @Security Bearer
 func (e SysApi) Get(c *gin.Context) {
-	req := dto.SysApiById{}
+	req := dto.SysApiGetReq{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -97,7 +97,7 @@ func (e SysApi) Get(c *gin.Context) {
 // @Router /api/v1/sys-api/{id} [put]
 // @Security Bearer
 func (e SysApi) Update(c *gin.Context) {
-	req := dto.SysApiControl{}
+	req := dto.SysApiUpdateReq{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -127,18 +127,17 @@ func (e SysApi) Update(c *gin.Context) {
 // @Router /api/v1/sys-api [delete]
 // @Security Bearer
 func (e SysApi) DeleteSysApi(c *gin.Context) {
-	req := dto.SysApiById{}
+	req := dto.SysApiDeleteReq{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.Form).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
-	req.SetUpdateBy(user.GetUserId(c))
 	p := actions.GetPermissionFromContext(c)
 	err = s.Remove(&req, p)
 	if err != nil {

@@ -32,7 +32,7 @@ func (e SysDept) GetPage(c *gin.Context) {
 	req := dto.SysDeptSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.Form).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -134,7 +134,7 @@ func (e SysDept) Update(c *gin.Context) {
 	req := dto.SysDeptControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.JSON, nil).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -159,6 +159,7 @@ func (e SysDept) Update(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dept [delete]
+// @Security Bearer
 func (e SysDept) Delete(c *gin.Context) {
 	s := service.SysDept{}
 	req := dto.SysDeptById{}

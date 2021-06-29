@@ -16,7 +16,7 @@ type SysOperaLog struct {
 }
 
 // GetPage 获取SysOperaLog列表
-func (e *SysOperaLog) GetPage(c *dto.SysOperaLogSearch, list *[]models.SysOperaLog, count *int64) error {
+func (e *SysOperaLog) GetPage(c *dto.SysOperaLogGetPageReq, list *[]models.SysOperaLog, count *int64) error {
 	var err error
 	var data models.SysOperaLog
 

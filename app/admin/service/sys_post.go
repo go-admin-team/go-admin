@@ -16,7 +16,7 @@ type SysPost struct {
 }
 
 // GetPage 获取SysPost列表
-func (e *SysPost) GetPage(c *dto.SysPostSearch, list *[]models.SysPost, count *int64) error {
+func (e *SysPost) GetPage(c *dto.SysPostPageReq, list *[]models.SysPost, count *int64) error {
 	var err error
 	var data models.SysPost
 
@@ -35,7 +35,7 @@ func (e *SysPost) GetPage(c *dto.SysPostSearch, list *[]models.SysPost, count *i
 }
 
 // Get 获取SysPost对象
-func (e *SysPost) Get(d *dto.SysPostById, model *models.SysPost) error {
+func (e *SysPost) Get(d *dto.SysPostGetReq, model *models.SysPost) error {
 	var err error
 	var data models.SysPost
 
@@ -55,7 +55,7 @@ func (e *SysPost) Get(d *dto.SysPostById, model *models.SysPost) error {
 }
 
 // Insert 创建SysPost对象
-func (e *SysPost) Insert(c *dto.SysPostControl) error {
+func (e *SysPost) Insert(c *dto.SysPostInsertReq) error {
 	var err error
 	var data models.SysPost
 	c.Generate(&data)
@@ -68,7 +68,7 @@ func (e *SysPost) Insert(c *dto.SysPostControl) error {
 }
 
 // Update 修改SysPost对象
-func (e *SysPost) Update(c *dto.SysPostControl) error {
+func (e *SysPost) Update(c *dto.SysPostUpdateReq) error {
 	var err error
 	var model = models.SysPost{}
 	e.Orm.First(&model, c.GetId())
@@ -87,7 +87,7 @@ func (e *SysPost) Update(c *dto.SysPostControl) error {
 }
 
 // Remove 删除SysPost
-func (e *SysPost) Remove(d *dto.SysPostById) error {
+func (e *SysPost) Remove(d *dto.SysPostDeleteReq) error {
 	var err error
 	var data models.SysPost
 

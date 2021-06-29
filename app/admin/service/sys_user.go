@@ -19,7 +19,7 @@ type SysUser struct {
 }
 
 // GetPage 获取SysUser列表
-func (e *SysUser) GetPage(c *dto.SysUserSearch, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
+func (e *SysUser) GetPage(c *dto.SysUserGetPageReq, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
 	var err error
 	var data models.SysUser
 

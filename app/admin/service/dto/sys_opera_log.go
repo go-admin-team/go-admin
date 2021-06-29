@@ -8,7 +8,7 @@ import (
 	common "go-admin/common/models"
 )
 
-type SysOperaLogSearch struct {
+type SysOperaLogGetPageReq struct {
 	dto.Pagination `search:"-"`
 	Title          string `form:"title" search:"type:contains;column:title;table:sys_opera_log" comment:"操作模块"`
 	Method         string `form:"method" search:"type:contains;column:method;table:sys_opera_log" comment:"函数"`
@@ -25,7 +25,7 @@ type SysOperaLogOrder struct {
 	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_opera_log" form:"createdAtOrder"`
 }
 
-func (m *SysOperaLogSearch) GetNeedSearch() interface{} {
+func (m *SysOperaLogGetPageReq) GetNeedSearch() interface{} {
 	return *m
 }
 
