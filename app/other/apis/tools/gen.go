@@ -2,9 +2,9 @@ package tools
 
 import (
 	"bytes"
+	"fmt"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
-	"net/http"
 	"strconv"
 	"strings"
 	"text/template"
@@ -29,57 +29,57 @@ func (e Gen) Preview(c *gin.Context) {
 	id, err := pkg.StringToInt(c.Param("tableId"))
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("tableId接收失败！错误详情：%s", err.Error()))
 		return
 	}
 	table.TableId = id
 	t1, err := template.ParseFiles("template/v4/model.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("model模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t2, err := template.ParseFiles("template/v4/no_actions/apis.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("api模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t3, err := template.ParseFiles("template/v4/js.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("js模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t4, err := template.ParseFiles("template/v4/vue.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("vue模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t5, err := template.ParseFiles("template/v4/no_actions/router_check_role.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("路由模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t6, err := template.ParseFiles("template/v4/dto.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("dto模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t7, err := template.ParseFiles("template/v4/no_actions/service.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("service模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, fmt.Sprintf("数据库链接获取失败！错误详情：%s", err.Error()))
 		return
 	}
 
@@ -117,14 +117,14 @@ func (e Gen) GenCode(c *gin.Context) {
 	id, err := pkg.StringToInt(c.Param("tableId"))
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("tableId参数接收失败！错误详情：%s", err.Error()))
 		return
 	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, fmt.Sprintf("数据库链接获取失败！错误详情：%s", err.Error()))
 		return
 	}
 
@@ -147,14 +147,14 @@ func (e Gen) GenApiToFile(c *gin.Context) {
 	id, err := pkg.StringToInt(c.Param("tableId"))
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("tableId参数获取失败！错误详情：%s", err.Error()))
 		return
 	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, fmt.Sprintf("数据库链接获取失败！错误详情：%s", err.Error()))
 		return
 	}
 
@@ -179,43 +179,43 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	t1, err := template.ParseFiles(basePath + "model.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("model模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t2, err := template.ParseFiles(basePath + "no_actions/apis.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("api模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t3, err := template.ParseFiles(routerFile)
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("路由模版失败！错误详情：%s", err.Error()))
 		return
 	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("js模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("vue模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("dto模版解析失败失败！错误详情：%s", err.Error()))
 		return
 	}
 	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("service模版失败！错误详情：%s", err.Error()))
 		return
 	}
 
@@ -265,7 +265,7 @@ func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 	t1, err := template.ParseFiles(basePath + "api_migrate.template")
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("数据迁移模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	i := strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
@@ -299,31 +299,31 @@ func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 	t1, err := template.ParseFiles(basePath + "model.go.template")
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("model模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t3, err := template.ParseFiles(routerFile)
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("路由模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t4, err := template.ParseFiles(basePath + "js.go.template")
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("js模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("vue模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "")
+		e.Error(500, err, fmt.Sprintf("dto模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 
@@ -352,7 +352,7 @@ func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
 }
 
 func (e Gen) GenMenuAndApi(c *gin.Context) {
-	s:=service.SysMenu{}
+	s := service.SysMenu{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&s.Service).
@@ -365,8 +365,11 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 
 	table := tools.SysTables{}
 	id, err := pkg.StringToInt(c.Param("tableId"))
-	pkg.HasError(err, "", -1)
-
+	if err != nil{
+		e.Logger.Error(err)
+		e.Error(500,err,fmt.Sprintf("tableId参数解析失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	table.TableId = id
 	tab, _ := table.Get(e.Orm)
@@ -471,7 +474,6 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MDelete.CreateBy = 1
 	MDelete.UpdateBy = 1
 	s.Insert(&MDelete)
-
 
 	e.OK("", "数据生成成功！")
 }

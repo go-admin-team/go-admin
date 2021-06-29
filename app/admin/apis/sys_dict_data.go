@@ -1,14 +1,12 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin/binding"
-	"go-admin/app/admin/models"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"go-admin/app/admin/models"
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
@@ -82,7 +80,7 @@ func (e SysDictData) Get(c *gin.Context) {
 	err = s.Get(&req, &object)
 	if err != nil {
 		e.Logger.Warnf("Get error: %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "查询失败")
+		e.Error(500, err, "查询失败")
 		return
 	}
 

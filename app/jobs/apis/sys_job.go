@@ -33,7 +33,7 @@ func (e SysJob) RemoveJobForService(c *gin.Context) {
 	err = s.RemoveJob(&v)
 	if err != nil {
 		e.Logger.Errorf("RemoveJob error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	e.OK(nil, s.Msg)
@@ -62,7 +62,7 @@ func (e SysJob) StartJobForService(c *gin.Context) {
 	err = s.StartJob(&v)
 	if err != nil {
 		log.Errorf("GetCrontabKey error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	e.OK(nil, s.Msg)

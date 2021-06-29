@@ -3,7 +3,6 @@ package apis
 import (
 	"errors"
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -85,7 +84,7 @@ func (e *Api) Bind(d interface{}, bindings ...binding.Binding) *Api {
 func (e Api) GetOrm() (*gorm.DB, error) {
 	db, err := pkg.GetOrm(e.Context)
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return nil, err
 	}
 	return db, nil
@@ -96,13 +95,13 @@ func (e *Api) MakeOrm() *Api {
 	var err error
 	if e.Logger == nil {
 		err = errors.New("at MakeOrm logger is nil")
-		//e.Logger.Error(http.StatusInternalServerError, err, "at MakeOrm logger is nil")
+		//e.Logger.Error(500, err, "at MakeOrm logger is nil")
 		e.AddError(err)
 		return e
 	}
 	db, err := pkg.GetOrm(e.Context)
 	if err != nil {
-		e.Logger.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Logger.Error(500, err, "数据库连接获取失败")
 		e.AddError(err)
 	}
 	e.Orm = db

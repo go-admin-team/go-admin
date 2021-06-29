@@ -170,7 +170,7 @@ func (e SysRole) Update(c *gin.Context) {
 	}
 	_, err = global.LoadPolicy(c)
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "")
+		e.Error(500, err, "")
 		return
 	}
 	e.OK(req.GetId(), "更新成功")
@@ -227,7 +227,7 @@ func (e SysRole) Update2Status(c *gin.Context) {
 	req := dto.UpdateStatusReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, nil, binding.JSON).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -255,7 +255,7 @@ func (e SysRole) Update2Status(c *gin.Context) {
 // @Router /api/v1/role-status/{id} [put]
 // @Security Bearer
 func (e SysRole) Update2DataScope(c *gin.Context) {
-	s := &service.SysRole{}
+	s := service.SysRole{}
 	req := dto.RoleDataScopeReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -275,7 +275,7 @@ func (e SysRole) Update2DataScope(c *gin.Context) {
 	data.UpdateBy = user.GetUserId(c)
 	err = s.UpdateDataScope(&req).Error
 	if err != nil {
-		e.Error(http.StatusInternalServerError, err, "")
+		e.Error(500, err, fmt.Sprintf("更新角色数据权限失败！错误详情：%s", err.Error()))
 		return
 	}
 	e.OK(nil, "操作成功")
