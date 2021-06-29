@@ -51,7 +51,7 @@ func (e SysLoginLog) GetPage(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
-// GetSysLoginLog 登录日志通过id获取
+// Get 登录日志通过id获取
 // @Summary 登录日志通过id获取
 // @Description 获取JSON
 // @Tags 登录日志
@@ -81,13 +81,14 @@ func (e SysLoginLog) Get(c *gin.Context) {
 	e.OK(object, "查询成功")
 }
 
-// DeleteSysLoginLog 登录日志删除
+// Delete 登录日志删除
 // @Summary 登录日志删除
 // @Description 登录日志删除
 // @Tags 登录日志
 // @Param data body dto.SysLoginLogById true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-login-log [delete]
+// @Security Bearer
 func (e SysLoginLog) Delete(c *gin.Context) {
 	s := service.SysLoginLog{}
 	req := dto.SysLoginLogById{}

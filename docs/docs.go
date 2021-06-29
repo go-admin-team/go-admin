@@ -30,16 +30,11 @@ var doc = `{
     "paths": {
         "/api/v1/app-config": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取系统配置信息，主要注意这里不在验证数据权限",
+                "description": "获取系统配置信息，主要注意这里不在验证权限",
                 "tags": [
                     "配置管理"
                 ],
-                "summary": "获取系统前台配置信息，主要注意这里不在验证数据权限",
+                "summary": "获取系统前台配置信息，主要注意这里不在验证权限",
                 "responses": {
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
@@ -67,11 +62,6 @@ var doc = `{
         },
         "/api/v1/captcha": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "description": "获取验证码",
                 "tags": [
                     "登陆"
@@ -109,7 +99,7 @@ var doc = `{
             "get": {
                 "description": "数据库表列分页列表 / database table column page list",
                 "tags": [
-                    "工具 / Tools"
+                    "工具 / 生成工具"
                 ],
                 "summary": "分页列表数据 / page list data",
                 "parameters": [
@@ -146,7 +136,7 @@ var doc = `{
             "get": {
                 "description": "数据库表分页列表 / database table page list",
                 "tags": [
-                    "工具 / Tools"
+                    "工具 / 生成工具"
                 ],
                 "summary": "分页列表数据 / page list data",
                 "parameters": [
@@ -255,6 +245,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "删除数据",
                 "tags": [
                     "部门"
@@ -661,6 +656,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "删除数据",
                 "tags": [
                     "字典类型"
@@ -915,6 +915,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "删除数据",
                 "tags": [
                     "菜单"
@@ -1136,7 +1141,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysPostControl"
+                            "$ref": "#/definitions/dto.SysPostInsertReq"
                         }
                     }
                 ],
@@ -1150,6 +1155,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "删除数据",
                 "tags": [
                     "岗位"
@@ -1157,11 +1167,13 @@ var doc = `{
                 "summary": "删除岗位",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "id",
+                        "description": "请求参数",
                         "name": "id",
-                        "in": "path",
-                        "required": true
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysPostDeleteReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -1180,7 +1192,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/post/": {
+        "/api/v1/post/{id}": {
             "put": {
                 "security": [
                     {
@@ -1202,7 +1214,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysPostControl"
+                            "$ref": "#/definitions/dto.SysPostUpdateReq"
                         }
                     }
                 ],
@@ -1231,8 +1243,8 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "postId",
-                        "name": "postId",
+                        "description": "编码",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -1249,6 +1261,11 @@ var doc = `{
         },
         "/api/v1/public/uploadFile": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "获取JSON",
                 "consumes": [
                     "multipart/form-data"
@@ -1504,6 +1521,11 @@ var doc = `{
         },
         "/api/v1/server-monitor": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "获取JSON",
                 "tags": [
                     "系统信息"
@@ -2080,6 +2102,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "登录日志删除",
                 "tags": [
                     "登录日志"
@@ -2208,6 +2235,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "删除数据",
                 "tags": [
                     "操作日志"
@@ -2292,10 +2324,78 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "创建用户",
+                "parameters": [
+                    {
+                        "description": "用户数据",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysUserControl"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/sys-user/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户编码",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
             "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "获取JSON",
                 "consumes": [
                     "application/json"
@@ -2325,6 +2425,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "删除数据",
                 "tags": [
                     "用户"
@@ -2361,7 +2466,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "工具 - 生成表"
+                    "工具 / 生成工具"
                 ],
                 "summary": "修改表结构",
                 "parameters": [
@@ -2395,7 +2500,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "工具 - 生成表"
+                    "工具 / 生成工具"
                 ],
                 "summary": "添加表结构",
                 "parameters": [
@@ -2425,7 +2530,7 @@ var doc = `{
                 ],
                 "description": "获取JSON",
                 "tags": [
-                    "工具 - 生成表"
+                    "工具 / 生成工具"
                 ],
                 "summary": "获取配置",
                 "parameters": [
@@ -2449,7 +2554,7 @@ var doc = `{
             "delete": {
                 "description": "删除表结构",
                 "tags": [
-                    "工具 - 生成表"
+                    "工具 / 生成工具"
                 ],
                 "summary": "删除表结构",
                 "parameters": [
@@ -2475,7 +2580,7 @@ var doc = `{
             "get": {
                 "description": "生成表分页列表",
                 "tags": [
-                    "工具 - 生成表"
+                    "工具 / 生成工具"
                 ],
                 "summary": "分页列表数据",
                 "parameters": [
@@ -2508,70 +2613,13 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/sysUser": {
+        "/api/v1/user/avatar": {
             "post": {
-                "description": "获取JSON",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户"
-                ],
-                "summary": "创建用户",
-                "parameters": [
-                    {
-                        "description": "用户数据",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.SysUserControl"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/sysUser/{userId}": {
-            "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "获取JSON",
-                "tags": [
-                    "用户"
-                ],
-                "summary": "获取用户",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "用户编码",
-                        "name": "userId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/user/avatar": {
-            "post": {
                 "description": "获取JSON",
                 "consumes": [
                     "multipart/form-data"
@@ -2623,6 +2671,11 @@ var doc = `{
         },
         "/api/v1/user/pwd/reset": {
             "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "获取JSON",
                 "consumes": [
                     "application/json"
@@ -2690,6 +2743,11 @@ var doc = `{
         },
         "/api/v1/user/status": {
             "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "获取JSON",
                 "consumes": [
                     "application/json"
@@ -3175,7 +3233,53 @@ var doc = `{
                 }
             }
         },
-        "dto.SysPostControl": {
+        "dto.SysPostDeleteReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysPostInsertReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "postCode": {
+                    "type": "string"
+                },
+                "postId": {
+                    "type": "integer"
+                },
+                "postName": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "sort": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysPostUpdateReq": {
             "type": "object",
             "properties": {
                 "createBy": {

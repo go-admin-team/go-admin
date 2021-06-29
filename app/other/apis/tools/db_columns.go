@@ -1,8 +1,6 @@
 package tools
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
@@ -13,7 +11,7 @@ import (
 // GetDBColumnList 分页列表数据
 // @Summary 分页列表数据 / page list data
 // @Description 数据库表列分页列表 / database table column page list
-// @Tags 工具 / Tools
+// @Tags 工具 / 生成工具
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
@@ -38,7 +36,7 @@ func (e *Gen) GetDBColumnList(c *gin.Context) {
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 

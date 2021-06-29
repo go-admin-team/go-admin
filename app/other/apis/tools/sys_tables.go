@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +19,7 @@ type SysTable struct {
 // GetPage 分页列表数据
 // @Summary 分页列表数据
 // @Description 生成表分页列表
-// @Tags 工具 - 生成表
+// @Tags 工具 / 生成工具
 // @Param tableName query string false "tableName / 数据表名称"
 // @Param pageSize query int false "pageSize / 页条数"
 // @Param pageIndex query int false "pageIndex / 页码"
@@ -45,7 +44,7 @@ func (e SysTable) GetPage(c *gin.Context) {
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 
@@ -63,7 +62,7 @@ func (e SysTable) GetPage(c *gin.Context) {
 // Get
 // @Summary 获取配置
 // @Description 获取JSON
-// @Tags 工具 - 生成表
+// @Tags 工具 / 生成工具
 // @Param configKey path int true "configKey"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys/tables/info/{tableId} [get]
@@ -74,7 +73,7 @@ func (e SysTable) Get(c *gin.Context) {
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 
@@ -99,7 +98,7 @@ func (e SysTable) GetSysTablesInfo(c *gin.Context) {
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 
@@ -128,7 +127,7 @@ func (e SysTable) GetSysTablesTree(c *gin.Context) {
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 
@@ -146,7 +145,7 @@ func (e SysTable) GetSysTablesTree(c *gin.Context) {
 // Insert
 // @Summary 添加表结构
 // @Description 添加表结构
-// @Tags 工具 - 生成表
+// @Tags 工具 / 生成工具
 // @Accept  application/json
 // @Product application/json
 // @Param tables query string false "tableName / 数据表名称"
@@ -160,7 +159,7 @@ func (e SysTable) Insert(c *gin.Context) {
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 
@@ -292,7 +291,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 // Update
 // @Summary 修改表结构
 // @Description 修改表结构
-// @Tags 工具 - 生成表
+// @Tags 工具 / 生成工具
 // @Accept  application/json
 // @Product application/json
 // @Param data body tools.SysTables true "body"
@@ -310,7 +309,7 @@ func (e SysTable) Update(c *gin.Context) {
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 
@@ -327,7 +326,7 @@ func (e SysTable) Update(c *gin.Context) {
 // Delete
 // @Summary 删除表结构
 // @Description 删除表结构
-// @Tags 工具 - 生成表
+// @Tags 工具 / 生成工具
 // @Param tableId path int true "tableId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
@@ -338,7 +337,7 @@ func (e SysTable) Delete(c *gin.Context) {
 	db, err := e.GetOrm()
 	if err != nil {
 		log.Errorf("get db connection error, %s", err.Error())
-		e.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.Error(500, err, "数据库连接获取失败")
 		return
 	}
 

@@ -29,6 +29,7 @@ type ServerMonitor struct {
 // @Tags 系统信息
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/server-monitor [get]
+// @Security Bearer
 func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	e.Context = c
 

@@ -54,7 +54,7 @@ func (s *{{.ClassName}}Control) Generate(model *models.SysConfig)  {
     {{$x := .Pk}}
     {{- if ($x) }}
     if s.{{.GoField}} == 0 {
-        model.Model = common.Model{{{.GoField}}: s.{{.GoField}}}
+        model.Model = common.Model{ {{.GoField}}: s.{{.GoField}} }
     }
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}

@@ -157,6 +157,7 @@ func (e SysDictType) Update(c *gin.Context) {
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dict/type [delete]
+// @Security Bearer
 func (e SysDictType) Delete(c *gin.Context) {
 	s := service.SysDictType{}
 	req := dto.SysDictTypeById{}

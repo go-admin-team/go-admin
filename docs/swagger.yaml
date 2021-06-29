@@ -292,7 +292,37 @@ definitions:
           type: integer
         type: array
     type: object
-  dto.SysPostControl:
+  dto.SysPostDeleteReq:
+    properties:
+      createBy:
+        type: integer
+      ids:
+        items:
+          type: integer
+        type: array
+      updateBy:
+        type: integer
+    type: object
+  dto.SysPostInsertReq:
+    properties:
+      createBy:
+        type: integer
+      postCode:
+        type: string
+      postId:
+        type: integer
+      postName:
+        type: string
+      remark:
+        type: string
+      sort:
+        type: integer
+      status:
+        type: integer
+      updateBy:
+        type: integer
+    type: object
+  dto.SysPostUpdateReq:
     properties:
       createBy:
         type: integer
@@ -822,7 +852,7 @@ info:
 paths:
   /api/v1/app-config:
     get:
-      description: 获取系统配置信息，主要注意这里不在验证数据权限
+      description: 获取系统配置信息，主要注意这里不在验证权限
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -835,9 +865,7 @@ paths:
                     type: string
                   type: object
               type: object
-      security:
-      - Bearer: []
-      summary: 获取系统前台配置信息，主要注意这里不在验证数据权限
+      summary: 获取系统前台配置信息，主要注意这里不在验证权限
       tags:
       - 配置管理
   /api/v1/captcha:
@@ -857,8 +885,6 @@ paths:
                 msg:
                   type: string
               type: object
-      security:
-      - Bearer: []
       summary: 获取验证码
       tags:
       - 登陆
@@ -885,7 +911,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 分页列表数据 / page list data
       tags:
-      - 工具 / Tools
+      - 工具 / 生成工具
   /api/v1/db/tables/page:
     get:
       description: 数据库表分页列表 / database table page list
@@ -909,7 +935,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 分页列表数据 / page list data
       tags:
-      - 工具 / Tools
+      - 工具 / 生成工具
   /api/v1/dept:
     delete:
       description: 删除数据
@@ -925,6 +951,8 @@ paths:
           description: '{"code": -1, "message": "删除失败"}'
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 删除部门
       tags:
       - 部门
@@ -1169,6 +1197,8 @@ paths:
           description: '{"code": -1, "message": "删除失败"}'
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 删除字典类型
       tags:
       - 字典类型
@@ -1348,6 +1378,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 删除菜单
       tags:
       - 菜单
@@ -1475,11 +1507,12 @@ paths:
     delete:
       description: 删除数据
       parameters:
-      - description: id
-        in: path
+      - description: 请求参数
+        in: body
         name: id
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/dto.SysPostDeleteReq'
       responses:
         "200":
           description: '{"code": 200, "message": "删除成功"}'
@@ -1489,6 +1522,8 @@ paths:
           description: '{"code": 500, "message": "删除失败"}'
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 删除岗位
       tags:
       - 岗位
@@ -1531,7 +1566,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysPostControl'
+          $ref: '#/definitions/dto.SysPostInsertReq'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1542,7 +1577,7 @@ paths:
       summary: 添加岗位
       tags:
       - 岗位
-  /api/v1/post/:
+  /api/v1/post/{id}:
     put:
       consumes:
       - application/json
@@ -1553,7 +1588,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysPostControl'
+          $ref: '#/definitions/dto.SysPostUpdateReq'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1568,9 +1603,9 @@ paths:
     get:
       description: 获取JSON
       parameters:
-      - description: postId
+      - description: 编码
         in: path
-        name: postId
+        name: id
         required: true
         type: integer
       responses:
@@ -1604,6 +1639,8 @@ paths:
           description: '{"code": -1, "message": "添加失败"}'
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: 上传图片
       tags:
       - 公共接口
@@ -1750,6 +1787,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 系统信息
       tags:
       - 系统信息
@@ -2061,6 +2100,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 登录日志删除
       tags:
       - 登录日志
@@ -2134,6 +2175,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 删除操作日志
       tags:
       - 操作日志
@@ -2218,6 +2261,27 @@ paths:
       summary: 列表用户信息数据
       tags:
       - 用户
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: 用户数据
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysUserControl'
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 创建用户
+      tags:
+      - 用户
   /api/v1/sys-user/{userId}:
     delete:
       description: 删除数据
@@ -2232,7 +2296,27 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 删除用户数据
+      tags:
+      - 用户
+    get:
+      description: 获取JSON
+      parameters:
+      - description: 用户编码
+        in: path
+        name: userId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 获取用户
       tags:
       - 用户
     put:
@@ -2251,6 +2335,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 修改用户数据
       tags:
       - 用户
@@ -2273,7 +2359,7 @@ paths:
       - Bearer: []
       summary: 添加表结构
       tags:
-      - 工具 - 生成表
+      - 工具 / 生成工具
     put:
       consumes:
       - application/json
@@ -2294,7 +2380,7 @@ paths:
       - Bearer: []
       summary: 修改表结构
       tags:
-      - 工具 - 生成表
+      - 工具 / 生成工具
   /api/v1/sys/tables/info/{tableId}:
     delete:
       description: 删除表结构
@@ -2311,7 +2397,7 @@ paths:
             type: string
       summary: 删除表结构
       tags:
-      - 工具 - 生成表
+      - 工具 / 生成工具
     get:
       description: 获取JSON
       parameters:
@@ -2329,7 +2415,7 @@ paths:
       - Bearer: []
       summary: 获取配置
       tags:
-      - 工具 - 生成表
+      - 工具 / 生成工具
   /api/v1/sys/tables/page:
     get:
       description: 生成表分页列表
@@ -2353,46 +2439,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: 分页列表数据
       tags:
-      - 工具 - 生成表
-  /api/v1/sysUser:
-    post:
-      consumes:
-      - application/json
-      description: 获取JSON
-      parameters:
-      - description: 用户数据
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/dto.SysUserControl'
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: 创建用户
-      tags:
-      - 用户
-  /api/v1/sysUser/{userId}:
-    get:
-      description: 获取JSON
-      parameters:
-      - description: 用户编码
-        in: path
-        name: userId
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: '{"code": 200, "data": [...]}'
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - Bearer: []
-      summary: 获取用户
-      tags:
-      - 用户
+      - 工具 / 生成工具
   /api/v1/user/avatar:
     post:
       consumes:
@@ -2409,6 +2456,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 修改头像
       tags:
       - 个人中心
@@ -2442,6 +2491,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 重置用户密码
       tags:
       - 用户
@@ -2484,6 +2535,8 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
       summary: 修改用户状态
       tags:
       - 用户
