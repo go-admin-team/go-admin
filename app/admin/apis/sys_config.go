@@ -180,12 +180,11 @@ func (e SysConfig) Delete(c *gin.Context) {
 }
 
 // GetSysConfigBySysApp 获取系统配置信息
-// @Summary 获取系统前台配置信息，主要注意这里不在验证数据权限
-// @Description 获取系统配置信息，主要注意这里不在验证数据权限
+// @Summary 获取系统前台配置信息，主要注意这里不在验证权限
+// @Description 获取系统配置信息，主要注意这里不在验证权限
 // @Tags 配置管理
 // @Success 200 {object} response.Response{data=map[string]string} "{"code": 200, "data": [...]}"
 // @Router /api/v1/app-config [get]
-// @Security Bearer
 func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 	req := dto.SysConfigSearch{}
 	s := service.SysConfig{}
