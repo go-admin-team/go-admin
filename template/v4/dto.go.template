@@ -1,13 +1,23 @@
 package dto
 
 import (
-    "errors"
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
+
+	 {{- $bb := false -}}
+	  {{- range .Columns -}}
+     {{$z := .IsQuery}}
+     {{- if ($z) }}
+     {{if eq .GoType "time.Time"}}{{- $bb = true -}}{{- end -}}
+     {{- end -}}
+     {{- end -}}
+     {{- range .Columns -}}
+     {{if eq .GoType "time.Time"}}{{- $bb = true -}}{{- end -}}
+     {{- end -}}
+     {{- if eq $bb true -}}
+     "time"
+     {{- end }}
 )
 
 type {{.ClassName}}Search struct {
@@ -26,7 +36,7 @@ type {{.ClassName}}Order struct {
     {{- $tablename := .TBName -}}
     {{- range .Columns -}}
     {{.GoField}} {{.GoType}} `form:"{{.JsonField}}Order"  search:"type:order;column:{{.ColumnName}};table:{{$tablename}}"`
-    {{- end }}
+    {{ end }}
 }
 
 func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
@@ -47,9 +57,10 @@ type {{.ClassName}}Control struct {
     {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
     {{- end -}}
     {{- end }}
+    common.ControlBy
 }
 
-func (s *{{.ClassName}}Control) Generate(model *models.SysConfig)  {
+func (s *{{.ClassName}}Control) Generate(model *models.{{.ClassName}})  {
 	 {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
@@ -74,6 +85,7 @@ func (s *{{.ClassName}}Control) GetId() interface{} {
 type {{.ClassName}}ById struct {
 	Id  int   `uri:"id"`
     Ids []int `json:"ids"`
+    common.ControlBy
 }
 
 func (s *{{.ClassName}}ById) GetId() interface{} {

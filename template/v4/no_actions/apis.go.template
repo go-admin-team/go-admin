@@ -1,9 +1,9 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin/binding"
-	"net/http"
+    "fmt"
 
+	"github.com/gin-gonic/gin/binding"
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
@@ -12,6 +12,7 @@ import (
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/app/{{.PackageName}}/service"
 	"go-admin/app/{{.PackageName}}/service/dto"
+	"go-admin/common/actions"
 )
 
 type {{.ClassName}} struct {
@@ -54,7 +55,7 @@ func (e {{.ClassName}}) GetPage(c *gin.Context) {
 
 	err = s.GetPage(&req, p, &list, &count)
 	if err != nil {
-		e.Error(500, err, fmt.Sprintf("获取{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+		e.Error(500, err, fmt.Sprintf("获取{{.TableComment}} 失败，\r\n失败信息 %s", err.Error()))
         return
 	}
 
@@ -69,7 +70,7 @@ func (e {{.ClassName}}) GetPage(c *gin.Context) {
 // @Success 200 {object} response.Response{data=models.{{.ClassName}}} "{"code": 200, "data": [...]}"
 // @Router /api/v1/{{.ModuleName}}/{id} [get]
 // @Security Bearer
-func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
+func (e {{.ClassName}}) Get(c *gin.Context) {
 	req := dto.{{.ClassName}}ById{}
 	s := service.{{.ClassName}}{}
     err := e.MakeContext(c).
@@ -87,7 +88,7 @@ func (e {{.ClassName}}) Get{{.ClassName}}(c *gin.Context) {
 	p := actions.GetPermissionFromContext(c)
 	err = s.Get(&req, p, &object)
 	if err != nil {
-		e.Error(500, err, fmt.Sprintf("获取{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+		e.Error(500, err, fmt.Sprintf("获取{{.TableComment}}失败，\r\n失败信息 %s", err.Error()))
         return
 	}
 
@@ -122,7 +123,7 @@ func (e {{.ClassName}}) Insert(c *gin.Context) {
 
 	err = s.Insert(&req)
 	if err != nil {
-		e.Error(500, err, fmt.Sprintf("创建{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+		e.Error(500, err, fmt.Sprintf("创建{{.TableComment}}  失败，\r\n失败信息 %s", err.Error()))
         return
 	}
 
@@ -140,7 +141,7 @@ func (e {{.ClassName}}) Insert(c *gin.Context) {
 // @Router /api/v1/{{.ModuleName}}/{id} [put]
 // @Security Bearer
 func (e {{.ClassName}}) Update(c *gin.Context) {
-    req := dto.{{.ClassName}}Control){}
+    req := dto.{{.ClassName}}Control{}
     s := service.{{.ClassName}}{}
     err := e.MakeContext(c).
         MakeOrm().
@@ -157,10 +158,10 @@ func (e {{.ClassName}}) Update(c *gin.Context) {
 
 	err = s.Update(&req, p)
 	if err != nil {
-		e.Error(500, err, fmt.Sprintf("修改{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+		e.Error(500, err, fmt.Sprintf("修改{{.TableComment}} 失败，\r\n失败信息 %s", err.Error()))
         return
 	}
-	e.OK( object.GetId(), "修改成功")
+	e.OK( req.GetId(), "修改成功")
 }
 
 // Delete 删除{{.TableComment}}
@@ -190,8 +191,8 @@ func (e {{.ClassName}}) Delete(c *gin.Context) {
 
 	err = s.Remove(&req, p)
 	if err != nil {
-		e.Error(500, err, fmt.Sprintf("删除{{.TableComment}} %v 失败，\r\n失败信息 %s", req.Ids, err.Error()))
+		e.Error(500, err, fmt.Sprintf("删除{{.TableComment}}失败，\r\n失败信息 %s", err.Error()))
         return
 	}
-	e.OK( control.GetId(), "删除成功")
+	e.OK( req.GetId(), "删除成功")
 }

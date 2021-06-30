@@ -153,11 +153,11 @@
                             {{- $x := .IsInsert -}}
                             {{- if (eq $x "1") -}}
                                 {{- if (.Pk) }}
-                                {{- else if eq .GoField "createdAt" -}}
-                                {{- else if eq .GoField "updatedAt" -}}
-                                {{- else if eq .GoField "deletedAt" -}}
-                                {{- else if eq .GoField "updateBy" -}}
-                                {{- else if eq .GoField "createBy" -}}
+                                {{- else if eq .GoField "CreatedAt" -}}
+                                {{- else if eq .GoField "UpdatedAt" -}}
+                                {{- else if eq .GoField "DeletedAt" -}}
+                                {{- else if eq .GoField "UpdateBy" -}}
+                                {{- else if eq .GoField "CreateBy" -}}
                                 {{- else }}
                                     <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
                                         {{ if eq "input" .HtmlType -}}
@@ -229,10 +229,11 @@
 </template>
 
 <script>
-    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .BusinessName}}'
+    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .PackageName}}/{{ .MLTBName}}'
+    {{ $package:=.PackageName }}
     {{range .Columns}}
     {{- if ne .FkTableName "" -}}
-    import {list{{.FkTableNameClass}} } from '@/api/{{ .FkTableNamePackage}}'
+    import {list{{.FkTableNameClass}} } from '@/api/{{ $package }}/{{ .FkTableNamePackage}}'
     {{ end -}}
     {{- end -}}
 
@@ -423,7 +424,7 @@
                         if (this.form.{{.PkJsonField}} !== undefined) {
                             update{{.ClassName}}(this.form).then(response => {
                                 if (response.code === 200) {
-                                    this.msgSuccess('修改成功')
+                                    this.msgSuccess(response.msg)
                                     this.open = false
                                     this.getList()
                                 } else {
@@ -433,7 +434,7 @@
                         } else {
                             add{{.ClassName}}(this.form).then(response => {
                                 if (response.code === 200) {
-                                    this.msgSuccess('新增成功')
+                                    this.msgSuccess(response.msg)
                                     this.open = false
                                     this.getList()
                                 } else {
@@ -454,9 +455,14 @@
                     type: 'warning'
                 }).then(function () {
                       return del{{.ClassName}}( { 'ids': Ids })
-                }).then(() => {
-                    this.getList()
-                    this.msgSuccess('删除成功')
+                }).then((response) => {
+                   if (response.code === 200) {
+                     this.msgSuccess(response.msg)
+                     this.open = false
+                     this.getList()
+                   } else {
+                     this.msgError(response.msg)
+                   }
                 }).catch(function () {
                 })
             }

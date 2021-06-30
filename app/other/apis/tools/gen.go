@@ -168,6 +168,7 @@ func (e Gen) GenApiToFile(c *gin.Context) {
 func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	e.Context = c
 	log := e.GetLogger()
+	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 
 	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
@@ -223,8 +224,13 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.ModuleFrontName)
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/" + tab.PackageName+ "/")
+	err = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName + "/" + tab.MLTBName+ "/")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("views目录创建失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
@@ -240,13 +246,13 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
-	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.ModuleName+".go")
-	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.ModuleName+".go")
-	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.ModuleName+".go")
-	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.ModuleFrontName+".js")
-	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.ModuleFrontName+"/index.vue")
-	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.ModuleName+".go")
-	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.ModuleName+".go")
+	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.TBName+".go")
+	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.TBName+".go")
+	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.TBName+".go")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+"/"+tab.MLTBName+".js")
+	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/"+tab.MLTBName+"/index.vue")
+	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.TBName+".go")
+	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.TBName+".go")
 
 }
 
@@ -365,19 +371,20 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 
 	table := tools.SysTables{}
 	id, err := pkg.StringToInt(c.Param("tableId"))
-	if err != nil{
+	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500,err,fmt.Sprintf("tableId参数解析失败！错误详情：%s", err.Error()))
+		e.Error(500, err, fmt.Sprintf("tableId参数解析失败！错误详情：%s", err.Error()))
 		return
 	}
 
 	table.TableId = id
 	tab, _ := table.Get(e.Orm)
+	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 
 	Mmenu := dto.SysMenuControl{}
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
-	Mmenu.Path = "/" + strings.Replace(tab.TBName, "_", "-", -1)
+	Mmenu.Path = "/" +tab.MLTBName
 	Mmenu.MenuType = "M"
 	Mmenu.Action = "无"
 	Mmenu.ParentId = 0
@@ -393,13 +400,13 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	Cmenu.MenuName = tab.ClassName + "Manage"
 	Cmenu.Title = tab.TableComment
 	Cmenu.Icon = "pass"
-	Cmenu.Path = tab.TBName
+	Cmenu.Path = "/" + tab.PackageName + "/" + tab.MLTBName
 	Cmenu.MenuType = "C"
 	Cmenu.Action = "无"
 	Cmenu.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":list"
 	Cmenu.ParentId = Mmenu.MenuId
 	Cmenu.NoCache = false
-	Cmenu.Component = "/" + tab.ModuleFrontName + "/index"
+	Cmenu.Component = "/" + tab.PackageName + "/" + tab.MLTBName + "/index"
 	Cmenu.Sort = 0
 	Cmenu.Visible = "0"
 	Cmenu.IsFrame = "0"

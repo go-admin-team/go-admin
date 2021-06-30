@@ -8,6 +8,7 @@ import (
 
 	"go-admin/app/{{.PackageName}}/models"
 	"go-admin/app/{{.PackageName}}/service/dto"
+	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 )
 
@@ -61,7 +62,7 @@ func (e *{{.ClassName}}) Insert(c *dto.{{.ClassName}}Control) error {
     var err error
     var data models.{{.ClassName}}
     c.Generate(&data)
-	err := e.Orm.Create(c&data).Error
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("{{.ClassName}}Service Insert error:%s \r\n", err)
 		return err
@@ -70,15 +71,15 @@ func (e *{{.ClassName}}) Insert(c *dto.{{.ClassName}}Control) error {
 }
 
 // Update 修改{{.ClassName}}对象
-func (e *{{.ClassName}}) Update(c *models.{{.ClassName}}, p *actions.DataPermission) error {
+func (e *{{.ClassName}}) Update(c *dto.{{.ClassName}}Control, p *actions.DataPermission) error {
     var err error
-    var model = models.{{.ClassName}}
+    var data = models.{{.ClassName}}{}
     e.Orm.Scopes(
             actions.Permission(data.TableName(), p),
-        ).First(&model, c.GetId())
-    c.Generate(&model)
+        ).First(&data, c.GetId())
+    c.Generate(&data)
 
-    db := e.Orm.Save(&model)
+    db := e.Orm.Save(&data)
     if db.Error != nil {
         e.Log.Errorf("{{.ClassName}}Service Save error:%s \r\n", err)
         return err
@@ -90,9 +91,8 @@ func (e *{{.ClassName}}) Update(c *models.{{.ClassName}}, p *actions.DataPermiss
     return nil
 }
 
-// Remove{{.ClassName}} 删除{{.ClassName}}
+// Remove 删除{{.ClassName}}
 func (e *{{.ClassName}}) Remove(d *dto.{{.ClassName}}ById, p *actions.DataPermission) error {
-	var err error
 	var data models.{{.ClassName}}
 
 	db := e.Orm.Model(&data).

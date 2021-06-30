@@ -208,7 +208,7 @@ func (e SysUser) Delete(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) InsetAvatar(c *gin.Context) {
 	s := service.SysUser{}
-	req := dto.SysUserControl{}
+	req := dto.UpdateSysUserAvatarReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&s.Service).
@@ -237,7 +237,7 @@ func (e SysUser) InsetAvatar(c *gin.Context) {
 	req.UserId = p.UserId
 	req.Avatar = "/" + filPath
 
-	err = s.Update(&req, p)
+	err = s.UpdateSysUserAvatar(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
