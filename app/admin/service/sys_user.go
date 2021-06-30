@@ -107,6 +107,30 @@ func (e *SysUser) Update(c *dto.SysUserControl, p *actions.DataPermission) error
 	return nil
 }
 
+// UpdateSysUserAvatar 更新用户头像
+func (e *SysUser) UpdateSysUserAvatar(c *dto.UpdateSysUserAvatarReq, p *actions.DataPermission) error {
+	var err error
+	var model models.SysUser
+	db := e.Orm.Scopes(
+		actions.Permission(model.TableName(), p),
+	).First(&model, c.GetId())
+	if err = db.Error; err != nil {
+		e.Log.Errorf("Service UpdateSysUser error: %s", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+
+	}
+	c.Generate(&model)
+	err = e.Orm.Save(&model).Error
+	if err != nil {
+		e.Log.Errorf("Service UpdateSysUser error: %s", err)
+		return err
+	}
+	return nil
+}
+
 // UpdateSysUserStatus 更新用户状态
 func (e *SysUser) UpdateSysUserStatus(c *dto.UpdateSysUserStatusReq, p *actions.DataPermission) error {
 	var err error

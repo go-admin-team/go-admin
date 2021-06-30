@@ -54,6 +54,23 @@ func (s *ResetSysUserPwdReq) Generate(model *models.SysUser) {
 	model.Password = s.Password
 }
 
+type UpdateSysUserAvatarReq struct {
+	UserId int    `json:"userId" comment:"用户ID" vd:"required"` // 用户ID
+	Avatar string `json:"avatar" comment:"头像" vd:"required"`
+	common.ControlBy
+}
+
+func (s *UpdateSysUserAvatarReq) GetId() interface{} {
+	return s.UserId
+}
+
+func (s *UpdateSysUserAvatarReq) Generate(model *models.SysUser) {
+	if s.UserId != 0 {
+		model.UserId = s.UserId
+	}
+	model.Avatar = s.Avatar
+}
+
 type UpdateSysUserStatusReq struct {
 	UserId int    `json:"userId" comment:"用户ID" binding:"required"` // 用户ID
 	Status string `json:"status" comment:"状态" binding:"required"`
