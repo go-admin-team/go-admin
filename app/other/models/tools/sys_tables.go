@@ -12,6 +12,7 @@ import (
 type SysTables struct {
 	TableId             int    `gorm:"primaryKey;autoIncrement" json:"tableId"`        //表编码
 	TBName              string `gorm:"column:table_name;size:255;" json:"tableName"`   //表名称
+	MLTBName            string `gorm:"-" json:"-"`                                     //表名称
 	TableComment        string `gorm:"size:255;" json:"tableComment"`                  //表备注
 	ClassName           string `gorm:"size:255;" json:"className"`                     //类名
 	TplCategory         string `gorm:"size:255;" json:"tplCategory"`                   //
@@ -188,16 +189,17 @@ func (e *SysTables) Update(tx *gorm.DB) (update SysTables, err error) {
 			t, ok := tableMap[e.Columns[i].FkTableName]
 			if ok {
 				e.Columns[i].FkTableNameClass = t.ClassName
-				e.Columns[i].FkTableNamePackage = t.ModuleName
+				t.MLTBName = strings.Replace(t.TBName, "_", "-", -1)
+				e.Columns[i].FkTableNamePackage = t.MLTBName
 			} else {
 				tableNameList := strings.Split(e.Columns[i].FkTableName, "_")
 				e.Columns[i].FkTableNameClass = ""
-				e.Columns[i].FkTableNamePackage = ""
+				//e.Columns[i].FkTableNamePackage = ""
 				for a := 0; a < len(tableNameList); a++ {
 					strStart := string([]byte(tableNameList[a])[:1])
 					strEnd := string([]byte(tableNameList[a])[1:])
 					e.Columns[i].FkTableNameClass += strings.ToUpper(strStart) + strEnd
-					e.Columns[i].FkTableNamePackage += strings.ToLower(strStart) + strings.ToLower(strEnd)
+					//e.Columns[i].FkTableNamePackage += strings.ToLower(strStart) + strings.ToLower(strEnd)
 				}
 			}
 		}
