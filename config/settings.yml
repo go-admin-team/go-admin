@@ -48,11 +48,11 @@ settings:
     demo:
       name: data
   cache:
-    redis:
-      addr: 127.0.0.1:6379
-      password: xxxxxx
-      db: 2
-#    memory: '' key存在即可
+#    redis:
+#      addr: 127.0.0.1:6379
+#      password: xxxxxx
+#      db: 2
+    memory: '' key存在即可
   queue:
     memory:
       poolSize: 100
