@@ -32,7 +32,7 @@ type SysDeptControl struct {
 	DeptPath string `json:"deptPath" comment:""`            //路径
 	DeptName string `json:"deptName" comment:"部门名称" vd:"len($)>0"` //部门名称
 	Sort     int    `json:"sort" comment:"排序" vd:"?"`       //排序
-	Leader   string `json:"leader,required" comment:"负责人" vd:"@:len($)>0;msg:validation failed:该字段不能为空"`    //负责人
+	Leader   string `json:"leader" comment:"负责人" vd:"@:len($)>0; msg:'leader不能为空'"`    //负责人
 	Phone    string `json:"phone" comment:"手机" vd:"?"`      //手机
 	Email    string `json:"email" comment:"邮箱" vd:"?"`      //邮箱
 	Status   int    `json:"status" comment:"状态" vd:"$>0"`     //状态
