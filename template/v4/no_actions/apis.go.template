@@ -3,7 +3,6 @@ package apis
 import (
     "fmt"
 
-	"github.com/gin-gonic/gin/binding"
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
@@ -36,11 +35,11 @@ type {{.ClassName}} struct {
 // @Router /api/v1/{{.ModuleName}} [get]
 // @Security Bearer
 func (e {{.ClassName}}) GetPage(c *gin.Context) {
-    req := dto.{{.ClassName}}Search{}
+    req := dto.{{.ClassName}}GetPageReq{}
     s := service.{{.ClassName}}{}
     err := e.MakeContext(c).
         MakeOrm().
-        Bind(&req, binding.Form).
+        Bind(&req).
         MakeService(&s.Service).
         Errors
    	if err != nil {
@@ -71,11 +70,11 @@ func (e {{.ClassName}}) GetPage(c *gin.Context) {
 // @Router /api/v1/{{.ModuleName}}/{id} [get]
 // @Security Bearer
 func (e {{.ClassName}}) Get(c *gin.Context) {
-	req := dto.{{.ClassName}}ById{}
+	req := dto.{{.ClassName}}GetReq{}
 	s := service.{{.ClassName}}{}
     err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, nil).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -101,16 +100,16 @@ func (e {{.ClassName}}) Get(c *gin.Context) {
 // @Tags {{.TableComment}}
 // @Accept application/json
 // @Product application/json
-// @Param data body dto.{{.ClassName}}Control true "data"
+// @Param data body dto.{{.ClassName}}InsertReq true "data"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
 // @Router /api/v1/{{.ModuleName}} [post]
 // @Security Bearer
 func (e {{.ClassName}}) Insert(c *gin.Context) {
-    req := dto.{{.ClassName}}Control{}
+    req := dto.{{.ClassName}}InsertReq{}
     s := service.{{.ClassName}}{}
     err := e.MakeContext(c).
         MakeOrm().
-        Bind(&req, binding.JSON).
+        Bind(&req).
         MakeService(&s.Service).
         Errors
     if err != nil {
@@ -136,16 +135,16 @@ func (e {{.ClassName}}) Insert(c *gin.Context) {
 // @Tags {{.TableComment}}
 // @Accept application/json
 // @Product application/json
-// @Param data body dto.{{.ClassName}}Control true "body"
+// @Param data body dto.{{.ClassName}}UpdateReq true "body"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
 // @Router /api/v1/{{.ModuleName}}/{id} [put]
 // @Security Bearer
 func (e {{.ClassName}}) Update(c *gin.Context) {
-    req := dto.{{.ClassName}}Control{}
+    req := dto.{{.ClassName}}UpdateReq{}
     s := service.{{.ClassName}}{}
     err := e.MakeContext(c).
         MakeOrm().
-        Bind(&req, binding.JSON, nil).
+        Bind(&req).
         MakeService(&s.Service).
         Errors
     if err != nil {
@@ -174,10 +173,10 @@ func (e {{.ClassName}}) Update(c *gin.Context) {
 // @Security Bearer
 func (e {{.ClassName}}) Delete(c *gin.Context) {
     s := service.{{.ClassName}}{}
-    req := dto.{{.ClassName}}ById{}
+    req := dto.{{.ClassName}}DeleteReq{}
     err := e.MakeContext(c).
         MakeOrm().
-        Bind(&req, binding.JSON).
+        Bind(&req).
         MakeService(&s.Service).
         Errors
     if err != nil {
@@ -186,7 +185,7 @@ func (e {{.ClassName}}) Delete(c *gin.Context) {
         return
     }
 
-	req.SetUpdateBy(user.GetUserId(c))
+	// req.SetUpdateBy(user.GetUserId(c))
 	p := actions.GetPermissionFromContext(c)
 
 	err = s.Remove(&req, p)

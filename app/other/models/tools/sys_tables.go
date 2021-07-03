@@ -78,7 +78,7 @@ func (e *SysTables) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]SysTabl
 	return doc, int(count), nil
 }
 
-func (e *SysTables) Get(tx *gorm.DB) (SysTables, error) {
+func (e *SysTables) Get(tx *gorm.DB, exclude bool) (SysTables, error) {
 	var doc SysTables
 	var err error
 	table := tx.Table("sys_tables")
@@ -98,7 +98,7 @@ func (e *SysTables) Get(tx *gorm.DB) (SysTables, error) {
 	}
 	var col SysColumns
 	col.TableId = doc.TableId
-	if doc.Columns, err = col.GetList(tx); err != nil {
+	if doc.Columns, err = col.GetList(tx, exclude); err != nil {
 		return doc, err
 	}
 
@@ -127,7 +127,7 @@ func (e *SysTables) GetTree(tx *gorm.DB) ([]SysTables, error) {
 		var col SysColumns
 		//col.FkCol = append(col.FkCol, SysColumns{ColumnId: 0, ColumnName: "请选择"})
 		col.TableId = doc[i].TableId
-		if doc[i].Columns, err = col.GetList(tx); err != nil {
+		if doc[i].Columns, err = col.GetList(tx, false); err != nil {
 			return doc, err
 		}
 

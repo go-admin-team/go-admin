@@ -20,7 +20,7 @@ import (
      {{- end }}
 )
 
-type {{.ClassName}}Search struct {
+type {{.ClassName}}GetPageReq struct {
 	dto.Pagination     `search:"-"`
     {{- $tablename := .TBName -}}
     {{- range .Columns -}}
@@ -39,15 +39,15 @@ type {{.ClassName}}Order struct {
     {{ end }}
 }
 
-func (m *{{.ClassName}}Search) GetNeedSearch() interface{} {
+func (m *{{.ClassName}}GetPageReq) GetNeedSearch() interface{} {
 	return *m
 }
 
-type {{.ClassName}}Control struct {
+type {{.ClassName}}InsertReq struct {
     {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `json:"-" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
@@ -60,7 +60,7 @@ type {{.ClassName}}Control struct {
     common.ControlBy
 }
 
-func (s *{{.ClassName}}Control) Generate(model *models.{{.ClassName}})  {
+func (s *{{.ClassName}}InsertReq) Generate(model *models.{{.ClassName}})  {
 	 {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
@@ -78,25 +78,67 @@ func (s *{{.ClassName}}Control) Generate(model *models.{{.ClassName}})  {
     {{- end }}
 }
 
-func (s *{{.ClassName}}Control) GetId() interface{} {
+func (s *{{.ClassName}}InsertReq) GetId() interface{} {
 	return s.{{.PkGoField}}
 }
 
-type {{.ClassName}}ById struct {
-	Id  int   `uri:"id"`
-    Ids []int `json:"ids"`
+type {{.ClassName}}UpdateReq struct {
+    {{- range .Columns -}}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{- else if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoField "CreateBy" -}}
+    {{- else if eq .GoField "UpdateBy" -}}
+    {{- else }}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" comment:"{{.ColumnComment}}"`
+    {{- end -}}
+    {{- end }}
     common.ControlBy
 }
 
-func (s *{{.ClassName}}ById) GetId() interface{} {
-	if len(s.Ids) > 0 {
-		s.Ids = append(s.Ids, s.Id)
-		return s.Ids
-	}
-	return s.Id
+func (s *{{.ClassName}}UpdateReq) Generate(model *models.{{.ClassName}})  {
+	 {{- range .Columns -}}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+    if s.{{.GoField}} == 0 {
+        model.Model = common.Model{ {{.GoField}}: s.{{.GoField}} }
+    }
+    {{- else if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else if eq .GoField "CreateBy" -}}
+    {{- else if eq .GoField "UpdateBy" -}}
+    {{- else }}
+    model.{{.GoField}} = s.{{.GoField}}
+    {{- end -}}
+    {{- end }}
 }
 
-func (s *{{.ClassName}}ById) Generate() *{{.ClassName}}ById {
-	o := *s
-	return &o
+func (s *{{.ClassName}}UpdateReq) GetId() interface{} {
+	return s.{{.PkGoField}}
+}
+
+// {{.ClassName}}GetReq 功能获取请求参数
+type {{.ClassName}}GetReq struct {
+	{{- range .Columns -}}
+    {{$x := .Pk}}
+    {{- if ($x) }}
+     {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}"`
+    {{- end }}
+    {{- end }}
+}
+func (s *{{.ClassName}}GetReq) GetId() interface{} {
+	return s.{{.PkGoField}}
+}
+
+// {{.ClassName}}DeleteReq 功能删除请求参数
+type {{.ClassName}}DeleteReq struct {
+	Ids []int `json:"ids"`
+}
+
+func (s *{{.ClassName}}DeleteReq) GetId() interface{} {
+	return s.Ids
 }
