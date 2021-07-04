@@ -17,7 +17,7 @@ type {{.ClassName}} struct {
 }
 
 // GetPage 获取{{.ClassName}}列表
-func (e *{{.ClassName}}) GetPage(c *dto.{{.ClassName}}Search, p *actions.DataPermission, list *[]models.{{.ClassName}}, count *int64) error {
+func (e *{{.ClassName}}) GetPage(c *dto.{{.ClassName}}GetPageReq, p *actions.DataPermission, list *[]models.{{.ClassName}}, count *int64) error {
 	var err error
 	var data models.{{.ClassName}}
 
@@ -37,7 +37,7 @@ func (e *{{.ClassName}}) GetPage(c *dto.{{.ClassName}}Search, p *actions.DataPer
 }
 
 // Get 获取{{.ClassName}}对象
-func (e *{{.ClassName}}) Get(d *dto.{{.ClassName}}ById, p *actions.DataPermission, model *models.{{.ClassName}}) error {
+func (e *{{.ClassName}}) Get(d *dto.{{.ClassName}}GetReq, p *actions.DataPermission, model *models.{{.ClassName}}) error {
 	var data models.{{.ClassName}}
 
 	err := e.Orm.Model(&data).
@@ -58,7 +58,7 @@ func (e *{{.ClassName}}) Get(d *dto.{{.ClassName}}ById, p *actions.DataPermissio
 }
 
 // Insert 创建{{.ClassName}}对象
-func (e *{{.ClassName}}) Insert(c *dto.{{.ClassName}}Control) error {
+func (e *{{.ClassName}}) Insert(c *dto.{{.ClassName}}InsertReq) error {
     var err error
     var data models.{{.ClassName}}
     c.Generate(&data)
@@ -71,7 +71,7 @@ func (e *{{.ClassName}}) Insert(c *dto.{{.ClassName}}Control) error {
 }
 
 // Update 修改{{.ClassName}}对象
-func (e *{{.ClassName}}) Update(c *dto.{{.ClassName}}Control, p *actions.DataPermission) error {
+func (e *{{.ClassName}}) Update(c *dto.{{.ClassName}}UpdateReq, p *actions.DataPermission) error {
     var err error
     var data = models.{{.ClassName}}{}
     e.Orm.Scopes(
@@ -86,13 +86,12 @@ func (e *{{.ClassName}}) Update(c *dto.{{.ClassName}}Control, p *actions.DataPer
     }
     if db.RowsAffected == 0 {
         return errors.New("无权更新该数据")
-
     }
     return nil
 }
 
 // Remove 删除{{.ClassName}}
-func (e *{{.ClassName}}) Remove(d *dto.{{.ClassName}}ById, p *actions.DataPermission) error {
+func (e *{{.ClassName}}) Remove(d *dto.{{.ClassName}}DeleteReq, p *actions.DataPermission) error {
 	var data models.{{.ClassName}}
 
 	db := e.Orm.Model(&data).

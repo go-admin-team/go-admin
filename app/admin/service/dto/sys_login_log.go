@@ -61,21 +61,19 @@ func (s *SysLoginLogControl) GetId() interface{} {
 	return s.ID
 }
 
-type SysLoginLogById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
-	common.ControlBy
+type SysLoginLogGetReq struct {
+	Id int `uri:"id"`
 }
 
-func (s *SysLoginLogById) GetId() interface{} {
+func (s *SysLoginLogGetReq) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysLoginLogById) Generate() *SysLoginLogById {
-	cp := *s
-	return &cp
+// SysLoginLogDeleteReq 功能删除请求参数
+type SysLoginLogDeleteReq struct {
+	Ids []int `json:"ids"`
 }
 
-func (s *SysLoginLogById) GenerateM() (*models.SysLoginLog, error) {
-	return &models.SysLoginLog{}, nil
+func (s *SysLoginLogDeleteReq) GetId() interface{} {
+	return s.Ids
 }

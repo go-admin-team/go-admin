@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	"go-admin/app/admin/models"
 
 	"go-admin/app/admin/service"
@@ -61,10 +60,10 @@ func (e SysLoginLog) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysLoginLog) Get(c *gin.Context) {
 	s := service.SysLoginLog{}
-	req := dto.SysLoginLogById{}
+	req := dto.SysLoginLogGetReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.JSON, nil).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -91,7 +90,7 @@ func (e SysLoginLog) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysLoginLog) Delete(c *gin.Context) {
 	s := service.SysLoginLog{}
-	req := dto.SysLoginLogById{}
+	req := dto.SysLoginLogDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -102,7 +101,6 @@ func (e SysLoginLog) Delete(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	req.SetUpdateBy(user.GetUserId(c))
 	err = s.Remove(&req)
 	if err != nil {
 		e.Error(500, err, "删除失败")

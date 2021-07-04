@@ -83,7 +83,7 @@ func (e Gen) Preview(c *gin.Context) {
 		return
 	}
 
-	tab, _ := table.Get(db)
+	tab, _ := table.Get(db,false)
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -129,13 +129,9 @@ func (e Gen) GenCode(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(db)
+	tab, _ := table.Get(db,false)
 
-	if tab.IsActions == 1 {
-		e.ActionsGen(c, tab)
-	} else {
-		e.NOActionsGen(c, tab)
-	}
+	e.NOActionsGen(c, tab)
 
 	e.OK("", "Code generated successfully！")
 }
@@ -159,7 +155,7 @@ func (e Gen) GenApiToFile(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(db)
+	tab, _ := table.Get(db,false)
 	e.genApiToFile(c, tab)
 
 	e.OK("", "Code generated successfully！")
@@ -224,8 +220,8 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/" + tab.PackageName+ "/")
-	err = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName + "/" + tab.MLTBName+ "/")
+	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/" + tab.PackageName + "/")
+	err = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName + "/" + tab.MLTBName + "/")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("views目录创建失败！错误详情：%s", err.Error()))
@@ -285,78 +281,6 @@ func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 
 }
 
-func (e Gen) ActionsGen(c *gin.Context, tab tools.SysTables) {
-	err := e.MakeContext(c).
-		MakeOrm().
-		Errors
-	if err != nil {
-		e.Logger.Error(err)
-		e.Error(500, err, err.Error())
-		return
-	}
-
-	basePath := "template/v4/"
-	routerFile := basePath + "actions/router_check_role.go.template"
-
-	if tab.IsAuth == 2 {
-		routerFile = basePath + "actions/router_no_check_role.go.template"
-	}
-
-	t1, err := template.ParseFiles(basePath + "model.go.template")
-	if err != nil {
-		e.Logger.Error(err)
-		e.Error(500, err, fmt.Sprintf("model模版解析失败！错误详情：%s", err.Error()))
-		return
-	}
-	t3, err := template.ParseFiles(routerFile)
-	if err != nil {
-		e.Logger.Error(err)
-		e.Error(500, err, fmt.Sprintf("路由模版解析失败！错误详情：%s", err.Error()))
-		return
-	}
-	t4, err := template.ParseFiles(basePath + "js.go.template")
-	if err != nil {
-		e.Logger.Error(err)
-		e.Error(500, err, fmt.Sprintf("js模版解析失败！错误详情：%s", err.Error()))
-		return
-	}
-	t5, err := template.ParseFiles(basePath + "vue.go.template")
-	if err != nil {
-		e.Logger.Error(err)
-		e.Error(500, err, fmt.Sprintf("vue模版解析失败！错误详情：%s", err.Error()))
-		return
-	}
-	t6, err := template.ParseFiles(basePath + "dto.go.template")
-	if err != nil {
-		e.Logger.Error(err)
-		e.Error(500, err, fmt.Sprintf("dto模版解析失败！错误详情：%s", err.Error()))
-		return
-	}
-
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.ModuleFrontName)
-
-	var b1 bytes.Buffer
-	err = t1.Execute(&b1, tab)
-	var b3 bytes.Buffer
-	err = t3.Execute(&b3, tab)
-	var b4 bytes.Buffer
-	err = t4.Execute(&b4, tab)
-	var b5 bytes.Buffer
-	err = t5.Execute(&b5, tab)
-	var b6 bytes.Buffer
-	err = t6.Execute(&b6, tab)
-
-	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.ModuleName+".go")
-	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.ModuleName+".go")
-	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.ModuleFrontName+".js")
-	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.ModuleFrontName+"/index.vue")
-	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.ModuleName+".go")
-}
-
 func (e Gen) GenMenuAndApi(c *gin.Context) {
 	s := service.SysMenu{}
 	err := e.MakeContext(c).
@@ -378,13 +302,13 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(e.Orm)
+	tab, _ := table.Get(e.Orm,true)
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 
 	Mmenu := dto.SysMenuControl{}
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
-	Mmenu.Path = "/" +tab.MLTBName
+	Mmenu.Path = "/" + tab.MLTBName
 	Mmenu.MenuType = "M"
 	Mmenu.Action = "无"
 	Mmenu.ParentId = 0
@@ -403,7 +327,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	Cmenu.Path = "/" + tab.PackageName + "/" + tab.MLTBName
 	Cmenu.MenuType = "C"
 	Cmenu.Action = "无"
-	Cmenu.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":list"
+	Cmenu.Permission = tab.PackageName + ":" + tab.BusinessName + ":list"
 	Cmenu.ParentId = Mmenu.MenuId
 	Cmenu.NoCache = false
 	Cmenu.Component = "/" + tab.PackageName + "/" + tab.MLTBName + "/index"
@@ -421,7 +345,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MList.Path = tab.TBName
 	MList.MenuType = "F"
 	MList.Action = "无"
-	MList.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":query"
+	MList.Permission = tab.PackageName + ":" + tab.BusinessName + ":query"
 	MList.ParentId = Cmenu.MenuId
 	MList.NoCache = false
 	MList.Sort = 0
@@ -438,7 +362,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MCreate.Path = tab.TBName
 	MCreate.MenuType = "F"
 	MCreate.Action = "无"
-	MCreate.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":add"
+	MCreate.Permission = tab.PackageName + ":" + tab.BusinessName + ":add"
 	MCreate.ParentId = Cmenu.MenuId
 	MCreate.NoCache = false
 	MCreate.Sort = 0
@@ -455,7 +379,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MUpdate.Path = tab.TBName
 	MUpdate.MenuType = "F"
 	MUpdate.Action = "无"
-	MUpdate.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":edit"
+	MUpdate.Permission = tab.PackageName + ":" + tab.BusinessName + ":edit"
 	MUpdate.ParentId = Cmenu.MenuId
 	MUpdate.NoCache = false
 	MUpdate.Sort = 0
@@ -472,7 +396,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MDelete.Path = tab.TBName
 	MDelete.MenuType = "F"
 	MDelete.Action = "无"
-	MDelete.Permission = tab.PackageName + ":" + tab.ModuleFrontName + ":remove"
+	MDelete.Permission = tab.PackageName + ":" + tab.BusinessName + ":remove"
 	MDelete.ParentId = Cmenu.MenuId
 	MDelete.NoCache = false
 	MDelete.Sort = 0

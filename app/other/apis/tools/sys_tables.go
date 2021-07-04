@@ -79,7 +79,7 @@ func (e SysTable) Get(c *gin.Context) {
 
 	var data tools.SysTables
 	data.TableId, _ = pkg.StringToInt(c.Param("tableId"))
-	result, err := data.Get(db)
+	result, err := data.Get(db,true)
 	if err != nil {
 		log.Errorf("Get error, %s", err.Error())
 		e.Error(500, err, "")
@@ -106,7 +106,7 @@ func (e SysTable) GetSysTablesInfo(c *gin.Context) {
 	if c.Request.FormValue("tableName") != "" {
 		data.TBName = c.Request.FormValue("tableName")
 	}
-	result, err := data.Get(db)
+	result, err := data.Get(db,true)
 	if err != nil {
 		log.Errorf("Get error, %s", err.Error())
 		e.Error(500, err, "抱歉未找到相关信息")
@@ -202,15 +202,23 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	for i := 0; i < len(tablenamelist); i++ {
 		strStart := string([]byte(tablenamelist[i])[:1])
 		strend := string([]byte(tablenamelist[i])[1:])
+		// 大驼峰表名 结构体使用
 		data.ClassName += strings.ToUpper(strStart) + strend
+		// 小驼峰表名 js函数名和权限标识使用
+		if i == 0 {
+			data.BusinessName += strings.ToLower(strStart) + strend
+		} else {
+			data.BusinessName += strings.ToUpper(strStart) + strend
+		}
 		//data.PackageName += strings.ToLower(strStart) + strings.ToLower(strend)
-		data.ModuleName += strings.ToLower(strStart) + strings.ToLower(strend)
+		//data.ModuleName += strings.ToLower(strStart) + strings.ToLower(strend)
 	}
-	data.ModuleFrontName = strings.ReplaceAll(data.ModuleName, "_", "-")
+	//data.ModuleFrontName = strings.ReplaceAll(data.ModuleName, "_", "-")
 	data.PackageName = "admin"
 	data.TplCategory = "crud"
 	data.Crud = true
-
+	// 中横线表名称，接口路径、前端文件夹名称和js名称使用
+	data.ModuleName = strings.Replace(data.TBName, "_", "-", -1)
 	dbcolumn, err := dbColumn.GetList(tx)
 	data.CreateBy = 0
 	data.TableComment = dbtable.TableComment
@@ -219,7 +227,7 @@ func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tool
 	}
 
 	data.FunctionName = data.TableComment
-	data.BusinessName = data.ModuleName
+	//data.BusinessName = data.ModuleName
 	data.IsLogicalDelete = "1"
 	data.LogicalDelete = true
 	data.LogicalDeleteColumn = "is_del"

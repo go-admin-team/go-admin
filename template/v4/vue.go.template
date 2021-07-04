@@ -78,7 +78,7 @@
                     </el-col>
                 </el-row>
 
-                <el-table v-loading="loading" :data="{{.ModuleName}}List" @selection-change="handleSelectionChange">
+                <el-table v-loading="loading" :data="{{.BusinessName}}List" @selection-change="handleSelectionChange">
                     <el-table-column type="selection" width="55" align="center"/>
                     {{- range .Columns -}}
                         {{- $x := .IsList -}}
@@ -260,7 +260,7 @@
                 isEdit: false,
                 // 类型数据字典
                 typeOptions: [],
-                {{.ModuleName}}List: [],
+                {{.BusinessName}}List: [],
                 {{range .Columns}}
                 {{- if ne .DictType "" -}}
                 {{.JsonField}}Options: [],
@@ -314,7 +314,7 @@
             getList() {
                 this.loading = true
                 list{{.ClassName}}(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-                        this.{{.ModuleName}}List = response.data.list
+                        this.{{.BusinessName}}List = response.data.list
                         this.total = response.data.count
                         this.loading = false
                     }

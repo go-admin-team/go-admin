@@ -1,7 +1,11 @@
 package apis
 
 import (
+	"fmt"
+	"github.com/shirou/gopsutil/host"
 	"runtime"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
@@ -23,6 +27,20 @@ type ServerMonitor struct {
 	api.Api
 }
 
+//获取相差时间
+func GetHourDiffer(startTime, endTime string) int64 {
+	var hour int64
+	t1, err := time.ParseInLocation("2006-01-02 15:04:05", startTime, time.Local)
+	t2, err := time.ParseInLocation("2006-01-02 15:04:05", endTime, time.Local)
+	if err == nil && t1.Before(t2) {
+		diff := t2.Unix() - t1.Unix() //
+		hour = diff / 3600
+		return hour
+	} else {
+		return hour
+	}
+}
+
 // ServerInfo 获取系统信息
 // @Summary 系统信息
 // @Description 获取JSON
@@ -33,6 +51,7 @@ type ServerMonitor struct {
 func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	e.Context = c
 
+	sysInfo, err := host.Info()
 	osDic := make(map[string]interface{}, 0)
 	osDic["goOs"] = runtime.GOOS
 	osDic["arch"] = runtime.GOARCH
@@ -42,6 +61,8 @@ func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	osDic["numGoroutine"] = runtime.NumGoroutine()
 	osDic["ip"] = pkg.GetLocaHonst()
 	osDic["projectDir"] = pkg.GetCurrentPath()
+	osDic["hostName"] = sysInfo.Hostname
+	osDic["time"] = time.Now().Format("2006-01-02 15:04:05")
 
 	dis, _ := disk.Usage("/")
 	diskTotalGB := int(dis.Total) / GB
@@ -67,11 +88,29 @@ func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	cpuDic["Percent"] = pkg.Round(percent[0], 2)
 	cpuDic["cpuNum"], _ = cpu.Counts(false)
 
+	//服务器磁盘信息
+	disklist := make([]disk.UsageStat, 0)
+	//所有分区
+	diskInfo, err := disk.Partitions(true)
+	if err == nil {
+		for _, p := range diskInfo {
+			diskDetail, err := disk.Usage(p.Mountpoint)
+			if err == nil {
+				diskDetail.UsedPercent, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", diskDetail.UsedPercent), 64)
+				diskDetail.Total = diskDetail.Total / 1024 / 1024
+				diskDetail.Used = diskDetail.Used / 1024 / 1024
+				diskDetail.Free = diskDetail.Free / 1024 / 1024
+				disklist = append(disklist, *diskDetail)
+			}
+		}
+	}
+
 	e.Custom(gin.H{
 		"code": 200,
 		"os":   osDic,
 		"mem":  memDic,
 		"cpu":  cpuDic,
 		"disk": diskDic,
+		"diskList": disklist,
 	})
 }

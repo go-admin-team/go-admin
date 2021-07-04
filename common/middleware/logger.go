@@ -3,6 +3,7 @@ package middleware
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"go-admin/common"
 	gaConfig "go-admin/config"
@@ -56,16 +57,16 @@ func LoggerToFile() gin.HandlerFunc {
 			return
 		}
 
-		//rt, bl := c.Get("result")
+		rt, bl := c.Get("result")
 		var result = ""
-		//if bl {
-		//	rb, err := json.Marshal(rt)
-		//	if err != nil {
-		//		log.Warnf("json Marshal result error, %s", err.Error())
-		//	} else {
-		//		result = string(rb)
-		//	}
-		//}
+		if bl {
+			rb, err := json.Marshal(rt)
+			if err != nil {
+				log.Warnf("json Marshal result error, %s", err.Error())
+			} else {
+				result = string(rb)
+			}
+		}
 
 		st, bl := c.Get("status")
 		var statusBus = 0

@@ -65,7 +65,7 @@ func (e SysOperaLog) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysOperaLog) Get(c *gin.Context) {
 	s := new(service.SysOperaLog)
-	req := dto.SysOperaLogById{}
+	req := dto.SysOperaLogGetReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -96,7 +96,7 @@ func (e SysOperaLog) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysOperaLog) Delete(c *gin.Context) {
 	s := new(service.SysOperaLog)
-	req := dto.SysOperaLogById{}
+	req := dto.SysOperaLogDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
