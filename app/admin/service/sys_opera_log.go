@@ -35,7 +35,7 @@ func (e *SysOperaLog) GetPage(c *dto.SysOperaLogGetPageReq, list *[]models.SysOp
 }
 
 // Get 获取SysOperaLog对象
-func (e *SysOperaLog) Get(d *dto.SysOperaLogById, model *models.SysOperaLog) error {
+func (e *SysOperaLog) Get(d *dto.SysOperaLogGetReq, model *models.SysOperaLog) error {
 	var data models.SysOperaLog
 
 	err := e.Orm.Model(&data).
@@ -67,7 +67,7 @@ func (e *SysOperaLog) Insert(model *models.SysOperaLog) error {
 }
 
 // Remove 删除SysOperaLog
-func (e *SysOperaLog) Remove(d *dto.SysOperaLogById) error {
+func (e *SysOperaLog) Remove(d *dto.SysOperaLogDeleteReq) error {
 	var err error
 	var data models.SysOperaLog
 

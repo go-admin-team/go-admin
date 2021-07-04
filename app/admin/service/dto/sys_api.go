@@ -77,10 +77,20 @@ func (s *SysApiUpdateReq) GetId() interface{} {
 
 // SysApiGetReq 功能获取请求参数
 type SysApiGetReq struct {
-	dto.ObjectGetReq
+	Id int `uri:"id"`
 }
+
+func (s *SysApiGetReq) GetId() interface{} {
+	return s.Id
+}
+
 
 // SysApiDeleteReq 功能删除请求参数
 type SysApiDeleteReq struct {
-	dto.ObjectDeleteReq
+	Ids []int `json:"ids"`
 }
+
+func (s *SysApiDeleteReq) GetId() interface{} {
+	return s.Ids
+}
+

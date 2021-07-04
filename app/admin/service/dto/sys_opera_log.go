@@ -79,19 +79,19 @@ func (s *SysOperaLogControl) GetId() interface{} {
 	return s.ID
 }
 
-type SysOperaLogById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
+type SysOperaLogGetReq struct {
+	Id int `uri:"id"`
 }
 
-func (s *SysOperaLogById) GetId() interface{} {
-	if len(s.Ids) > 0 {
-		s.Ids = append(s.Ids, s.Id)
-		return s.Ids
-	}
+func (s *SysOperaLogGetReq) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysOperaLogById) SetUpdateBy(id int) {
+// SysOperaLogDeleteReq 功能删除请求参数
+type SysOperaLogDeleteReq struct {
+	Ids []int `json:"ids"`
+}
 
+func (s *SysOperaLogDeleteReq) GetId() interface{} {
+	return s.Ids
 }

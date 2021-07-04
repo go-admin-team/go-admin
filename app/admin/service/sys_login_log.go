@@ -34,8 +34,8 @@ func (e *SysLoginLog) GetPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginL
 	return nil
 }
 
-// GetSysLoginLog 获取SysLoginLog对象
-func (e *SysLoginLog) Get(d *dto.SysLoginLogById, model *models.SysLoginLog) error {
+// Get 获取SysLoginLog对象
+func (e *SysLoginLog) Get(d *dto.SysLoginLogGetReq, model *models.SysLoginLog) error {
 	var err error
 	db := e.Orm.First(model, d.GetId())
 	err = db.Error
@@ -52,7 +52,7 @@ func (e *SysLoginLog) Get(d *dto.SysLoginLogById, model *models.SysLoginLog) err
 }
 
 // Remove 删除SysLoginLog
-func (e *SysLoginLog) Remove(c *dto.SysLoginLogById) error {
+func (e *SysLoginLog) Remove(c *dto.SysLoginLogDeleteReq) error {
 	var err error
 	var data models.SysLoginLog
 
