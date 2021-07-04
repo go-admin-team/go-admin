@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
@@ -19,7 +19,7 @@ type SysUser struct {
 }
 
 // GetPage 获取SysUser列表
-func (e *SysUser) GetPage(c *dto.SysUserGetPageReq, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
+func (e *SysUser) GetPage(c *request.SysUserGetPageReq, p *actions.DataPermission, list *[]models.SysUser, count *int64) error {
 	var err error
 	var data models.SysUser
 
@@ -39,7 +39,7 @@ func (e *SysUser) GetPage(c *dto.SysUserGetPageReq, p *actions.DataPermission, l
 }
 
 // Get 获取SysUser对象
-func (e *SysUser) Get(d *dto.SysUserById, p *actions.DataPermission, model *models.SysUser) error {
+func (e *SysUser) Get(d *request.SysUserById, p *actions.DataPermission, model *models.SysUser) error {
 	var data models.SysUser
 
 	err := e.Orm.Model(&data).Debug().
@@ -60,7 +60,7 @@ func (e *SysUser) Get(d *dto.SysUserById, p *actions.DataPermission, model *mode
 }
 
 // Insert 创建SysUser对象
-func (e *SysUser) Insert(c *dto.SysUserControl) error {
+func (e *SysUser) Insert(c *request.SysUserControl) error {
 	var err error
 	var data models.SysUser
 	var i int64
@@ -84,7 +84,7 @@ func (e *SysUser) Insert(c *dto.SysUserControl) error {
 }
 
 // Update 修改SysUser对象
-func (e *SysUser) Update(c *dto.SysUserControl, p *actions.DataPermission) error {
+func (e *SysUser) Update(c *request.SysUserControl, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -108,7 +108,7 @@ func (e *SysUser) Update(c *dto.SysUserControl, p *actions.DataPermission) error
 }
 
 // UpdateSysUserAvatar 更新用户头像
-func (e *SysUser) UpdateSysUserAvatar(c *dto.UpdateSysUserAvatarReq, p *actions.DataPermission) error {
+func (e *SysUser) UpdateSysUserAvatar(c *request.UpdateSysUserAvatarReq, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -132,7 +132,7 @@ func (e *SysUser) UpdateSysUserAvatar(c *dto.UpdateSysUserAvatarReq, p *actions.
 }
 
 // UpdateSysUserStatus 更新用户状态
-func (e *SysUser) UpdateSysUserStatus(c *dto.UpdateSysUserStatusReq, p *actions.DataPermission) error {
+func (e *SysUser) UpdateSysUserStatus(c *request.UpdateSysUserStatusReq, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -156,7 +156,7 @@ func (e *SysUser) UpdateSysUserStatus(c *dto.UpdateSysUserStatusReq, p *actions.
 }
 
 // ResetSysUserPwd 重置用户密码
-func (e *SysUser) ResetSysUserPwd(c *dto.ResetSysUserPwdReq, p *actions.DataPermission) error {
+func (e *SysUser) ResetSysUserPwd(c *request.ResetSysUserPwdReq, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -179,7 +179,7 @@ func (e *SysUser) ResetSysUserPwd(c *dto.ResetSysUserPwdReq, p *actions.DataPerm
 }
 
 // Remove 删除SysUser
-func (e *SysUser) Remove(c *dto.SysUserById, p *actions.DataPermission) error {
+func (e *SysUser) Remove(c *request.SysUserById, p *actions.DataPermission) error {
 	var err error
 	var data models.SysUser
 
@@ -243,7 +243,7 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 	return nil
 }
 
-func (e *SysUser) GetSysUserProfile(c *dto.SysUserById, user *models.SysUser, roles *[]models.SysRole, posts *[]models.SysPost) error {
+func (e *SysUser) GetSysUserProfile(c *request.SysUserById, user *models.SysUser, roles *[]models.SysRole, posts *[]models.SysPost) error {
 	err := e.Orm.Preload("Dept").First(user, c.GetId()).Error
 	if err != nil {
 		return err

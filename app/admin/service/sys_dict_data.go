@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 	cDto "go-admin/common/dto"
 )
 
@@ -16,7 +16,7 @@ type SysDictData struct {
 }
 
 // GetPage 获取列表
-func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]models.SysDictData, count *int64) error {
+func (e *SysDictData) GetPage(c *request.SysDictDataSearch, list *[]models.SysDictData, count *int64) error {
 	var err error
 	var data models.SysDictData
 
@@ -35,7 +35,7 @@ func (e *SysDictData) GetPage(c *dto.SysDictDataSearch, list *[]models.SysDictDa
 }
 
 // Get 获取对象
-func (e *SysDictData) Get(d *dto.SysDictDataById, model *models.SysDictData) error {
+func (e *SysDictData) Get(d *request.SysDictDataById, model *models.SysDictData) error {
 	var err error
 	var data models.SysDictData
 
@@ -55,7 +55,7 @@ func (e *SysDictData) Get(d *dto.SysDictDataById, model *models.SysDictData) err
 }
 
 // Insert 创建对象
-func (e *SysDictData) Insert(c *dto.SysDictDataControl) error {
+func (e *SysDictData) Insert(c *request.SysDictDataControl) error {
 	var err error
 	var data = new(models.SysDictData)
 	c.Generate(data)
@@ -68,7 +68,7 @@ func (e *SysDictData) Insert(c *dto.SysDictDataControl) error {
 }
 
 // Update 修改对象
-func (e *SysDictData) Update(c *dto.SysDictDataControl) error {
+func (e *SysDictData) Update(c *request.SysDictDataControl) error {
 	var err error
 	var model = models.SysDictData{}
 	e.Orm.First(&model, c.GetId())
@@ -86,7 +86,7 @@ func (e *SysDictData) Update(c *dto.SysDictDataControl) error {
 }
 
 // Remove 删除
-func (e *SysDictData) Remove(c *dto.SysDictDataById) error {
+func (e *SysDictData) Remove(c *request.SysDictDataById) error {
 	var err error
 	var data models.SysDictData
 
@@ -104,7 +104,7 @@ func (e *SysDictData) Remove(c *dto.SysDictDataById) error {
 }
 
 // GetAll 获取所有
-func (e *SysDictData) GetAll(c *dto.SysDictDataSearch, list *[]models.SysDictData) error {
+func (e *SysDictData) GetAll(c *request.SysDictDataSearch, list *[]models.SysDictData) error {
 	var err error
 	var data models.SysDictData
 

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 	"strconv"
 	"strings"
 	"text/template"
@@ -305,7 +305,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	tab, _ := table.Get(e.Orm,true)
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 
-	Mmenu := dto.SysMenuControl{}
+	Mmenu := request.SysMenuControl{}
 	Mmenu.Title = tab.TableComment
 	Mmenu.Icon = "pass"
 	Mmenu.Path = "/" + tab.MLTBName
@@ -320,7 +320,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	Mmenu.CreateBy = 1
 	s.Insert(&Mmenu)
 
-	Cmenu := dto.SysMenuControl{}
+	Cmenu := request.SysMenuControl{}
 	Cmenu.MenuName = tab.ClassName + "Manage"
 	Cmenu.Title = tab.TableComment
 	Cmenu.Icon = "pass"
@@ -338,7 +338,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	Cmenu.UpdateBy = 1
 	s.Insert(&Cmenu)
 
-	MList := dto.SysMenuControl{}
+	MList := request.SysMenuControl{}
 	MList.MenuName = ""
 	MList.Title = "分页获取" + tab.TableComment
 	MList.Icon = ""
@@ -355,7 +355,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MList.UpdateBy = 1
 	s.Insert(&MList)
 
-	MCreate := dto.SysMenuControl{}
+	MCreate := request.SysMenuControl{}
 	MCreate.MenuName = ""
 	MCreate.Title = "创建" + tab.TableComment
 	MCreate.Icon = ""
@@ -372,7 +372,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MCreate.UpdateBy = 1
 	s.Insert(&MCreate)
 
-	MUpdate := dto.SysMenuControl{}
+	MUpdate := request.SysMenuControl{}
 	MUpdate.MenuName = ""
 	MUpdate.Title = "修改" + tab.TableComment
 	MUpdate.Icon = ""
@@ -389,7 +389,7 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	MUpdate.UpdateBy = 1
 	s.Insert(&MUpdate)
 
-	MDelete := dto.SysMenuControl{}
+	MDelete := request.SysMenuControl{}
 	MDelete.MenuName = ""
 	MDelete.Title = "删除" + tab.TableComment
 	MDelete.Icon = ""

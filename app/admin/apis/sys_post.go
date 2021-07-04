@@ -10,7 +10,7 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 )
 
 type SysPost struct {
@@ -30,7 +30,7 @@ type SysPost struct {
 // @Security Bearer
 func (e SysPost) GetPage(c *gin.Context) {
 	s := service.SysPost{}
-	req := dto.SysPostPageReq{}
+	req := request.SysPostPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -64,7 +64,7 @@ func (e SysPost) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysPost) Get(c *gin.Context) {
 	s := service.SysPost{}
-	req := dto.SysPostGetReq{}
+	req := request.SysPostGetReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -99,7 +99,7 @@ func (e SysPost) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysPost) Insert(c *gin.Context) {
 	s := service.SysPost{}
-	req := dto.SysPostInsertReq{}
+	req := request.SysPostInsertReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -132,7 +132,7 @@ func (e SysPost) Insert(c *gin.Context) {
 // @Security Bearer
 func (e SysPost) Update(c *gin.Context) {
 	s := service.SysPost{}
-	req := dto.SysPostUpdateReq{}
+	req := request.SysPostUpdateReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -165,7 +165,7 @@ func (e SysPost) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysPost) Delete(c *gin.Context) {
 	s := service.SysPost{}
-	req := dto.SysPostDeleteReq{}
+	req := request.SysPostDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).

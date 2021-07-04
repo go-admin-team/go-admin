@@ -8,7 +8,7 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 )
 
 type SysConfig struct {
@@ -30,7 +30,7 @@ type SysConfig struct {
 // @Security Bearer
 func (e SysConfig) GetPage(c *gin.Context) {
 	s := service.SysConfig{}
-	req := dto.SysConfigSearch{}
+	req := request.SysConfigSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -60,7 +60,7 @@ func (e SysConfig) GetPage(c *gin.Context) {
 // @Router /api/v1/sys-config/{id} [get]
 // @Security Bearer
 func (e SysConfig) Get(c *gin.Context) {
-	req := dto.SysConfigById{}
+	req := request.SysConfigById{}
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -95,7 +95,7 @@ func (e SysConfig) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) Insert(c *gin.Context) {
 	s := service.SysConfig{}
-	req := dto.SysConfigControl{}
+	req := request.SysConfigControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -128,7 +128,7 @@ func (e SysConfig) Insert(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) Update(c *gin.Context) {
 	s := service.SysConfig{}
-	req := dto.SysConfigControl{}
+	req := request.SysConfigControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -158,7 +158,7 @@ func (e SysConfig) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) Delete(c *gin.Context) {
 	s := service.SysConfig{}
-	req := dto.SysConfigById{}
+	req := request.SysConfigById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -186,7 +186,7 @@ func (e SysConfig) Delete(c *gin.Context) {
 // @Success 200 {object} response.Response{data=map[string]string} "{"code": 200, "data": [...]}"
 // @Router /api/v1/app-config [get]
 func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
-	req := dto.SysConfigSearch{}
+	req := request.SysConfigSearch{}
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -226,7 +226,7 @@ func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) Get2Set(c *gin.Context) {
 	s := service.SysConfig{}
-	req := make([]dto.GetSetSysConfigReq, 0)
+	req := make([]request.GetSetSysConfigReq, 0)
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&s.Service).
@@ -260,7 +260,7 @@ func (e SysConfig) Get2Set(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) Update2Set(c *gin.Context) {
 	s := service.SysConfig{}
-	req := make([]dto.GetSetSysConfigReq, 0)
+	req := make([]request.GetSetSysConfigReq, 0)
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -291,8 +291,8 @@ func (e SysConfig) Update2Set(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) GetSysConfigByKEYForService(c *gin.Context) {
 	var s = new(service.SysConfig)
-	var req = new(dto.SysConfigByKeyReq)
-	var resp = new(dto.GetSysConfigByKEYForServiceResp)
+	var req = new(request.SysConfigByKeyReq)
+	var resp = new(request.GetSysConfigByKEYForServiceResp)
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(req, nil).

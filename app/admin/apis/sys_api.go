@@ -9,7 +9,7 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 	"go-admin/common/actions"
 )
 
@@ -32,7 +32,7 @@ type SysApi struct {
 // @Security Bearer
 func (e SysApi) GetPage(c *gin.Context) {
 	s := service.SysApi{}
-	req := dto.SysApiGetPageReq{}
+	req := request.SysApiGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -64,7 +64,7 @@ func (e SysApi) GetPage(c *gin.Context) {
 // @Router /api/v1/sys-api/{id} [get]
 // @Security Bearer
 func (e SysApi) Get(c *gin.Context) {
-	req := dto.SysApiGetReq{}
+	req := request.SysApiGetReq{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -97,7 +97,7 @@ func (e SysApi) Get(c *gin.Context) {
 // @Router /api/v1/sys-api/{id} [put]
 // @Security Bearer
 func (e SysApi) Update(c *gin.Context) {
-	req := dto.SysApiUpdateReq{}
+	req := request.SysApiUpdateReq{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -127,7 +127,7 @@ func (e SysApi) Update(c *gin.Context) {
 // @Router /api/v1/sys-api [delete]
 // @Security Bearer
 func (e SysApi) DeleteSysApi(c *gin.Context) {
-	req := dto.SysApiDeleteReq{}
+	req := request.SysApiDeleteReq{}
 	s := service.SysApi{}
 	err := e.MakeContext(c).
 		MakeOrm().

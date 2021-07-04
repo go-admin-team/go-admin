@@ -7,7 +7,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 )
 
 type SysOperaLog struct {
@@ -31,7 +31,7 @@ type SysOperaLog struct {
 // @Security Bearer
 func (e SysOperaLog) GetPage(c *gin.Context) {
 	s := service.SysOperaLog{}
-	req := new(dto.SysOperaLogGetPageReq)
+	req := new(request.SysOperaLogGetPageReq)
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(req, binding.Form).
@@ -65,7 +65,7 @@ func (e SysOperaLog) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysOperaLog) Get(c *gin.Context) {
 	s := new(service.SysOperaLog)
-	req := dto.SysOperaLogGetReq{}
+	req := request.SysOperaLogGetReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -96,7 +96,7 @@ func (e SysOperaLog) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysOperaLog) Delete(c *gin.Context) {
 	s := new(service.SysOperaLog)
-	req := dto.SysOperaLogDeleteReq{}
+	req := request.SysOperaLogDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).

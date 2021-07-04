@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 	cDto "go-admin/common/dto"
 )
 
@@ -16,7 +16,7 @@ type SysLoginLog struct {
 }
 
 // GetSysLoginLogPage 获取SysLoginLog列表
-func (e *SysLoginLog) GetPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginLog, count *int64) error {
+func (e *SysLoginLog) GetPage(c *request.SysLoginLogSearch, list *[]models.SysLoginLog, count *int64) error {
 	var err error
 	var data models.SysLoginLog
 
@@ -35,7 +35,7 @@ func (e *SysLoginLog) GetPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginL
 }
 
 // Get 获取SysLoginLog对象
-func (e *SysLoginLog) Get(d *dto.SysLoginLogGetReq, model *models.SysLoginLog) error {
+func (e *SysLoginLog) Get(d *request.SysLoginLogGetReq, model *models.SysLoginLog) error {
 	var err error
 	db := e.Orm.First(model, d.GetId())
 	err = db.Error
@@ -52,7 +52,7 @@ func (e *SysLoginLog) Get(d *dto.SysLoginLogGetReq, model *models.SysLoginLog) e
 }
 
 // Remove 删除SysLoginLog
-func (e *SysLoginLog) Remove(c *dto.SysLoginLogDeleteReq) error {
+func (e *SysLoginLog) Remove(c *request.SysLoginLogDeleteReq) error {
 	var err error
 	var data models.SysLoginLog
 

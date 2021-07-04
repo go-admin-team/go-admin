@@ -13,7 +13,7 @@ import (
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/dto"
+	"go-admin/app/admin/service/request"
 	"go-admin/common/global"
 )
 
@@ -35,7 +35,7 @@ type SysRole struct {
 // @Security Bearer
 func (e SysRole) GetPage(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleSearch{}
+	req := request.SysRoleSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -69,7 +69,7 @@ func (e SysRole) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Get(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleById{}
+	req := request.SysRoleById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -104,7 +104,7 @@ func (e SysRole) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Insert(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleControl{}
+	req := request.SysRoleControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -148,7 +148,7 @@ func (e SysRole) Insert(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Update(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleControl{}
+	req := request.SysRoleControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil, binding.JSON).
@@ -186,7 +186,7 @@ func (e SysRole) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Delete(c *gin.Context) {
 	s := new(service.SysRole)
-	req := dto.SysRoleById{}
+	req := request.SysRoleById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -224,7 +224,7 @@ func (e SysRole) Delete(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Update2Status(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.UpdateStatusReq{}
+	req := request.UpdateStatusReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req).
@@ -256,7 +256,7 @@ func (e SysRole) Update2Status(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Update2DataScope(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.RoleDataScopeReq{}
+	req := request.RoleDataScopeReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
