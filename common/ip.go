@@ -23,6 +23,5 @@ func GetClientIP(c *gin.Context) string {
 	if ClientIP != "127.0.0.1" {
 		ip = ClientIP
 	}
-	//fmt.Println("ip:", ip)
 	return ip
 }
