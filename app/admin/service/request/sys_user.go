@@ -109,6 +109,9 @@ func (s *SysUserControl) Generate(model *models.SysUser) {
 	if s.UserId != 0 {
 		model.UserId = s.UserId
 	}
+	if s.Password != "" {
+		model.Password = s.Password
+	}
 	model.Username = s.Username
 	model.Password = s.Password
 	model.NickName = s.NickName
