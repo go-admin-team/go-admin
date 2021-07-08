@@ -123,6 +123,19 @@ func (e *SysUser) UpdateSysUserAvatar(c *request.UpdateSysUserAvatarReq, p *acti
 
 	}
 	c.Generate(&model)
+	if c.Password == "" {
+		db := e.Orm.Model(&model).Where("user_id = ?", &model.UserId).Omit("password", "salt").Updates(&model)
+		if err = db.Error; err != nil {
+			e.Log.Errorf("db error: %s", err)
+			return err
+		}
+		if db.RowsAffected == 0 {
+			err = errors.New("update userinfo error")
+			log.Warnf("db update error")
+			return err
+		}
+		return nil
+	}
 	err = e.Orm.Save(&model).Error
 	if err != nil {
 		e.Log.Errorf("Service UpdateSysUser error: %s", err)
