@@ -107,8 +107,8 @@ func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission) err
 	return nil
 }
 
-// UpdateSysUserAvatar 更新用户头像
-func (e *SysUser) UpdateSysUserAvatar(c *dto.UpdateSysUserAvatarReq, p *actions.DataPermission) error {
+// UpdateAvatar 更新用户头像
+func (e *SysUser) UpdateAvatar(c *dto.UpdateSysUserAvatarReq, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -131,8 +131,8 @@ func (e *SysUser) UpdateSysUserAvatar(c *dto.UpdateSysUserAvatarReq, p *actions.
 	return nil
 }
 
-// UpdateSysUserStatus 更新用户状态
-func (e *SysUser) UpdateSysUserStatus(c *dto.UpdateSysUserStatusReq, p *actions.DataPermission) error {
+// UpdateStatus 更新用户状态
+func (e *SysUser) UpdateStatus(c *dto.UpdateSysUserStatusReq, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -155,8 +155,8 @@ func (e *SysUser) UpdateSysUserStatus(c *dto.UpdateSysUserStatusReq, p *actions.
 	return nil
 }
 
-// ResetSysUserPwd 重置用户密码
-func (e *SysUser) ResetSysUserPwd(c *dto.ResetSysUserPwdReq, p *actions.DataPermission) error {
+// ResetPwd 重置用户密码
+func (e *SysUser) ResetPwd(c *dto.ResetSysUserPwdReq, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -197,8 +197,8 @@ func (e *SysUser) Remove(c *dto.SysUserById, p *actions.DataPermission) error {
 	return nil
 }
 
-// UpdateSysUserPwd 修改SysUser对象密码
-func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *actions.DataPermission) error {
+// UpdatePwd 修改SysUser对象密码
+func (e *SysUser) UpdatePwd(id int, oldPassword, newPassword string, p *actions.DataPermission) error {
 	var err error
 
 	if newPassword == "" {
@@ -243,7 +243,7 @@ func (e *SysUser) UpdateSysUserPwd(id int, oldPassword, newPassword string, p *a
 	return nil
 }
 
-func (e *SysUser) GetSysUserProfile(c *dto.SysUserById, user *models.SysUser, roles *[]models.SysRole, posts *[]models.SysPost) error {
+func (e *SysUser) GetProfile(c *dto.SysUserById, user *models.SysUser, roles *[]models.SysRole, posts *[]models.SysPost) error {
 	err := e.Orm.Preload("Dept").First(user, c.GetId()).Error
 	if err != nil {
 		return err

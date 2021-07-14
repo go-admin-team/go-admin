@@ -237,7 +237,7 @@ func (e SysUser) InsetAvatar(c *gin.Context) {
 	req.UserId = p.UserId
 	req.Avatar = "/" + filPath
 
-	err = s.UpdateSysUserAvatar(&req, p)
+	err = s.UpdateAvatar(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -274,7 +274,7 @@ func (e SysUser) UpdateStatus(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.UpdateSysUserStatus(&req, p)
+	err = s.UpdateStatus(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -311,7 +311,7 @@ func (e SysUser) ResetPwd(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.ResetSysUserPwd(&req, p)
+	err = s.ResetPwd(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -346,7 +346,7 @@ func (e SysUser) UpdatePwd(c *gin.Context) {
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.UpdateSysUserPwd(user.GetUserId(c), req.OldPassword, req.NewPassword, p)
+	err = s.UpdatePwd(user.GetUserId(c), req.OldPassword, req.NewPassword, p)
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(http.StatusForbidden, err, "密码修改失败")
@@ -380,7 +380,7 @@ func (e SysUser) GetProfile(c *gin.Context) {
 	sysUser := models.SysUser{}
 	roles := make([]models.SysRole, 0)
 	posts := make([]models.SysPost, 0)
-	err = s.GetSysUserProfile(&req, &sysUser, &roles, &posts)
+	err = s.GetProfile(&req, &sysUser, &roles, &posts)
 	if err != nil {
 		e.Logger.Errorf("get user profile error, %s", err.Error())
 		e.Error(500, err, "获取用户信息失败")
