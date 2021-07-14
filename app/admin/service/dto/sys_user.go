@@ -72,8 +72,8 @@ func (s *UpdateSysUserAvatarReq) Generate(model *models.SysUser) {
 }
 
 type UpdateSysUserStatusReq struct {
-	UserId int    `json:"userId" comment:"用户ID" binding:"required"` // 用户ID
-	Status string `json:"status" comment:"状态" binding:"required"`
+	UserId int    `json:"userId" comment:"用户ID" vd:"required"` // 用户ID
+	Status string `json:"status" comment:"状态" vd:"required"`
 	common.ControlBy
 }
 
@@ -90,18 +90,18 @@ func (s *UpdateSysUserStatusReq) Generate(model *models.SysUser) {
 
 type SysUserInsertReq struct {
 	UserId   int    `json:"userId" comment:"用户ID"` // 用户ID
-	Username string `json:"username" comment:"用户名" binding:"required"`
+	Username string `json:"username" comment:"用户名" vd:"required"`
 	Password string `json:"password" comment:"密码"`
-	NickName string `json:"nickName" comment:"昵称" binding:"required"`
-	Phone    string `json:"phone" comment:"手机号" binding:"required"`
+	NickName string `json:"nickName" comment:"昵称" vd:"required"`
+	Phone    string `json:"phone" comment:"手机号" vd:"required"`
 	RoleId   int    `json:"roleId" comment:"角色ID"`
 	Avatar   string `json:"avatar" comment:"头像"`
 	Sex      string `json:"sex" comment:"性别"`
-	Email    string `json:"email" comment:"邮箱" binding:"required,email"`
-	DeptId   int    `json:"deptId" comment:"部门" binding:"required"`
+	Email    string `json:"email" comment:"邮箱" vd:"required,email"`
+	DeptId   int    `json:"deptId" comment:"部门" vd:"required"`
 	PostId   int    `json:"postId" comment:"岗位"`
 	Remark   string `json:"remark" comment:"备注"`
-	Status   string `json:"status" comment:"状态" binding:"required" default:"1"`
+	Status   string `json:"status" comment:"状态" vd:"required" default:"1"`
 	common.ControlBy
 }
 
@@ -129,17 +129,17 @@ func (s *SysUserInsertReq) GetId() interface{} {
 
 type SysUserUpdateReq struct {
 	UserId   int    `json:"userId" comment:"用户ID"` // 用户ID
-	Username string `json:"username" comment:"用户名" binding:"required"`
-	NickName string `json:"nickName" comment:"昵称" binding:"required"`
-	Phone    string `json:"phone" comment:"手机号" binding:"required"`
+	Username string `json:"username" comment:"用户名" vd:"required"`
+	NickName string `json:"nickName" comment:"昵称" vd:"required"`
+	Phone    string `json:"phone" comment:"手机号" vd:"required"`
 	RoleId   int    `json:"roleId" comment:"角色ID"`
 	Avatar   string `json:"avatar" comment:"头像"`
 	Sex      string `json:"sex" comment:"性别"`
-	Email    string `json:"email" comment:"邮箱" binding:"required,email"`
-	DeptId   int    `json:"deptId" comment:"部门" binding:"required"`
+	Email    string `json:"email" comment:"邮箱" vd:"required,email"`
+	DeptId   int    `json:"deptId" comment:"部门" vd:"required"`
 	PostId   int    `json:"postId" comment:"岗位"`
 	Remark   string `json:"remark" comment:"备注"`
-	Status   string `json:"status" comment:"状态" binding:"required" default:"1"`
+	Status   string `json:"status" comment:"状态" vd:"required" default:"1"`
 	common.ControlBy
 }
 
@@ -183,6 +183,6 @@ func (s *SysUserById) GenerateM() (common.ActiveRecord, error) {
 
 // PassWord 密码
 type PassWord struct {
-	NewPassword string `json:"newPassword" binding:"required"`
-	OldPassword string `json:"oldPassword" binding:"required"`
+	NewPassword string `json:"newPassword" vd:"required"`
+	OldPassword string `json:"oldPassword" vd:"required"`
 }

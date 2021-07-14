@@ -60,7 +60,7 @@ func (e *SysUser) Get(d *dto.SysUserById, p *actions.DataPermission, model *mode
 }
 
 // Insert 创建SysUser对象
-func (e *SysUser) Insert(c *dto.SysUserControl) error {
+func (e *SysUser) Insert(c *dto.SysUserInsertReq) error {
 	var err error
 	var data models.SysUser
 	var i int64
@@ -84,7 +84,7 @@ func (e *SysUser) Insert(c *dto.SysUserControl) error {
 }
 
 // Update 修改SysUser对象
-func (e *SysUser) Update(c *dto.SysUserControl, p *actions.DataPermission) error {
+func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
