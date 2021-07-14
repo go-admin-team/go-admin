@@ -254,7 +254,7 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 func (e SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	m := service.SysMenu{}
 	r := service.SysRole{}
-	req := dto.SelectRole{}
+	req :=dto.SelectRole{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&m.Service).
