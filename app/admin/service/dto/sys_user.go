@@ -1,4 +1,4 @@
-package request
+package dto
 
 import (
 	"go-admin/app/admin/models"
@@ -88,7 +88,7 @@ func (s *UpdateSysUserStatusReq) Generate(model *models.SysUser) {
 	model.Status = s.Status
 }
 
-type SysUserControl struct {
+type SysUserInsertReq struct {
 	UserId   int    `json:"userId" comment:"用户ID"` // 用户ID
 	Username string `json:"username" comment:"用户名" binding:"required"`
 	Password string `json:"password" comment:"密码"`
@@ -105,7 +105,7 @@ type SysUserControl struct {
 	common.ControlBy
 }
 
-func (s *SysUserControl) Generate(model *models.SysUser) {
+func (s *SysUserInsertReq) Generate(model *models.SysUser) {
 	if s.UserId != 0 {
 		model.UserId = s.UserId
 	}
@@ -123,7 +123,44 @@ func (s *SysUserControl) Generate(model *models.SysUser) {
 	model.Status = s.Status
 }
 
-func (s *SysUserControl) GetId() interface{} {
+func (s *SysUserInsertReq) GetId() interface{} {
+	return s.UserId
+}
+
+type SysUserUpdateReq struct {
+	UserId   int    `json:"userId" comment:"用户ID"` // 用户ID
+	Username string `json:"username" comment:"用户名" binding:"required"`
+	NickName string `json:"nickName" comment:"昵称" binding:"required"`
+	Phone    string `json:"phone" comment:"手机号" binding:"required"`
+	RoleId   int    `json:"roleId" comment:"角色ID"`
+	Avatar   string `json:"avatar" comment:"头像"`
+	Sex      string `json:"sex" comment:"性别"`
+	Email    string `json:"email" comment:"邮箱" binding:"required,email"`
+	DeptId   int    `json:"deptId" comment:"部门" binding:"required"`
+	PostId   int    `json:"postId" comment:"岗位"`
+	Remark   string `json:"remark" comment:"备注"`
+	Status   string `json:"status" comment:"状态" binding:"required" default:"1"`
+	common.ControlBy
+}
+
+func (s *SysUserUpdateReq) Generate(model *models.SysUser) {
+	if s.UserId != 0 {
+		model.UserId = s.UserId
+	}
+	model.Username = s.Username
+	model.NickName = s.NickName
+	model.Phone = s.Phone
+	model.RoleId = s.RoleId
+	model.Avatar = s.Avatar
+	model.Sex = s.Sex
+	model.Email = s.Email
+	model.DeptId = s.DeptId
+	model.PostId = s.PostId
+	model.Remark = s.Remark
+	model.Status = s.Status
+}
+
+func (s *SysUserUpdateReq) GetId() interface{} {
 	return s.UserId
 }
 

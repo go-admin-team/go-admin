@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/request"
+	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
@@ -16,7 +16,7 @@ type SysConfig struct {
 }
 
 // GetPage 获取SysConfig列表
-func (e *SysConfig) GetPage(c *request.SysConfigSearch, list *[]models.SysConfig, count *int64) error {
+func (e *SysConfig) GetPage(c *dto.SysConfigSearch, list *[]models.SysConfig, count *int64) error {
 	err := e.Orm.
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
@@ -32,7 +32,7 @@ func (e *SysConfig) GetPage(c *request.SysConfigSearch, list *[]models.SysConfig
 }
 
 // Get 获取SysConfig对象
-func (e *SysConfig) Get(d *request.SysConfigById, model *models.SysConfig) error {
+func (e *SysConfig) Get(d *dto.SysConfigById, model *models.SysConfig) error {
 	err := e.Orm.First(model, d.GetId()).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
@@ -47,7 +47,7 @@ func (e *SysConfig) Get(d *request.SysConfigById, model *models.SysConfig) error
 }
 
 // Insert 创建SysConfig对象
-func (e *SysConfig) Insert(c *request.SysConfigControl) error {
+func (e *SysConfig) Insert(c *dto.SysConfigControl) error {
 	var err error
 	var data models.SysConfig
 	c.Generate(&data)
@@ -60,7 +60,7 @@ func (e *SysConfig) Insert(c *request.SysConfigControl) error {
 }
 
 // Update 修改SysConfig对象
-func (e *SysConfig) Update(c *request.SysConfigControl) error {
+func (e *SysConfig) Update(c *dto.SysConfigControl) error {
 	var err error
 	var model = models.SysConfig{}
 	e.Orm.First(&model, c.GetId())
@@ -79,7 +79,7 @@ func (e *SysConfig) Update(c *request.SysConfigControl) error {
 }
 
 // SetSysConfig 修改SysConfig对象
-func (e *SysConfig) SetSysConfig(c *[]request.GetSetSysConfigReq) error {
+func (e *SysConfig) SetSysConfig(c *[]dto.GetSetSysConfigReq) error {
 	var err error
 	for _, req := range *c {
 		var model = models.SysConfig{}
@@ -100,7 +100,7 @@ func (e *SysConfig) SetSysConfig(c *[]request.GetSetSysConfigReq) error {
 	return nil
 }
 
-func (e *SysConfig) GetForSet(c *[]request.GetSetSysConfigReq) error {
+func (e *SysConfig) GetForSet(c *[]dto.GetSetSysConfigReq) error {
 	var err error
 	var data models.SysConfig
 
@@ -113,7 +113,7 @@ func (e *SysConfig) GetForSet(c *[]request.GetSetSysConfigReq) error {
 	return nil
 }
 
-func (e *SysConfig) UpdateForSet(c *[]request.GetSetSysConfigReq) error {
+func (e *SysConfig) UpdateForSet(c *[]dto.GetSetSysConfigReq) error {
 	m := *c
 	for _, req := range m {
 		var data models.SysConfig
@@ -137,7 +137,7 @@ func (e *SysConfig) UpdateForSet(c *[]request.GetSetSysConfigReq) error {
 }
 
 // Remove 删除SysConfig
-func (e *SysConfig) Remove(d *request.SysConfigById) error {
+func (e *SysConfig) Remove(d *dto.SysConfigById) error {
 	var err error
 	var data models.SysConfig
 
@@ -155,7 +155,7 @@ func (e *SysConfig) Remove(d *request.SysConfigById) error {
 }
 
 // GetWithKey 根据Key获取SysConfig
-func (e *SysConfig) GetWithKey(c *request.SysConfigByKeyReq, resp *request.GetSysConfigByKEYForServiceResp) error {
+func (e *SysConfig) GetWithKey(c *dto.SysConfigByKeyReq, resp *dto.GetSysConfigByKEYForServiceResp) error {
 	var err error
 	var data models.SysConfig
 	err = e.Orm.Table(data.TableName()).Where("config_key = ?", c.ConfigKey).First(resp).Error
@@ -167,7 +167,7 @@ func (e *SysConfig) GetWithKey(c *request.SysConfigByKeyReq, resp *request.GetSy
 	return nil
 }
 
-func (e *SysConfig) GetWithKeyList(c *request.SysConfigSearch, list *[]models.SysConfig) error {
+func (e *SysConfig) GetWithKeyList(c *dto.SysConfigSearch, list *[]models.SysConfig) error {
 	var err error
 	err = e.Orm.
 		Scopes(

@@ -10,7 +10,7 @@ import (
 	"go-admin/app/admin/models"
 
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/request"
+	"go-admin/app/admin/service/dto"
 )
 
 type SysDictType struct {
@@ -31,7 +31,7 @@ type SysDictType struct {
 // @Security Bearer
 func (e SysDictType) GetPage(c *gin.Context) {
 	s := service.SysDictType{}
-	req := request.SysDictTypeSearch{}
+	req :=dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -62,7 +62,7 @@ func (e SysDictType) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) Get(c *gin.Context) {
 	s := service.SysDictType{}
-	req := request.SysDictTypeById{}
+	req :=dto.SysDictTypeById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -95,7 +95,7 @@ func (e SysDictType) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) Insert(c *gin.Context) {
 	s := service.SysDictType{}
-	req := request.SysDictTypeControl{}
+	req :=dto.SysDictTypeControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -129,7 +129,7 @@ func (e SysDictType) Insert(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) Update(c *gin.Context) {
 	s := service.SysDictType{}
-	req := request.SysDictTypeControl{}
+	req :=dto.SysDictTypeControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -160,7 +160,7 @@ func (e SysDictType) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) Delete(c *gin.Context) {
 	s := service.SysDictType{}
-	req := request.SysDictTypeById{}
+	req :=dto.SysDictTypeById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -192,7 +192,7 @@ func (e SysDictType) Delete(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) GetAll(c *gin.Context) {
 	s := service.SysDictType{}
-	req := request.SysDictTypeSearch{}
+	req :=dto.SysDictTypeSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).

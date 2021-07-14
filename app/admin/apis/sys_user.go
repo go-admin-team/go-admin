@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/request"
+	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 )
 
@@ -30,7 +30,7 @@ type SysUser struct {
 // @Security Bearer
 func (e SysUser) GetPage(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.SysUserGetPageReq{}
+	req :=dto.SysUserGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req).
@@ -67,7 +67,7 @@ func (e SysUser) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) Get(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.SysUserById{}
+	req :=dto.SysUserById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -101,7 +101,7 @@ func (e SysUser) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) Insert(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.SysUserControl{}
+	req :=dto.SysUserInsertReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -136,7 +136,7 @@ func (e SysUser) Insert(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) Update(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.SysUserControl{}
+	req :=dto.SysUserUpdateReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req).
@@ -171,7 +171,7 @@ func (e SysUser) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) Delete(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.SysUserById{}
+	req :=dto.SysUserById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -208,7 +208,7 @@ func (e SysUser) Delete(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) InsetAvatar(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.UpdateSysUserAvatarReq{}
+	req :=dto.UpdateSysUserAvatarReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&s.Service).
@@ -257,7 +257,7 @@ func (e SysUser) InsetAvatar(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) UpdateStatus(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.UpdateSysUserStatusReq{}
+	req :=dto.UpdateSysUserStatusReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -294,7 +294,7 @@ func (e SysUser) UpdateStatus(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) ResetPwd(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.ResetSysUserPwdReq{}
+	req :=dto.ResetSysUserPwdReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -331,7 +331,7 @@ func (e SysUser) ResetPwd(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) UpdatePwd(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.PassWord{}
+	req :=dto.PassWord{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req).
@@ -364,7 +364,7 @@ func (e SysUser) UpdatePwd(c *gin.Context) {
 // @Security Bearer
 func (e SysUser) GetProfile(c *gin.Context) {
 	s := service.SysUser{}
-	req := request.SysUserById{}
+	req :=dto.SysUserById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&s.Service).
@@ -401,7 +401,7 @@ func (e SysUser) GetProfile(c *gin.Context) {
 // @Router /api/v1/getinfo [get]
 // @Security Bearer
 func (e SysUser) GetInfo(c *gin.Context) {
-	req := request.SysUserById{}
+	req :=dto.SysUserById{}
 	s := service.SysUser{}
 	r := service.SysRole{}
 	err := e.MakeContext(c).

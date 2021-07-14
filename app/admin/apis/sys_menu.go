@@ -8,7 +8,7 @@ import (
 	"go-admin/app/admin/models"
 
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/request"
+	"go-admin/app/admin/service/dto"
 )
 
 type SysMenu struct {
@@ -26,7 +26,7 @@ type SysMenu struct {
 // @Security Bearer
 func (e SysMenu) GetPage(c *gin.Context) {
 	s := service.SysMenu{}
-	req := request.SysMenuSearch{}
+	req := dto.SysMenuSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -55,7 +55,7 @@ func (e SysMenu) GetPage(c *gin.Context) {
 // @Router /api/v1/menu/{id} [get]
 // @Security Bearer
 func (e SysMenu) Get(c *gin.Context) {
-	req := request.SysMenuById{}
+	req := dto.SysMenuById{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -88,7 +88,7 @@ func (e SysMenu) Get(c *gin.Context) {
 // @Router /api/v1/menu [post]
 // @Security Bearer
 func (e SysMenu) Insert(c *gin.Context) {
-	req := request.SysMenuControl{}
+	req := dto.SysMenuControl{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -122,7 +122,7 @@ func (e SysMenu) Insert(c *gin.Context) {
 // @Router /api/v1/menu/{id} [put]
 // @Security Bearer
 func (e SysMenu) Update(c *gin.Context) {
-	req := request.SysMenuControl{}
+	req := dto.SysMenuControl{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -153,7 +153,7 @@ func (e SysMenu) Update(c *gin.Context) {
 // @Router /api/v1/menu [delete]
 // @Security Bearer
 func (e SysMenu) Delete(c *gin.Context) {
-	control := new(request.SysMenuById)
+	control := new(dto.SysMenuById)
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -254,7 +254,7 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 func (e SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	m := service.SysMenu{}
 	r := service.SysRole{}
-	req := request.SelectRole{}
+	req :=dto.SelectRole{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&m.Service).

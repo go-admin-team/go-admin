@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/request"
+	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 )
 
@@ -19,7 +19,7 @@ type SysRole struct {
 }
 
 // GetPage 获取SysRole列表
-func (e *SysRole) GetPage(c *request.SysRoleSearch, list *[]models.SysRole, count *int64) error {
+func (e *SysRole) GetPage(c *dto.SysRoleSearch, list *[]models.SysRole, count *int64) error {
 	var err error
 	var data models.SysRole
 
@@ -38,7 +38,7 @@ func (e *SysRole) GetPage(c *request.SysRoleSearch, list *[]models.SysRole, coun
 }
 
 // Get 获取SysRole对象
-func (e *SysRole) Get(d *request.SysRoleById, model *models.SysRole) error {
+func (e *SysRole) Get(d *dto.SysRoleById, model *models.SysRole) error {
 	var err error
 	db := e.Orm.First(model, d.GetId())
 	err = db.Error
@@ -60,7 +60,7 @@ func (e *SysRole) Get(d *request.SysRoleById, model *models.SysRole) error {
 }
 
 // Insert 创建SysRole对象
-func (e *SysRole) Insert(c *request.SysRoleControl, cb *casbin.SyncedEnforcer) error {
+func (e *SysRole) Insert(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error {
 	var err error
 	var data models.SysRole
 	var dataMenu []models.SysMenu
@@ -106,7 +106,7 @@ func (e *SysRole) Insert(c *request.SysRoleControl, cb *casbin.SyncedEnforcer) e
 }
 
 // Update 修改SysRole对象
-func (e *SysRole) Update(c *request.SysRoleControl, cb *casbin.SyncedEnforcer) error {
+func (e *SysRole) Update(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error {
 	var err error
 	tx := e.Orm.Debug().Begin()
 	defer func() {
@@ -153,7 +153,7 @@ func (e *SysRole) Update(c *request.SysRoleControl, cb *casbin.SyncedEnforcer) e
 }
 
 // Remove 删除SysRole
-func (e *SysRole) Remove(c *request.SysRoleById) error {
+func (e *SysRole) Remove(c *dto.SysRoleById) error {
 	var err error
 	tx := e.Orm.Begin()
 	defer func() {
@@ -192,7 +192,7 @@ func (e *SysRole) GetRoleMenuId(roleId int) ([]int, error) {
 	return menuIds, nil
 }
 
-func (e *SysRole) UpdateDataScope(c *request.RoleDataScopeReq) *SysRole {
+func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	var err error
 	tx := e.Orm.Begin()
 	defer func() {
@@ -228,7 +228,7 @@ func (e *SysRole) UpdateDataScope(c *request.RoleDataScopeReq) *SysRole {
 }
 
 // UpdateStatus 修改SysRole对象status
-func (e *SysRole) UpdateStatus(c *request.UpdateStatusReq) error {
+func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	var err error
 	tx := e.Orm.Debug().Begin()
 	defer func() {
@@ -253,7 +253,7 @@ func (e *SysRole) UpdateStatus(c *request.UpdateStatusReq) error {
 }
 
 // GetWithName 获取SysRole对象
-func (e *SysRole) GetWithName(d *request.SysRoleByName, model *models.SysRole) *SysRole {
+func (e *SysRole) GetWithName(d *dto.SysRoleByName, model *models.SysRole) *SysRole {
 	var err error
 	db := e.Orm.Where("role_name = ?", d.RoleName).First(model)
 	err = db.Error

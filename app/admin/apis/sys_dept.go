@@ -10,7 +10,7 @@ import (
 	"go-admin/app/admin/models"
 
 	"go-admin/app/admin/service"
-	"go-admin/app/admin/service/request"
+	"go-admin/app/admin/service/dto"
 )
 
 type SysDept struct {
@@ -29,7 +29,7 @@ type SysDept struct {
 // @Security Bearer
 func (e SysDept) GetPage(c *gin.Context) {
 	s := service.SysDept{}
-	req := request.SysDeptSearch{}
+	req := dto.SysDeptSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req).
@@ -60,7 +60,7 @@ func (e SysDept) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysDept) Get(c *gin.Context) {
 	s := service.SysDept{}
-	req := request.SysDeptById{}
+	req := dto.SysDeptById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -95,7 +95,7 @@ func (e SysDept) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysDept) Insert(c *gin.Context) {
 	s := service.SysDept{}
-	req := request.SysDeptControl{}
+	req := dto.SysDeptControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -131,7 +131,7 @@ func (e SysDept) Insert(c *gin.Context) {
 // @Security Bearer
 func (e SysDept) Update(c *gin.Context) {
 	s := service.SysDept{}
-	req := request.SysDeptControl{}
+	req := dto.SysDeptControl{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req).
@@ -162,7 +162,7 @@ func (e SysDept) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysDept) Delete(c *gin.Context) {
 	s := service.SysDept{}
-	req := request.SysDeptById{}
+	req := dto.SysDeptById{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -185,7 +185,7 @@ func (e SysDept) Delete(c *gin.Context) {
 // Get2Tree 用户管理 左侧部门树
 func (e SysDept) Get2Tree(c *gin.Context) {
 	s := service.SysDept{}
-	req := request.SysDeptSearch{}
+	req := dto.SysDeptSearch{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req,binding.Form).
@@ -196,7 +196,7 @@ func (e SysDept) Get2Tree(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	list := make([]request.DeptLabel, 0)
+	list := make([]dto.DeptLabel, 0)
 	list, err = s.SetDeptTree(&req)
 	if err != nil {
 		e.Error(500, err, "查询失败")

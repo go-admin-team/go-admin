@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/request"
+	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
@@ -16,7 +16,7 @@ type SysOperaLog struct {
 }
 
 // GetPage 获取SysOperaLog列表
-func (e *SysOperaLog) GetPage(c *request.SysOperaLogGetPageReq, list *[]models.SysOperaLog, count *int64) error {
+func (e *SysOperaLog) GetPage(c *dto.SysOperaLogGetPageReq, list *[]models.SysOperaLog, count *int64) error {
 	var err error
 	var data models.SysOperaLog
 
@@ -35,7 +35,7 @@ func (e *SysOperaLog) GetPage(c *request.SysOperaLogGetPageReq, list *[]models.S
 }
 
 // Get 获取SysOperaLog对象
-func (e *SysOperaLog) Get(d *request.SysOperaLogGetReq, model *models.SysOperaLog) error {
+func (e *SysOperaLog) Get(d *dto.SysOperaLogGetReq, model *models.SysOperaLog) error {
 	var data models.SysOperaLog
 
 	err := e.Orm.Model(&data).
@@ -67,7 +67,7 @@ func (e *SysOperaLog) Insert(model *models.SysOperaLog) error {
 }
 
 // Remove 删除SysOperaLog
-func (e *SysOperaLog) Remove(d *request.SysOperaLogDeleteReq) error {
+func (e *SysOperaLog) Remove(d *dto.SysOperaLogDeleteReq) error {
 	var err error
 	var data models.SysOperaLog
 
