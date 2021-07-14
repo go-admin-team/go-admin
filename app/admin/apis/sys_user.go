@@ -95,7 +95,7 @@ func (e SysUser) Get(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysUserControl true "用户数据"
+// @Param data body dto.SysUserInsertReq true "用户数据"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-user [post]
 // @Security Bearer
@@ -130,7 +130,7 @@ func (e SysUser) Insert(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysUserControl true "body"
+// @Param data body dto.SysUserUpdateReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-user/{userId} [put]
 // @Security Bearer
