@@ -19,7 +19,7 @@ type SysRole struct {
 }
 
 // GetPage 获取SysRole列表
-func (e *SysRole) GetPage(c *dto.SysRoleSearch, list *[]models.SysRole, count *int64) error {
+func (e *SysRole) GetPage(c *dto.SysRoleGetPageReq, list *[]models.SysRole, count *int64) error {
 	var err error
 	var data models.SysRole
 
@@ -38,7 +38,7 @@ func (e *SysRole) GetPage(c *dto.SysRoleSearch, list *[]models.SysRole, count *i
 }
 
 // Get 获取SysRole对象
-func (e *SysRole) Get(d *dto.SysRoleById, model *models.SysRole) error {
+func (e *SysRole) Get(d *dto.SysRoleGetReq, model *models.SysRole) error {
 	var err error
 	db := e.Orm.First(model, d.GetId())
 	err = db.Error
@@ -60,7 +60,7 @@ func (e *SysRole) Get(d *dto.SysRoleById, model *models.SysRole) error {
 }
 
 // Insert 创建SysRole对象
-func (e *SysRole) Insert(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error {
+func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) error {
 	var err error
 	var data models.SysRole
 	var dataMenu []models.SysMenu
@@ -106,7 +106,7 @@ func (e *SysRole) Insert(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error
 }
 
 // Update 修改SysRole对象
-func (e *SysRole) Update(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error {
+func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) error {
 	var err error
 	tx := e.Orm.Debug().Begin()
 	defer func() {
@@ -153,7 +153,7 @@ func (e *SysRole) Update(c *dto.SysRoleControl, cb *casbin.SyncedEnforcer) error
 }
 
 // Remove 删除SysRole
-func (e *SysRole) Remove(c *dto.SysRoleById) error {
+func (e *SysRole) Remove(c *dto.SysRoleDeleteReq) error {
 	var err error
 	tx := e.Orm.Begin()
 	defer func() {

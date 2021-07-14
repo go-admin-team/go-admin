@@ -31,7 +31,7 @@ type SysDictType struct {
 // @Security Bearer
 func (e SysDictType) GetPage(c *gin.Context) {
 	s := service.SysDictType{}
-	req :=dto.SysDictTypeSearch{}
+	req :=dto.SysDictTypeGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -62,7 +62,7 @@ func (e SysDictType) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) Get(c *gin.Context) {
 	s := service.SysDictType{}
-	req :=dto.SysDictTypeById{}
+	req :=dto.SysDictTypeGetReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -88,14 +88,13 @@ func (e SysDictType) Get(c *gin.Context) {
 // @Tags 字典类型
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysDictTypeControl true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Param data body dto.SysDictTypeInsertReq true "data"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type [post]
 // @Security Bearer
 func (e SysDictType) Insert(c *gin.Context) {
 	s := service.SysDictType{}
-	req :=dto.SysDictTypeControl{}
+	req :=dto.SysDictTypeInsertReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -122,14 +121,13 @@ func (e SysDictType) Insert(c *gin.Context) {
 // @Tags 字典类型
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysDictTypeControl true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Param data body dto.SysDictTypeUpdateReq true "body"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type/{dictId} [put]
 // @Security Bearer
 func (e SysDictType) Update(c *gin.Context) {
 	s := service.SysDictType{}
-	req :=dto.SysDictTypeControl{}
+	req :=dto.SysDictTypeUpdateReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -153,14 +151,13 @@ func (e SysDictType) Update(c *gin.Context) {
 // @Summary 删除字典类型
 // @Description 删除数据
 // @Tags 字典类型
-// @Param dictId path int true "dictId"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Param dictCode body dto.SysDictTypeDeleteReq true "body"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict/type [delete]
 // @Security Bearer
 func (e SysDictType) Delete(c *gin.Context) {
 	s := service.SysDictType{}
-	req :=dto.SysDictTypeById{}
+	req :=dto.SysDictTypeDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -192,7 +189,7 @@ func (e SysDictType) Delete(c *gin.Context) {
 // @Security Bearer
 func (e SysDictType) GetAll(c *gin.Context) {
 	s := service.SysDictType{}
-	req :=dto.SysDictTypeSearch{}
+	req :=dto.SysDictTypeGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).

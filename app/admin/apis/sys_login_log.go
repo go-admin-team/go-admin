@@ -29,7 +29,7 @@ type SysLoginLog struct {
 // @Security Bearer
 func (e SysLoginLog) GetPage(c *gin.Context) {
 	s := service.SysLoginLog{}
-	req :=dto.SysLoginLogSearch {}
+	req :=dto.SysLoginLogGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -84,7 +84,7 @@ func (e SysLoginLog) Get(c *gin.Context) {
 // @Summary 登录日志删除
 // @Description 登录日志删除
 // @Tags 登录日志
-// @Param data body dto.SysLoginLogById true "body"
+// @Param data body dto.SysLoginLogDeleteReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-login-log [delete]
 // @Security Bearer

@@ -32,6 +32,6 @@ func registerDictRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlewar
 	}
 	opSelect := v1.Group("/dict-data").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
-		opSelect.GET("/option-select", dataApi.GetSysDictDataAll)
+		opSelect.GET("/option-select", dataApi.GetAll)
 	}
 }

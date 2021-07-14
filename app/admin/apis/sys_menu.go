@@ -20,13 +20,12 @@ type SysMenu struct {
 // @Description 获取JSON
 // @Tags 菜单
 // @Param menuName query string false "menuName"
-// @Param menuName query string false "menuName"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [get]
 // @Security Bearer
 func (e SysMenu) GetPage(c *gin.Context) {
 	s := service.SysMenu{}
-	req := dto.SysMenuSearch{}
+	req := dto.SysMenuGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -55,7 +54,7 @@ func (e SysMenu) GetPage(c *gin.Context) {
 // @Router /api/v1/menu/{id} [get]
 // @Security Bearer
 func (e SysMenu) Get(c *gin.Context) {
-	req := dto.SysMenuById{}
+	req := dto.SysMenuGetReq{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -83,12 +82,12 @@ func (e SysMenu) Get(c *gin.Context) {
 // @Tags 菜单
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysMenuControl true "data"
+// @Param data body dto.SysMenuInsertReq true "data"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [post]
 // @Security Bearer
 func (e SysMenu) Insert(c *gin.Context) {
-	req := dto.SysMenuControl{}
+	req := dto.SysMenuInsertReq{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -117,12 +116,12 @@ func (e SysMenu) Insert(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param id path int true "id"
-// @Param data body dto.SysMenuControl true "body"
+// @Param data body dto.SysMenuUpdateReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu/{id} [put]
 // @Security Bearer
 func (e SysMenu) Update(c *gin.Context) {
-	req := dto.SysMenuControl{}
+	req := dto.SysMenuUpdateReq{}
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -148,12 +147,12 @@ func (e SysMenu) Update(c *gin.Context) {
 // @Summary 删除菜单
 // @Description 删除数据
 // @Tags 菜单
-// @Param data body dto.SysMenuById true "body"
+// @Param data body dto.SysMenuDeleteReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/menu [delete]
 // @Security Bearer
 func (e SysMenu) Delete(c *gin.Context) {
-	control := new(dto.SysMenuById)
+	control := new(dto.SysMenuDeleteReq)
 	s := new(service.SysMenu)
 	err := e.MakeContext(c).
 		MakeOrm().

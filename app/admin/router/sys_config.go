@@ -31,7 +31,7 @@ func registerSysConfigRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMidd
 
 	r2 := v1.Group("/app-config")
 	{
-		r2.GET("", api.GetSysConfigBySysApp)
+		r2.GET("", api.Get2SysApp)
 	}
 
 	r3 := v1.Group("/set-config").Use(authMiddleware.MiddlewareFunc())

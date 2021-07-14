@@ -30,7 +30,7 @@ type SysConfig struct {
 // @Security Bearer
 func (e SysConfig) GetPage(c *gin.Context) {
 	s := service.SysConfig{}
-	req := dto.SysConfigSearch{}
+	req := dto.SysConfigGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -60,7 +60,7 @@ func (e SysConfig) GetPage(c *gin.Context) {
 // @Router /api/v1/sys-config/{id} [get]
 // @Security Bearer
 func (e SysConfig) Get(c *gin.Context) {
-	req := dto.SysConfigById{}
+	req := dto.SysConfigGetReq{}
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -158,7 +158,7 @@ func (e SysConfig) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysConfig) Delete(c *gin.Context) {
 	s := service.SysConfig{}
-	req := dto.SysConfigById{}
+	req := dto.SysConfigDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -179,14 +179,14 @@ func (e SysConfig) Delete(c *gin.Context) {
 	e.OK(req.GetId(), "删除成功")
 }
 
-// GetSysConfigBySysApp 获取系统配置信息
+// Get2SysApp 获取系统配置信息
 // @Summary 获取系统前台配置信息，主要注意这里不在验证权限
 // @Description 获取系统配置信息，主要注意这里不在验证权限
 // @Tags 配置管理
 // @Success 200 {object} response.Response{data=map[string]string} "{"code": 200, "data": [...]}"
 // @Router /api/v1/app-config [get]
-func (e SysConfig) GetSysConfigBySysApp(c *gin.Context) {
-	req := dto.SysConfigSearch{}
+func (e SysConfig) Get2SysApp(c *gin.Context) {
+	req := dto.SysConfigGetToSysAppReq{}
 	s := service.SysConfig{}
 	err := e.MakeContext(c).
 		MakeOrm().
