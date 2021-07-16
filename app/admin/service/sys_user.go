@@ -99,9 +99,14 @@ func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission) err
 
 	}
 	c.Generate(&model)
-	err = e.Orm.Save(&model).Error
-	if err != nil {
-		e.Log.Errorf("Service UpdateSysUser error: %s", err)
+	update := e.Orm.Model(&model).Where("user_id = ?", &model.UserId).Omit("password", "salt").Updates(&model)
+	if err = update.Error; err != nil {
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
+	if update.RowsAffected == 0 {
+		err = errors.New("update userinfo error")
+		log.Warnf("db update error")
 		return err
 	}
 	return nil
