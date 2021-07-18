@@ -31,7 +31,7 @@ require (
 	gorm.io/gorm v1.21.11
 )
 
-replace (
-	github.com/go-admin-team/go-admin-core => ../go-admin-core
-	github.com/go-admin-team/go-admin-core/sdk => ../go-admin-core/sdk
-)
+//replace (
+//	github.com/go-admin-team/go-admin-core => ../go-admin-core
+//	github.com/go-admin-team/go-admin-core/sdk => ../go-admin-core/sdk
+//)
