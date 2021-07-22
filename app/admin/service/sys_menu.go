@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 
@@ -333,10 +332,24 @@ func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
 	} else {
 		role.RoleKey = roleName
 		err = e.Orm.Debug().Model(&role).Where("role_key = ? ", roleName).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
-			return db.Where(" menu_type in ('M','C')").Order("sort")
+			return db.Where(" menu_type in ('C')").Order("sort")
 		}).Find(&role).Error
 		if role.SysMenu != nil {
 			MenuList = *role.SysMenu
+		}
+		mIds := make([]int, 0)
+		for _, menu := range MenuList {
+			if menu.ParentId != 0 {
+				mIds = append(mIds, menu.ParentId)
+			}
+		}
+		var data []models.SysMenu
+		err = e.Orm.Where(" menu_type in ('M') and menu_id in ?", mIds).Order("sort").Find(&data).Error
+		if err != nil {
+			return nil, err
+		}
+		for _, datum := range data {
+			MenuList = append(MenuList, datum)
 		}
 	}
 
