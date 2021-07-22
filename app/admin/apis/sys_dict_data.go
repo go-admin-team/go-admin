@@ -30,7 +30,7 @@ type SysDictData struct {
 // @Security Bearer
 func (e SysDictData) GetPage(c *gin.Context) {
 	s := service.SysDictData{}
-	req := dto.SysDictDataSearch{}
+	req := dto.SysDictDataGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -63,7 +63,7 @@ func (e SysDictData) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysDictData) Get(c *gin.Context) {
 	s := service.SysDictData{}
-	req := dto.SysDictDataById{}
+	req := dto.SysDictDataGetReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -93,14 +93,13 @@ func (e SysDictData) Get(c *gin.Context) {
 // @Tags 字典数据
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysDictDataControl true "data"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Param data body dto.SysDictDataInsertReq true "data"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
 // @Router /api/v1/dict/data [post]
 // @Security Bearer
 func (e SysDictData) Insert(c *gin.Context) {
 	s := service.SysDictData{}
-	req := dto.SysDictDataControl{}
+	req := dto.SysDictDataInsertReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -127,14 +126,13 @@ func (e SysDictData) Insert(c *gin.Context) {
 // @Tags 字典数据
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysDictDataControl true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Param data body dto.SysDictDataUpdateReq true "body"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
 // @Router /api/v1/dict/data/{dictCode} [put]
 // @Security Bearer
 func (e SysDictData) Update(c *gin.Context) {
 	s := service.SysDictData{}
-	req := dto.SysDictDataControl{}
+	req := dto.SysDictDataUpdateReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -158,14 +156,13 @@ func (e SysDictData) Update(c *gin.Context) {
 // @Summary 删除字典数据
 // @Description 删除数据
 // @Tags 字典数据
-// @Param dictCode body dto.SysDictDataById true "body"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Param dictCode body dto.SysDictDataDeleteReq true "body"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
 // @Router /api/v1/dict/data [delete]
 // @Security Bearer
 func (e SysDictData) Delete(c *gin.Context) {
 	s := service.SysDictData{}
-	req := dto.SysDictDataById{}
+	req := dto.SysDictDataDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON, nil).
@@ -185,21 +182,20 @@ func (e SysDictData) Delete(c *gin.Context) {
 	e.OK(req.GetId(), "删除成功")
 }
 
-// GetSysDictDataAll 数据字典根据key获取 业务页面使用
+// GetAll 数据字典根据key获取 业务页面使用
 // @Summary 数据字典根据key获取
 // @Description 数据字典根据key获取
 // @Tags 字典数据
 // @Param dictType query int true "dictType"
-// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Success 200 {object} response.Response{data=[]dto.SysDictDataGetAllResp}  "{"code": 200, "data": [...]}"
 // @Router /api/v1/dict-data/option-select [get]
 // @Security Bearer
-func (e SysDictData) GetSysDictDataAll(c *gin.Context) {
+func (e SysDictData) GetAll(c *gin.Context) {
 	s := service.SysDictData{}
-	req := dto.SysDictDataSearch{}
+	req := dto.SysDictDataGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req, binding.Form).
+		Bind(&req).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
@@ -213,5 +209,12 @@ func (e SysDictData) GetSysDictDataAll(c *gin.Context) {
 		e.Error(500, err, "查询失败")
 		return
 	}
-	e.OK(list, "查询成功")
+	l := make([]dto.SysDictDataGetAllResp, 0)
+	for _, i := range list {
+		d := dto.SysDictDataGetAllResp{}
+		e.Translate(i, &d)
+		l = append(l, d)
+	}
+
+	e.OK(l,"查询成功")
 }

@@ -19,7 +19,7 @@ type SysMenu struct {
 }
 
 // GetPage 获取SysMenu列表
-func (e *SysMenu) GetPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) *SysMenu {
+func (e *SysMenu) GetPage(c *dto.SysMenuGetPageReq, menus *[]models.SysMenu) *SysMenu {
 	var menu = make([]models.SysMenu, 0)
 	err := e.getPage(c, &menu).Error
 	if err != nil {
@@ -37,7 +37,7 @@ func (e *SysMenu) GetPage(c *dto.SysMenuSearch, menus *[]models.SysMenu) *SysMen
 }
 
 // getPage 菜单分页列表
-func (e *SysMenu) getPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu {
+func (e *SysMenu) getPage(c *dto.SysMenuGetPageReq, list *[]models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -56,7 +56,7 @@ func (e *SysMenu) getPage(c *dto.SysMenuSearch, list *[]models.SysMenu) *SysMenu
 }
 
 // Get 获取SysMenu对象
-func (e *SysMenu) Get(d *dto.SysMenuById, model *models.SysMenu) *SysMenu {
+func (e *SysMenu) Get(d *dto.SysMenuGetReq, model *models.SysMenu) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -83,7 +83,7 @@ func (e *SysMenu) Get(d *dto.SysMenuById, model *models.SysMenu) *SysMenu {
 }
 
 // Insert 创建SysMenu对象
-func (e *SysMenu) Insert(c *dto.SysMenuControl) *SysMenu {
+func (e *SysMenu) Insert(c *dto.SysMenuInsertReq) *SysMenu {
 	var err error
 	var data models.SysMenu
 	c.Generate(&data)
@@ -115,7 +115,7 @@ func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 }
 
 // Update 修改SysMenu对象
-func (e *SysMenu) Update(c *dto.SysMenuControl) *SysMenu {
+func (e *SysMenu) Update(c *dto.SysMenuUpdateReq) *SysMenu {
 	var err error
 	tx := e.Orm.Debug().Begin()
 	defer func() {
@@ -151,7 +151,7 @@ func (e *SysMenu) Update(c *dto.SysMenuControl) *SysMenu {
 }
 
 // Remove 删除SysMenu
-func (e *SysMenu) Remove(d *dto.SysMenuById) *SysMenu {
+func (e *SysMenu) Remove(d *dto.SysMenuDeleteReq) *SysMenu {
 	var err error
 	var data models.SysMenu
 
@@ -169,7 +169,7 @@ func (e *SysMenu) Remove(d *dto.SysMenuById) *SysMenu {
 }
 
 // GetList 获取菜单数据
-func (e *SysMenu) GetList(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
+func (e *SysMenu) GetList(c *dto.SysMenuGetPageReq, list *[]models.SysMenu) error {
 	var err error
 	var data models.SysMenu
 
@@ -188,7 +188,7 @@ func (e *SysMenu) GetList(c *dto.SysMenuSearch, list *[]models.SysMenu) error {
 // SetLabel 修改角色中 设置菜单基础数据
 func (e *SysMenu) SetLabel() (m []dto.MenuLabel, err error) {
 	var list []models.SysMenu
-	err = e.GetList(&dto.SysMenuSearch{}, &list)
+	err = e.GetList(&dto.SysMenuGetPageReq{}, &list)
 
 	m = make([]dto.MenuLabel, 0)
 	for i := 0; i < len(list); i++ {

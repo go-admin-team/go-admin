@@ -95,7 +95,7 @@ func (e SysUser) Get(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysUserControl true "用户数据"
+// @Param data body dto.SysUserInsertReq true "用户数据"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-user [post]
 // @Security Bearer
@@ -130,7 +130,7 @@ func (e SysUser) Insert(c *gin.Context) {
 // @Tags 用户
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysUserControl true "body"
+// @Param data body dto.SysUserUpdateReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-user/{userId} [put]
 // @Security Bearer
@@ -237,7 +237,7 @@ func (e SysUser) InsetAvatar(c *gin.Context) {
 	req.UserId = p.UserId
 	req.Avatar = "/" + filPath
 
-	err = s.UpdateSysUserAvatar(&req, p)
+	err = s.UpdateAvatar(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -274,7 +274,7 @@ func (e SysUser) UpdateStatus(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.UpdateSysUserStatus(&req, p)
+	err = s.UpdateStatus(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -311,7 +311,7 @@ func (e SysUser) ResetPwd(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.ResetSysUserPwd(&req, p)
+	err = s.ResetPwd(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -346,7 +346,7 @@ func (e SysUser) UpdatePwd(c *gin.Context) {
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.UpdateSysUserPwd(user.GetUserId(c), req.OldPassword, req.NewPassword, p)
+	err = s.UpdatePwd(user.GetUserId(c), req.OldPassword, req.NewPassword, p)
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(http.StatusForbidden, err, "密码修改失败")
@@ -380,7 +380,7 @@ func (e SysUser) GetProfile(c *gin.Context) {
 	sysUser := models.SysUser{}
 	roles := make([]models.SysRole, 0)
 	posts := make([]models.SysPost, 0)
-	err = s.GetSysUserProfile(&req, &sysUser, &roles, &posts)
+	err = s.GetProfile(&req, &sysUser, &roles, &posts)
 	if err != nil {
 		e.Logger.Errorf("get user profile error, %s", err.Error())
 		e.Error(500, err, "获取用户信息失败")
@@ -448,5 +448,6 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	mp["userId"] = sysUser.UserId
 	mp["deptId"] = sysUser.DeptId
 	mp["name"] = sysUser.NickName
+	mp["code"] = 200
 	e.OK(mp, "")
 }

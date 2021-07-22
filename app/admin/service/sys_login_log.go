@@ -15,8 +15,8 @@ type SysLoginLog struct {
 	service.Service
 }
 
-// GetSysLoginLogPage 获取SysLoginLog列表
-func (e *SysLoginLog) GetPage(c *dto.SysLoginLogSearch, list *[]models.SysLoginLog, count *int64) error {
+// GetPage 获取SysLoginLog列表
+func (e *SysLoginLog) GetPage(c *dto.SysLoginLogGetPageReq, list *[]models.SysLoginLog, count *int64) error {
 	var err error
 	var data models.SysLoginLog
 

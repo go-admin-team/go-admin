@@ -6,8 +6,8 @@ import (
 	common "go-admin/common/models"
 )
 
-// SysConfigSearch 列表或者搜索使用结构体
-type SysConfigSearch struct {
+// SysConfigGetPageReq 列表或者搜索使用结构体
+type SysConfigGetPageReq struct {
 	dto.Pagination `search:"-"`
 	ConfigName     string `form:"configName" search:"type:contains;column:config_name;table:sys_config"`
 	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config"`
@@ -24,7 +24,15 @@ type SysConfigOrder struct {
 	CreatedAtOrder  string `search:"type:order;column:created_at;table:sys_config" form:"createdAtOrder"`
 }
 
-func (m *SysConfigSearch) GetNeedSearch() interface{} {
+func (m *SysConfigGetPageReq) GetNeedSearch() interface{} {
+	return *m
+}
+
+type SysConfigGetToSysAppReq struct {
+	IsFrontend     int    `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config"`
+}
+
+func (m *SysConfigGetToSysAppReq) GetNeedSearch() interface{} {
 	return *m
 }
 
@@ -86,22 +94,19 @@ type GetSysConfigByKEYForServiceResp struct {
 	ConfigValue string `json:"configValue" comment:""`
 }
 
-// SysConfigById 获取单个或者删除的结构体
-type SysConfigById struct {
-	Id  int   `uri:"id"`
+type SysConfigGetReq struct {
+	Id int `uri:"id"`
+}
+
+func (s *SysConfigGetReq) GetId() interface{} {
+	return s.Id
+}
+
+type SysConfigDeleteReq struct {
 	Ids []int `json:"ids"`
 	common.ControlBy
 }
 
-func (s *SysConfigById) Generate() *SysConfigById {
-	cp := *s
-	return &cp
-}
-
-func (s *SysConfigById) GetId() interface{} {
-	if len(s.Ids) > 0 {
-		s.Ids = append(s.Ids, s.Id)
-		return s.Ids
-	}
-	return s.Id
+func (s *SysConfigDeleteReq) GetId() interface{} {
+	return s.Ids
 }

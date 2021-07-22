@@ -19,7 +19,7 @@ settings:
     stdout: '' #控制台日志，启用后，不输出到文件
     # 日志等级, trace, debug, info, warn, error, fatal
     level: trace
-    # 数据库日志开关 dev模式，将自动开启
+    # 数据库日志开关
     enableddb: false
   jwt:
     # token 密钥，生产环境时及的修改

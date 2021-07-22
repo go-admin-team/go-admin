@@ -35,7 +35,7 @@ type SysRole struct {
 // @Security Bearer
 func (e SysRole) GetPage(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleSearch{}
+	req := dto.SysRoleGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.Form).
@@ -69,7 +69,7 @@ func (e SysRole) GetPage(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Get(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleById{}
+	req := dto.SysRoleGetReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil).
@@ -104,7 +104,7 @@ func (e SysRole) Get(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Insert(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleControl{}
+	req := dto.SysRoleInsertReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -148,7 +148,7 @@ func (e SysRole) Insert(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Update(c *gin.Context) {
 	s := service.SysRole{}
-	req := dto.SysRoleControl{}
+	req := dto.SysRoleUpdateReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, nil, binding.JSON).
@@ -186,7 +186,7 @@ func (e SysRole) Update(c *gin.Context) {
 // @Security Bearer
 func (e SysRole) Delete(c *gin.Context) {
 	s := new(service.SysRole)
-	req := dto.SysRoleById{}
+	req := dto.SysRoleDeleteReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		Bind(&req, binding.JSON).
@@ -206,7 +206,7 @@ func (e SysRole) Delete(c *gin.Context) {
 	}
 	_, err = global.LoadPolicy(c)
 	if err != nil {
-		e.Error(500, err, fmt.Sprintf("删除角色 %v 失败，失败信息 %s", req.Id, err.Error()))
+		e.Error(500, err, fmt.Sprintf("删除角色 %v 失败，失败信息 %s", req.GetId(), err.Error()))
 		return
 	}
 	e.OK(req.GetId(), fmt.Sprintf("删除角色角色 %v 状态成功！", req.GetId()))

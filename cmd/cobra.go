@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"go-admin/cmd/app"
 	"go-admin/common/global"
 	"os"
 
@@ -45,6 +46,7 @@ func init() {
 	rootCmd.AddCommand(migrate.StartCmd)
 	rootCmd.AddCommand(version.StartCmd)
 	rootCmd.AddCommand(config.StartCmd)
+	rootCmd.AddCommand(app.StartCmd)
 }
 
 //Execute : apply commands

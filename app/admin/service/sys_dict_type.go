@@ -16,7 +16,7 @@ type SysDictType struct {
 }
 
 // GetPage 获取列表
-func (e *SysDictType) GetPage(c *dto.SysDictTypeSearch, list *[]models.SysDictType, count *int64) error {
+func (e *SysDictType) GetPage(c *dto.SysDictTypeGetPageReq, list *[]models.SysDictType, count *int64) error {
 	var err error
 	var data models.SysDictType
 
@@ -35,7 +35,7 @@ func (e *SysDictType) GetPage(c *dto.SysDictTypeSearch, list *[]models.SysDictTy
 }
 
 // Get 获取对象
-func (e *SysDictType) Get(d *dto.SysDictTypeById, model *models.SysDictType) error {
+func (e *SysDictType) Get(d *dto.SysDictTypeGetReq, model *models.SysDictType) error {
 	var err error
 
 	db := e.Orm.First(model, d.GetId())
@@ -53,7 +53,7 @@ func (e *SysDictType) Get(d *dto.SysDictTypeById, model *models.SysDictType) err
 }
 
 // Insert 创建对象
-func (e *SysDictType) Insert(c *dto.SysDictTypeControl) error {
+func (e *SysDictType) Insert(c *dto.SysDictTypeInsertReq) error {
 	var err error
 	var data models.SysDictType
 	c.Generate(&data)
@@ -71,7 +71,7 @@ func (e *SysDictType) Insert(c *dto.SysDictTypeControl) error {
 }
 
 // Update 修改对象
-func (e *SysDictType) Update(c *dto.SysDictTypeControl) error {
+func (e *SysDictType) Update(c *dto.SysDictTypeUpdateReq) error {
 	var err error
 	var model = models.SysDictType{}
 	e.Orm.First(&model, c.GetId())
@@ -89,7 +89,7 @@ func (e *SysDictType) Update(c *dto.SysDictTypeControl) error {
 }
 
 // Remove 删除
-func (e *SysDictType) Remove(d *dto.SysDictTypeById) error {
+func (e *SysDictType) Remove(d *dto.SysDictTypeDeleteReq) error {
 	var err error
 	var data models.SysDictType
 
@@ -107,7 +107,7 @@ func (e *SysDictType) Remove(d *dto.SysDictTypeById) error {
 }
 
 // GetAll 获取所有
-func (e *SysDictType) GetAll(c *dto.SysDictTypeSearch, list *[]models.SysDictType) error {
+func (e *SysDictType) GetAll(c *dto.SysDictTypeGetPageReq, list *[]models.SysDictType) error {
 	var err error
 	var data models.SysDictType
 

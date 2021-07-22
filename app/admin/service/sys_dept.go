@@ -20,24 +20,24 @@ type SysDept struct {
 }
 
 // GetPage 获取SysDept列表
-func (e *SysDept) GetPage(c *dto.SysDeptSearch, list *[]models.SysDept) error {
-	var err error
-	var data models.SysDept
-
-	err = e.Orm.Model(&data).
-		Scopes(
-			cDto.MakeCondition(c.GetNeedSearch()),
-		).
-		Find(list).Error
-	if err != nil {
-		e.Log.Errorf("db error:%s", err)
-		return err
-	}
-	return nil
-}
+//func (e *SysDept) GetPage(c *dto.SysDeptGetPageReq, list *[]models.SysDept) error {
+//	var err error
+//	var data models.SysDept
+//
+//	err = e.Orm.Model(&data).
+//		Scopes(
+//			cDto.MakeCondition(c.GetNeedSearch()),
+//		).
+//		Find(list).Error
+//	if err != nil {
+//		e.Log.Errorf("db error:%s", err)
+//		return err
+//	}
+//	return nil
+//}
 
 // Get 获取SysDept对象
-func (e *SysDept) Get(d *dto.SysDeptById, model *models.SysDept) error {
+func (e *SysDept) Get(d *dto.SysDeptGetReq, model *models.SysDept) error {
 	var err error
 	var data models.SysDept
 
@@ -57,7 +57,7 @@ func (e *SysDept) Get(d *dto.SysDeptById, model *models.SysDept) error {
 }
 
 // Insert 创建SysDept对象
-func (e *SysDept) Insert(c *dto.SysDeptControl) error {
+func (e *SysDept) Insert(c *dto.SysDeptInsertReq) error {
 	var err error
 	var data models.SysDept
 	c.Generate(&data)
@@ -92,7 +92,7 @@ func (e *SysDept) Insert(c *dto.SysDeptControl) error {
 }
 
 // Update 修改SysDept对象
-func (e *SysDept) Update(c *dto.SysDeptControl) error {
+func (e *SysDept) Update(c *dto.SysDeptUpdateReq) error {
 	var err error
 	var model = models.SysDept{}
 	tx := e.Orm.Debug().Begin()
@@ -127,7 +127,7 @@ func (e *SysDept) Update(c *dto.SysDeptControl) error {
 }
 
 // Remove 删除SysDept
-func (e *SysDept) Remove(d *dto.SysDeptById) error {
+func (e *SysDept) Remove(d *dto.SysDeptDeleteReq) error {
 	var err error
 	var data models.SysDept
 
@@ -145,7 +145,7 @@ func (e *SysDept) Remove(d *dto.SysDeptById) error {
 }
 
 // GetSysDeptList 获取组织数据
-func (e *SysDept) getList(c *dto.SysDeptSearch, list *[]models.SysDept) error {
+func (e *SysDept) getList(c *dto.SysDeptGetPageReq, list *[]models.SysDept) error {
 	var err error
 	var data models.SysDept
 
@@ -162,7 +162,7 @@ func (e *SysDept) getList(c *dto.SysDeptSearch, list *[]models.SysDept) error {
 }
 
 // SetDeptTree 设置组织数据
-func (e *SysDept) SetDeptTree(c *dto.SysDeptSearch) (m []dto.DeptLabel, err error) {
+func (e *SysDept) SetDeptTree(c *dto.SysDeptGetPageReq) (m []dto.DeptLabel, err error) {
 	var list []models.SysDept
 	err = e.getList(c, &list)
 
@@ -198,7 +198,7 @@ func deptTreeCall(deptList *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel 
 }
 
 // SetDeptPage 设置dept页面数据
-func (e *SysDept) SetDeptPage(c *dto.SysDeptSearch) (m []models.SysDept, err error) {
+func (e *SysDept) SetDeptPage(c *dto.SysDeptGetPageReq) (m []models.SysDept, err error) {
 	var list []models.SysDept
 	err = e.getList(c, &list)
 	for i := 0; i < len(list); i++ {

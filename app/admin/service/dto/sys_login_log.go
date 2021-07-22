@@ -1,14 +1,12 @@
 package dto
 
 import (
-	"go-admin/app/admin/models"
 	"time"
 
 	"go-admin/common/dto"
-	common "go-admin/common/models"
 )
 
-type SysLoginLogSearch struct {
+type SysLoginLogGetPageReq struct {
 	dto.Pagination `search:"-"`
 	Username       string `form:"username" search:"type:exact;column:username;table:sys_login_log" comment:"用户名"`
 	Status         string `form:"status" search:"type:exact;column:status;table:sys_login_log" comment:"状态"`
@@ -23,7 +21,7 @@ type SysLoginLogOrder struct {
 	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_login_log" form:"createdAtOrder"`
 }
 
-func (m *SysLoginLogSearch) GetNeedSearch() interface{} {
+func (m *SysLoginLogGetPageReq) GetNeedSearch() interface{} {
 	return *m
 }
 
@@ -39,26 +37,6 @@ type SysLoginLogControl struct {
 	LoginTime     time.Time `json:"loginTime" comment:"登录时间"`
 	Remark        string    `json:"remark" comment:"备注"`
 	Msg           string    `json:"msg" comment:"信息"`
-}
-
-func (s *SysLoginLogControl) Generate() (*models.SysLoginLog, error) {
-	return &models.SysLoginLog{
-		Model:         common.Model{Id: s.ID},
-		Username:      s.Username,
-		Status:        s.Status,
-		Ipaddr:        s.Ipaddr,
-		LoginLocation: s.LoginLocation,
-		Browser:       s.Browser,
-		Os:            s.Os,
-		Platform:      s.Platform,
-		LoginTime:     s.LoginTime,
-		Remark:        s.Remark,
-		Msg:           s.Msg,
-	}, nil
-}
-
-func (s *SysLoginLogControl) GetId() interface{} {
-	return s.ID
 }
 
 type SysLoginLogGetReq struct {

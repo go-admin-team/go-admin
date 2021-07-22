@@ -16,7 +16,7 @@ type SysConfig struct {
 }
 
 // GetPage 获取SysConfig列表
-func (e *SysConfig) GetPage(c *dto.SysConfigSearch, list *[]models.SysConfig, count *int64) error {
+func (e *SysConfig) GetPage(c *dto.SysConfigGetPageReq, list *[]models.SysConfig, count *int64) error {
 	err := e.Orm.
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
@@ -32,7 +32,7 @@ func (e *SysConfig) GetPage(c *dto.SysConfigSearch, list *[]models.SysConfig, co
 }
 
 // Get 获取SysConfig对象
-func (e *SysConfig) Get(d *dto.SysConfigById, model *models.SysConfig) error {
+func (e *SysConfig) Get(d *dto.SysConfigGetReq, model *models.SysConfig) error {
 	err := e.Orm.First(model, d.GetId()).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
@@ -137,7 +137,7 @@ func (e *SysConfig) UpdateForSet(c *[]dto.GetSetSysConfigReq) error {
 }
 
 // Remove 删除SysConfig
-func (e *SysConfig) Remove(d *dto.SysConfigById) error {
+func (e *SysConfig) Remove(d *dto.SysConfigDeleteReq) error {
 	var err error
 	var data models.SysConfig
 
@@ -167,7 +167,7 @@ func (e *SysConfig) GetWithKey(c *dto.SysConfigByKeyReq, resp *dto.GetSysConfigB
 	return nil
 }
 
-func (e *SysConfig) GetWithKeyList(c *dto.SysConfigSearch, list *[]models.SysConfig) error {
+func (e *SysConfig) GetWithKeyList(c *dto.SysConfigGetToSysAppReq, list *[]models.SysConfig) error {
 	var err error
 	err = e.Orm.
 		Scopes(
