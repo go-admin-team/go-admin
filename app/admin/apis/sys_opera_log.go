@@ -90,7 +90,7 @@ func (e SysOperaLog) Get(c *gin.Context) {
 // @Summary 删除操作日志
 // @Description 删除数据
 // @Tags 操作日志
-// @Param data body dto.SysOperaLogById true "body"
+// @Param data body dto.SysOperaLogDeleteReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/sys-opera-log [delete]
 // @Security Bearer

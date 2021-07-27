@@ -98,7 +98,7 @@ func (e SysRole) Get(c *gin.Context) {
 // @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysRoleControl true "data"
+// @Param data body dto.SysRoleInsertReq true "data"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/role [post]
 // @Security Bearer
@@ -142,7 +142,7 @@ func (e SysRole) Insert(c *gin.Context) {
 // @Tags 角色/Role
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysRoleControl true "body"
+// @Param data body dto.SysRoleUpdateReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/role/{id} [put]
 // @Security Bearer
@@ -180,7 +180,7 @@ func (e SysRole) Update(c *gin.Context) {
 // @Summary 删除用户角色
 // @Description 删除数据
 // @Tags 角色/Role
-// @Param data body dto.SysRoleById true "body"
+// @Param data body dto.SysRoleDeleteReq true "body"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/role [delete]
 // @Security Bearer
