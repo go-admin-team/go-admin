@@ -87,7 +87,7 @@ func (e SysDept) Get(c *gin.Context) {
 // @Tags 部门
 // @Accept  application/json
 // @Product application/json
-// @Param data body dto.SysDeptControl true "data"
+// @Param data body dto.SysDeptInsertReq true "data"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept [post]
@@ -123,7 +123,7 @@ func (e SysDept) Insert(c *gin.Context) {
 // @Accept  application/json
 // @Product application/json
 // @Param id path int true "id"
-// @Param data body dto.SysDeptControl true "body"
+// @Param data body dto.SysDeptUpdateReq true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/dept/{deptId} [put]
@@ -154,7 +154,7 @@ func (e SysDept) Update(c *gin.Context) {
 // @Summary 删除部门
 // @Description 删除数据
 // @Tags 部门
-// @Param data body dto.SysDeptById true "body"
+// @Param data body dto.SysDeptDeleteReq true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/dept [delete]

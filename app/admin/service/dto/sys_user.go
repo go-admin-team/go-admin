@@ -98,7 +98,7 @@ type SysUserInsertReq struct {
 	Avatar   string `json:"avatar" comment:"头像"`
 	Sex      string `json:"sex" comment:"性别"`
 	Email    string `json:"email" comment:"邮箱" vd:"len($)>0,email"`
-	DeptId   int    `json:"deptId" comment:"部门" vd:"len($)>0"`
+	DeptId   int    `json:"deptId" comment:"部门" vd:"$>0"`
 	PostId   int    `json:"postId" comment:"岗位"`
 	Remark   string `json:"remark" comment:"备注"`
 	Status   string `json:"status" comment:"状态" vd:"len($)>0" default:"1"`
