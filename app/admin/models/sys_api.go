@@ -65,7 +65,6 @@ func SaveSysApi(message storage.Messager) (err error) {
 
 				// 根据接口方法注释里的@Summary填充接口名称，适用于代码生成器
 				// 可在此处增加配置路径前缀的if判断，只对代码生成的自建应用进行定向的接口名称填充
-				busType := "BUS" // 默认"业务"类型
 				jsonFile, _ := ioutil.ReadFile("docs/swagger.json")
 				jsonData, _ := simplejson.NewFromReader(bytes.NewReader(jsonFile))
 				urlPath := v.RelativePath
@@ -77,7 +76,7 @@ func SaveSysApi(message storage.Messager) (err error) {
 				apiTitle, _ := jsonData.Get("paths").Get(urlPath).Get(strings.ToLower(v.HttpMethod)).Get("summary").String()
 
 				err := d.Debug().Where(SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
-					Attrs(SysApi{Handle: v.Handler, Title: apiTitle, Type: busType}).
+					Attrs(SysApi{Handle: v.Handler, Title: apiTitle}).
 					FirstOrCreate(&SysApi{}).
 					//Update("handle", v.Handler).
 					Error
