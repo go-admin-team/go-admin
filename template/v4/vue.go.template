@@ -27,9 +27,9 @@
                                                placeholder="{{$tableComment}}{{.ColumnComment}}" clearable size="small">
                                         <el-option
                                                 v-for="dict in {{.JsonField}}Options"
-                                                :key="dict.dictValue"
-                                                :label="dict.dictLabel"
-                                                :value="dict.dictValue"
+                                                :key="dict.value"
+                                                :label="dict.label"
+                                                :value="dict.value"
                                         />
                                     </el-select>
                                 {{- end}}
@@ -179,9 +179,9 @@
                                                        placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
                                                 <el-option
                                                         v-for="dict in {{.JsonField}}Options"
-                                                        :key="dict.dictValue"
-                                                        :label="dict.dictLabel"
-                                                        :value="dict.dictValue"
+                                                        :key="dict.value"
+                                                        :label="dict.label"
+                                                        :value="dict.value"
                                                 />
                                             </el-select>
                                             {{- end -}}
@@ -189,9 +189,9 @@
                                             <el-radio-group v-model="form.{{.JsonField}}">
                                                 <el-radio
                                                         v-for="dict in {{.JsonField}}Options"
-                                                        :key="dict.dictValue"
-                                                        :label="dict.dictValue"
-                                                >{{"{{"}} dict.dictLabel {{"}}"}}</el-radio>
+                                                        :key="dict.value"
+                                                        :label="dict.value"
+                                                >{{"{{"}} dict.label {{"}}"}}</el-radio>
                                             </el-radio-group>
                                         {{- else if eq "file" .HtmlType -}}
                                             <el-input
