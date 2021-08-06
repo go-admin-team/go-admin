@@ -1,10 +1,14 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"regexp"
 	"strings"
 
+	"github.com/bitly/go-simplejson"
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
 	"github.com/go-admin-team/go-admin-core/storage"
@@ -58,8 +62,21 @@ func SaveSysApi(message storage.Messager) (err error) {
 				strings.Contains(v.RelativePath, "/static/") ||
 				strings.Contains(v.RelativePath, "/form-generator/") ||
 				strings.Contains(v.RelativePath, "/sys/tables") {
+
+				// 根据接口方法注释里的@Summary填充接口名称，适用于代码生成器
+				// 可在此处增加配置路径前缀的if判断，只对代码生成的自建应用进行定向的接口名称填充
+				jsonFile, _ := ioutil.ReadFile("docs/swagger.json")
+				jsonData, _ := simplejson.NewFromReader(bytes.NewReader(jsonFile))
+				urlPath := v.RelativePath
+				idPatten := "(.*)/:(\\w+)" // 正则替换，把:id换成{id}
+				reg, _ := regexp.Compile(idPatten)
+				if reg.MatchString(urlPath) {
+					urlPath = reg.ReplaceAllString(v.RelativePath, "${1}/{${2}}") // 把:id换成{id}
+				}
+				apiTitle, _ := jsonData.Get("paths").Get(urlPath).Get(strings.ToLower(v.HttpMethod)).Get("summary").String()
+
 				err := d.Debug().Where(SysApi{Path: v.RelativePath, Action: v.HttpMethod}).
-					Attrs(SysApi{Handle: v.Handler}).
+					Attrs(SysApi{Handle: v.Handler, Title: apiTitle}).
 					FirstOrCreate(&SysApi{}).
 					//Update("handle", v.Handler).
 					Error
