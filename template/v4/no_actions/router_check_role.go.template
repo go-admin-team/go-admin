@@ -15,7 +15,7 @@ func init() {
 // register{{.ClassName}}Router
 func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	api := apis.{{.ClassName}}{}
-	r := v1.Group("/{{.MLTBName}}").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	r := v1.Group("/{{.ModuleName}}").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		r.GET("", api.GetPage)
 		r.GET("/:id", api.Get)
