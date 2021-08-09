@@ -303,6 +303,7 @@ INSERT INTO `sys_menu_api_rule` VALUES (228, 27);
 INSERT INTO `sys_menu_api_rule` VALUES (230, 28);
 INSERT INTO `sys_menu_api_rule` VALUES (226, 29);
 INSERT INTO `sys_menu_api_rule` VALUES (51, 39);
+INSERT INTO `sys_menu_api_rule` VALUES (51, 135);
 INSERT INTO `sys_menu_api_rule` VALUES (222, 39);
 INSERT INTO `sys_menu_api_rule` VALUES (221, 41);
 INSERT INTO `sys_menu_api_rule` VALUES (52, 44);
