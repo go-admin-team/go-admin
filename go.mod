@@ -9,7 +9,7 @@ require (
 	github.com/bitly/go-simplejson v0.5.0
 	github.com/bytedance/go-tagexpr/v2 v2.7.12
 	github.com/casbin/casbin/v2 v2.25.1
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.3
 	github.com/go-admin-team/go-admin-core v1.3.7
 	github.com/go-admin-team/go-admin-core/sdk v1.3.7
 	github.com/google/uuid v1.2.0
