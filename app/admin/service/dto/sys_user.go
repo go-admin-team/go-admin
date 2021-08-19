@@ -38,8 +38,8 @@ func (m *SysUserGetPageReq) GetNeedSearch() interface{} {
 }
 
 type ResetSysUserPwdReq struct {
-	UserId   int    `json:"userId" comment:"用户ID" binding:"required"` // 用户ID
-	Password string `json:"password" comment:"密码" binding:"required"`
+	UserId   int    `json:"userId" comment:"用户ID" vd:"$>0"` // 用户ID
+	Password string `json:"password" comment:"密码" vd:"len($)>0"`
 	common.ControlBy
 }
 
