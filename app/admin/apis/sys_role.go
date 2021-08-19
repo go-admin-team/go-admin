@@ -227,7 +227,7 @@ func (e SysRole) Update2Status(c *gin.Context) {
 	req := dto.UpdateStatusReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req).
+		Bind(&req, binding.JSON, nil).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
