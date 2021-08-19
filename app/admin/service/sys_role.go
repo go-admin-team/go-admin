@@ -142,11 +142,20 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 		e.Log.Errorf("delete policy error:%s", err)
 		return err
 	}
-
+	mp:=make(map [string] interface{} ,0)
+	polices := make([][]string, 0)
 	for _, menu := range mlist {
 		for _, api := range menu.SysApi {
-			_, err = cb.AddNamedPolicy("p", model.RoleKey, api.Path, api.Action)
+			if mp[model.RoleKey+"-"+api.Path+"-"+api.Action] != "" {
+				mp[model.RoleKey+"-"+api.Path+"-"+api.Action] = ""
+				//_, err = cb.AddNamedPolicy("p", model.RoleKey, api.Path, api.Action)
+				polices = append(polices, []string{model.RoleKey, api.Path, api.Action})
+			}
 		}
+	}
+	_, err = cb.AddNamedPolicies("p", polices)
+	if err != nil {
+		return err
 	}
 	_ = cb.SavePolicy()
 	return nil
