@@ -11,7 +11,7 @@ require (
 	github.com/casbin/casbin/v2 v2.25.1
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-admin-team/go-admin-core v1.3.8
-	github.com/go-admin-team/go-admin-core/sdk v1.3.8
+	github.com/go-admin-team/go-admin-core/sdk v1.3.9
 	github.com/google/uuid v1.2.0
 	github.com/mssola/user_agent v0.5.2
 	github.com/opentracing/opentracing-go v1.1.0
@@ -31,8 +31,3 @@ require (
 	gorm.io/driver/sqlite v1.1.5-0.20201206014648-c84401fbe3ba
 	gorm.io/gorm v1.21.11
 )
-
-//replace (
-//	github.com/go-admin-team/go-admin-core => ../go-admin-core
-//	github.com/go-admin-team/go-admin-core/sdk => ../go-admin-core/sdk
-//)
