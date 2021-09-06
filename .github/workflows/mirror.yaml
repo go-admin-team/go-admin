@@ -1,0 +1,17 @@
+name: 'GitHub Actions Mirror'
+
+on: [push, delete]
+
+jobs:
+  mirror_to_gitee:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v1
+      - name: 'Mirror to gitee'
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@gitee.com:go-admin-team/go-admin.git
+          ssh_private_key:
+            ${{ secrets.GITEE_KEY }}
