@@ -29,9 +29,17 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-
     - name: Build
-      run: go build -v .
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        ref=${{ github.ref }}
+        go mod vendor
+        docker build . -t goadminteam/go-admin:${ref##*/}-${{ github.sha }}
+        docker tag goadminteam/go-admin:${ref##*/}-${{ github.sha }} goadminteam/go-admin:latest
+    - uses: Azure/docker-login@v1
+      with:
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - run: |
+        ref=${{ github.ref }}
+        docker push goadminteam/go-admin:${ref##*/}-${{ github.sha }}
+        docker push goadminteam/go-admin:latest
