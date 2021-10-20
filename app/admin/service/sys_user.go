@@ -127,8 +127,8 @@ func (e *SysUser) UpdateAvatar(c *dto.UpdateSysUserAvatarReq, p *actions.DataPer
 		return errors.New("无权更新该数据")
 
 	}
-	c.Generate(&model)
-	err = e.Orm.Save(&model).Error
+
+	err = e.Orm.Model(&model).Update("avatar", c.Avatar).Error
 	if err != nil {
 		e.Log.Errorf("Service UpdateSysUser error: %s", err)
 		return err
@@ -151,8 +151,8 @@ func (e *SysUser) UpdateStatus(c *dto.UpdateSysUserStatusReq, p *actions.DataPer
 		return errors.New("无权更新该数据")
 
 	}
-	c.Generate(&model)
-	err = e.Orm.Save(&model).Error
+
+	err = e.Orm.Model(&model).Update("status", c.Status).Error
 	if err != nil {
 		e.Log.Errorf("Service UpdateSysUser error: %s", err)
 		return err
