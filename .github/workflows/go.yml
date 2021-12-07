@@ -5,6 +5,9 @@ on:
     branches: [ master, dev ]
   pull_request:
     branches: [ master ]
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
 
@@ -33,16 +36,6 @@ jobs:
       run: |
         ref=${{ github.ref }}
         go mod vendor
-        docker build . -t goadminteam/go-admin:${ref##*/}-${{ github.sha }}
-        docker tag goadminteam/go-admin:${ref##*/}-${{ github.sha }} goadminteam/go-admin:latest
-    - uses: Azure/docker-login@v1
-      with:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-    - run: |
-        ref=${{ github.ref }}
-        docker push goadminteam/go-admin:${ref##*/}-${{ github.sha }}
-        docker push goadminteam/go-admin:latest
 
     - name: Log in to the Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
