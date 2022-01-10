@@ -161,10 +161,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # The first configuration needs to initialize the database resource information
 # Use under macOS or linux
-$ ./go-admin migrate -c=config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.dev.yml
 
 # ⚠️Note: Use under windows
-$ go-admin.exe migrate -c=config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.dev.yml
 
 # Start the project, you can also use the IDE for debugging
 # Use under macOS or linux
