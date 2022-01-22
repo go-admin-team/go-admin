@@ -11,9 +11,17 @@ import (
 
 func InitDb(db *gorm.DB) (err error) {
 	filePath := "config/db.sql"
-	err = ExecSql(db, filePath)
 	if global.Driver == "postgres" {
 		filePath = "config/pg.sql"
+		err = ExecSql(db, filePath)
+	} else if global.Driver == "mysql" {
+		filePath = "config/db-begin-mysql.sql"
+		err = ExecSql(db, filePath)
+		filePath = "config/db.sql"
+		err = ExecSql(db, filePath)
+		filePath = "config/db-end-mysql.sql"
+		err = ExecSql(db, filePath)
+	} else {
 		err = ExecSql(db, filePath)
 	}
 	return err
