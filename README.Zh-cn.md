@@ -74,9 +74,9 @@
 
 ### 轻松实现go-admin写出第一个应用 - 文档教程
 
-[步骤一 - 基础内容介绍](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial01.html)
+[步骤一 - 基础内容介绍](https://doc.zhangwj.com/guide/intro/tutorial01.html)
 
-[步骤二 - 实际应用 - 编写增删改查](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial02.html)
+[步骤二 - 实际应用 - 编写增删改查](https://doc.zhangwj.com/guide/intro/tutorial02.html)
 
 ### 手把手教你从入门到放弃 - 视频教程
 
