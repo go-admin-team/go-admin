@@ -1,6 +1,7 @@
 package dto
 
 import (
+
 	 {{- $bb := false -}}
 	  {{- range .Columns -}}
      {{$z := .IsQuery}}
