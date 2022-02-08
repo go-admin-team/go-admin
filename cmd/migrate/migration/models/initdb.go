@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"go-admin/common/global"
 	"gorm.io/gorm"
@@ -13,40 +12,19 @@ import (
 func InitDb(db *gorm.DB) (err error) {
 	filePath := "config/db.sql"
 	if global.Driver == "postgres" {
-		err = ExecSql(db, filePath)
-		if err != nil {
-			return err
-		}
 		filePath = "config/pg.sql"
 		err = ExecSql(db, filePath)
-		if err != nil {
-			return err
-		}
 	} else if global.Driver == "mysql" {
 		filePath = "config/db-begin-mysql.sql"
 		err = ExecSql(db, filePath)
-		if err != nil {
-			return err
-		}
 		filePath = "config/db.sql"
 		err = ExecSql(db, filePath)
-		if err != nil {
-			return err
-		}
 		filePath = "config/db-end-mysql.sql"
 		err = ExecSql(db, filePath)
-		if err != nil {
-			return err
-		}
-	} else if global.Driver == "sqlite3" {
-		err = ExecSql(db, filePath)
-		if err != nil {
-			return err
-		}
 	} else {
-		return errors.New("database type is not supported")
+		err = ExecSql(db, filePath)
 	}
-	return nil
+	return err
 }
 
 func ExecSql(db *gorm.DB, filePath string) error {
