@@ -39,7 +39,7 @@ func ExecSql(db *gorm.DB, filePath string) error {
 			fmt.Println(sqlList[i])
 			continue
 		}
-		sql := strings.Replace(sqlList[i]+";", "\n", "", 0)
+		sql := strings.Replace(sqlList[i]+";", "\n", "", -1)
 		sql = strings.TrimSpace(sql)
 		if err = db.Exec(sql).Error; err != nil {
 			log.Printf("error sql: %s", sql)
