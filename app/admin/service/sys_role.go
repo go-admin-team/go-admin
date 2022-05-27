@@ -83,6 +83,18 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 			}
 		}()
 	}
+	var count int64
+	err = tx.Model(&data).Where("role_key = ?", c.RoleKey).Count(&count).Error
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+
+	if count > 0 {
+		err = errors.New("roleKey已存在，需更换在提交！")
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
 
 	err = tx.Create(&data).Error
 	if err != nil {
