@@ -62,7 +62,7 @@ func (e SysJob) StartJobForService(c *gin.Context) {
 	err = s.StartJob(&v)
 	if err != nil {
 		log.Errorf("GetCrontabKey error, %s", err.Error())
-		e.Error(500, err, "")
+		e.Error(500, err, err.Error())
 		return
 	}
 	e.OK(nil, s.Msg)

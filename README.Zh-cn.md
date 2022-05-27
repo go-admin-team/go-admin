@@ -182,6 +182,13 @@ $ ./go-admin server -c config/settings.yml
 $ go-admin.exe server -c config/settings.yml
 ```
 
+#### sys_api 表的数据如何添加
+
+在项目启动时，使用`-a true` 系统会自动添加缺少的接口数据
+```bash
+./go-admin server -c config/settings.yml -a true
+```
+
 #### 使用docker 编译启动
 
 ```shell
