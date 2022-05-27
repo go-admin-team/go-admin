@@ -125,7 +125,7 @@ func (e SysRole) Insert(c *gin.Context) {
 	err = s.Insert(&req, cb)
 	if err != nil {
 		e.Logger.Error(err)
-		e.Error(500, err, "创建失败")
+		e.Error(500, err, "创建失败,"+err.Error())
 		return
 	}
 	_, err = global.LoadPolicy(c)
