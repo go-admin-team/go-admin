@@ -56,7 +56,7 @@ func (e *SysColumns) GetList(tx *gorm.DB, exclude bool) ([]SysColumns, error) {
 	table := tx.Table("sys_columns")
 	table = table.Where("table_id = ? ", e.TableId)
 	if exclude {
-		notIn := make([]string, 6)
+		notIn := make([]string, 0, 6)
 		notIn = append(notIn, "id")
 		notIn = append(notIn, "create_by")
 		notIn = append(notIn, "update_by")
