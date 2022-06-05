@@ -19,6 +19,8 @@ FROM alpine
 
 COPY --from=builder /go/release/go-admin /
 
+COPY --from=builder /go/release/config/settings.yml /config/settings.yml
+
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 EXPOSE 8000
