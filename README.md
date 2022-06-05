@@ -1,7 +1,7 @@
 
 # go-admin
 
-<img align="right" width="320" src="https://gitee.com/mydearzwj/image/raw/master/img/go-admin.svg">
+<img align="right" width="320" src="https://raw.githubusercontent.com/wenjianzhang/image/a44d60756c9fdedbd70f6bff076a31cbf314936a/img/go-admin.svg">
 
 
 [![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
@@ -68,9 +68,9 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Easily implement go-admin to write the first application-documentation tutorial
 
-[Step 1 - basic content introduction](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial01.html)
+[Step 1 - basic content introduction](https://doc.zhangwj.com/guide/intro/tutorial01.html)
 
-[Step 2 - Practical application - writing database operations](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial02.html)
+[Step 2 - Practical application - writing database operations](https://doc.zhangwj.com/guide/intro/tutorial02.html)
 
 ### Teach you from getting started to giving up-video tutorial
 
@@ -161,10 +161,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # The first configuration needs to initialize the database resource information
 # Use under macOS or linux
-$ ./go-admin migrate -c=config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.dev.yml
 
 # ⚠️Note: Use under windows
-$ go-admin.exe migrate -c=config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.dev.yml
 
 # Start the project, you can also use the IDE for debugging
 # Use under macOS or linux

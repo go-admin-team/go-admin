@@ -1,6 +1,6 @@
 # go-admin
 
-  <img align="right" width="320" src="https://gitee.com/mydearzwj/image/raw/master/img/go-admin.svg">
+  <img align="right" width="320" src="https://raw.githubusercontent.com/wenjianzhang/image/a44d60756c9fdedbd70f6bff076a31cbf314936a/img/go-admin.svg">
 
 
 [![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
@@ -74,9 +74,9 @@
 
 ### 轻松实现go-admin写出第一个应用 - 文档教程
 
-[步骤一 - 基础内容介绍](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial01.html)
+[步骤一 - 基础内容介绍](https://doc.zhangwj.com/guide/intro/tutorial01.html)
 
-[步骤二 - 实际应用 - 编写增删改查](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial02.html)
+[步骤二 - 实际应用 - 编写增删改查](https://doc.zhangwj.com/guide/intro/tutorial02.html)
 
 ### 手把手教你从入门到放弃 - 视频教程
 
@@ -167,10 +167,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # 首次配置需要初始化数据库资源信息
 # macOS or linux 下使用
-$ ./go-admin migrate -c=config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.dev.yml
 
 # ⚠️注意:windows 下使用
-$ go-admin.exe migrate -c=config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.dev.yml
 
 
 # 启动项目，也可以用IDE进行调试
@@ -180,6 +180,13 @@ $ ./go-admin server -c config/settings.yml
 
 # ⚠️注意:windows 下使用
 $ go-admin.exe server -c config/settings.yml
+```
+
+#### sys_api 表的数据如何添加
+
+在项目启动时，使用`-a true` 系统会自动添加缺少的接口数据
+```bash
+./go-admin server -c config/settings.yml -a true
 ```
 
 #### 使用docker 编译启动

@@ -3,11 +3,11 @@ package version
 import (
 	"runtime"
 
-	"gorm.io/gorm"
-
 	"go-admin/cmd/migrate/migration"
 	"go-admin/cmd/migrate/migration/models"
 	common "go-admin/common/models"
+
+	"gorm.io/gorm"
 )
 
 func init() {
@@ -41,9 +41,9 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 			return err
 		}
 		if err := models.InitDb(tx); err != nil {
-
+			return err
 		}
-		return db.Create(&common.Migration{
+		return tx.Create(&common.Migration{
 			Version: version,
 		}).Error
 	})

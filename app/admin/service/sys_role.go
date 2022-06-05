@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"gorm.io/gorm/clause"
 
 	"github.com/casbin/casbin/v2"
@@ -71,14 +72,29 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 	}
 	c.SysMenu = dataMenu
 	c.Generate(&data)
-	tx := e.Orm.Begin()
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	tx := e.Orm
+	if config.DatabaseConfig.Driver != "sqlite3" {
+		tx := e.Orm.Begin()
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+		}()
+	}
+	var count int64
+	err = tx.Model(&data).Where("role_key = ?", c.RoleKey).Count(&count).Error
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+
+	if count > 0 {
+		err = errors.New("roleKey已存在，需更换在提交！")
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
 
 	err = tx.Create(&data).Error
 	if err != nil {
@@ -108,14 +124,17 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 // Update 修改SysRole对象
 func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) error {
 	var err error
-	tx := e.Orm.Debug().Begin()
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	tx := e.Orm
+	if config.DatabaseConfig.Driver != "sqlite3" {
+		tx := e.Orm.Begin()
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+		}()
+	}
 	var model = models.SysRole{}
 	var mlist = make([]models.SysMenu, 0)
 	tx.Preload("SysMenu").First(&model, c.GetId())
@@ -142,7 +161,7 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 		e.Log.Errorf("delete policy error:%s", err)
 		return err
 	}
-	mp:=make(map [string] interface{} ,0)
+	mp := make(map[string]interface{}, 0)
 	polices := make([][]string, 0)
 	for _, menu := range mlist {
 		for _, api := range menu.SysApi {
@@ -164,14 +183,17 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 // Remove 删除SysRole
 func (e *SysRole) Remove(c *dto.SysRoleDeleteReq) error {
 	var err error
-	tx := e.Orm.Begin()
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	tx := e.Orm
+	if config.DatabaseConfig.Driver != "sqlite3" {
+		tx := e.Orm.Begin()
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+		}()
+	}
 	var model = models.SysRole{}
 	tx.Preload("SysMenu").Preload("SysDept").First(&model, c.GetId())
 	db := tx.Select(clause.Associations).Delete(&model)
@@ -203,18 +225,21 @@ func (e *SysRole) GetRoleMenuId(roleId int) ([]int, error) {
 
 func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	var err error
-	tx := e.Orm.Begin()
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	tx := e.Orm
+	if config.DatabaseConfig.Driver != "sqlite3" {
+		tx := e.Orm.Begin()
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+		}()
+	}
 	var dlist = make([]models.SysDept, 0)
 	var model = models.SysRole{}
 	tx.Preload("SysDept").First(&model, c.RoleId)
-	tx.Where("id in ?", c.DeptIds).Find(&dlist)
+	tx.Where("dept_id in ?", c.DeptIds).Find(&dlist)
 	err = tx.Model(&model).Association("SysDept").Delete(model.SysDept)
 	if err != nil {
 		e.Log.Errorf("delete SysDept error:%s", err)
@@ -239,14 +264,17 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 // UpdateStatus 修改SysRole对象status
 func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	var err error
-	tx := e.Orm.Debug().Begin()
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	tx := e.Orm
+	if config.DatabaseConfig.Driver != "sqlite3" {
+		tx := e.Orm.Begin()
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+		}()
+	}
 	var model = models.SysRole{}
 	tx.First(&model, c.GetId())
 	c.Generate(&model)

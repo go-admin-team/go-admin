@@ -1,9 +1,6 @@
 package dto
 
 import (
-	"go-admin/app/{{.PackageName}}/models"
-	"go-admin/common/dto"
-	common "go-admin/common/models"
 
 	 {{- $bb := false -}}
 	  {{- range .Columns -}}
@@ -18,6 +15,10 @@ import (
      {{- if eq $bb true -}}
      "time"
      {{- end }}
+
+	"go-admin/app/{{.PackageName}}/models"
+	"go-admin/common/dto"
+	common "go-admin/common/models"
 )
 
 type {{.ClassName}}GetPageReq struct {
@@ -70,7 +71,8 @@ func (s *{{.ClassName}}InsertReq) Generate(model *models.{{.ClassName}})  {
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
-    {{- else if eq .GoField "CreateBy" -}}
+    {{- else if eq .GoField "CreateBy"}}
+    model.{{.GoField}} = s.{{.GoField}} // 添加这而，需要记录是被谁创建的
     {{- else if eq .GoField "UpdateBy" -}}
     {{- else }}
     model.{{.GoField}} = s.{{.GoField}}
@@ -110,7 +112,8 @@ func (s *{{.ClassName}}UpdateReq) Generate(model *models.{{.ClassName}})  {
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
     {{- else if eq .GoField "CreateBy" -}}
-    {{- else if eq .GoField "UpdateBy" -}}
+    {{- else if eq .GoField "UpdateBy"}}
+    model.{{.GoField}} = s.{{.GoField}} // 添加这而，需要记录是被谁更新的
     {{- else }}
     model.{{.GoField}} = s.{{.GoField}}
     {{- end -}}

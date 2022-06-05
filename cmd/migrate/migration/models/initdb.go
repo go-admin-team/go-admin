@@ -3,17 +3,30 @@ package models
 import (
 	"fmt"
 	"go-admin/common/global"
-	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 func InitDb(db *gorm.DB) (err error) {
 	filePath := "config/db.sql"
-	err = ExecSql(db, filePath)
 	if global.Driver == "postgres" {
 		filePath = "config/pg.sql"
+		err = ExecSql(db, filePath)
+	} else if global.Driver == "mysql" {
+		filePath = "config/db-begin-mysql.sql"
+		if err = ExecSql(db, filePath); err != nil {
+			return err
+		}
+		filePath = "config/db.sql"
+		if err = ExecSql(db, filePath); err != nil {
+			return err
+		}
+		filePath = "config/db-end-mysql.sql"
+		err = ExecSql(db, filePath)
+	} else {
 		err = ExecSql(db, filePath)
 	}
 	return err
@@ -31,7 +44,7 @@ func ExecSql(db *gorm.DB, filePath string) error {
 			fmt.Println(sqlList[i])
 			continue
 		}
-		sql := strings.Replace(sqlList[i]+";", "\n", "", 0)
+		sql := strings.Replace(sqlList[i]+";", "\n", "", -1)
 		sql = strings.TrimSpace(sql)
 		if err = db.Exec(sql).Error; err != nil {
 			log.Printf("error sql: %s", sql)
