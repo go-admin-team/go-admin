@@ -172,8 +172,7 @@ func (e *SysUser) ResetPwd(c *dto.ResetSysUserPwdReq, p *actions.DataPermission)
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
 	}
-	c.Generate(&model)
-	err = e.Orm.Omit("username", "nick_name", "phone", "role_id", "avatar", "sex").Save(&model).Error
+	err = e.Orm.Table(model.TableName()).Where("user_id =? ", c.UserId).Updates(c).Error
 	if err != nil {
 		e.Log.Errorf("At Service ResetSysUserPwd error: %s", err)
 		return err
