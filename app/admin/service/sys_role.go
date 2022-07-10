@@ -142,7 +142,7 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 		e.Log.Errorf("delete policy error:%s", err)
 		return err
 	}
-	mp := make(map[string]interface{}, 0)
+	mp:=make(map [string] interface{} ,0)
 	polices := make([][]string, 0)
 	for _, menu := range mlist {
 		for _, api := range menu.SysApi {
@@ -214,7 +214,7 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	var dlist = make([]models.SysDept, 0)
 	var model = models.SysRole{}
 	tx.Preload("SysDept").First(&model, c.RoleId)
-	tx.Where("dept_id in ?", c.DeptIds).Find(&dlist)
+	tx.Where("id in ?", c.DeptIds).Find(&dlist)
 	err = tx.Model(&model).Association("SysDept").Delete(model.SysDept)
 	if err != nil {
 		e.Log.Errorf("delete SysDept error:%s", err)
