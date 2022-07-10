@@ -68,9 +68,9 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Easily implement go-admin to write the first application-documentation tutorial
 
-[Step 1 - basic content introduction](https://doc.zhangwj.com/guide/intro/tutorial01.html)
+[Step 1 - basic content introduction](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial01.html)
 
-[Step 2 - Practical application - writing database operations](https://doc.zhangwj.com/guide/intro/tutorial02.html)
+[Step 2 - Practical application - writing database operations](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial02.html)
 
 ### Teach you from getting started to giving up-video tutorial
 
