@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"gorm.io/gorm/clause"
 
 	"github.com/casbin/casbin/v2"
@@ -72,17 +71,14 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 	}
 	c.SysMenu = dataMenu
 	c.Generate(&data)
-	tx := e.Orm
-	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
-		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-		}()
-	}
+	tx := e.Orm.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 
 	err = tx.Create(&data).Error
 	if err != nil {
@@ -112,17 +108,14 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 // Update 修改SysRole对象
 func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) error {
 	var err error
-	tx := e.Orm
-	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
-		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-		}()
-	}
+	tx := e.Orm.Debug().Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 	var model = models.SysRole{}
 	var mlist = make([]models.SysMenu, 0)
 	tx.Preload("SysMenu").First(&model, c.GetId())
@@ -171,17 +164,14 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 // Remove 删除SysRole
 func (e *SysRole) Remove(c *dto.SysRoleDeleteReq) error {
 	var err error
-	tx := e.Orm
-	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
-		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-		}()
-	}
+	tx := e.Orm.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 	var model = models.SysRole{}
 	tx.Preload("SysMenu").Preload("SysDept").First(&model, c.GetId())
 	db := tx.Select(clause.Associations).Delete(&model)
@@ -213,17 +203,14 @@ func (e *SysRole) GetRoleMenuId(roleId int) ([]int, error) {
 
 func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	var err error
-	tx := e.Orm
-	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
-		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-		}()
-	}
+	tx := e.Orm.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 	var dlist = make([]models.SysDept, 0)
 	var model = models.SysRole{}
 	tx.Preload("SysDept").First(&model, c.RoleId)
@@ -252,17 +239,14 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 // UpdateStatus 修改SysRole对象status
 func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	var err error
-	tx := e.Orm
-	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
-		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-		}()
-	}
+	tx := e.Orm.Debug().Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 	var model = models.SysRole{}
 	tx.First(&model, c.GetId())
 	c.Generate(&model)
