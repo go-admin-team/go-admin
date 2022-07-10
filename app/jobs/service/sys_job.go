@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/pkg/errors"
 	"time"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
@@ -53,12 +52,6 @@ func (e *SysJob) StartJob(c *dto.GeneralGetDto) error {
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
-
-	if data.Status == 1 {
-		err = errors.New("当前Job是关闭状态不能被启动，请先启用。")
-		return err
-	}
-
 	if data.JobType == 1 {
 		var j = &jobs.HttpJob{}
 		j.InvokeTarget = data.InvokeTarget
