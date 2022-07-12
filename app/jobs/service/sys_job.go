@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 	"time"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
