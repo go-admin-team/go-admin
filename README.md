@@ -152,7 +152,7 @@ D:\Code\go-admin>go build
 cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
-[Solve the cgo problem and enter](https://doc.go-admin.dev/guide/other/faq.html#_5-cgo-exec-missing-cc-exec-missing-cc-file-does-not-exist)
+[Solve the cgo problem and enter](https://doc.go-admin.dev/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
 :::
 

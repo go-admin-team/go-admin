@@ -2,11 +2,11 @@ PROJECT:=go-admin
 
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -o go-admin main.go
+	CGO_ENABLED=0 go build -ldflags="-w -s" -a -installsuffix -o go-admin .
 build-linux:
-	env GOOS=linux GOARCH=amd64 go build
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -a -installsuffix -o go-admin .
 build-sqlite:
-	go build -tags sqlite3 -o go-admin main.go
+	go build -tags sqlite3 -ldflags="-w -s" -a -installsuffix -o go-admin .
 #.PHONY: test
 #test:
 #	go test -v ./... -cover
