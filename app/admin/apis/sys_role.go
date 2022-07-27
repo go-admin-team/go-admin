@@ -2,10 +2,11 @@ package apis
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"go-admin/app/admin/models"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
@@ -14,7 +15,6 @@ import (
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
-	"go-admin/common/global"
 )
 
 type SysRole struct {
@@ -128,11 +128,7 @@ func (e SysRole) Insert(c *gin.Context) {
 		e.Error(500, err, "创建失败,"+err.Error())
 		return
 	}
-	_, err = global.LoadPolicy(c)
-	if err != nil {
-		e.Error(500, err, "")
-		return
-	}
+
 	e.OK(req.GetId(), "创建成功")
 }
 
@@ -168,11 +164,7 @@ func (e SysRole) Update(c *gin.Context) {
 		e.Logger.Error(err)
 		return
 	}
-	_, err = global.LoadPolicy(c)
-	if err != nil {
-		e.Error(500, err, "")
-		return
-	}
+
 	e.OK(req.GetId(), "更新成功")
 }
 
@@ -198,17 +190,14 @@ func (e SysRole) Delete(c *gin.Context) {
 		return
 	}
 
-	err = s.Remove(&req)
+	cb := sdk.Runtime.GetCasbinKey(c.Request.Host)
+	err = s.Remove(&req, cb)
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(500, err, "")
 		return
 	}
-	_, err = global.LoadPolicy(c)
-	if err != nil {
-		e.Error(500, err, fmt.Sprintf("删除角色 %v 失败，失败信息 %s", req.GetId(), err.Error()))
-		return
-	}
+
 	e.OK(req.GetId(), fmt.Sprintf("删除角色角色 %v 状态成功！", req.GetId()))
 }
 
