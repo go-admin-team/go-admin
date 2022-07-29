@@ -41,6 +41,11 @@ func CustomError(c *gin.Context) {
 						"code": statusCode,
 						"msg":  p[2],
 					})
+				} else {
+					c.JSON(http.StatusOK, gin.H{
+						"code": 500,
+						"msg":  "未知异常，请联系管理员！",
+					})
 				}
 			default:
 				panic(err)
