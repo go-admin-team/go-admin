@@ -13,10 +13,6 @@
 
 [在线文档](https://doc.go-admin.dev)
 
-[github在线文档](https://wenjianzhang.github.io)
-
-[gitee在线文档](http://mydearzwj.gitee.io/go-admin-doc/)
-
 [前端项目](https://github.com/go-admin-team/go-admin-ui)
 
 [视频教程](https://space.bilibili.com/565616721/channel/detail?cid=125737)
