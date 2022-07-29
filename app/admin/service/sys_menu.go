@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
+	"strings"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
@@ -92,6 +93,11 @@ func (e *SysMenu) Insert(c *dto.SysMenuInsertReq) *SysMenu {
 		_ = e.AddError(err)
 	}
 	c.MenuId = data.MenuId
+	err = e.initPaths(&data)
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		_ = e.AddError(err)
+	}
 	return e
 }
 
@@ -127,6 +133,7 @@ func (e *SysMenu) Update(c *dto.SysMenuUpdateReq) *SysMenu {
 	var alist = make([]models.SysApi, 0)
 	var model = models.SysMenu{}
 	tx.Preload("SysApi").First(&model, c.GetId())
+	oldPath := model.Paths
 	tx.Where("id in ?", c.Apis).Find(&alist)
 	err = tx.Model(&model).Association("SysApi").Delete(model.SysApi)
 	if err != nil {
@@ -145,6 +152,12 @@ func (e *SysMenu) Update(c *dto.SysMenuUpdateReq) *SysMenu {
 	if db.RowsAffected == 0 {
 		_ = e.AddError(errors.New("无权更新该数据"))
 		return e
+	}
+	var menuList []models.SysMenu
+	tx.Where("paths like ?", oldPath+"%").Find(&menuList)
+	for _, v := range menuList {
+		v.Paths = strings.Replace(v.Paths, oldPath, model.Paths, 1)
+		tx.Model(&v).Update("paths", v.Paths)
 	}
 	return e
 }
@@ -331,7 +344,7 @@ func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
 		MenuList = data
 	} else {
 		role.RoleKey = roleName
-		buttons := make([]models.SysMenu,0)
+		buttons := make([]models.SysMenu, 0)
 		err = e.Orm.Debug().Model(&role).Where("role_key = ? ", roleName).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
 			return db.Where(" menu_type in ('F')").Order("sort")
 		}).Find(&role).Error
