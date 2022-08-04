@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"go-admin/app/admin/models"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -356,6 +357,12 @@ func (e SysUser) UpdatePwd(c *gin.Context) {
 	if user.GetUserId(c) == 1 && config.ApplicationConfig.Mode == "demo" {
 		req.NewPassword = "123456"
 	}
+
+	var hash []byte
+	if hash, err = bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost); err != nil {
+		req.NewPassword = string(hash)
+	}
+
 	err = s.UpdatePwd(user.GetUserId(c), req.OldPassword, req.NewPassword, p)
 	if err != nil {
 		e.Logger.Error(err)

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"gorm.io/gorm/clause"
 
@@ -102,12 +103,21 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 		return err
 	}
 
+	mp := make(map[string]interface{}, 0)
+	polices := make([][]string, 0)
 	for _, menu := range dataMenu {
 		for _, api := range menu.SysApi {
-			_, err = cb.AddNamedPolicy("p", data.RoleKey, api.Path, api.Action)
+			if mp[data.RoleKey+"-"+api.Path+"-"+api.Action] != "" {
+				mp[data.RoleKey+"-"+api.Path+"-"+api.Action] = ""
+				polices = append(polices, []string{data.RoleKey, api.Path, api.Action})
+			}
 		}
 	}
-	_ = cb.SavePolicy()
+	_, err = cb.AddNamedPolicies("p", polices)
+	if err != nil {
+		return err
+	}
+
 	//if len(c.MenuIds) > 0 {
 	//	s := SysRoleMenu{}
 	//	s.Orm = e.Orm
@@ -176,12 +186,12 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 	if err != nil {
 		return err
 	}
-	_ = cb.SavePolicy()
+
 	return nil
 }
 
 // Remove 删除SysRole
-func (e *SysRole) Remove(c *dto.SysRoleDeleteReq) error {
+func (e *SysRole) Remove(c *dto.SysRoleDeleteReq, cb *casbin.SyncedEnforcer) error {
 	var err error
 	tx := e.Orm
 	if config.DatabaseConfig.Driver != "sqlite3" {
@@ -205,6 +215,9 @@ func (e *SysRole) Remove(c *dto.SysRoleDeleteReq) error {
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
 	}
+
+	_, _ = cb.RemoveFilteredPolicy(0, model.RoleKey)
+
 	return nil
 }
 

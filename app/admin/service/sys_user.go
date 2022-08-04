@@ -233,7 +233,9 @@ func (e *SysUser) UpdatePwd(id int, oldPassword, newPassword string, p *actions.
 		return err
 	}
 	c.Password = newPassword
-	db := e.Orm.Model(c).Where("user_id = ?", id).Select("Password", "Salt").Updates(c)
+	db := e.Orm.Model(c).Where("user_id = ?", id).
+		Select("Password", "Salt").
+		Updates(c)
 	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
