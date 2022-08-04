@@ -94,6 +94,14 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ## 📦 Local development
 
+### Environmental requirements
+
+go 1.17
+
+nodejs: v14.16.0
+
+npm: 6.14.11
+
 ### Development directory creation
 
 ```bash
