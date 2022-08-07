@@ -1,8 +1,8 @@
 package service
 
 import (
-	"errors"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"strings"
 
@@ -334,55 +334,46 @@ func (e *SysMenu) SetMenuRole(roleName string) (m []models.SysMenu, err error) {
 }
 
 func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
-	var MenuList []models.SysMenu
 	var role models.SysRole
 	var err error
 
 	if roleName == "admin" {
 		var data []models.SysMenu
-		err = e.Orm.Where(" menu_type in ('M','C')").Order("sort").Find(&data).Error
-		MenuList = data
+		err = e.Orm.Where(" menu_type in ('M','C') and deleted_at is null and created_at>'2021-08-13'").
+			Order("sort").
+			Find(&data).
+			Error
+		err = errors.WithStack(err)
+		return data, err
 	} else {
 		role.RoleKey = roleName
-		buttons := make([]models.SysMenu, 0)
-		err = e.Orm.Debug().Model(&role).Where("role_key = ? ", roleName).Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
-			return db.Where(" menu_type in ('F')").Order("sort")
-		}).Find(&role).Error
-		if role.SysMenu != nil {
-			buttons = *role.SysMenu
-		}
-		mIds := make([]int, 0)
-		for _, menu := range buttons {
-			if menu.ParentId != 0 {
-				mIds = append(mIds, menu.ParentId)
-			}
-		}
-		var dataC []models.SysMenu
-		err = e.Orm.Where(" menu_type in ('C') and menu_id in ?", mIds).Order("sort").Find(&dataC).Error
-		if err != nil {
-			return nil, err
-		}
-		for _, datum := range dataC {
-			MenuList = append(MenuList, datum)
-		}
-		cIds := make([]int, 0)
+		err = e.Orm.
+			Model(&role).
+			Where("role_key = ? ", roleName).
+			Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
+				return db.Where(" menu_type in ('F','C')").Order("sort")
+			}).
+			Find(&role).Error
+		MenuList := *role.SysMenu
+		mIds := make([]string, 0)
+		mp := make(map[string]string, 0)
 		for _, menu := range MenuList {
-			if menu.ParentId != 0 {
-				cIds = append(cIds, menu.ParentId)
+			ids := strings.Split(menu.Paths, "/")
+			for _, id := range ids {
+				if mp[id] == "" {
+					mp[id] = id
+					mIds = append(mIds, id)
+				}
 			}
 		}
-		var dataM []models.SysMenu
-		err = e.Orm.Where(" menu_type in ('M') and menu_id in ?", cIds).Order("sort").Find(&dataM).Error
+		var data []models.SysMenu
+		err = e.Orm.Where(" menu_id in ? and menu_type in ('M','C')", mIds).
+			Order("sort").
+			Find(&data).
+			Error
 		if err != nil {
 			return nil, err
 		}
-		for _, datum := range dataM {
-			MenuList = append(MenuList, datum)
-		}
+		return data, err
 	}
-
-	if err != nil {
-		e.Log.Errorf("db error:%s", err)
-	}
-	return MenuList, err
 }
