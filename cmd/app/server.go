@@ -13,10 +13,10 @@ import (
 var (
 	appName  string
 	StartCmd = &cobra.Command{
-		Use:     "createapp",
+		Use:     "app",
 		Short:   "Create a new app",
 		Long:    "Use when you need to create a new app",
-		Example: "go-admin createapp -n admin",
+		Example: "go-admin app -n admin",
 		Run: func(cmd *cobra.Command, args []string) {
 			run()
 		},
