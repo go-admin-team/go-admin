@@ -18,6 +18,14 @@ The front-end and back-end separation authority management system based on Gin +
 
 [Video tutorial](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
+## 🎬 Online Demo
+
+vue demo：[https://www.go-admin.dev](https://www.go-admin.dev/#/login)
+> 账号 / 密码： admin / 123456
+
+antd demo：[https://preview.go-admin.dev](https://preview.go-admin.dev/)
+> 账号 / 密码： admin / 123456
+> 
 ## ✨ Feature
 
 - Follow RESTful API design specifications
@@ -93,6 +101,14 @@ At the same time, a series of tutorials including videos and documents are provi
 **If you have any questions, please read the above-mentioned usage documents and articles first. If you are not satisfied, welcome to issue and pr. Video tutorials and documents are being updated continuously.**
 
 ## 📦 Local development
+
+### Environmental requirements
+
+go 1.18
+
+nodejs: v14.16.0
+
+npm: 6.14.11
 
 ### Development directory creation
 
@@ -214,12 +230,6 @@ npm install   # or cnpm install
 npm run dev
 ```
 
-## 🎬 Online Demo
-> admin  /  123456
-
-演示地址：[http://www.go-admin.dev](http://www.go-admin.dev/#/login)
-
-
 ## 📨 Interactive
 
 <table>
@@ -271,7 +281,9 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 
 
 ## 🤝 Thanks
-1. [chengxiao](https://github.com/chengxiao)
+
+1. [ant-design](https://github.com/ant-design/ant-design)
+2. [ant-design-pro](https://github.com/ant-design/ant-design-pro)
 2. [gin](https://github.com/gin-gonic/gin)
 2. [casbin](https://github.com/casbin/casbin)
 2. [spf13/viper](https://github.com/spf13/viper)
@@ -295,4 +307,4 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2020 wenjianzhang
+Copyright (c) 2022 wenjianzhang

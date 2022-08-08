@@ -17,6 +17,14 @@
 
 [视频教程](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
+## 🎬 在线体验
+
+vue体验：[https://www.go-admin.dev](https://www.go-admin.dev/#/login)
+> ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
+
+antd体验：[https://preview.go-admin.dev](https://preview.go-admin.dev/)
+> ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
+
 ## ✨ 特性
 
 - 遵循 RESTful API 设计规范
@@ -95,6 +103,14 @@
 **如有问题请先看上述使用文档和文章，若不能满足，欢迎 issue 和 pr ，视频教程和文档持续更新中**
 
 ## 📦 本地开发
+
+### 环境要求
+
+go 1.18
+
+node版本: v14.16.0
+
+npm版本: 6.14.11
 
 ### 开发目录创建
 
@@ -226,12 +242,6 @@ npm install --registry=https://registry.npm.taobao.org
 npm run dev
 ```
 
-## 🎬 在线体验
-
-> admin / 123456
-
-演示地址：[http://www.go-admin.dev](http://www.go-admin.dev/#/login)
-
 ## 📨 互动
 
 <table>
@@ -284,7 +294,8 @@ npm run dev
 
 ## 🤝 特别感谢
 
-1. [chengxiao](https://github.com/chengxiao)
+1. [ant-design](https://github.com/ant-design/ant-design)
+2. [ant-design-pro](https://github.com/ant-design/ant-design-pro)
 2. [gin](https://github.com/gin-gonic/gin)
 2. [casbin](https://github.com/casbin/casbin)
 2. [spf13/viper](https://github.com/spf13/viper)
@@ -294,6 +305,7 @@ npm run dev
 2. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 2. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 2. [form-generator](https://github.com/JakHuang/form-generator)
+
 
 ## 🤟 打赏
 
@@ -309,4 +321,4 @@ npm run dev
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2020 wenjianzhang
+Copyright (c) 2022 wenjianzhang
