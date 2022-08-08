@@ -18,6 +18,14 @@ The front-end and back-end separation authority management system based on Gin +
 
 [Video tutorial](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
+## 🎬 Online Demo
+
+vue demo：[https://www.go-admin.dev](https://www.go-admin.dev/#/login)
+> 账号 / 密码： admin / 123456
+
+antd demo：[https://preview.go-admin.dev](https://preview.go-admin.dev/)
+> 账号 / 密码： admin / 123456
+> 
 ## ✨ Feature
 
 - Follow RESTful API design specifications
@@ -96,7 +104,7 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Environmental requirements
 
-go 1.17
+go 1.18
 
 nodejs: v14.16.0
 
@@ -222,12 +230,6 @@ npm install   # or cnpm install
 npm run dev
 ```
 
-## 🎬 Online Demo
-> admin  /  123456
-
-演示地址：[http://www.go-admin.dev](http://www.go-admin.dev/#/login)
-
-
 ## 📨 Interactive
 
 <table>
@@ -241,12 +243,33 @@ npm run dev
   </tr>
 </table>
 
-## 💎 Members
+## 💎 Contributors
 
-<a href="https://github.com/wenjianzhang"> <img src="https://avatars.githubusercontent.com/u/3890175?s=460&u=20eac63daef81588fbac611da676b99859319251&v=4" width="80px"></a>
-<a href="https://github.com/lwnmengjing"> <img src="https://avatars.githubusercontent.com/u/12806223?s=400&u=a89272dce50100b77b4c0d5c81c718bf78ebb580&v=4" width="80px"></a>
-<a href="https://github.com/chengxiao"> <img src="https://avatars.githubusercontent.com/u/1379545?s=460&u=557da5503d0ac4a8628df6b4075b17853d5edcd9&v=4" width="80px"></a>
-<a href="https://github.com/bing127"> <img src="https://avatars.githubusercontent.com/u/31166183?s=460&u=c085bff88df10bb7676c8c0351ba9dcd031d1fb3&v=4" width="80px"></a>
+<span style="margin: 0 5px;" ><a href="https://github.com/wenjianzhang" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/3890175?v=4&h=60&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/G-Akiraka" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/45746659?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/lwnmengjing" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/12806223?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/bing127" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/31166183?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/chengxiao" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/1379545?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/NightFire0307" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/19854086?v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/appleboy" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/21979?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/ninstein" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/580303?v=4&h=60&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/kikiyou" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/17959053?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/horizonzy" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/22524871?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/Cassuis" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/48005724?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/hqcchina" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/5179057?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/nodece" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/16235121?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/stephenzhang0713" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/18169290?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/zhouxixi-dev" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/100399679?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/Jalins" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/31172582?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/wkf928592" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/6063351?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/wxxiong6" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/6983441?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/Silicon-He" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/52478309?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/GizmoOAO" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/20385106?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/bestgopher" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/36840497?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/wxb1207" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/20775558?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/misakichan" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/16569274?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/zhuxuyang" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/19301024?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/mss-boot" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/109259065?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
 
 
 
@@ -258,7 +281,9 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 
 
 ## 🤝 Thanks
-1. [chengxiao](https://github.com/chengxiao)
+
+1. [ant-design](https://github.com/ant-design/ant-design)
+2. [ant-design-pro](https://github.com/ant-design/ant-design-pro)
 2. [gin](https://github.com/gin-gonic/gin)
 2. [casbin](https://github.com/casbin/casbin)
 2. [spf13/viper](https://github.com/spf13/viper)
@@ -282,4 +307,4 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2020 wenjianzhang
+Copyright (c) 2022 wenjianzhang
