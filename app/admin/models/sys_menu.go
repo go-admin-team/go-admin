@@ -30,6 +30,12 @@ type SysMenu struct {
 	models.ModelTime
 }
 
+type SysMenuSlice []SysMenu
+
+func (x SysMenuSlice) Len() int           { return len(x) }
+func (x SysMenuSlice) Less(i, j int) bool { return x[i].MenuId < x[j].MenuId }
+func (x SysMenuSlice) Swap(i, j int)      { x[i], x[j] = x[j], x[i] }
+
 func (SysMenu) TableName() string {
 	return "sys_menu"
 }

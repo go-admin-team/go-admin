@@ -1,10 +1,13 @@
 package service
 
 import (
+	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"strings"
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
@@ -319,6 +322,40 @@ func menuCall(menuList *[]models.SysMenu, menu models.SysMenu) models.SysMenu {
 	return menu
 }
 
+func menuDistinct(menuList []models.SysMenu) (result []models.SysMenu) {
+	distinctMap := make(map[int]struct{}, len(menuList))
+	for _, menu := range menuList {
+		if _, ok := distinctMap[menu.MenuId]; !ok {
+			distinctMap[menu.MenuId] = struct{}{}
+			result = append(result, menu)
+		}
+	}
+	return result
+}
+
+func recursiveSetMenu(orm *gorm.DB, mIds []int, menus *[]models.SysMenu) error {
+	if len(mIds) == 0 || menus == nil {
+		return nil
+	}
+	var subMenus []models.SysMenu
+	err := orm.Where(fmt.Sprintf(" menu_type in ('%s', '%s', '%s') and menu_id in ?",
+		cModels.Directory, cModels.Menu, cModels.Button), mIds).Order("sort").Find(&subMenus).Error
+	if err != nil {
+		return err
+	}
+
+	subIds := make([]int, 0)
+	for _, menu := range subMenus {
+		if menu.ParentId != 0 {
+			subIds = append(subIds, menu.ParentId)
+		}
+		if menu.MenuType != cModels.Button {
+			*menus = append(*menus, menu)
+		}
+	}
+	return recursiveSetMenu(orm, subIds, menus)
+}
+
 // SetMenuRole 获取左侧菜单树使用
 func (e *SysMenu) SetMenuRole(roleName string) (m []models.SysMenu, err error) {
 	menus, err := e.getByRoleName(roleName)
@@ -336,44 +373,31 @@ func (e *SysMenu) SetMenuRole(roleName string) (m []models.SysMenu, err error) {
 func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
 	var role models.SysRole
 	var err error
+	data := make([]models.SysMenu, 0)
 
 	if roleName == "admin" {
-		var data []models.SysMenu
 		err = e.Orm.Where(" menu_type in ('M','C') and deleted_at is null").
 			Order("sort").
 			Find(&data).
 			Error
 		err = errors.WithStack(err)
-		return data, err
 	} else {
 		role.RoleKey = roleName
-		err = e.Orm.
-			Model(&role).
-			Where("role_key = ? ", roleName).
-			Preload("SysMenu", func(db *gorm.DB) *gorm.DB {
-				return db.Where(" menu_type in ('F','C')").Order("sort")
-			}).
-			Find(&role).Error
-		MenuList := *role.SysMenu
-		mIds := make([]string, 0)
-		mp := make(map[string]string, 0)
-		for _, menu := range MenuList {
-			ids := strings.Split(menu.Paths, "/")
-			for _, id := range ids {
-				if mp[id] == "" {
-					mp[id] = id
-					mIds = append(mIds, id)
-				}
+		err = e.Orm.Model(&role).Where("role_key = ? ", roleName).Preload("SysMenu").First(&role).Error
+
+		if role.SysMenu != nil {
+			mIds := make([]int, 0)
+			for _, menu := range *role.SysMenu {
+				mIds = append(mIds, menu.MenuId)
 			}
+			if err := recursiveSetMenu(e.Orm, mIds, &data); err != nil {
+				return nil, err
+			}
+
+			data = menuDistinct(data)
 		}
-		var data []models.SysMenu
-		err = e.Orm.Where(" menu_id in ? and menu_type in ('M','C')", mIds).
-			Order("sort").
-			Find(&data).
-			Error
-		if err != nil {
-			return nil, err
-		}
-		return data, err
 	}
+
+	sort.Sort(models.SysMenuSlice(data))
+	return data, err
 }
