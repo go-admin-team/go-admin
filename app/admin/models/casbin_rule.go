@@ -2,13 +2,14 @@ package models
 
 //sys_casbin_rule
 type CasbinRule struct {
-	PType string `json:"p_type" gorm:"size:100;"`
-	V0    string `json:"v0" gorm:"size:100;"`
-	V1    string `json:"v1" gorm:"size:100;"`
-	V2    string `json:"v2" gorm:"size:100;"`
-	V3    string `json:"v3" gorm:"size:100;"`
-	V4    string `json:"v4" gorm:"size:100;"`
-	V5    string `json:"v5" gorm:"size:100;"`
+	ID    uint   `gorm:"primaryKey;autoIncrement"`
+	Ptype string `gorm:"size:512;uniqueIndex:unique_index"`
+	V0    string `gorm:"size:512;uniqueIndex:unique_index"`
+	V1    string `gorm:"size:512;uniqueIndex:unique_index"`
+	V2    string `gorm:"size:512;uniqueIndex:unique_index"`
+	V3    string `gorm:"size:512;uniqueIndex:unique_index"`
+	V4    string `gorm:"size:512;uniqueIndex:unique_index"`
+	V5    string `gorm:"size:512;uniqueIndex:unique_index"`
 }
 
 func (CasbinRule) TableName() string {
