@@ -58,7 +58,7 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 		log.Info(pkg.Green(c.Driver + " connect success !"))
 	}
 
-	e := mycasbin.Setup(db, "sys_")
+	e := mycasbin.Setup(db, "")
 
 	sdk.Runtime.SetDb(host, db)
 	sdk.Runtime.SetCasbin(host, e)
