@@ -1,7 +1,7 @@
 
 # go-admin
 
-<img align="right" width="320" src="https://raw.githubusercontent.com/wenjianzhang/image/dd8e21769ad24453e8297b5c2e0bd85739b2c66b/img/go-admin.svg">
+<img align="right" width="320" src="https://doc-image.zhangwj.com/img/go-admin.svg">
 
 
 [![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
