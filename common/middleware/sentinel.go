@@ -22,7 +22,7 @@ func Sentinel() gin.HandlerFunc {
 	return sentinel.SentinelMiddleware(
 		sentinel.WithBlockFallback(func(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(200, map[string]interface{}{
-				"msg":  "too many request; the quota used up",
+				"msg":  "too many request; the quota used up!",
 				"code": 500,
 			})
 		}),
