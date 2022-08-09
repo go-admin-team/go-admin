@@ -4,7 +4,8 @@ go 1.18
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
-	github.com/alibaba/sentinel-golang v0.6.1
+	github.com/alibaba/sentinel-golang v1.0.4
+	github.com/alibaba/sentinel-golang/pkg/adapters/gin v0.0.0-20220808015021-c5f1f1d055c5
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190307165228-86c17b95fcd5
 	github.com/bitly/go-simplejson v0.5.0
 	github.com/bytedance/go-tagexpr/v2 v2.7.12
@@ -16,6 +17,7 @@ require (
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/mssola/user_agent v0.5.2
 	github.com/opentracing/opentracing-go v1.1.0
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/qiniu/go-sdk/v7 v7.11.1
 	github.com/robfig/cron/v3 v3.0.1
@@ -38,12 +40,13 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
+	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bsm/redislock v0.5.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/chanxuehong/rand v0.0.0-20201110082127-2f19a1bdd973 // indirect
 	github.com/chanxuehong/wechat v0.0.0-20201110083048-0180211b69fd // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fatih/color v1.9.0 // indirect
@@ -98,14 +101,14 @@ require (
 	github.com/mojocn/base64Captcha v1.3.1 // indirect
 	github.com/nsqio/go-nsq v1.0.8 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/robinjoseph08/redisqueue/v2 v2.1.0 // indirect
+	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shamsher31/goimgext v1.0.0 // indirect
-	github.com/shirou/gopsutil v2.19.12+incompatible // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
