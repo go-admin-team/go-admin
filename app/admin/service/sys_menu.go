@@ -339,7 +339,7 @@ func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
 
 	if roleName == "admin" {
 		var data []models.SysMenu
-		err = e.Orm.Where(" menu_type in ('M','C') and deleted_at is null and created_at>'2021-08-13'").
+		err = e.Orm.Where(" menu_type in ('M','C') and deleted_at is null").
 			Order("sort").
 			Find(&data).
 			Error
