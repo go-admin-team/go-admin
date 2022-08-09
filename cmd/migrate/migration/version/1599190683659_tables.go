@@ -22,7 +22,6 @@ func _1599190683659Tables(db *gorm.DB, version string) error {
 			tx = tx.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4")
 		}
 		err := tx.Migrator().AutoMigrate(
-			new(models.CasbinRule),
 			new(models.SysDept),
 			new(models.SysConfig),
 			new(models.SysTables),
