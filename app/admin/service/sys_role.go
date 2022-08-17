@@ -113,21 +113,16 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 			}
 		}
 	}
+
+	if len(polices) <= 0 {
+		return nil
+	}
+
 	_, err = cb.AddNamedPolicies("p", polices)
 	if err != nil {
 		return err
 	}
 
-	//if len(c.MenuIds) > 0 {
-	//	s := SysRoleMenu{}
-	//	s.Orm = e.Orm
-	//	s.Log = e.Log
-	//	err = s.ReloadRule(tx, c.RoleId, c.MenuIds)
-	//	if err != nil {
-	//		e.Log.Errorf("reload casbin rule error, %", err.Error())
-	//		return err
-	//	}
-	//}
 	return nil
 }
 
@@ -182,11 +177,13 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 			}
 		}
 	}
+	if len(polices) <= 0 {
+		return nil
+	}
 	_, err = cb.AddNamedPolicies("p", polices)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
