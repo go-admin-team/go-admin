@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  go-admin-api:
+    container_name: go-admin
+    image: go-admin:latest
+    privileged: true
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./config/:/go-admin-api/config/
+      - ./static/:/go-admin-api/static/
+      - ./temp/:/go-admin-api/temp/
+    networks:
+      - myweb
+networks:
+  myweb:
+    driver: bridge
+

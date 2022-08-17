@@ -65,7 +65,7 @@ func (e {{.ClassName}}) GetPage(c *gin.Context) {
 // @Summary 获取{{.TableComment}}
 // @Description 获取{{.TableComment}}
 // @Tags {{.TableComment}}
-// @Param id path string false "id"
+// @Param id path int false "id"
 // @Success 200 {object} response.Response{data=models.{{.ClassName}}} "{"code": 200, "data": [...]}"
 // @Router /api/v1/{{.ModuleName}}/{id} [get]
 // @Security Bearer
@@ -135,6 +135,7 @@ func (e {{.ClassName}}) Insert(c *gin.Context) {
 // @Tags {{.TableComment}}
 // @Accept application/json
 // @Product application/json
+// @Param id path int true "id"
 // @Param data body dto.{{.ClassName}}UpdateReq true "body"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "修改成功"}"
 // @Router /api/v1/{{.ModuleName}}/{id} [put]
@@ -167,7 +168,7 @@ func (e {{.ClassName}}) Update(c *gin.Context) {
 // @Summary 删除{{.TableComment}}
 // @Description 删除{{.TableComment}}
 // @Tags {{.TableComment}}
-// @Param ids body []int false "ids"
+// @Param data body dto.{{.ClassName}}DeleteReq true "body"
 // @Success 200 {object} response.Response	"{"code": 200, "message": "删除成功"}"
 // @Router /api/v1/{{.ModuleName}} [delete]
 // @Security Bearer

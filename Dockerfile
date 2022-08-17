@@ -1,28 +1,29 @@
 FROM golang:alpine as builder
 
-MAINTAINER lwnmengjing
+MAINTAINER haimait
 
-ENV GOPROXY https://goproxy.cn/
+WORKDIR /work
 
-WORKDIR /go/release
-#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-RUN apk update && apk add tzdata
+RUN go env -w GOPROXY=https://goproxy.cn,direct && go env -w CGO_ENABLED=0
+COPY go.mod go.sum ./
+RUN go mod download
 
-COPY go.mod ./go.mod
-RUN go mod tidy
 COPY . .
-RUN pwd && ls
+RUN go build -o go-admin main.go
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o go-admin .
 
-FROM alpine
+FROM alpine:latest
+# change timezone
+RUN apk add --no-cache tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" >  /etc/timezone
 
-COPY --from=builder /go/release/go-admin /
+WORKDIR /go-admin-api
 
-COPY --from=builder /go/release/config/settings.yml /config/settings.yml
+COPY --from=builder /work/go-admin ./
+COPY --from=builder /work/config ./config
+COPY --from=builder /work/static ./static
+COPY --from=builder /work/temp ./temp
 
-COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 EXPOSE 8000
 
-CMD ["/go-admin","server","-c", "/config/settings.yml"]
+CMD ["./go-admin","server","-c", "config/settings.dev.yml"]
