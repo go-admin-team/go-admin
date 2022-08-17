@@ -121,6 +121,7 @@ func (s *SysUserInsertReq) Generate(model *models.SysUser) {
 	model.PostId = s.PostId
 	model.Remark = s.Remark
 	model.Status = s.Status
+	model.CreateBy = s.CreateBy
 }
 
 func (s *SysUserInsertReq) GetId() interface{} {
