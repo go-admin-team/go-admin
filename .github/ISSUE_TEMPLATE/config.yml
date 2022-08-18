@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 🆕 Create new issue
+    url: http://new-issue.go-admin.dev
+    about: The issue which is not created via http://new-issue.go-admin.dev will be closed immediately.
+  - name: 🆕 创建一个新 Issue
+    url: http://new-issue.go-admin.dev
+    about: 不是用 http://new-issue.go-admin.dev 创建的 issue 会被机器人自动关闭。
