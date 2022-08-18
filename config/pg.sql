@@ -1,11 +1,21 @@
 -- 开始初始化数据 ;
+create sequence if not exists sys_role_role_id_seq;
+create sequence if not exists sys_user_user_id_seq;
+create sequence if not exists sys_post_post_id_seq;
+create sequence if not exists sys_menu_menu_id_seq;
+create sequence if not exists sys_dict_type_dict_id_seq;
+create sequence if not exists sys_dict_data_dict_code_seq;
+create sequence if not exists sys_dept_dept_id_seq;
+create sequence if not exists sys_config_config_id_seq;
+create sequence if not exists sys_job_id_seq;
+
 select setval('sys_role_role_id_seq',4);
 select setval('sys_user_user_id_seq',5);
 select setval('sys_post_post_id_seq',4);
-select setval('sys_menu_menu_id_seq',268);
+select setval('sys_menu_menu_id_seq',543);
 select setval('sys_dict_type_dict_id_seq',12);
-select setval('sys_dict_data_dict_code_seq',32);
+select setval('sys_dict_data_dict_code_seq',34);
 select setval('sys_dept_dept_id_seq',11);
-select setval('sys_config_config_id_seq',4);
+select setval('sys_config_config_id_seq',6);
 select setval('sys_job_id_seq',3);
 -- 数据完成 ;
