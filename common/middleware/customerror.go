@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -43,9 +44,14 @@ func CustomError(c *gin.Context) {
 				} else {
 					c.JSON(http.StatusOK, gin.H{
 						"code": 500,
-						"msg":  "未知异常，请联系管理员！",
+						"msg":  errStr,
 					})
 				}
+			case runtime.Error:
+				c.JSON(http.StatusOK, gin.H{
+					"code": 500,
+					"msg":  errStr.Error(),
+				})
 			default:
 				panic(err)
 			}
