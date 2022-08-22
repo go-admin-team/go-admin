@@ -12,7 +12,7 @@ type SysConfigGetPageReq struct {
 	ConfigName     string `form:"configName" search:"type:contains;column:config_name;table:sys_config"`
 	ConfigKey      string `form:"configKey" search:"type:contains;column:config_key;table:sys_config"`
 	ConfigType     string `form:"configType" search:"type:exact;column:config_type;table:sys_config"`
-	IsFrontend     int    `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config"`
+	IsFrontend     string `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config"`
 	SysConfigOrder
 }
 
@@ -29,7 +29,7 @@ func (m *SysConfigGetPageReq) GetNeedSearch() interface{} {
 }
 
 type SysConfigGetToSysAppReq struct {
-	IsFrontend     int    `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config"`
+	IsFrontend string `form:"isFrontend" search:"type:exact;column:is_frontend;table:sys_config"`
 }
 
 func (m *SysConfigGetToSysAppReq) GetNeedSearch() interface{} {
@@ -43,7 +43,7 @@ type SysConfigControl struct {
 	ConfigKey   string `uri:"configKey" json:"configKey" comment:""`
 	ConfigValue string `json:"configValue" comment:""`
 	ConfigType  string `json:"configType" comment:""`
-	IsFrontend  int    `json:"isFrontend"`
+	IsFrontend  string `json:"isFrontend"`
 	Remark      string `json:"remark" comment:""`
 	common.ControlBy
 }

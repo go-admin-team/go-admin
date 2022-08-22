@@ -198,7 +198,7 @@ func (e SysConfig) Get2SysApp(c *gin.Context) {
 		return
 	}
 	// 控制只读前台的数据
-	req.IsFrontend = 1
+	req.IsFrontend = "1"
 	list := make([]models.SysConfig, 0)
 	err = s.GetWithKeyList(&req, &list)
 	if err != nil {

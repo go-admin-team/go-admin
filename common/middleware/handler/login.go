@@ -14,7 +14,7 @@ type Login struct {
 }
 
 func (u *Login) GetUser(tx *gorm.DB) (user SysUser, role SysRole, err error) {
-	err = tx.Table("sys_user").Where("username = ?  and status = 2", u.Username).First(&user).Error
+	err = tx.Table("sys_user").Where("username = ?  and status = '2'", u.Username).First(&user).Error
 	if err != nil {
 		log.Errorf("get user error, %s", err.Error())
 		return
