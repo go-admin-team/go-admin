@@ -15,7 +15,7 @@ import (
 
 	"go-admin/common/middleware"
 	"go-admin/common/middleware/handler"
-	_ "go-admin/docs"
+	_ "go-admin/docs/admin"
 )
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
