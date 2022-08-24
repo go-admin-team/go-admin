@@ -24,8 +24,8 @@ jobs:
           token: ${{ secrets.ADMIN_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
           body: |
-            Hello @${{ github.event.issue.user.login }}. We totally like your proposal/feedback, welcome to [send us a Pull Request](https://help.github.com/en/articles/creating-a-pull-request) for it. Please send your Pull Request to proper branch (feature branch for the new feature, master for bugfix and other changes), fill the [Pull Request Template](https://github.com/ant-design/ant-design/blob/master/.github/PULL_REQUEST_TEMPLATE.md) here, provide changelog/TypeScript/documentation/test cases if needed and make sure CI passed, we will review it soon. We appreciate your effort in advance and looking forward to your contribution!
-            你好 @${{ github.event.issue.user.login }}，我们完全同意你的提议/反馈，欢迎直接在此仓库 [创建一个 Pull Request](https://help.github.com/en/articles/creating-a-pull-request) 来解决这个问题。请将 Pull Request 发到正确的分支（新特性发到 feature 分支，其他发到 master 分支），务必填写 Pull Request 内的[预设模板](https://github.com/ant-design/ant-design/blob/master/.github/PULL_REQUEST_TEMPLATE.md)，提供改动所需相应的 changelog、TypeScript 定义、测试用例、文档等，并确保 CI 通过，我们会尽快进行 Review，提前感谢和期待您的贡献。
+            Hello @${{ github.event.issue.user.login }}. We totally like your proposal/feedback, welcome to [send us a Pull Request](https://help.github.com/en/articles/creating-a-pull-request) for it. Please send your Pull Request to proper branch (feature branch for the new feature, master for bugfix and other changes), fill the [Pull Request Template](https://github.com/go-admin-team/go-admin/blob/master/.github/PULL_REQUEST_TEMPLATE.md) here, provide changelog/TypeScript/documentation/test cases if needed and make sure CI passed, we will review it soon. We appreciate your effort in advance and looking forward to your contribution!
+            你好 @${{ github.event.issue.user.login }}，我们完全同意你的提议/反馈，欢迎直接在此仓库 [创建一个 Pull Request](https://help.github.com/en/articles/creating-a-pull-request) 来解决这个问题。请将 Pull Request 发到正确的分支（新特性发到 feature 分支，其他发到 master 分支），务必填写 Pull Request 内的[预设模板](https://github.com/go-admin-team/go-admin/blob/master/.github/PULL_REQUEST_TEMPLATE.md)，提供改动所需相应的 changelog、TypeScript 定义、测试用例、文档等，并确保 CI 通过，我们会尽快进行 Review，提前感谢和期待您的贡献。
             ![giphy](https://user-images.githubusercontent.com/507615/62342668-4735dc00-b51a-11e9-92a7-d46fbb1cc0c7.gif)
       - name: 🤔 Need Reproduce
         if: github.event.label.name == '🤔 Need Reproduce'
@@ -47,7 +47,7 @@ jobs:
           issue-number: ${{ github.event.issue.number }}
           body: |
             Hello @${{ github.event.issue.user.login }}, we use GitHub issues to trace bugs or discuss plans of Ant Design. So, please [don't ask usage questions](https://github.com/ant-design/ant-design/issues/2320) here. You can try to open a new discussion in [antd discussions](https://github.com/ant-design/ant-design/discussions), select `Q&A` to ask questions, also can ask questions on [Stack Overflow](http://stackoverflow.com/questions/tagged/antd) or [Segment Fault](https://segmentfault.com/t/antd), then apply tag `antd` and `react` to your question.
-            你好 @${{ github.event.issue.user.login }}，Ant Design Issue 板块是用于 bug 反馈与需求讨论的地方。请[勿询问如何使用的问题](https://github.com/ant-design/ant-design/issues/2320)，你可以试着在 [antd discussions](https://github.com/ant-design/ant-design/discussions) 新开一个 discussion，选择 `Q&A` 类别进行提问，也可以在 [Stack Overflow](http://stackoverflow.com/questions/tagged/antd) 或者 [Segment Fault](https://segmentfault.com/t/antd) 中提问（记得添加 `antd` 和 `react` 标签哦~）。
+            你好 @${{ github.event.issue.user.login }}，go-admin Issue 板块是用于 bug 反馈与需求讨论的地方。请[勿询问如何使用的问题](https://github.com/go-admin-te/ant-design/issues/699)，你可以试着在 [antd discussions](https://github.com/ant-design/ant-design/discussions) 新开一个 discussion，选择 `Q&A` 类别进行提问，也可以在 [Stack Overflow](http://stackoverflow.com/questions/tagged/antd) 或者 [Segment Fault](https://segmentfault.com/t/antd) 中提问（记得添加 `antd` 和 `react` 标签哦~）。
       - name: 3.x
         if: github.event.label.name == '3.x'
         uses: actions-cool/issues-helper@v3
@@ -66,8 +66,8 @@ jobs:
           token: ${{ secrets.ADMIN_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
           body: |
-            Hello @${{ github.event.issue.user.login }}, your issue has been closed because it does not conform to our issue requirements. Please use the [Issue Helper](http://new-issue.ant.design) to create an issue, thank you!
-            你好 @${{ github.event.issue.user.login }}，为了能够进行高效沟通，我们对 issue 有一定的格式要求，你的 issue 因为不符合要求而被自动关闭。你可以通过 [issue 助手](http://new-issue.ant.design) 来创建 issue 以方便我们定位错误。谢谢配合！
+            Hello @${{ github.event.issue.user.login }}, your issue has been closed because it does not conform to our issue requirements. Please use the [Issue Helper](https://new-issue.go-admin.dev) to create an issue, thank you!
+            你好 @${{ github.event.issue.user.login }}，为了能够进行高效沟通，我们对 issue 有一定的格式要求，你的 issue 因为不符合要求而被自动关闭。你可以通过 [issue 助手](https://new-issue.go-admin.dev) 来创建 issue 以方便我们定位错误。谢谢配合！
       - name: rtl
         if: github.event.label.name == 'rtl'
         uses: actions-cool/issues-helper@v3
