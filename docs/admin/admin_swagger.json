@@ -1,14 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档\n添加qq群: 521386980 进入技术交流群 请先star，谢谢！",
-        "title": "go-admin API",
-        "contact": {},
-        "license": {
-            "name": "MIT",
-            "url": "https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md"
-        },
-        "version": "2.0.0"
+        "contact": {}
     },
     "paths": {
         "/api/v1/app-config": {
@@ -78,80 +71,6 @@
                 }
             }
         },
-        "/api/v1/db/columns/page": {
-            "get": {
-                "description": "数据库表列分页列表 / database table column page list",
-                "tags": [
-                    "工具 / 生成工具"
-                ],
-                "summary": "分页列表数据 / page list data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "tableName / 数据表名称",
-                        "name": "tableName",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageSize / 页条数",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageIndex / 页码",
-                        "name": "pageIndex",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/db/tables/page": {
-            "get": {
-                "description": "数据库表分页列表 / database table page list",
-                "tags": [
-                    "工具 / 生成工具"
-                ],
-                "summary": "分页列表数据 / page list data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "tableName / 数据表名称",
-                        "name": "tableName",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageSize / 页条数",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageIndex / 页码",
-                        "name": "pageIndex",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/dept": {
             "get": {
                 "security": [
@@ -214,7 +133,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDeptControl"
+                            "$ref": "#/definitions/dto.SysDeptInsertReq"
                         }
                     }
                 ],
@@ -245,7 +164,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDeptById"
+                            "$ref": "#/definitions/dto.SysDeptDeleteReq"
                         }
                     }
                 ],
@@ -270,19 +189,13 @@
                 "tags": [
                     "部门"
                 ],
-                "summary": "部门列表数据",
+                "summary": "获取部门数据",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "deptId",
                         "name": "deptId",
                         "in": "path"
-                    },
-                    {
-                        "type": "string",
-                        "description": "position",
-                        "name": "position",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -322,7 +235,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDeptControl"
+                            "$ref": "#/definitions/dto.SysDeptUpdateReq"
                         }
                     }
                 ],
@@ -359,9 +272,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.SysDictDataGetAllResp"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -441,15 +369,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictDataControl"
+                            "$ref": "#/definitions/dto.SysDictDataInsertReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"message\": \"添加成功\"}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -472,15 +400,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictDataById"
+                            "$ref": "#/definitions/dto.SysDictDataDeleteReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -537,15 +465,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictDataControl"
+                            "$ref": "#/definitions/dto.SysDictDataUpdateReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -625,15 +553,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictTypeControl"
+                            "$ref": "#/definitions/dto.SysDictTypeInsertReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -651,18 +579,20 @@
                 "summary": "删除字典类型",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "dictId",
-                        "name": "dictId",
-                        "in": "path",
-                        "required": true
+                        "description": "body",
+                        "name": "dictCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysDictTypeDeleteReq"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -761,15 +691,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictTypeControl"
+                            "$ref": "#/definitions/dto.SysDictTypeUpdateReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -846,12 +776,6 @@
                         "description": "menuName",
                         "name": "menuName",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "menuName",
-                        "name": "menuName",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -884,7 +808,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysMenuControl"
+                            "$ref": "#/definitions/dto.SysMenuInsertReq"
                         }
                     }
                 ],
@@ -915,7 +839,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysMenuById"
+                            "$ref": "#/definitions/dto.SysMenuDeleteReq"
                         }
                     }
                 ],
@@ -986,7 +910,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysMenuControl"
+                            "$ref": "#/definitions/dto.SysMenuUpdateReq"
                         }
                     }
                 ],
@@ -1130,9 +1054,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1161,15 +1085,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "{\"code\": 500, \"message\": \"删除失败\"}",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1203,9 +1121,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1237,47 +1155,6 @@
                         "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/public/uploadFile": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取JSON",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "tags": [
-                    "公共接口"
-                ],
-                "summary": "上传图片",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "type",
-                        "name": "type",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "file",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
@@ -1357,7 +1234,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysRoleControl"
+                            "$ref": "#/definitions/dto.SysRoleInsertReq"
                         }
                     }
                 ],
@@ -1388,7 +1265,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysRoleById"
+                            "$ref": "#/definitions/dto.SysRoleDeleteReq"
                         }
                     }
                 ],
@@ -1488,32 +1365,10 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysRoleControl"
+                            "$ref": "#/definitions/dto.SysRoleUpdateReq"
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/server-monitor": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取JSON",
-                "tags": [
-                    "系统信息"
-                ],
-                "summary": "系统信息",
                 "responses": {
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
@@ -1698,14 +1553,12 @@
                 "summary": "删除接口管理",
                 "parameters": [
                     {
-                        "description": "ids",
-                        "name": "ids",
+                        "description": "body",
+                        "name": "data",
                         "in": "body",
+                        "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "$ref": "#/definitions/dto.SysApiDeleteReq"
                         }
                     }
                 ],
@@ -1781,7 +1634,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysApiControl"
+                            "$ref": "#/definitions/dto.SysApiUpdateReq"
                         }
                     }
                 ],
@@ -2102,7 +1955,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysLoginLogById"
+                            "$ref": "#/definitions/dto.SysLoginLogDeleteReq"
                         }
                     }
                 ],
@@ -2235,7 +2088,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysOperaLogById"
+                            "$ref": "#/definitions/dto.SysOperaLogDeleteReq"
                         }
                     }
                 ],
@@ -2329,7 +2182,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysUserControl"
+                            "$ref": "#/definitions/dto.SysUserInsertReq"
                         }
                     }
                 ],
@@ -2394,7 +2247,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysUserControl"
+                            "$ref": "#/definitions/dto.SysUserUpdateReq"
                         }
                     }
                 ],
@@ -2425,165 +2278,6 @@
                         "name": "userId",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/sys/tables/info": {
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "修改表结构",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "工具 / 生成工具"
-                ],
-                "summary": "修改表结构",
-                "parameters": [
-                    {
-                        "description": "body",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tools.SysTables"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "添加表结构",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "工具 / 生成工具"
-                ],
-                "summary": "添加表结构",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "tableName / 数据表名称",
-                        "name": "tables",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/sys/tables/info/{tableId}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取JSON",
-                "tags": [
-                    "工具 / 生成工具"
-                ],
-                "summary": "获取配置",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "configKey",
-                        "name": "configKey",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": 200, \"data\": [...]}",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "删除表结构",
-                "tags": [
-                    "工具 / 生成工具"
-                ],
-                "summary": "删除表结构",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "tableId",
-                        "name": "tableId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/sys/tables/page": {
-            "get": {
-                "description": "生成表分页列表",
-                "tags": [
-                    "工具 / 生成工具"
-                ],
-                "summary": "分页列表数据",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "tableName / 数据表名称",
-                        "name": "tableName",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageSize / 页条数",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "pageIndex / 页码",
-                        "name": "pageIndex",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2702,7 +2396,7 @@
                 "tags": [
                     "用户"
                 ],
-                "summary": "重置密码",
+                "summary": "修改密码",
                 "parameters": [
                     {
                         "description": "body",
@@ -2797,10 +2491,6 @@
         },
         "dto.PassWord": {
             "type": "object",
-            "required": [
-                "newPassword",
-                "oldPassword"
-            ],
             "properties": {
                 "newPassword": {
                     "type": "string"
@@ -2812,10 +2502,6 @@
         },
         "dto.ResetSysUserPwdReq": {
             "type": "object",
-            "required": [
-                "password",
-                "userId"
-            ],
             "properties": {
                 "createBy": {
                     "type": "integer"
@@ -2853,7 +2539,18 @@
                 }
             }
         },
-        "dto.SysApiControl": {
+        "dto.SysApiDeleteReq": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "dto.SysApiUpdateReq": {
             "type": "object",
             "properties": {
                 "action": {
@@ -2914,7 +2611,7 @@
                     "type": "integer"
                 },
                 "isFrontend": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "remark": {
                     "type": "string"
@@ -2924,12 +2621,9 @@
                 }
             }
         },
-        "dto.SysDeptById": {
+        "dto.SysDeptDeleteReq": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "ids": {
                     "type": "array",
                     "items": {
@@ -2938,7 +2632,7 @@
                 }
             }
         },
-        "dto.SysDeptControl": {
+        "dto.SysDeptInsertReq": {
             "type": "object",
             "properties": {
                 "createBy": {
@@ -2985,13 +2679,57 @@
                 }
             }
         },
-        "dto.SysDictDataById": {
+        "dto.SysDeptUpdateReq": {
             "type": "object",
             "properties": {
                 "createBy": {
                     "type": "integer"
                 },
-                "id": {
+                "deptId": {
+                    "description": "编码",
+                    "type": "integer"
+                },
+                "deptName": {
+                    "description": "部门名称",
+                    "type": "string"
+                },
+                "deptPath": {
+                    "description": "路径",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "邮箱",
+                    "type": "string"
+                },
+                "leader": {
+                    "description": "负责人",
+                    "type": "string"
+                },
+                "parentId": {
+                    "description": "上级部门",
+                    "type": "integer"
+                },
+                "phone": {
+                    "description": "手机",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysDictDataDeleteReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
                     "type": "integer"
                 },
                 "ids": {
@@ -3005,7 +2743,59 @@
                 }
             }
         },
-        "dto.SysDictDataControl": {
+        "dto.SysDictDataGetAllResp": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SysDictDataInsertReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "cssClass": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "string"
+                },
+                "dictLabel": {
+                    "type": "string"
+                },
+                "dictSort": {
+                    "type": "integer"
+                },
+                "dictType": {
+                    "type": "string"
+                },
+                "dictValue": {
+                    "type": "string"
+                },
+                "isDefault": {
+                    "type": "string"
+                },
+                "listClass": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysDictDataUpdateReq": {
             "type": "object",
             "properties": {
                 "createBy": {
@@ -3049,7 +2839,24 @@
                 }
             }
         },
-        "dto.SysDictTypeControl": {
+        "dto.SysDictTypeDeleteReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysDictTypeInsertReq": {
             "type": "object",
             "properties": {
                 "createBy": {
@@ -3075,13 +2882,47 @@
                 }
             }
         },
-        "dto.SysLoginLogById": {
+        "dto.SysDictTypeUpdateReq": {
             "type": "object",
             "properties": {
                 "createBy": {
                     "type": "integer"
                 },
+                "dictName": {
+                    "type": "string"
+                },
+                "dictType": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysLoginLogDeleteReq": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "dto.SysMenuDeleteReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
                     "type": "integer"
                 },
                 "ids": {
@@ -3095,27 +2936,7 @@
                 }
             }
         },
-        "dto.SysMenuById": {
-            "type": "object",
-            "properties": {
-                "createBy": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "updateBy": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.SysMenuControl": {
+        "dto.SysMenuInsertReq": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3202,12 +3023,96 @@
                 }
             }
         },
-        "dto.SysOperaLogById": {
+        "dto.SysMenuUpdateReq": {
             "type": "object",
             "properties": {
-                "id": {
+                "action": {
+                    "description": "请求方式",
+                    "type": "string"
+                },
+                "apis": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "breadcrumb": {
+                    "description": "是否面包屑",
+                    "type": "string"
+                },
+                "component": {
+                    "description": "组件",
+                    "type": "string"
+                },
+                "createBy": {
                     "type": "integer"
                 },
+                "icon": {
+                    "description": "图标",
+                    "type": "string"
+                },
+                "isFrame": {
+                    "description": "是否frame",
+                    "type": "string"
+                },
+                "menuId": {
+                    "description": "编码",
+                    "type": "integer"
+                },
+                "menuName": {
+                    "description": "菜单name",
+                    "type": "string"
+                },
+                "menuType": {
+                    "description": "菜单类型",
+                    "type": "string"
+                },
+                "noCache": {
+                    "description": "是否缓存",
+                    "type": "boolean"
+                },
+                "parentId": {
+                    "description": "上级菜单",
+                    "type": "integer"
+                },
+                "path": {
+                    "description": "路径",
+                    "type": "string"
+                },
+                "paths": {
+                    "description": "id路径",
+                    "type": "string"
+                },
+                "permission": {
+                    "description": "权限编码",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "sysApi": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysApi"
+                    }
+                },
+                "title": {
+                    "description": "显示名称",
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "visible": {
+                    "description": "是否显示",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SysOperaLogDeleteReq": {
+            "type": "object",
+            "properties": {
                 "ids": {
                     "type": "array",
                     "items": {
@@ -3291,12 +3196,9 @@
                 }
             }
         },
-        "dto.SysRoleById": {
+        "dto.SysRoleDeleteReq": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "ids": {
                     "type": "array",
                     "items": {
@@ -3305,7 +3207,7 @@
                 }
             }
         },
-        "dto.SysRoleControl": {
+        "dto.SysRoleInsertReq": {
             "type": "object",
             "properties": {
                 "admin": {
@@ -3374,16 +3276,77 @@
                 }
             }
         },
-        "dto.SysUserControl": {
+        "dto.SysRoleUpdateReq": {
             "type": "object",
-            "required": [
-                "deptId",
-                "email",
-                "nickName",
-                "phone",
-                "status",
-                "username"
-            ],
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "deptIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "flag": {
+                    "description": "标记",
+                    "type": "string"
+                },
+                "menuIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "remark": {
+                    "description": "备注",
+                    "type": "string"
+                },
+                "roleId": {
+                    "description": "角色编码",
+                    "type": "integer"
+                },
+                "roleKey": {
+                    "description": "角色代码",
+                    "type": "string"
+                },
+                "roleName": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "roleSort": {
+                    "description": "角色排序",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "string"
+                },
+                "sysDept": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysDept"
+                    }
+                },
+                "sysMenu": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysMenu"
+                    }
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysUserInsertReq": {
+            "type": "object",
             "properties": {
                 "avatar": {
                     "type": "string"
@@ -3401,6 +3364,55 @@
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "postId": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "roleId": {
+                    "type": "integer"
+                },
+                "sex": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "default": "1"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "description": "用户ID",
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SysUserUpdateReq": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "deptId": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "nickName": {
                     "type": "string"
                 },
                 "phone": {
@@ -3455,10 +3467,6 @@
         },
         "dto.UpdateSysUserStatusReq": {
             "type": "object",
-            "required": [
-                "status",
-                "userId"
-            ],
             "properties": {
                 "createBy": {
                     "type": "integer"
@@ -3558,7 +3566,7 @@
                     "type": "integer"
                 },
                 "isFrontend": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "remark": {
                     "type": "string"
@@ -3761,277 +3769,6 @@
                     "type": "string"
                 }
             }
-        },
-        "tools.Params": {
-            "type": "object",
-            "properties": {
-                "treeCode": {
-                    "type": "string"
-                },
-                "treeName": {
-                    "type": "string"
-                },
-                "treeParentCode": {
-                    "type": "string"
-                }
-            }
-        },
-        "tools.SysColumns": {
-            "type": "object",
-            "properties": {
-                "columnComment": {
-                    "type": "string"
-                },
-                "columnId": {
-                    "type": "integer"
-                },
-                "columnName": {
-                    "type": "string"
-                },
-                "columnType": {
-                    "type": "string"
-                },
-                "createBy": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "dictType": {
-                    "type": "string"
-                },
-                "edit": {
-                    "type": "boolean"
-                },
-                "fkCol": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/tools.SysColumns"
-                    }
-                },
-                "fkLabelId": {
-                    "type": "string"
-                },
-                "fkLabelName": {
-                    "type": "string"
-                },
-                "fkTableName": {
-                    "type": "string"
-                },
-                "fkTableNameClass": {
-                    "type": "string"
-                },
-                "fkTableNamePackage": {
-                    "type": "string"
-                },
-                "goField": {
-                    "type": "string"
-                },
-                "goType": {
-                    "type": "string"
-                },
-                "htmlType": {
-                    "type": "string"
-                },
-                "increment": {
-                    "type": "boolean"
-                },
-                "insert": {
-                    "type": "boolean"
-                },
-                "isEdit": {
-                    "type": "string"
-                },
-                "isIncrement": {
-                    "type": "string"
-                },
-                "isInsert": {
-                    "type": "string"
-                },
-                "isList": {
-                    "type": "string"
-                },
-                "isPk": {
-                    "type": "string"
-                },
-                "isQuery": {
-                    "type": "string"
-                },
-                "isRequired": {
-                    "type": "string"
-                },
-                "jsonField": {
-                    "type": "string"
-                },
-                "list": {
-                    "type": "string"
-                },
-                "pk": {
-                    "type": "boolean"
-                },
-                "query": {
-                    "type": "boolean"
-                },
-                "queryType": {
-                    "type": "string"
-                },
-                "remark": {
-                    "type": "string"
-                },
-                "required": {
-                    "type": "boolean"
-                },
-                "sort": {
-                    "type": "integer"
-                },
-                "superColumn": {
-                    "type": "boolean"
-                },
-                "tableId": {
-                    "type": "integer"
-                },
-                "updateBy": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "usableColumn": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "tools.SysTables": {
-            "type": "object",
-            "properties": {
-                "businessName": {
-                    "type": "string"
-                },
-                "className": {
-                    "description": "类名",
-                    "type": "string"
-                },
-                "columns": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/tools.SysColumns"
-                    }
-                },
-                "createBy": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "crud": {
-                    "type": "boolean"
-                },
-                "dataScope": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "functionAuthor": {
-                    "description": "功能作者",
-                    "type": "string"
-                },
-                "functionName": {
-                    "description": "功能名称",
-                    "type": "string"
-                },
-                "isActions": {
-                    "type": "integer"
-                },
-                "isAuth": {
-                    "type": "integer"
-                },
-                "isDataScope": {
-                    "type": "integer"
-                },
-                "isLogicalDelete": {
-                    "type": "string"
-                },
-                "logicalDelete": {
-                    "type": "boolean"
-                },
-                "logicalDeleteColumn": {
-                    "type": "string"
-                },
-                "moduleFrontName": {
-                    "description": "前端文件名",
-                    "type": "string"
-                },
-                "moduleName": {
-                    "description": "go文件名",
-                    "type": "string"
-                },
-                "options": {
-                    "type": "string"
-                },
-                "packageName": {
-                    "description": "包名",
-                    "type": "string"
-                },
-                "params": {
-                    "$ref": "#/definitions/tools.Params"
-                },
-                "pkColumn": {
-                    "type": "string"
-                },
-                "pkGoField": {
-                    "type": "string"
-                },
-                "pkJsonField": {
-                    "type": "string"
-                },
-                "remark": {
-                    "type": "string"
-                },
-                "tableComment": {
-                    "description": "表备注",
-                    "type": "string"
-                },
-                "tableId": {
-                    "description": "表编码",
-                    "type": "integer"
-                },
-                "tableName": {
-                    "description": "表名称",
-                    "type": "string"
-                },
-                "tplCategory": {
-                    "type": "string"
-                },
-                "tree": {
-                    "type": "boolean"
-                },
-                "treeCode": {
-                    "type": "string"
-                },
-                "treeName": {
-                    "type": "string"
-                },
-                "treeParentCode": {
-                    "type": "string"
-                },
-                "updateBy": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        }
-    },
-    "securityDefinitions": {
-        "Bearer": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }

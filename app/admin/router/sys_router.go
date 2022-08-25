@@ -1,19 +1,21 @@
 package router
 
 import (
-	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"go-admin/app/admin/apis"
 	"mime"
+
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/ws"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
+
+	swaggerfiles "github.com/swaggo/files"
 
 	"go-admin/common/middleware"
 	"go-admin/common/middleware/handler"
-	_ "go-admin/docs"
+	_ "go-admin/docs/admin"
 )
 
 func InitSysRouter(r *gin.Engine, authMiddleware *jwt.GinJWTMiddleware) *gin.RouterGroup {
@@ -54,11 +56,11 @@ func sysStaticFileRouter(r *gin.RouterGroup) {
 }
 
 func sysSwaggerRouter(r *gin.RouterGroup) {
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger/admin/*any", ginSwagger.WrapHandler(swaggerfiles.NewHandler(), ginSwagger.InstanceName("admin")))
 }
 
 func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	wss:=r.Group("").Use(authMiddleware.MiddlewareFunc())
+	wss := r.Group("").Use(authMiddleware.MiddlewareFunc())
 	{
 		wss.GET("/ws/:id/:channel", ws.WebsocketManager.WsClient)
 		wss.GET("/wslogout/:id/:channel", ws.WebsocketManager.UnWsClient)
