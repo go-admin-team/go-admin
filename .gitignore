@@ -3,6 +3,7 @@
 */.DS_Store
 static/uploadfile
 main.exe
+*.exe
 go-admin
 go-admin.exe
 temp/
