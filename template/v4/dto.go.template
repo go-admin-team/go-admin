@@ -34,9 +34,9 @@ type {{.ClassName}}GetPageReq struct {
 }
 
 type {{.ClassName}}Order struct {
-    {{- $tablename := .TBName -}}
+    {{ $tablename := .TBName }}
     {{- range .Columns -}}
-    {{.GoField}} {{.GoType}} `form:"{{.JsonField}}Order"  search:"type:order;column:{{.ColumnName}};table:{{$tablename}}"`
+    {{.GoField}} string `form:"{{.JsonField}}Order"  search:"type:order;column:{{.ColumnName}};table:{{$tablename}}"`
     {{ end }}
 }
 
