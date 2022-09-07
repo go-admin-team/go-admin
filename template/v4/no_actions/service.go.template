@@ -80,7 +80,7 @@ func (e *{{.ClassName}}) Update(c *dto.{{.ClassName}}UpdateReq, p *actions.DataP
     c.Generate(&data)
 
     db := e.Orm.Save(&data)
-    if db.Error != nil {
+    if err = db.Error; err != nil {
         e.Log.Errorf("{{.ClassName}}Service Save error:%s \r\n", err)
         return err
     }
