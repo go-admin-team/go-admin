@@ -153,7 +153,7 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 	model.SysMenu = &mlist
 	db := tx.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
 
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -205,7 +205,7 @@ func (e *SysRole) Remove(c *dto.SysRoleDeleteReq, cb *casbin.SyncedEnforcer) err
 	tx.Preload("SysMenu").Preload("SysDept").First(&model, c.GetId())
 	db := tx.Select(clause.Associations).Delete(&model)
 
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -259,7 +259,7 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	c.Generate(&model)
 	model.SysDept = dlist
 	db := tx.Model(&model).Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
 		return e
@@ -289,7 +289,7 @@ func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	tx.First(&model, c.GetId())
 	c.Generate(&model)
 	db := tx.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}

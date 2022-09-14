@@ -49,7 +49,7 @@ func (e *SysDept) Get(d *dto.SysDeptGetReq, model *models.SysDept) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -116,7 +116,7 @@ func (e *SysDept) Update(c *dto.SysDeptUpdateReq) error {
 	}
 	model.DeptPath = deptPath
 	db := tx.Save(&model)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("UpdateSysDept error:%s", err)
 		return err
 	}
@@ -132,7 +132,7 @@ func (e *SysDept) Remove(d *dto.SysDeptDeleteReq) error {
 	var data models.SysDept
 
 	db := e.Orm.Model(&data).Delete(&data, d.GetId())
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err

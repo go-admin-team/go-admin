@@ -44,7 +44,7 @@ func UpdateAction(control dto.Control) gin.HandlerFunc {
 		db = db.WithContext(c).Scopes(
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Updates(object)
-		if db.Error != nil {
+		if err = db.Error; err != nil {
 			log.Errorf("MsgID[%s] Update error: %s", msgID, err)
 			response.Error(c, 500, err, "更新失败")
 			return
