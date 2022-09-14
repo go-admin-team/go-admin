@@ -287,6 +287,8 @@ npm run dev
 " ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/23476007?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
 <span style="margin: 0 5px;" ><a href="https://github.com/jfcg
 " ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/1410597?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+<span style="margin: 0 5px;" ><a href="https://github.com/Nicole0724
+" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/10487328?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
 
 
 
