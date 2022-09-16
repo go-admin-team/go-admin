@@ -2,6 +2,7 @@ package tools
 
 import (
 	"errors"
+
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
 	"gorm.io/gorm"
@@ -21,12 +22,19 @@ type DBTables struct {
 
 func (e *DBTables) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBTables, int, error) {
 	var doc []DBTables
+	var existTable []SysTables
+	var existTableName []string
 	table := new(gorm.DB)
 	var count int64
 
 	if config2.DatabaseConfig.Driver == "mysql" {
+		tx.Table("sys_tables").Select("table_name").Find(&existTable)
 		table = tx.Table("information_schema.tables")
-		table = table.Where("TABLE_NAME not in (select table_name from `" + config2.GenConfig.DBName + "`.sys_tables) ")
+		for _, v := range existTable {
+			existTableName = append(existTableName, v.TBName)
+		}
+
+		table = table.Not(map[string]interface{}{"TABLE_NAME": existTableName})
 		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
 		if e.TableName != "" {
