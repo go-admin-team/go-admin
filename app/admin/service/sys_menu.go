@@ -147,7 +147,7 @@ func (e *SysMenu) Update(c *dto.SysMenuUpdateReq) *SysMenu {
 	c.Generate(&model)
 	model.SysApi = alist
 	db := tx.Model(&model).Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
 		return e
@@ -171,7 +171,7 @@ func (e *SysMenu) Remove(d *dto.SysMenuDeleteReq) *SysMenu {
 	var data models.SysMenu
 
 	db := e.Orm.Model(&data).Delete(&data, d.Ids)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		_ = e.AddError(err)

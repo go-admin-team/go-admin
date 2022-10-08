@@ -45,7 +45,7 @@ func (e *SysDictType) Get(d *dto.SysDictTypeGetReq, model *models.SysDictType) e
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
@@ -77,7 +77,7 @@ func (e *SysDictType) Update(c *dto.SysDictTypeUpdateReq) error {
 	e.Orm.First(&model, c.GetId())
 	c.Generate(&model)
 	db := e.Orm.Save(&model)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
@@ -94,7 +94,7 @@ func (e *SysDictType) Remove(d *dto.SysDictTypeDeleteReq) error {
 	var data models.SysDictType
 
 	db := e.Orm.Delete(&data, d.GetId())
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err

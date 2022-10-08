@@ -47,7 +47,7 @@ func (e *SysPost) Get(d *dto.SysPostGetReq, model *models.SysPost) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -75,7 +75,7 @@ func (e *SysPost) Update(c *dto.SysPostUpdateReq) error {
 	c.Generate(&model)
 
 	db := e.Orm.Save(&model)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -92,7 +92,7 @@ func (e *SysPost) Remove(d *dto.SysPostDeleteReq) error {
 	var data models.SysPost
 
 	db := e.Orm.Model(&data).Delete(&data, d.GetId())
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err

@@ -44,7 +44,7 @@ func (e *SysLoginLog) Get(d *dto.SysLoginLogGetReq, model *models.SysLoginLog) e
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
@@ -57,7 +57,7 @@ func (e *SysLoginLog) Remove(c *dto.SysLoginLogDeleteReq) error {
 	var data models.SysLoginLog
 
 	db := e.Orm.Delete(&data, c.GetId())
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err

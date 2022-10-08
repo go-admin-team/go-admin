@@ -47,7 +47,7 @@ func (e *SysDictData) Get(d *dto.SysDictDataGetReq, model *models.SysDictData) e
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
 	}
@@ -91,7 +91,7 @@ func (e *SysDictData) Remove(c *dto.SysDictDataDeleteReq) error {
 	var data models.SysDictData
 
 	db := e.Orm.Delete(&data, c.GetId())
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err

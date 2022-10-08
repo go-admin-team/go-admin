@@ -142,7 +142,7 @@ func (e *SysConfig) Remove(d *dto.SysConfigDeleteReq) error {
 	var data models.SysConfig
 
 	db := e.Orm.Delete(&data, d.Ids)
-	if db.Error != nil {
+	if err = db.Error; err != nil {
 		err = db.Error
 		e.Log.Errorf("Service RemoveSysConfig error:%s", err)
 		return err

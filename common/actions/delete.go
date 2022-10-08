@@ -46,7 +46,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		db = db.WithContext(c).Scopes(
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Delete(object)
-		if db.Error != nil {
+		if err = db.Error; err != nil {
 			log.Errorf("MsgID[%s] Delete error: %s", msgID, err)
 			response.Error(c, 500, err, "删除失败")
 			return
