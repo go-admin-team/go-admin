@@ -11,7 +11,7 @@
 
 基于Gin + Vue + Element UI的前后端分离权限管理系统,系统初始化极度简单，只需要配置文件中，修改数据库连接，系统支持多指令操作，迁移指令可以让初始化数据库信息变得更简单，服务指令可以很简单的启动api服务
 
-[在线文档](https://doc.go-admin.dev)
+[在线文档](https://www.go-admin.pro)
 
 [前端项目](https://github.com/go-admin-team/go-admin-ui)
 
@@ -22,7 +22,7 @@
 vue体验：[https://www.go-admin.dev](https://www.go-admin.dev/#/login)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
-antd体验：[https://preview.go-admin.dev](https://preview.go-admin.dev/)
+antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
 ## ✨ 特性
