@@ -142,6 +142,9 @@ git clone https://github.com/go-admin-team/go-admin-ui.git
 # 进入 go-admin 后端项目
 cd ./go-admin
 
+# 更新整理依赖
+go mod tidy
+
 # 编译项目
 go build
 
