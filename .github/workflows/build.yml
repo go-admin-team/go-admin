@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   IMAGE_NAME: registry.ap-northeast-1.aliyuncs.com/go-admin/go-admin-api # 镜像名称
