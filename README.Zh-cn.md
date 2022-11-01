@@ -19,7 +19,7 @@
 
 ## 🎬 在线体验
 
-vue体验：[https://www.go-admin.dev](https://www.go-admin.dev/#/login)
+Element UI vue体验：[https://vue2.go-admin.dev](https://vue2.go-admin.dev/#/login)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
 antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
