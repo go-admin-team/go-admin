@@ -20,7 +20,7 @@ The front-end and back-end separation authority management system based on Gin +
 
 ## 🎬 Online Demo
 
-vue demo：[https://www.go-admin.dev](https://www.go-admin.dev/#/login)
+Element UI vue demo：[https://vue2.go-admin.dev](https://vue2.go-admin.dev/#/login)
 > 账号 / 密码： admin / 123456
 
 antd demo：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
