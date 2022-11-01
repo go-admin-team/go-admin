@@ -1,0 +1,34 @@
+settings:
+  application:
+    demomsg: "谢谢您的参与，但为了大家更好的体验，所以本次提交就算了吧！\U0001F600\U0001F600\U0001F600"
+    enabledp: true
+    host: 0.0.0.0
+    mode: demo
+    name: testApp
+    port: 8000
+    readtimeout: 10000
+    writertimeout: 20000
+  database:
+    driver: sqlite3
+    source: ./go-admin-db.db
+  gen:
+    dbname: testhhh
+    frontpath: ../go-admin-ui/src
+  jwt:
+    secret: go-admin
+    timeout: 3600
+  logger:
+    # 日志存放路径
+    path: temp/logs
+    # 日志输出，file：文件，default：命令行，其他：命令行
+    stdout: '' #控制台日志，启用后，不输出到文件
+    # 日志等级, trace, debug, info, warn, error, fatal
+    level: trace
+    # 数据库日志开关
+    enableddb: true
+  queue:
+    memory:
+      poolSize: 100
+  extend:
+    amap:
+      key: de7a062c984bf828d5d1b3a631a517e4
