@@ -1,0 +1,86 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  IMAGE_NAME: registry.ap-northeast-1.aliyuncs.com/go-admin/go-admin-api # 镜像名称
+  TAG: ${{ github.sha }}
+  IMAGE_NAME_TAG: registry.ap-northeast-1.aliyuncs.com/go-admin/go-admin-api:${{ github.sha }}
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      #    - name: Show GitHub context
+      #      env:
+      #        GITHUB_CONTEXT: ${{ toJson(github) }}
+      #      run: echo "$GITHUB_CONTEXT"
+      #
+      #    - name: Show GITHUB_SHA
+      #      run: echo "${GITHUB_SHA}"
+
+      - name: Tidy
+        run: go mod tidy
+
+      - name: Build
+        run: env CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -tags "sqlite3,json1" --ldflags "-extldflags -static" -o main .
+
+      - name: Build the Docker image and push
+        run: |
+          docker login --username=${{ secrets.DOCKER_USERNAME }} registry.ap-northeast-1.aliyuncs.com --password=${{ secrets.DOCKER_PASSWORD }}
+          echo "************ docker login end"
+          docker build -t go-admin-api:latest .
+          echo "************ docker build end"
+          docker tag go-admin-api ${{ env.IMAGE_NAME_TAG }}
+          echo "************ docker tag end"
+          docker images
+          echo "************ docker images end"
+          docker push ${{ env.IMAGE_NAME_TAG }}  # 推送
+          echo "************ docker push end"
+
+      - name: Restart server   # 第五步，重启服务
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_SHA_X: ${GITHUB_SHA}
+        with:
+          host: ${{ secrets.SSH_HOST }}  # 下面三个配置与上一步类似
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          # 重启的脚本，根据自身情况做相应改动，一般要做的是migrate数据库以及重启服务器
+          script: |
+            sudo docker rm -f go-admin-api
+            sudo docker login --username=${{ secrets.DOCKER_USERNAME }} registry.ap-northeast-1.aliyuncs.com --password=${{ secrets.DOCKER_PASSWORD }}
+            sudo docker run -d -p 8000:8000 --name go-admin-api ${{ env.IMAGE_NAME_TAG }}
+
+
+#    - name: Generate Changelog
+#      id: changelog
+#      uses: jaywcjlove/changelog-generator@v1.5.0
+#      with:
+#        head-ref: ${{steps.create_tag.outputs.version}}
+#        filter-author: (renovate-bot|Renovate Bot)
+#        filter: '[R|r]elease[d]\s+[v|V]\d(\.\d+){0,2}'
+#
+#    - name: Create Release
+#      uses: ncipollo/release-action@v1
+#      if: steps.create_tag.outputs.successful
+#      with:
+#        token: ${{ secrets.ACCESS_TOKEN }}
+#        name: ${{ steps.create_tag.outputs.version }}
+#        tag: ${{ steps.create_tag.outputs.version }}
+#        body: |
+#          Comparing Changes: ${{ steps.changelog.outputs.compareurl }}
+#
+#          ${{ steps.changelog.outputs.changelog }}
