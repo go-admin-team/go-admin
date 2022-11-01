@@ -23,14 +23,6 @@ jobs:
         with:
           go-version: 1.18
 
-      #    - name: Show GitHub context
-      #      env:
-      #        GITHUB_CONTEXT: ${{ toJson(github) }}
-      #      run: echo "$GITHUB_CONTEXT"
-      #
-      #    - name: Show GITHUB_SHA
-      #      run: echo "${GITHUB_SHA}"
-
       - name: Tidy
         run: go mod tidy
 
@@ -63,24 +55,3 @@ jobs:
             sudo docker rm -f go-admin-api
             sudo docker login --username=${{ secrets.DOCKER_USERNAME }} registry.ap-northeast-1.aliyuncs.com --password=${{ secrets.DOCKER_PASSWORD }}
             sudo docker run -d -p 8000:8000 --name go-admin-api ${{ env.IMAGE_NAME_TAG }}
-
-
-#    - name: Generate Changelog
-#      id: changelog
-#      uses: jaywcjlove/changelog-generator@v1.5.0
-#      with:
-#        head-ref: ${{steps.create_tag.outputs.version}}
-#        filter-author: (renovate-bot|Renovate Bot)
-#        filter: '[R|r]elease[d]\s+[v|V]\d(\.\d+){0,2}'
-#
-#    - name: Create Release
-#      uses: ncipollo/release-action@v1
-#      if: steps.create_tag.outputs.successful
-#      with:
-#        token: ${{ secrets.ACCESS_TOKEN }}
-#        name: ${{ steps.create_tag.outputs.version }}
-#        tag: ${{ steps.create_tag.outputs.version }}
-#        body: |
-#          Comparing Changes: ${{ steps.changelog.outputs.compareurl }}
-#
-#          ${{ steps.changelog.outputs.changelog }}
