@@ -12,7 +12,7 @@ English | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/R
 
 The front-end and back-end separation authority management system based on Gin + Vue + Element UI OR Arco Design is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
 
-[documentation](https://doc.go-admin.dev)
+[documentation](https://www.go-admin.dev)
 
 [Front-end project](https://github.com/go-admin-team/go-admin-ui)
 
