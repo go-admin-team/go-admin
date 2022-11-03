@@ -90,26 +90,46 @@ func (e *SysMenu) Insert(c *dto.SysMenuInsertReq) *SysMenu {
 	var err error
 	var data models.SysMenu
 	c.Generate(&data)
-	err = e.Orm.Create(&data).Error
+	tx := e.Orm.Debug().Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+	err = tx.Where("id in ?", c.Apis).Find(&data.SysApi).Error
 	if err != nil {
+		tx.Rollback()
+		e.Log.Errorf("db error:%s", err)
+		_ = e.AddError(err)
+	}
+	err = tx.Create(&data).Error
+	if err != nil {
+		tx.Rollback()
 		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
 	}
 	c.MenuId = data.MenuId
-	err = e.initPaths(&data)
+	err = e.initPaths(tx, &data)
 	if err != nil {
+		tx.Rollback()
 		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
 	}
+	tx.Commit()
 	return e
 }
 
-func (e *SysMenu) initPaths(menu *models.SysMenu) error {
+func (e *SysMenu) initPaths(tx *gorm.DB, menu *models.SysMenu) error {
 	var err error
 	var data models.SysMenu
 	parentMenu := new(models.SysMenu)
 	if menu.ParentId != 0 {
-		e.Orm.Model(&data).First(parentMenu, menu.ParentId)
+		err = tx.Model(&data).First(parentMenu, menu.ParentId).Error
+		if err != nil {
+			return err
+		}
 		if parentMenu.Paths == "" {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return err
@@ -118,7 +138,7 @@ func (e *SysMenu) initPaths(menu *models.SysMenu) error {
 	} else {
 		menu.Paths = "/0/" + pkg.IntToString(menu.MenuId)
 	}
-	e.Orm.Model(&data).Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
+	err = tx.Model(&data).Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths).Error
 	return err
 }
 
