@@ -2,7 +2,6 @@ package apis
 
 import (
 	"github.com/gin-gonic/gin/binding"
-	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"go-admin/app/admin/models"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -313,19 +312,12 @@ func (e SysUser) ResetPwd(c *gin.Context) {
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	if req.UserId == 1 && config.ApplicationConfig.Mode == "demo" {
-		req.Password = "123456"
-	}
 	err = s.ResetPwd(&req, p)
 	if err != nil {
 		e.Logger.Error(err)
 		return
 	}
-	if req.UserId == 1 && config.ApplicationConfig.Mode == "demo" {
-		e.OK(req.GetId(), "admin:现在使用的预览环境，休想改掉我！否则会影响其他朋友体验的哦！可以创建其他用户体验该功能！")
-	} else {
-		e.OK(req.GetId(), "更新成功")
-	}
+	e.OK(req.GetId(), "更新成功")
 }
 
 // UpdatePwd
@@ -354,10 +346,6 @@ func (e SysUser) UpdatePwd(c *gin.Context) {
 
 	// 数据权限检查
 	p := actions.GetPermissionFromContext(c)
-	if user.GetUserId(c) == 1 && config.ApplicationConfig.Mode == "demo" {
-		req.NewPassword = "123456"
-	}
-
 	var hash []byte
 	if hash, err = bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost); err != nil {
 		req.NewPassword = string(hash)
@@ -369,11 +357,8 @@ func (e SysUser) UpdatePwd(c *gin.Context) {
 		e.Error(http.StatusForbidden, err, "密码修改失败")
 		return
 	}
-	if user.GetUserId(c) == 1 && config.ApplicationConfig.Mode == "demo" {
-		e.OK(nil, "admin:现在使用的预览环境，休想改掉我！否则会影响其他朋友体验的哦！可以创建其他用户体验该功能！")
-	} else {
-		e.OK(nil, "密码修改成功")
-	}
+
+	e.OK(nil, "密码修改成功")
 }
 
 // GetProfile

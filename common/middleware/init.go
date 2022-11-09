@@ -14,6 +14,7 @@ const (
 )
 
 func InitMiddleware(r *gin.Engine) {
+	r.Use(DemoEvn())
 	// 数据库链接
 	r.Use(WithContextDb)
 	// 日志处理
@@ -26,7 +27,6 @@ func InitMiddleware(r *gin.Engine) {
 	r.Use(Options)
 	// Secure is a middleware function that appends security
 	r.Use(Secure)
-	//r.Use(DemoEvn())
 	// 链路追踪
 	//r.Use(middleware.Trace())
 	sdk.Runtime.SetMiddleware(JwtTokenCheck, (*jwt.GinJWTMiddleware).MiddlewareFunc)
