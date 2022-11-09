@@ -8,8 +8,8 @@ settings:
     name: testApp
     # 端口号
     port: 8000 # 服务端口号
-    readtimeout: 1
-    writertimeout: 2
+    readtimeout: 3000
+    writertimeout: 2000
     # 数据权限功能开关
     enabledp: false
   logger:
@@ -30,7 +30,7 @@ settings:
     # 数据库类型 mysql，sqlite3， postgres
     driver: sqlite3
     # 数据库连接sqlite3数据文件的路径
-    source: sqlite3.db
+    source: go-admin-db.db
   gen:
     # 代码生成读取的数据库名称
     dbname: dbname
