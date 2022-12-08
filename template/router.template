@@ -6,7 +6,7 @@ import (
 	_ "github.com/gin-gonic/gin"
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	// "github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	common "go-admin/common/middleware"
