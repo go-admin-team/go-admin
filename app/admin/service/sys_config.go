@@ -17,14 +17,13 @@ type SysConfig struct {
 
 // GetPage 获取SysConfig列表
 func (e *SysConfig) GetPage(c *dto.SysConfigGetPageReq, list *[]models.SysConfig, count *int64) error {
-	err := e.Orm.
+	if err := e.Orm.
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
 		).
 		Find(list).Limit(-1).Offset(-1).
-		Count(count).Error
-	if err != nil {
+		Count(count).Error; err != nil {
 		e.Log.Errorf("Service GetSysConfigPage error:%s", err)
 		return err
 	}
@@ -34,7 +33,7 @@ func (e *SysConfig) GetPage(c *dto.SysConfigGetPageReq, list *[]models.SysConfig
 // Get 获取SysConfig对象
 func (e *SysConfig) Get(d *dto.SysConfigGetReq, model *models.SysConfig) error {
 	err := e.Orm.First(model, d.GetId()).Error
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = errors.New("查看对象不存在或无权查看")
 		e.Log.Errorf("Service GetSysConfigPage error:%s", err)
 		return err
@@ -51,8 +50,7 @@ func (e *SysConfig) Insert(c *dto.SysConfigControl) error {
 	var err error
 	var data models.SysConfig
 	c.Generate(&data)
-	err = e.Orm.Create(&data).Error
-	if err != nil {
+	if err = e.Orm.Create(&data).Error; err != nil {
 		e.Log.Errorf("Service InsertSysConfig error:%s", err)
 		return err
 	}
@@ -87,8 +85,7 @@ func (e *SysConfig) SetSysConfig(c *[]dto.GetSetSysConfigReq) error {
 		if model.Id != 0 {
 			req.Generate(&model)
 			db := e.Orm.Save(&model)
-			err = db.Error
-			if err != nil {
+			if err = db.Error; err != nil {
 				e.Log.Errorf("Service SetSysConfig error:%s", err)
 				return err
 			}
@@ -104,9 +101,8 @@ func (e *SysConfig) GetForSet(c *[]dto.GetSetSysConfigReq) error {
 	var err error
 	var data models.SysConfig
 
-	err = e.Orm.Model(&data).
-		Find(c).Error
-	if err != nil {
+	if err = e.Orm.Model(&data).
+		Find(c).Error; err != nil {
 		e.Log.Errorf("Service GetSysConfigPage error:%s", err)
 		return err
 	}
@@ -138,28 +134,25 @@ func (e *SysConfig) UpdateForSet(c *[]dto.GetSetSysConfigReq) error {
 
 // Remove 删除SysConfig
 func (e *SysConfig) Remove(d *dto.SysConfigDeleteReq) error {
-	var err error
 	var data models.SysConfig
 
 	db := e.Orm.Delete(&data, d.Ids)
 	if db.Error != nil {
-		err = db.Error
+		err := db.Error
 		e.Log.Errorf("Service RemoveSysConfig error:%s", err)
 		return err
 	}
 	if db.RowsAffected == 0 {
-		err = errors.New("无权删除该数据")
-		return err
+		return errors.New("无权删除该数据")
 	}
 	return nil
 }
 
 // GetWithKey 根据Key获取SysConfig
 func (e *SysConfig) GetWithKey(c *dto.SysConfigByKeyReq, resp *dto.GetSysConfigByKEYForServiceResp) error {
-	var err error
 	var data models.SysConfig
-	err = e.Orm.Table(data.TableName()).Where("config_key = ?", c.ConfigKey).First(resp).Error
-	if err != nil {
+	if err := e.Orm.Table(data.TableName()).Where("config_key = ?",
+		c.ConfigKey).First(resp).Error; err != nil {
 		e.Log.Errorf("At Service GetSysConfigByKEY Error:%s", err)
 		return err
 	}
@@ -168,13 +161,11 @@ func (e *SysConfig) GetWithKey(c *dto.SysConfigByKeyReq, resp *dto.GetSysConfigB
 }
 
 func (e *SysConfig) GetWithKeyList(c *dto.SysConfigGetToSysAppReq, list *[]models.SysConfig) error {
-	var err error
-	err = e.Orm.
+	if err := e.Orm.
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 		).
-		Find(list).Error
-	if err != nil {
+		Find(list).Error; err != nil {
 		e.Log.Errorf("Service GetSysConfigByKey error:%s", err)
 		return err
 	}
