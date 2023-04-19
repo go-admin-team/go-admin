@@ -334,7 +334,9 @@ func (e *SysRole) GetById(roleId int) ([]string, error) {
 	}
 	l := *model.SysMenu
 	for i := 0; i < len(l); i++ {
-		permissions = append(permissions, l[i].Permission)
+		if l[i].Permission != "" {	
+			permissions = append(permissions, l[i].Permission)
+		}
 	}
 	return permissions, nil
 }
