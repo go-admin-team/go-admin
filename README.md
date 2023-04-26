@@ -151,7 +151,7 @@ go build
 
 # Change setting 
 # File path go-admin/config/settings.yml
-vi ./config/setting.yml 
+vi ./config/settings.yml
 
 # 1. Modify the database information in the configuration file
 # Note: The corresponding configuration data under settings.database

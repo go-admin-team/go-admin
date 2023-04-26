@@ -153,7 +153,7 @@ go build
 
 # 修改配置 
 # 文件路径  go-admin/config/settings.yml
-vi ./config/setting.yml 
+vi ./config/settings.yml
 
 # 1. 配置文件中修改数据库信息 
 # 注意: settings.database 下对应的配置数据
