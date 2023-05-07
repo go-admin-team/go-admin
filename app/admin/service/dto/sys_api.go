@@ -11,8 +11,9 @@ type SysApiGetPageReq struct {
 	dto.Pagination `search:"-"`
 	Title          string `form:"title"  search:"type:contains;column:title;table:sys_api" comment:"标题"`
 	Path           string `form:"path"  search:"type:contains;column:path;table:sys_api" comment:"地址"`
-	Action         string `form:"action"  search:"type:exact;column:action;table:sys_api" comment:"类型"`
+	Action         string `form:"action"  search:"type:exact;column:action;table:sys_api" comment:"请求方式"`
 	ParentId       string `form:"parentId"  search:"type:exact;column:parent_id;table:sys_api" comment:"按钮id"`
+	Type           string `form:"type" search:"-" comment:"类型"`
 	SysApiOrder
 }
 
@@ -84,7 +85,6 @@ func (s *SysApiGetReq) GetId() interface{} {
 	return s.Id
 }
 
-
 // SysApiDeleteReq 功能删除请求参数
 type SysApiDeleteReq struct {
 	Ids []int `json:"ids"`
@@ -93,4 +93,3 @@ type SysApiDeleteReq struct {
 func (s *SysApiDeleteReq) GetId() interface{} {
 	return s.Ids
 }
-

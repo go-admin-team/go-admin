@@ -23,13 +23,20 @@ func (e *SysApi) GetPage(c *dto.SysApiGetPageReq, p *actions.DataPermission, lis
 	var err error
 	var data models.SysApi
 
-	err = e.Orm.Debug().Model(&data).
+	orm := e.Orm.Debug().Model(&data).
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
 			actions.Permission(data.TableName(), p),
-		).
-		Find(list).Limit(-1).Offset(-1).
+		)
+	if c.Type != "" {
+		qType := c.Type
+		if qType == "暂无" {
+			qType = ""
+		}
+		orm = orm.Where("`type` = ?", qType)
+	}
+	err = orm.Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
 		e.Log.Errorf("Service GetSysApiPage error:%s", err)
