@@ -118,6 +118,7 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 		return nil
 	}
 
+	// 写入 sys_casbin_rule 权限表里 当前角色数据的记录
 	_, err = cb.AddNamedPolicies("p", polices)
 	if err != nil {
 		return err
@@ -151,6 +152,7 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 	}
 	c.Generate(&model)
 	model.SysMenu = &mlist
+	// 更新关联的数据，使用 FullSaveAssociations 模式
 	db := tx.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
 
 	if err = db.Error; err != nil {
@@ -161,6 +163,7 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 		return errors.New("无权更新该数据")
 	}
 
+	// 清除 sys_casbin_rule 权限表里 当前角色的所有记录
 	_, err = cb.RemoveFilteredPolicy(0, model.RoleKey)
 	if err != nil {
 		e.Log.Errorf("delete policy error:%s", err)
@@ -180,6 +183,8 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 	if len(polices) <= 0 {
 		return nil
 	}
+
+	// 写入 sys_casbin_rule 权限表里 当前角色数据的记录
 	_, err = cb.AddNamedPolicies("p", polices)
 	if err != nil {
 		return err
@@ -203,6 +208,7 @@ func (e *SysRole) Remove(c *dto.SysRoleDeleteReq, cb *casbin.SyncedEnforcer) err
 	}
 	var model = models.SysRole{}
 	tx.Preload("SysMenu").Preload("SysDept").First(&model, c.GetId())
+	//删除 SysRole 时，同时删除角色所有 关联其它表 记录 (SysMenu 和 SysMenu)
 	db := tx.Select(clause.Associations).Delete(&model)
 
 	if err = db.Error; err != nil {
@@ -213,6 +219,7 @@ func (e *SysRole) Remove(c *dto.SysRoleDeleteReq, cb *casbin.SyncedEnforcer) err
 		return errors.New("无权更新该数据")
 	}
 
+	// 清除 sys_casbin_rule 权限表里 当前角色的所有记录
 	_, _ = cb.RemoveFilteredPolicy(0, model.RoleKey)
 
 	return nil
@@ -250,6 +257,7 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	var model = models.SysRole{}
 	tx.Preload("SysDept").First(&model, c.RoleId)
 	tx.Where("dept_id in ?", c.DeptIds).Find(&dlist)
+	// 删除SysRole 和 SysDept 的关联关系
 	err = tx.Model(&model).Association("SysDept").Delete(model.SysDept)
 	if err != nil {
 		e.Log.Errorf("delete SysDept error:%s", err)
@@ -258,6 +266,7 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	}
 	c.Generate(&model)
 	model.SysDept = dlist
+	// 更新关联的数据，使用 FullSaveAssociations 模式
 	db := tx.Model(&model).Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
 	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
@@ -288,6 +297,7 @@ func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	var model = models.SysRole{}
 	tx.First(&model, c.GetId())
 	c.Generate(&model)
+	// 更新关联的数据，使用 FullSaveAssociations 模式
 	db := tx.Session(&gorm.Session{FullSaveAssociations: true}).Debug().Save(&model)
 	if err = db.Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
@@ -334,7 +344,7 @@ func (e *SysRole) GetById(roleId int) ([]string, error) {
 	}
 	l := *model.SysMenu
 	for i := 0; i < len(l); i++ {
-		if l[i].Permission != "" {	
+		if l[i].Permission != "" {
 			permissions = append(permissions, l[i].Permission)
 		}
 	}

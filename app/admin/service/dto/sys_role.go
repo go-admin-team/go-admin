@@ -36,7 +36,7 @@ func (m *SysRoleGetPageReq) GetNeedSearch() interface{} {
 type SysRoleInsertReq struct {
 	RoleId    int              `uri:"id" comment:"角色编码"`        // 角色编码
 	RoleName  string           `form:"roleName" comment:"角色名称"` // 角色名称
-	Status    string           `form:"status" comment:"状态"`     // 状态
+	Status    string           `form:"status" comment:"状态"`     // 状态 1禁用 2正常
 	RoleKey   string           `form:"roleKey" comment:"角色代码"`  // 角色代码
 	RoleSort  int              `form:"roleSort" comment:"角色排序"` // 角色排序
 	Flag      string           `form:"flag" comment:"标记"`       // 标记
