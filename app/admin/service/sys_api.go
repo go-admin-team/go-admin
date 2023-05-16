@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"go-admin/common/global"
 
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
 	"github.com/go-admin-team/go-admin-core/sdk/service"
@@ -34,7 +35,11 @@ func (e *SysApi) GetPage(c *dto.SysApiGetPageReq, p *actions.DataPermission, lis
 		if qType == "暂无" {
 			qType = ""
 		}
-		orm = orm.Where("`type` = ?", qType)
+		if global.Driver == "postgres" {
+			orm = orm.Where("\"type\" = ?", qType)
+		} else {
+			orm = orm.Where("`type` = ?", qType)
+		}
 	}
 	err = orm.Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
