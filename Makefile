@@ -2,7 +2,7 @@ PROJECT:=go-admin
 
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -ldflags="-w -s" -a -installsuffix -o go-admin .
+	CGO_ENABLED=0 go build -ldflags="-w -s" -a -installsuffix "" -o go-admin .
 
 # make build-linux
 build-linux:
