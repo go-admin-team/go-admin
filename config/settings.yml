@@ -31,7 +31,7 @@ settings:
     # sqlserver: sqlserver://用户名:密码@地址?database=数据库名
     driver: mysql
     # 数据库连接字符串 mysql 缺省信息 charset=utf8&parseTime=True&loc=Local&timeout=1000ms
-    source: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+    source: root:123456@tcp(127.0.0.1:3309)/goadmin?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
 #  databases:
 #    'locaohost:8000':
 #      driver: mysql
@@ -54,7 +54,7 @@ settings:
 #      password: xxxxxx
 #      db: 2
     # key存在即可
-    memory: '' 
+    memory: ''
   queue:
     memory:
       poolSize: 100
