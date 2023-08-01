@@ -14,7 +14,7 @@ type SysDictType struct {
 	models.ModelTime
 }
 
-func (SysDictType) TableName() string {
+func (*SysDictType) TableName() string {
 	return "sys_dict_type"
 }
 

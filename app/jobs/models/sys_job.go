@@ -23,7 +23,7 @@ type SysJob struct {
 	DataScope string `json:"dataScope" gorm:"-"`
 }
 
-func (SysJob) TableName() string {
+func (*SysJob) TableName() string {
 	return "sys_job"
 }
 
@@ -48,7 +48,7 @@ func (e *SysJob) GetList(tx *gorm.DB, list interface{}) (err error) {
 	return tx.Table(e.TableName()).Where("status = ?", 2).Find(list).Error
 }
 
-// 更新SysJob
+// Update 更新SysJob
 func (e *SysJob) Update(tx *gorm.DB, id interface{}) (err error) {
 	return tx.Table(e.TableName()).Where(id).Updates(&e).Error
 }

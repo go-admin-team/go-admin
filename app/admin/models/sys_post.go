@@ -16,7 +16,7 @@ type SysPost struct {
 	Params    string `gorm:"-" json:"params"`
 }
 
-func (SysPost) TableName() string {
+func (*SysPost) TableName() string {
 	return "sys_post"
 }
 

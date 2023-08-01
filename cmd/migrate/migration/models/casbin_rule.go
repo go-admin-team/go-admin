@@ -1,6 +1,6 @@
 package models
 
-//sys_casbin_rule
+// CasbinRule sys_casbin_rule
 type CasbinRule struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement"`
 	Ptype string `gorm:"size:512;uniqueIndex:unique_index"`

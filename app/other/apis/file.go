@@ -44,7 +44,7 @@ type File struct {
 func (e File) UploadFile(c *gin.Context) {
 	e.MakeContext(c)
 	tag, _ := c.GetPostForm("type")
-	urlPrefix := fmt.Sprintf("http://%s/", c.Request.Host)
+	urlPrefix := fmt.Sprintf("%s://%s/", "http", c.Request.Host)
 	var fileResponse FileResponse
 
 	switch tag {

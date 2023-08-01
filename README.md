@@ -158,7 +158,7 @@ vi ./config/settings.yml
 # 2. Confirm the log path
 ```
 
-:::tip ⚠️Note that this problem will occur if CGO is not installed in the windows environment;
+:::tip ⚠️Note that this problem will occur if CGO is not installed in the windows10+ environment;
 
 ```bash
 E:\go-admin>go build

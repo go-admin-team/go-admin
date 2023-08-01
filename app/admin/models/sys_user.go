@@ -29,7 +29,7 @@ type SysUser struct {
 	models.ModelTime
 }
 
-func (SysUser) TableName() string {
+func (*SysUser) TableName() string {
 	return "sys_user"
 }
 
@@ -42,7 +42,7 @@ func (e *SysUser) GetId() interface{} {
 	return e.UserId
 }
 
-//加密
+// Encrypt 加密
 func (e *SysUser) Encrypt() (err error) {
 	if e.Password == "" {
 		return

@@ -24,7 +24,7 @@ type SysUser struct {
 	ModelTime
 }
 
-func (SysUser) TableName() string {
+func (*SysUser) TableName() string {
 	return "sys_user"
 }
 

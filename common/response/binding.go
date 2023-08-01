@@ -17,7 +17,7 @@ const (
 	query
 )
 
-var constructor = &bindConstructor{}
+//var constructor = &bindConstructor{}
 
 type bindConstructor struct {
 	cache map[string][]uint8

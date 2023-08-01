@@ -62,5 +62,5 @@ Describe changes from the user side, and list all potential break changes or oth
 
 - [ ] Doc is updated/provided or not needed
 - [ ] Demo is updated/provided or not needed
-- [ ] TypeScript definition is updated/provided or not needed
+- [ ] TypeScript's definition is updated/provided or not needed
 - [ ] Changelog is provided or not needed

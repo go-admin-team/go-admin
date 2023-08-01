@@ -6,7 +6,6 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk"
 	models2 "go-admin/app/jobs/models"
 	"gorm.io/gorm"
-	"sync"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -18,8 +17,9 @@ import (
 var timeFormat = "2006-01-02 15:04:05"
 var retryCount = 3
 
-var jobList map[string]JobsExec
-var lock sync.Mutex
+var jobList map[string]JobExec
+
+//var lock sync.Mutex
 
 type JobCore struct {
 	InvokeTarget   string
@@ -30,7 +30,7 @@ type JobCore struct {
 	Args           string
 }
 
-// 任务类型 http
+// HttpJob 任务类型 http
 type HttpJob struct {
 	JobCore
 }
@@ -46,7 +46,7 @@ func (e *ExecJob) Run() {
 		log.Warn("[Job] ExecJob Run job nil")
 		return
 	}
-	err := CallExec(obj.(JobsExec), e.Args)
+	err := CallExec(obj.(JobExec), e.Args)
 	if err != nil {
 		// 如果失败暂停一段时间重试
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] mission failed! ", err)
@@ -63,7 +63,7 @@ func (e *ExecJob) Run() {
 	return
 }
 
-//http 任务接口
+// Run http 任务接口
 func (h *HttpJob) Run() {
 
 	startTime := time.Now()
@@ -95,7 +95,7 @@ LOOP:
 	return
 }
 
-// 初始化
+// Setup 初始化
 func Setup(dbs map[string]*gorm.DB) {
 
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
@@ -152,7 +152,7 @@ func setup(key string, db *gorm.DB) {
 	select {}
 }
 
-// 添加任务 AddJob(invokeTarget string, jobId int, jobName string, cronExpression string)
+// AddJob 添加任务 AddJob(invokeTarget string, jobId int, jobName string, cronExpression string)
 func AddJob(c *cron.Cron, job Job) (int, error) {
 	if job == nil {
 		fmt.Println("unknown")
@@ -171,8 +171,8 @@ func (h *HttpJob) addJob(c *cron.Cron) (int, error) {
 	return EntryId, nil
 }
 
-func (h *ExecJob) addJob(c *cron.Cron) (int, error) {
-	id, err := c.AddJob(h.CronExpression, h)
+func (e *ExecJob) addJob(c *cron.Cron) (int, error) {
+	id, err := c.AddJob(e.CronExpression, e)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore AddJob error", err)
 		return 0, err
@@ -181,7 +181,7 @@ func (h *ExecJob) addJob(c *cron.Cron) (int, error) {
 	return EntryId, nil
 }
 
-// 移除任务
+// Remove 移除任务
 func Remove(c *cron.Cron, entryID int) chan bool {
 	ch := make(chan bool)
 	go func() {

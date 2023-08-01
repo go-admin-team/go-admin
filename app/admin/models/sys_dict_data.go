@@ -20,7 +20,7 @@ type SysDictData struct {
 	models.ModelTime
 }
 
-func (SysDictData) TableName() string {
+func (*SysDictData) TableName() string {
 	return "sys_dict_data"
 }
 

@@ -93,11 +93,11 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 			return nil, jwt.ErrInvalidVerificationode
 		}
 	}
-	user, role, e := loginVals.GetUser(db)
+	sysUser, role, e := loginVals.GetUser(db)
 	if e == nil {
 		username = loginVals.Username
 
-		return map[string]interface{}{"user": user, "role": role}, nil
+		return map[string]interface{}{"user": sysUser, "role": role}, nil
 	} else {
 		msg = "登录失败"
 		status = "1"

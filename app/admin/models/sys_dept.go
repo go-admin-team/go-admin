@@ -7,7 +7,7 @@ type SysDept struct {
 	ParentId int    `json:"parentId" gorm:""`                        //上级部门
 	DeptPath string `json:"deptPath" gorm:"size:255;"`               //
 	DeptName string `json:"deptName"  gorm:"size:128;"`              //部门名称
-	Sort     int    `json:"sort" gorm:"size:4;"`                            //排序
+	Sort     int    `json:"sort" gorm:"size:4;"`                     //排序
 	Leader   string `json:"leader" gorm:"size:128;"`                 //负责人
 	Phone    string `json:"phone" gorm:"size:11;"`                   //手机
 	Email    string `json:"email" gorm:"size:64;"`                   //邮箱
@@ -19,7 +19,7 @@ type SysDept struct {
 	Children  []SysDept `json:"children" gorm:"-"`
 }
 
-func (SysDept) TableName() string {
+func (*SysDept) TableName() string {
 	return "sys_dept"
 }
 

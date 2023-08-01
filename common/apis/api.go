@@ -27,7 +27,7 @@ func (e *Api) AddError(err error) {
 		e.Errors = err
 	} else if err != nil {
 		e.Logger.Error(err)
-		e.Errors = fmt.Errorf("%v; %w", e.Error, err)
+		e.Errors = fmt.Errorf("%v; %w", e.Errors, err)
 	}
 }
 
@@ -39,7 +39,7 @@ func (e *Api) MakeContext(c *gin.Context) *Api {
 }
 
 // GetLogger 获取上下文提供的日志
-func (e Api) GetLogger() *logger.Helper {
+func (e *Api) GetLogger() *logger.Helper {
 	return api.GetRequestLogger(e.Context)
 }
 
@@ -81,7 +81,7 @@ func (e *Api) Bind(d interface{}, bindings ...binding.Binding) *Api {
 }
 
 // GetOrm 获取Orm DB
-func (e Api) GetOrm() (*gorm.DB, error) {
+func (e *Api) GetOrm() (*gorm.DB, error) {
 	db, err := pkg.GetOrm(e.Context)
 	if err != nil {
 		e.Error(500, err, "数据库连接获取失败")
@@ -115,21 +115,21 @@ func (e *Api) MakeService(c *service.Service) *Api {
 }
 
 // Error 通常错误数据处理
-func (e Api) Error(code int, err error, msg string) {
+func (e *Api) Error(code int, err error, msg string) {
 	response.Error(e.Context, code, err, msg)
 }
 
 // OK 通常成功数据处理
-func (e Api) OK(data interface{}, msg string) {
+func (e *Api) OK(data interface{}, msg string) {
 	response.OK(e.Context, data, msg)
 }
 
 // PageOK 分页数据处理
-func (e Api) PageOK(result interface{}, count int, pageIndex int, pageSize int, msg string) {
+func (e *Api) PageOK(result interface{}, count int, pageIndex int, pageSize int, msg string) {
 	response.PageOK(e.Context, result, count, pageIndex, pageSize, msg)
 }
 
 // Custom 兼容函数
-func (e Api) Custom(data gin.H) {
+func (e *Api) Custom(data gin.H) {
 	response.Custum(e.Context, data)
 }

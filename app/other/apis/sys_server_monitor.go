@@ -3,7 +3,6 @@ package apis
 import (
 	"fmt"
 	"github.com/shirou/gopsutil/v3/net"
-	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -27,15 +26,15 @@ const (
 )
 
 var (
-	Version           string
-	expectDiskFsTypes = []string{
-		"apfs", "ext4", "ext3", "ext2", "f2fs", "reiserfs", "jfs", "btrfs",
-		"fuseblk", "zfs", "simfs", "ntfs", "fat32", "exfat", "xfs", "fuse.rclone",
-	}
+	//Version           string
+	//expectDiskFsTypes = []string{
+	//	"apfs", "ext4", "ext3", "ext2", "f2fs", "reiserfs", "jfs", "btrfs",
+	//	"fuseblk", "zfs", "simfs", "ntfs", "fat32", "exfat", "xfs", "fuse.rclone",
+	//}
 	excludeNetInterfaces = []string{
 		"lo", "tun", "docker", "veth", "br-", "vmbr", "vnet", "kube",
 	}
-	getMacDiskNo = regexp.MustCompile(`\/dev\/disk(\d)s.*`)
+	//getMacDiskNo = regexp.MustCompile(`\/dev\/disk(\d)s.*`)
 )
 
 var (
@@ -84,17 +83,17 @@ func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	osDic["hostName"] = sysInfo.Hostname
 	osDic["time"] = time.Now().Format("2006-01-02 15:04:05")
 
-	mem, _ := mem.VirtualMemory()
+	memory, _ := mem.VirtualMemory()
 	memDic := make(map[string]interface{}, 0)
-	memDic["used"] = mem.Used / MB
-	memDic["total"] = mem.Total / MB
+	memDic["used"] = memory.Used / MB
+	memDic["total"] = memory.Total / MB
 
-	fmt.Println("mem", int(mem.Total/mem.Used*100))
-	memDic["percent"] = pkg.Round(mem.UsedPercent, 2)
+	fmt.Println("mem", int(memory.Total/memory.Used*100))
+	memDic["percent"] = pkg.Round(memory.UsedPercent, 2)
 
 	swapDic := make(map[string]interface{}, 0)
-	swapDic["used"] = mem.SwapTotal - mem.SwapFree
-	swapDic["total"] = mem.SwapTotal
+	swapDic["used"] = memory.SwapTotal - memory.SwapFree
+	swapDic["total"] = memory.SwapTotal
 
 	cpuDic := make(map[string]interface{}, 0)
 	cpuDic["cpuInfo"], _ = cpu.Info()

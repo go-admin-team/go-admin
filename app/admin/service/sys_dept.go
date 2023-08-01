@@ -237,7 +237,7 @@ func (e *SysDept) deptPageCall(deptlist *[]models.SysDept, menu models.SysDept) 
 	return menu
 }
 
-// GetRoleDeptId 获取角色的部门ID集合
+// GetWithRoleId 获取角色的部门ID集合
 func (e *SysDept) GetWithRoleId(roleId int) ([]int, error) {
 	deptIds := make([]int, 0)
 	deptList := make([]dto.DeptIdList, 0)

@@ -29,7 +29,7 @@ type SysLoginLog struct {
 	models.ControlBy
 }
 
-func (SysLoginLog) TableName() string {
+func (*SysLoginLog) TableName() string {
 	return "sys_login_log"
 }
 

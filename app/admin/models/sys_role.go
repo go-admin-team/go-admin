@@ -21,7 +21,7 @@ type SysRole struct {
 	models.ModelTime
 }
 
-func (SysRole) TableName() string {
+func (*SysRole) TableName() string {
 	return "sys_role"
 }
 

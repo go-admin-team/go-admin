@@ -15,7 +15,7 @@ func Trace() gin.HandlerFunc {
 			opentracing.TextMap,
 			opentracing.HTTPHeadersCarrier(ctx.Request.Header))
 		if err != nil {
-			// If for whatever reason we can't join, go ahead an start a new root span.
+			// If for whatever reason we can't join, go ahead and start a new root span.
 			sp = opentracing.StartSpan(opName)
 		} else {
 			sp = opentracing.StartSpan(opName, opentracing.ChildOf(wireContext))

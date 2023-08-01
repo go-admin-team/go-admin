@@ -7,10 +7,10 @@ type Job interface {
 	addJob(*cron.Cron) (int, error)
 }
 
-type JobsExec interface {
+type JobExec interface {
 	Exec(arg interface{}) error
 }
 
-func CallExec(e JobsExec, arg interface{}) error {
+func CallExec(e JobExec, arg interface{}) error {
 	return e.Exec(arg)
 }

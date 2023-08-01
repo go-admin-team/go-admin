@@ -37,7 +37,7 @@ type SysOperaLog struct {
 	models.ControlBy
 }
 
-func (SysOperaLog) TableName() string {
+func (*SysOperaLog) TableName() string {
 	return "sys_opera_log"
 }
 

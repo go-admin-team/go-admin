@@ -47,7 +47,7 @@ type SysTables struct {
 	models.BaseModel
 }
 
-func (SysTables) TableName() string {
+func (*SysTables) TableName() string {
 	return "sys_tables"
 }
 

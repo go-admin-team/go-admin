@@ -17,7 +17,7 @@ import (
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/columns/page [get]
-func (e *Gen) GetDBColumnList(c *gin.Context) {
+func (e Gen) GetDBColumnList(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
 	var data tools.DBColumns

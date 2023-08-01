@@ -16,7 +16,7 @@ type SysConfig struct {
 	models.ModelTime
 }
 
-func (SysConfig) TableName() string {
+func (*SysConfig) TableName() string {
 	return "sys_config"
 }
 

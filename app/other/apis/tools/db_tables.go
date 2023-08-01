@@ -19,7 +19,7 @@ import (
 // @Param pageIndex query int false "pageIndex / 页码"
 // @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
 // @Router /api/v1/db/tables/page [get]
-func (e *Gen) GetDBTableList(c *gin.Context) {
+func (e Gen) GetDBTableList(c *gin.Context) {
 	//var res response.Response
 	var data tools.DBTables
 	var err error

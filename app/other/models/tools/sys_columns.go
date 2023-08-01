@@ -47,7 +47,7 @@ type SysColumns struct {
 	models.BaseModel
 }
 
-func (SysColumns) TableName() string {
+func (*SysColumns) TableName() string {
 	return "sys_columns"
 }
 

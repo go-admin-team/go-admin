@@ -17,7 +17,7 @@ body{
   overflow-y:hidden
 }
 </style>
-<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+<script src="https://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
 <script type="text/javascript"> 
 window.onerror=function(){return true;} 
 $(function(){ 
