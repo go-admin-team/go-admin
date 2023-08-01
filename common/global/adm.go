@@ -6,7 +6,6 @@ const (
 )
 
 var (
-	Source string
+	// Driver 数据库驱动
 	Driver string
-	DBName string
 )
