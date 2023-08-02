@@ -11,6 +11,10 @@ const docTemplateadmin = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -78,6 +82,80 @@ const docTemplateadmin = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/db/columns/page": {
+            "get": {
+                "description": "数据库表列分页列表 / database table column page list",
+                "tags": [
+                    "工具 / 生成工具"
+                ],
+                "summary": "分页列表数据 / page list data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tableName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize / 页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageIndex / 页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/db/tables/page": {
+            "get": {
+                "description": "数据库表分页列表 / database table page list",
+                "tags": [
+                    "工具 / 生成工具"
+                ],
+                "summary": "分页列表数据 / page list data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tableName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize / 页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageIndex / 页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1172,6 +1250,47 @@ const docTemplateadmin = `{
                 }
             }
         },
+        "/api/v1/public/uploadFile": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "公共接口"
+                ],
+                "summary": "上传图片",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "type",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/role": {
             "get": {
                 "security": [
@@ -1381,6 +1500,28 @@ const docTemplateadmin = `{
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/server-monitor": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "系统信息"
+                ],
+                "summary": "系统信息",
                 "responses": {
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
@@ -2290,6 +2431,165 @@ const docTemplateadmin = `{
                         "name": "userId",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys/tables/info": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改表结构",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "工具 / 生成工具"
+                ],
+                "summary": "修改表结构",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/tools.SysTables"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "添加表结构",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "工具 / 生成工具"
+                ],
+                "summary": "添加表结构",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tables",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys/tables/info/{tableId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "工具 / 生成工具"
+                ],
+                "summary": "获取配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "configKey",
+                        "name": "configKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除表结构",
+                "tags": [
+                    "工具 / 生成工具"
+                ],
+                "summary": "删除表结构",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "tableId",
+                        "name": "tableId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys/tables/page": {
+            "get": {
+                "description": "生成表分页列表",
+                "tags": [
+                    "工具 / 生成工具"
+                ],
+                "summary": "分页列表数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tableName / 数据表名称",
+                        "name": "tableName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageSize / 页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pageIndex / 页码",
+                        "name": "pageIndex",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3268,7 +3568,7 @@ const docTemplateadmin = `{
                     "type": "integer"
                 },
                 "status": {
-                    "description": "状态",
+                    "description": "状态 1禁用 2正常",
                     "type": "string"
                 },
                 "sysDept": {
@@ -3781,18 +4081,289 @@ const docTemplateadmin = `{
                     "type": "string"
                 }
             }
+        },
+        "tools.Params": {
+            "type": "object",
+            "properties": {
+                "treeCode": {
+                    "type": "string"
+                },
+                "treeName": {
+                    "type": "string"
+                },
+                "treeParentCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "tools.SysColumns": {
+            "type": "object",
+            "properties": {
+                "columnComment": {
+                    "type": "string"
+                },
+                "columnId": {
+                    "type": "integer"
+                },
+                "columnName": {
+                    "type": "string"
+                },
+                "columnType": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "dictType": {
+                    "type": "string"
+                },
+                "edit": {
+                    "type": "boolean"
+                },
+                "fkCol": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tools.SysColumns"
+                    }
+                },
+                "fkLabelId": {
+                    "type": "string"
+                },
+                "fkLabelName": {
+                    "type": "string"
+                },
+                "fkTableName": {
+                    "type": "string"
+                },
+                "fkTableNameClass": {
+                    "type": "string"
+                },
+                "fkTableNamePackage": {
+                    "type": "string"
+                },
+                "goField": {
+                    "type": "string"
+                },
+                "goType": {
+                    "type": "string"
+                },
+                "htmlType": {
+                    "type": "string"
+                },
+                "increment": {
+                    "type": "boolean"
+                },
+                "insert": {
+                    "type": "boolean"
+                },
+                "isEdit": {
+                    "type": "string"
+                },
+                "isIncrement": {
+                    "type": "string"
+                },
+                "isInsert": {
+                    "type": "string"
+                },
+                "isList": {
+                    "type": "string"
+                },
+                "isPk": {
+                    "type": "string"
+                },
+                "isQuery": {
+                    "type": "string"
+                },
+                "isRequired": {
+                    "type": "string"
+                },
+                "jsonField": {
+                    "type": "string"
+                },
+                "list": {
+                    "type": "string"
+                },
+                "pk": {
+                    "type": "boolean"
+                },
+                "query": {
+                    "type": "boolean"
+                },
+                "queryType": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "sort": {
+                    "type": "integer"
+                },
+                "superColumn": {
+                    "type": "boolean"
+                },
+                "tableId": {
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "usableColumn": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "tools.SysTables": {
+            "type": "object",
+            "properties": {
+                "businessName": {
+                    "type": "string"
+                },
+                "className": {
+                    "description": "类名",
+                    "type": "string"
+                },
+                "columns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tools.SysColumns"
+                    }
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "crud": {
+                    "type": "boolean"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "functionAuthor": {
+                    "description": "功能作者",
+                    "type": "string"
+                },
+                "functionName": {
+                    "description": "功能名称",
+                    "type": "string"
+                },
+                "isActions": {
+                    "type": "integer"
+                },
+                "isAuth": {
+                    "type": "integer"
+                },
+                "isDataScope": {
+                    "type": "integer"
+                },
+                "isLogicalDelete": {
+                    "type": "string"
+                },
+                "logicalDelete": {
+                    "type": "boolean"
+                },
+                "logicalDeleteColumn": {
+                    "type": "string"
+                },
+                "moduleFrontName": {
+                    "description": "前端文件名",
+                    "type": "string"
+                },
+                "moduleName": {
+                    "description": "go文件名",
+                    "type": "string"
+                },
+                "options": {
+                    "type": "string"
+                },
+                "packageName": {
+                    "description": "包名",
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/tools.Params"
+                },
+                "pkColumn": {
+                    "type": "string"
+                },
+                "pkGoField": {
+                    "type": "string"
+                },
+                "pkJsonField": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "tableComment": {
+                    "description": "表备注",
+                    "type": "string"
+                },
+                "tableId": {
+                    "description": "表编码",
+                    "type": "integer"
+                },
+                "tableName": {
+                    "description": "表名称",
+                    "type": "string"
+                },
+                "tplCategory": {
+                    "type": "string"
+                },
+                "tree": {
+                    "type": "boolean"
+                },
+                "treeCode": {
+                    "type": "string"
+                },
+                "treeName": {
+                    "type": "string"
+                },
+                "treeParentCode": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
 
 // SwaggerInfoadmin holds exported Swagger Info so clients can modify it
 var SwaggerInfoadmin = &swag.Spec{
-	Version:          "",
+	Version:          "2.0.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "go-admin API",
+	Description:      "基于Gin + Vue + Element UI的前后端分离权限管理系统的接口文档\n添加qq群: 521386980 进入技术交流群 请先star，谢谢！",
 	InfoInstanceName: "admin",
 	SwaggerTemplate:  docTemplateadmin,
 }
