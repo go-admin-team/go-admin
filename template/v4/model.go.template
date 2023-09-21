@@ -1,20 +1,24 @@
 package models
 
 import (
-
-	 {{- $bb := false -}}
-	  {{- range .Columns -}}
-     {{$z := .IsQuery}}
-     {{- if ($z) }}
-     {{if eq .GoType "time.Time"}}{{- $bb = true -}}{{- end -}}
-     {{- end -}}
-     {{- end -}}
-     {{- range .Columns -}}
-     {{if eq .GoType "time.Time"}}{{- $bb = true -}}{{- end -}}
-     {{- end -}}
-     {{- if eq $bb true -}}
-     "time"
-     {{- end }}
+    {{- $bb := false -}}
+    {{- range .Columns -}}
+    {{- $z := .IsQuery -}}
+    {{- if ($z) -}}
+    {{- if eq .GoType "time.Time" -}}{{- $bb = true -}}{{- end -}}
+    {{- end -}}
+    {{- end -}}
+    {{- range .Columns -}}
+    {{- if eq .GoField "CreatedAt" -}}
+    {{- else if eq .GoField "UpdatedAt" -}}
+    {{- else if eq .GoField "DeletedAt" -}}
+    {{- else -}}
+    {{- if eq .GoType "time.Time" -}}{{- $bb = true -}}{{- end -}}
+    {{- end -}}
+    {{- end -}}
+    {{- if eq $bb true }}
+    "time"
+    {{- end }}
 
 	"go-admin/common/models"
 
