@@ -12,6 +12,7 @@ import (
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
+	"go-admin/common/global"
 )
 
 type SysApi struct {
@@ -34,7 +35,12 @@ func (e *SysApi) GetPage(c *dto.SysApiGetPageReq, p *actions.DataPermission, lis
 		if qType == "暂无" {
 			qType = ""
 		}
-		orm = orm.Where("`type` = ?", qType)
+		if global.Driver == "postgres" {
+			orm = orm.Where("type = ?", qType)
+		} else {
+			orm = orm.Where("`type` = ?", qType)
+		}
+
 	}
 	err = orm.Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
