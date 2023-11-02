@@ -122,7 +122,7 @@
                            class="delete-popconfirm"
                            title="确认要修改吗?"
                            confirm-button-text="修改"
-                           @onConfirm="handleUpdate(scope.row)"
+                           @confirm="handleUpdate(scope.row)"
                          >
                            <el-button
                              slot="reference"
@@ -137,7 +137,7 @@
                             class="delete-popconfirm"
                             title="确认要删除吗?"
                             confirm-button-text="删除"
-                            @onConfirm="handleDelete(scope.row)"
+                            @confirm="handleDelete(scope.row)"
                          >
                             <el-button
                               slot="reference"
