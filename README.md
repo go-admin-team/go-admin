@@ -333,6 +333,7 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 
 ## 🤝 Link
 [Go developer growth roadmap](http://www.golangroadmap.com/)
+[mss-boot-io](https://docs.mss-boot-io.top/)
 
 ## 🔑 License
 
