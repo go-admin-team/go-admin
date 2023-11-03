@@ -63,6 +63,18 @@ func migrateModel() error {
 		host = "*"
 	}
 	db := sdk.Runtime.GetDbByKey(host)
+	if db == nil {
+		if len(sdk.Runtime.GetDb()) == 1 && host == "*" {
+			for k, v := range sdk.Runtime.GetDb() {
+				db = v
+				host = k
+				break
+			}
+		}
+	}
+	if db == nil {
+		return fmt.Errorf("未找到数据库配置")
+	}
 	if config.DatabasesConfig[host].Driver == "mysql" {
 		//初始化数据库时候用
 		db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
