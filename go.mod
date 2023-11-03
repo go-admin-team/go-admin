@@ -10,8 +10,8 @@ require (
 	github.com/bytedance/go-tagexpr/v2 v2.9.11
 	github.com/casbin/casbin/v2 v2.77.2
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-admin-team/go-admin-core v1.5.2-0.20231103084818-110915f53e70
-	github.com/go-admin-team/go-admin-core/sdk v1.5.2-0.20231103090141-8c06ea121672
+	github.com/go-admin-team/go-admin-core v1.5.2-0.20231103105356-84418ed9252c
+	github.com/go-admin-team/go-admin-core/sdk v1.5.2-0.20231103105356-84418ed9252c
 	github.com/google/uuid v1.4.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.23.9+incompatible
 	github.com/mssola/user_agent v0.6.0
@@ -66,7 +66,7 @@ require (
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/git-chglog/git-chglog v0.15.4 // indirect
-	github.com/go-admin-team/go-admin-core/plugins/logger/zap v1.3.5-rc.0.0.20231103084621-a186c68d83c2 // indirect
+	github.com/go-admin-team/go-admin-core/plugins/logger/zap v1.3.5-rc.0.0.20231103105142-2d9e40ec6f71 // indirect
 	github.com/go-admin-team/gorm-adapter/v3 v3.7.8-0.20220809100335-eaf9f67b3d21 // indirect
 	github.com/go-admin-team/redis-watcher/v2 v2.0.0-20231102130416-bfe327cac940 // indirect
 	github.com/go-admin-team/redisqueue/v2 v2.0.1-0.20231102124201-508101cc789a // indirect

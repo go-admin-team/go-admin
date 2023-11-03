@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/go-admin-team/go-admin-core/sdk/runtime"
+	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"os"
@@ -100,7 +100,7 @@ func run() error {
 	if apiCheck {
 		var routers = sdk.Runtime.GetRouter()
 		q := sdk.Runtime.GetMemoryQueue("")
-		mp := make(map[string]interface{}, 0)
+		mp := make(map[string]interface{})
 		mp["List"] = routers
 		message, err := sdk.Runtime.GetStreamMessage("", global.ApiCheck, mp)
 		if err != nil {
@@ -117,11 +117,11 @@ func run() error {
 	go func() {
 		// 服务连接
 		if config.SslConfig.Enable {
-			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && err != http.ErrServerClosed {
+			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				log.Fatal("listen: ", err)
 			}
 		} else {
-			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				log.Fatal("listen: ", err)
 			}
 		}
@@ -152,7 +152,7 @@ func run() error {
 	return nil
 }
 
-var Router runtime.Router
+//var Router runtime.Router
 
 func tip() {
 	usageStr := `欢迎使用 ` + pkg.Green(`go-admin `+global.Version) + ` 可以使用 ` + pkg.Red(`-h`) + ` 查看命令`
