@@ -21,13 +21,13 @@ The front-end and back-end separation authority management system based on Gin +
 ## 🎬 Online Demo
 
 Element UI vue demo：[https://vue2.go-admin.dev](https://vue2.go-admin.dev/#/login)
-> 账号 / 密码： admin / 123456
+> username / password： admin / 123456
 
 Arco Design vue3 demo：[https://vue3.go-admin.dev](https://vue3.go-admin.dev/#/login)
-> 账号 / 密码： admin / 123456
+> username / password： admin / 123456
 
 antd demo：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
-> 账号 / 密码： admin / 123456
+> username / password： admin / 123456
 > 
 ## ✨ Feature
 
