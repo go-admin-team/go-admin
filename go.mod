@@ -29,9 +29,19 @@ require (
 	golang.org/x/crypto v0.14.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/driver/postgres v1.5.4
-	gorm.io/driver/sqlite v1.5.4
+	gorm.io/driver/sqlite v1.4.3
 	gorm.io/driver/sqlserver v1.5.2
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.7
+)
+
+require (
+	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/glebarez/go-sqlite v1.21.2 // indirect
+	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	modernc.org/libc v1.22.5 // indirect
+	modernc.org/mathutil v1.5.0 // indirect
+	modernc.org/memory v1.5.0 // indirect
+	modernc.org/sqlite v1.23.1 // indirect
 )
 
 require (
@@ -66,6 +76,7 @@ require (
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/git-chglog/git-chglog v0.15.4 // indirect
+	github.com/glebarez/sqlite v1.11.0
 	github.com/go-admin-team/go-admin-core/plugins/logger/zap v1.3.5-rc.0.0.20231103105142-2d9e40ec6f71 // indirect
 	github.com/go-admin-team/gorm-adapter/v3 v3.7.8-0.20220809100335-eaf9f67b3d21 // indirect
 	github.com/go-admin-team/redis-watcher/v2 v2.0.0-20231102130416-bfe327cac940 // indirect
