@@ -8,7 +8,7 @@
   - action: "go build"
     type: "BUILD"
     docker_image_name: "library/golang"
-    docker_image_tag: "1.19.0"
+    docker_image_tag: "latest"
     execute_commands:
     - "go mod tidy"
     - "go build"
