@@ -4,3 +4,21 @@
     refs:
     - "refs/heads/master"
   fail_on_prepare_env_warning: true
+  actions:
+  - action: "go build"
+    type: "BUILD"
+    docker_image_name: "library/golang"
+    docker_image_tag: "1.21.10"
+    execute_commands:
+    - "go mod tidy"
+    - "go build"
+    services:
+    - type: "MARIADB"
+      connection:
+        host: "mariadb"
+        user: "goadmin"
+        password: "goadmin"
+        db: "go-admin"
+    volume_mappings:
+    - "/:/src/github.com/asoft41/go-admin"
+    shell: "BASH"
