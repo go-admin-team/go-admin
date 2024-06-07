@@ -19,6 +19,13 @@
         user: "goadmin"
         password: "goadmin"
         db: "go-admin"
+      volume_mappings: []
     volume_mappings:
     - "/:/src/github.com/asoft41/go-admin"
     shell: "BASH"
+  - action: "Transfer to a sandbox: lvgang-sandbox"
+    type: "DEPLOY_TO_SANDBOX"
+    remote_path: "/"
+    sandbox_references:
+    - "BY_ID"
+    sandbox_id: "jfptrteah6pgh"
