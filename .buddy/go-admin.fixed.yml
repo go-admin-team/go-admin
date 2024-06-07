@@ -10,7 +10,7 @@
     docker_image_name: "library/golang"
     docker_image_tag: "1.19.0"
     execute_commands:
-    - "go test"
+    - "go mod tidy"
     - "go build"
     volume_mappings:
     - "/:/src/github.com/asoft41/go-admin"
