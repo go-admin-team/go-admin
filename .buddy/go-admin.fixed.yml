@@ -1,0 +1,6 @@
+- pipeline: "go-admin"
+  events:
+  - type: "PUSH"
+    refs:
+    - "refs/heads/master"
+  fail_on_prepare_env_warning: true
