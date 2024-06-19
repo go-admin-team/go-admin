@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -86,7 +86,7 @@ func (e File) baseImg(c *gin.Context, fileResponse FileResponse, urlPerfix strin
 		e.Error(500, errors.New(""), "初始化文件路径失败")
 	}
 	base64File := path + fileName
-	_ = ioutil.WriteFile(base64File, ddd, 0666)
+	_ = os.WriteFile(base64File, ddd, 0666)
 	typeStr := strings.Replace(strings.Replace(file2list[0], "data:", "", -1), ";base64", "", -1)
 	fileResponse = FileResponse{
 		Size:     pkg.GetFileSize(base64File),

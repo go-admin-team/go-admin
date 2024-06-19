@@ -7,7 +7,6 @@ import (
 	"go-admin/app/admin/service/dto"
 	"go-admin/common"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -38,8 +37,8 @@ func LoggerToFile() gin.HandlerFunc {
 				log.Warnf("copy body error, %s", err.Error())
 				err = nil
 			}
-			rb, _ := ioutil.ReadAll(bf)
-			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rb))
+			rb, _ := io.ReadAll(bf)
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(rb))
 			body = string(rb)
 		}
 
