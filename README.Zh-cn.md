@@ -215,7 +215,7 @@ docker build -t go-admin .
 
 # 启动容器，第一个go-admin是容器名字，第二个go-admin是镜像名称
 # -v 映射配置文件 本地路径：容器路径
-docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin-server
+docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin
 ```
 
 #### 文档生成
