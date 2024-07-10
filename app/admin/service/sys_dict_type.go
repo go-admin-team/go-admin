@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
@@ -60,7 +61,7 @@ func (e *SysDictType) Insert(c *dto.SysDictTypeInsertReq) error {
 	var count int64
 	e.Orm.Model(&data).Where("dict_type = ?", data.DictType).Count(&count)
 	if count > 0 {
-		return errors.New(fmt.Sprintf("当前字典类型[%s]已经存在！", data.DictType))
+		return fmt.Errorf("当前字典类型[%s]已经存在！", data.DictType)
 	}
 	err = e.Orm.Create(&data).Error
 	if err != nil {
@@ -95,7 +96,6 @@ func (e *SysDictType) Remove(d *dto.SysDictTypeDeleteReq) error {
 
 	db := e.Orm.Delete(&data, d.GetId())
 	if err = db.Error; err != nil {
-		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}

@@ -133,7 +133,6 @@ func (e *SysDept) Remove(d *dto.SysDeptDeleteReq) error {
 
 	db := e.Orm.Model(&data).Delete(&data, d.GetId())
 	if err = db.Error; err != nil {
-		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}

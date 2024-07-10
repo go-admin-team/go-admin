@@ -143,7 +143,6 @@ func (e *SysConfig) Remove(d *dto.SysConfigDeleteReq) error {
 
 	db := e.Orm.Delete(&data, d.Ids)
 	if err = db.Error; err != nil {
-		err = db.Error
 		e.Log.Errorf("Service RemoveSysConfig error:%s", err)
 		return err
 	}
@@ -168,8 +167,7 @@ func (e *SysConfig) GetWithKey(c *dto.SysConfigByKeyReq, resp *dto.GetSysConfigB
 }
 
 func (e *SysConfig) GetWithKeyList(c *dto.SysConfigGetToSysAppReq, list *[]models.SysConfig) error {
-	var err error
-	err = e.Orm.
+	err := e.Orm.
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 		).

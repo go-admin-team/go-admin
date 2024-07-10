@@ -192,7 +192,6 @@ func (e *SysMenu) Remove(d *dto.SysMenuDeleteReq) *SysMenu {
 
 	db := e.Orm.Model(&data).Delete(&data, d.Ids)
 	if err = db.Error; err != nil {
-		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		_ = e.AddError(err)
 	}
