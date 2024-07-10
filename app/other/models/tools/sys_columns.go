@@ -1,7 +1,8 @@
 package tools
 
 import (
-	"go-admin/app/admin/models"
+	common "go-admin/common/models"
+
 	"gorm.io/gorm"
 )
 
@@ -44,7 +45,7 @@ type SysColumns struct {
 	CreateBy           int          `gorm:"column:create_by;size:20;" json:"createBy"`
 	UpdateBy           int          `gorm:"column:update_By;size:20;" json:"updateBy"`
 
-	models.BaseModel
+	common.ModelTime
 }
 
 func (*SysColumns) TableName() string {

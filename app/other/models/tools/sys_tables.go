@@ -5,8 +5,6 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-
-	"go-admin/app/admin/models"
 )
 
 type SysTables struct {
@@ -43,8 +41,6 @@ type SysTables struct {
 	DataScope string       `gorm:"-" json:"dataScope"`
 	Params    Params       `gorm:"-" json:"params"`
 	Columns   []SysColumns `gorm:"-" json:"columns"`
-
-	models.BaseModel
 }
 
 func (*SysTables) TableName() string {
