@@ -58,7 +58,6 @@ func (e *SysLoginLog) Remove(c *dto.SysLoginLogDeleteReq) error {
 
 	db := e.Orm.Delete(&data, c.GetId())
 	if err = db.Error; err != nil {
-		err = db.Error
 		e.Log.Errorf("Delete error: %s", err)
 		return err
 	}
