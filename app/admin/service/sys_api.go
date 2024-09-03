@@ -6,8 +6,6 @@ import (
 
 	"github.com/go-admin-team/go-admin-core/sdk/runtime"
 	"github.com/go-admin-team/go-admin-core/sdk/service"
-	"gorm.io/gorm"
-
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
@@ -58,15 +56,15 @@ func (e *SysApi) Get(d *dto.SysApiGetReq, p *actions.DataPermission, model *mode
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).
-		First(model, d.GetId()).Error
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		err = errors.New("查看对象不存在或无权查看")
-		e.Log.Errorf("Service GetSysApi error:%s", err)
+		FirstOrInit(model, d.GetId()).Error
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
 		return e
 	}
-	if err != nil {
-		e.Log.Errorf("db error:%s", err)
+	if model.Id == 0 {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("Service GetSysApi error: %s", err)
 		_ = e.AddError(err)
 		return e
 	}
