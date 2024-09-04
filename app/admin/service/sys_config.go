@@ -8,7 +8,6 @@ import (
 	cDto "go-admin/common/dto"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
-	"gorm.io/gorm"
 )
 
 type SysConfig struct {
@@ -33,14 +32,16 @@ func (e *SysConfig) GetPage(c *dto.SysConfigGetPageReq, list *[]models.SysConfig
 
 // Get 获取SysConfig对象
 func (e *SysConfig) Get(d *dto.SysConfigGetReq, model *models.SysConfig) error {
-	err := e.Orm.First(model, d.GetId()).Error
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		err = errors.New("查看对象不存在或无权查看")
-		e.Log.Errorf("Service GetSysConfigPage error:%s", err)
+	err := e.Orm.FirstOrInit(model, d.GetId()).Error
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		_ = e.AddError(err)
 		return err
 	}
-	if err != nil {
-		e.Log.Errorf("Service GetSysConfig error:%s", err)
+	if model.Id == 0 {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("Service GetSysApi error: %s", err)
+		_ = e.AddError(err)
 		return err
 	}
 	return nil
