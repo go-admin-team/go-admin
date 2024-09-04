@@ -32,7 +32,9 @@ func (e *SysConfig) GetPage(c *dto.SysConfigGetPageReq, list *[]models.SysConfig
 
 // Get 获取SysConfig对象
 func (e *SysConfig) Get(d *dto.SysConfigGetReq, model *models.SysConfig) error {
-	err := e.Orm.FirstOrInit(model, d.GetId()).Error
+	err := e.Orm.
+		FirstOrInit(model, d.GetId()).
+		Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
 		_ = e.AddError(err)
