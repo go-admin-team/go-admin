@@ -7,8 +7,6 @@ import (
 	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 
-	"gorm.io/gorm"
-
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 
@@ -41,16 +39,18 @@ func (e *SysDept) Get(d *dto.SysDeptGetReq, model *models.SysDept) error {
 	var err error
 	var data models.SysDept
 
-	db := e.Orm.Model(&data).
-		First(model, d.GetId())
-	err = db.Error
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		err = errors.New("查看对象不存在或无权查看")
+	err = e.Orm.Model(&data).
+		FirstOrInit(model, d.GetId()).
+		Error
+	if err != nil {
 		e.Log.Errorf("db error:%s", err)
+		_ = e.AddError(err)
 		return err
 	}
-	if err = db.Error; err != nil {
-		e.Log.Errorf("db error:%s", err)
+	if model.DeptId == 0 {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("Service GetSysApi error: %s", err)
+		_ = e.AddError(err)
 		return err
 	}
 	return nil
