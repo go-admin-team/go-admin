@@ -183,16 +183,16 @@ func (e *SysDept) SetDeptTree(c *dto.SysDeptGetPageReq) (m []dto.DeptLabel, err 
 // Call 递归构造组织数据
 func deptTreeCall(deptList *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
 	list := *deptList
-	min := make([]dto.DeptLabel, 0)
+	childrenList := make([]dto.DeptLabel, 0)
 	for j := 0; j < len(list); j++ {
 		if dept.Id != list[j].ParentId {
 			continue
 		}
 		mi := dto.DeptLabel{Id: list[j].DeptId, Label: list[j].DeptName, Children: []dto.DeptLabel{}}
 		ms := deptTreeCall(deptList, mi)
-		min = append(min, ms)
+		childrenList = append(childrenList, ms)
 	}
-	dept.Children = min
+	dept.Children = childrenList
 	return dept
 }
 
@@ -212,7 +212,7 @@ func (e *SysDept) SetDeptPage(c *dto.SysDeptGetPageReq) (m []models.SysDept, err
 
 func (e *SysDept) deptPageCall(deptlist *[]models.SysDept, menu models.SysDept) models.SysDept {
 	list := *deptlist
-	min := make([]models.SysDept, 0)
+	childrenList := make([]models.SysDept, 0)
 	for j := 0; j < len(list); j++ {
 		if menu.DeptId != list[j].ParentId {
 			continue
@@ -230,9 +230,9 @@ func (e *SysDept) deptPageCall(deptlist *[]models.SysDept, menu models.SysDept) 
 		mi.CreatedAt = list[j].CreatedAt
 		mi.Children = []models.SysDept{}
 		ms := e.deptPageCall(deptlist, mi)
-		min = append(min, ms)
+		childrenList = append(childrenList, ms)
 	}
-	menu.Children = min
+	menu.Children = childrenList
 	return menu
 }
 
@@ -280,15 +280,15 @@ func (e *SysDept) SetDeptLabel() (m []dto.DeptLabel, err error) {
 func deptLabelCall(deptList *[]models.SysDept, dept dto.DeptLabel) dto.DeptLabel {
 	list := *deptList
 	var mi dto.DeptLabel
-	min := make([]dto.DeptLabel, 0)
+	childrenList := make([]dto.DeptLabel, 0)
 	for j := 0; j < len(list); j++ {
 		if dept.Id != list[j].ParentId {
 			continue
 		}
 		mi = dto.DeptLabel{Id: list[j].DeptId, Label: list[j].DeptName, Children: []dto.DeptLabel{}}
 		ms := deptLabelCall(deptList, mi)
-		min = append(min, ms)
+		childrenList = append(childrenList, ms)
 	}
-	dept.Children = min
+	dept.Children = childrenList
 	return dept
 }
