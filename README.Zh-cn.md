@@ -160,7 +160,7 @@ vi ./config/settings.yml
 # 2. 确认log路径
 ```
 
-:::tip ⚠️注意 在windows环境如果没有安装中CGO，会出现这个问题；
+⚠️注意 在windows环境如果没有安装中CGO，会出现这个问题；
 
 ```bash
 E:\go-admin>go build
@@ -178,7 +178,6 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 
 [解决cgo问题进入](https://doc.go-admin.dev/zh-CN/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
-:::
 
 #### 初始化数据库，以及服务启动
 
@@ -350,4 +349,4 @@ npm run dev
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2022 wenjianzhang
+Copyright (c) 2024 wenjianzhang
