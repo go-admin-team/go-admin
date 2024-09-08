@@ -187,7 +187,7 @@ func (e SysDept) Get2Tree(c *gin.Context) {
 	req := dto.SysDeptGetPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
-		Bind(&req,binding.Form).
+		Bind(&req, binding.Form).
 		MakeService(&s.Service).
 		Errors
 	if err != nil {
