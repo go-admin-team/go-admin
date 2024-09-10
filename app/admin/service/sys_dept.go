@@ -84,7 +84,7 @@ func (e *SysDept) Insert(c *dto.SysDeptInsertReq) error {
 	}
 	var mp = map[string]string{}
 	mp["dept_path"] = deptPath
-	if err := tx.Model(&data).Update("dept_path", deptPath).Error; err != nil {
+	if err = tx.Model(&data).Update("dept_path", deptPath).Error; err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
