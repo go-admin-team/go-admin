@@ -3,12 +3,13 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/config/source/file"
@@ -20,6 +21,7 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/router"
+	"go-admin/app/admin/service"
 	"go-admin/app/jobs"
 	"go-admin/common/database"
 	"go-admin/common/global"
@@ -70,6 +72,7 @@ func setup() {
 	queue.Register(global.LoginLog, models.SaveLoginLog)
 	queue.Register(global.OperateLog, models.SaveOperaLog)
 	queue.Register(global.ApiCheck, models.SaveSysApi)
+	queue.Register(global.RhOrder, service.SaveRhOrder)
 	go queue.Run()
 
 	usageStr := `starting api server...`
@@ -126,6 +129,7 @@ func run() error {
 			}
 		}
 	}()
+
 	fmt.Println(pkg.Red(string(global.LogoContent)))
 	tip()
 	fmt.Println(pkg.Green("Server run at:"))
