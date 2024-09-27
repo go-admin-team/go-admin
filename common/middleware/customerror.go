@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -48,6 +49,9 @@ func CustomError(c *gin.Context) {
 					})
 				}
 			case runtime.Error:
+				// 打印错误堆栈
+				fmt.Println("Stack trace:")
+				fmt.Println(string(debug.Stack()))
 				c.JSON(http.StatusOK, gin.H{
 					"code": 500,
 					"msg":  errStr.Error(),

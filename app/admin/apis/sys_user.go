@@ -1,10 +1,11 @@
 package apis
 
 import (
-	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
+
+	"github.com/gin-gonic/gin/binding"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
@@ -88,6 +89,21 @@ func (e SysUser) Get(c *gin.Context) {
 		return
 	}
 	e.OK(object, "查询成功")
+}
+
+// ImportTemplate
+// @Summary 下载用户导入模板
+// @Description 获取JSON
+// @Tags 用户
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/sys-user/{userId} [get]
+// @Security Bearer
+func (e SysUser) ImportTemplate(c *gin.Context) {
+	file := "D:\\data\\rhhy\\0801\\aliapy-2402190717.xlsx"
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Disposition", "attachment; filename="+file)
+	c.Header("Content-Type", "application/octet-stream")
+	c.File(file)
 }
 
 // Insert
