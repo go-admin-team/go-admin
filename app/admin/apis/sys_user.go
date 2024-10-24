@@ -450,7 +450,7 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	if sysUser.Avatar != "" {
 		mp["avatar"] = sysUser.Avatar
 	}
-	mp["userName"] = sysUser.NickName
+	mp["userName"] = sysUser.Username
 	mp["userId"] = sysUser.UserId
 	mp["deptId"] = sysUser.DeptId
 	mp["name"] = sysUser.NickName
