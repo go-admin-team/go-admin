@@ -5,7 +5,7 @@
 settings:
   application:  
     # 项目启动环境            
-    mode: dev  # dev开发环境 test测试环境 prod线上环境；
+    mode: dev  # dev开发环境 prod线上环境；
     host: 0.0.0.0  # 主机ip 或者域名，默认0.0.0.0
     # 服务名称
     name: go-admin   
