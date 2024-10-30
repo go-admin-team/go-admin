@@ -28,7 +28,7 @@ $(function(){
 </script>
 </head>
 <body>
-<iframe id="iframe" frameborder="0" src="https://doc.go-admin.dev" style="width:100%;"></iframe>
+<iframe id="iframe" frameborder="0" src="https://www.go-admin.pro" style="width:100%;"></iframe>
 </body>
 </html>
 `
