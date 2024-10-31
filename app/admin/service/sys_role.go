@@ -75,7 +75,7 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 	c.Generate(&data)
 	tx := e.Orm
 	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
+		tx = e.Orm.Begin()
 		defer func() {
 			if err != nil {
 				tx.Rollback()
@@ -132,7 +132,7 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 	var err error
 	tx := e.Orm
 	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
+		tx = e.Orm.Begin()
 		defer func() {
 			if err != nil {
 				tx.Rollback()
@@ -197,7 +197,7 @@ func (e *SysRole) Remove(c *dto.SysRoleDeleteReq, cb *casbin.SyncedEnforcer) err
 	var err error
 	tx := e.Orm
 	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
+		tx = e.Orm.Begin()
 		defer func() {
 			if err != nil {
 				tx.Rollback()
@@ -244,7 +244,7 @@ func (e *SysRole) UpdateDataScope(c *dto.RoleDataScopeReq) *SysRole {
 	var err error
 	tx := e.Orm
 	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
+		tx = e.Orm.Begin()
 		defer func() {
 			if err != nil {
 				tx.Rollback()
@@ -285,7 +285,7 @@ func (e *SysRole) UpdateStatus(c *dto.UpdateStatusReq) error {
 	var err error
 	tx := e.Orm
 	if config.DatabaseConfig.Driver != "sqlite3" {
-		tx := e.Orm.Begin()
+		tx = e.Orm.Begin()
 		defer func() {
 			if err != nil {
 				tx.Rollback()
