@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"net/http"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 // NoCache is a middleware function that appends headers
@@ -23,7 +23,8 @@ func Options(c *gin.Context) {
 	if c.Request.Method != "OPTIONS" {
 		c.Next()
 	} else {
-		c.Header("Access-Control-Allow-Origin", "*")
+		origin := config.ApplicationConfig.AllowOrigin
+		c.Header("Access-Control-Allow-Origin", origin)
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "authorization, origin, content-type, accept")
 		c.Header("Allow", "HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS")
