@@ -49,9 +49,9 @@ type ServerMonitor struct {
 // GetHourDiffer 获取相差时间
 func GetHourDiffer(startTime, endTime string) int64 {
 	var hour int64
-	t1, err := time.ParseInLocation("2006-01-02 15:04:05", startTime, time.Local)
-	t2, err := time.ParseInLocation("2006-01-02 15:04:05", endTime, time.Local)
-	if err == nil && t1.Before(t2) {
+	t1, err1 := time.ParseInLocation("2006-01-02 15:04:05", startTime, time.Local)
+	t2, err2 := time.ParseInLocation("2006-01-02 15:04:05", endTime, time.Local)
+	if err1 == nil && err2 == nil && t1.Before(t2) {
 		diff := t2.Unix() - t1.Unix() //
 		hour = diff / 3600
 		return hour
@@ -70,7 +70,7 @@ func GetHourDiffer(startTime, endTime string) int64 {
 func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	e.Context = c
 
-	sysInfo, err := host.Info()
+	sysInfo, _ := host.Info()
 	osDic := make(map[string]interface{}, 0)
 	osDic["goOs"] = runtime.GOOS
 	osDic["arch"] = runtime.GOARCH
