@@ -17,8 +17,7 @@ type System struct {
 // @Success 200 {object} response.Response{data=string,id=string,msg=string} "{"code": 200, "data": [...]}"
 // @Router /api/v1/captcha [get]
 func (e System) GenerateCaptchaHandler(c *gin.Context) {
-	err := e.MakeContext(c).Errors
-	if err != nil {
+	if err := e.MakeContext(c).Errors; err != nil {
 		e.Error(500, err, "服务初始化失败！")
 		return
 	}
