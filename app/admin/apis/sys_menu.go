@@ -202,44 +202,6 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 	e.OK(result, "")
 }
 
-//// GetMenuIDS 获取角色对应的菜单id数组
-//// @Summary 获取角色对应的菜单id数组，设置角色权限使用
-//// @Description 获取JSON
-//// @Tags 菜单
-//// @Param id path int true "id"
-//// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
-//// @Router /api/v1/menuids/{id} [get]
-//// @Security Bearer
-//func (e SysMenu) GetMenuIDS(c *gin.Context) {
-//	s := new(service.SysMenu)
-//	r := service.SysRole{}
-//	m := dto.SysRoleByName{}
-//	err := e.MakeContext(c).
-//		MakeOrm().
-//		Bind(&m, binding.JSON).
-//		MakeService(&s.Service).
-//		MakeService(&r.Service).
-//		Errors
-//	if err != nil {
-//		e.Logger.Error(err)
-//		e.Error(500, err, err.Error())
-//		return
-//	}
-//	var data models.SysRole
-//	err = r.GetWithName(&m, &data).Error
-//
-//	//data.RoleName = c.GetString("role")
-//	//data.UpdateBy = user.GetUserId(c)
-//	//result, err := data.GetIDS(s.Orm)
-//
-//	if err != nil {
-//		e.Logger.Errorf("GetIDS error, %s", err.Error())
-//		e.Error(500, err, "获取失败")
-//		return
-//	}
-//	e.OK(result, "")
-//}
-
 // GetMenuTreeSelect 根据角色ID查询菜单下拉树结构
 // @Summary 角色修改使用的菜单列表
 // @Description 获取JSON
@@ -253,7 +215,7 @@ func (e SysMenu) GetMenuRole(c *gin.Context) {
 func (e SysMenu) GetMenuTreeSelect(c *gin.Context) {
 	m := service.SysMenu{}
 	r := service.SysRole{}
-	req :=dto.SelectRole{}
+	req := dto.SelectRole{}
 	err := e.MakeContext(c).
 		MakeOrm().
 		MakeService(&m.Service).
