@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 
@@ -65,7 +65,7 @@ func SaveSysApi(message storage.Messager) (err error) {
 
 				// 根据接口方法注释里的@Summary填充接口名称，适用于代码生成器
 				// 可在此处增加配置路径前缀的if判断，只对代码生成的自建应用进行定向的接口名称填充
-				jsonFile, _ := ioutil.ReadFile("docs/swagger.json")
+				jsonFile, _ := os.ReadFile("docs/swagger.json")
 				jsonData, _ := simplejson.NewFromReader(bytes.NewReader(jsonFile))
 				urlPath := v.RelativePath
 				idPatten := "(.*)/:(\\w+)" // 正则替换，把:id换成{id}
@@ -81,7 +81,7 @@ func SaveSysApi(message storage.Messager) (err error) {
 					//Update("handle", v.Handler).
 					Error
 				if err != nil {
-					err := fmt.Errorf("Models SaveSysApi error: %s \r\n ", err.Error())
+					err := fmt.Errorf("models SaveSysApi error: %s \r\n ", err.Error())
 					return err
 				}
 			}
