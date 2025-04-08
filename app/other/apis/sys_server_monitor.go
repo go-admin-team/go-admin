@@ -78,7 +78,7 @@ func (e ServerMonitor) ServerInfo(c *gin.Context) {
 	osDic["compiler"] = runtime.Compiler
 	osDic["version"] = runtime.Version()
 	osDic["numGoroutine"] = runtime.NumGoroutine()
-	osDic["ip"] = pkg.GetLocaHonst()
+	osDic["ip"] = pkg.GetLocalHost()
 	osDic["projectDir"] = pkg.GetCurrentPath()
 	osDic["hostName"] = sysInfo.Hostname
 	osDic["time"] = time.Now().Format("2006-01-02 15:04:05")
