@@ -40,13 +40,4 @@ func Setup() {
 			go queueAdapter.Run()
 		}()
 	}
-
-	//7. 设置分布式锁
-	if !config.LockerConfig.Empty() {
-		lockerAdapter, err := config.LockerConfig.Setup()
-		if err != nil {
-			log.Fatalf("locker setup error, %s\n", err.Error())
-		}
-		sdk.Runtime.SetLockerAdapter(lockerAdapter)
-	}
 }
