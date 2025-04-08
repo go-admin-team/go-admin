@@ -77,8 +77,8 @@ LOOP:
 		str, err = pkg.Get(h.InvokeTarget)
 		if err != nil {
 			// 如果失败暂停一段时间重试
-			fmt.Println(time.Now().Format(timeFormat), " [ERROR] mission failed! ", err)
-			fmt.Printf(time.Now().Format(timeFormat)+" [INFO] Retry after the task fails %d seconds! %s \n", (count+1)*5, str)
+			log.Warnf("[Job] mission failed! %v", err)
+			log.Warnf("[Job] Retry after the task fails %d seconds! %s \n", (count+1)*5, str)
 			time.Sleep(time.Duration(count+1) * 5 * time.Second)
 			count = count + 1
 			goto LOOP
