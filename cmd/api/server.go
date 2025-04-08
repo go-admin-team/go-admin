@@ -3,8 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,10 +10,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/config/source/file"
+	log "github.com/go-admin-team/go-admin-core/logger"
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"go-admin/app/admin/models"
@@ -73,7 +73,7 @@ func setup() {
 	go queue.Run()
 
 	usageStr := `starting api server...`
-	log.Println(usageStr)
+	log.Info(usageStr)
 }
 
 func run() error {
@@ -104,12 +104,12 @@ func run() error {
 		mp["List"] = routers
 		message, err := sdk.Runtime.GetStreamMessage("", global.ApiCheck, mp)
 		if err != nil {
-			log.Printf("GetStreamMessage error, %s \n", err.Error())
+			log.Infof("GetStreamMessage error, %s \n", err.Error())
 			//日志报错错误，不中断请求
 		} else {
 			err = q.Append(message)
 			if err != nil {
-				log.Printf("Append message error, %s \n", err.Error())
+				log.Infof("Append message error, %s \n", err.Error())
 			}
 		}
 	}
@@ -130,10 +130,10 @@ func run() error {
 	tip()
 	fmt.Println(pkg.Green("Server run at:"))
 	fmt.Printf("-  Local:   %s://localhost:%d/ \r\n", "http", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: %s://%s:%d/ \r\n", "http", pkg.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: %s://%s:%d/ \r\n", "http", pkg.GetLocalHost(), config.ApplicationConfig.Port)
 	fmt.Println(pkg.Green("Swagger run at:"))
 	fmt.Printf("-  Local:   http://localhost:%d/swagger/admin/index.html \r\n", config.ApplicationConfig.Port)
-	fmt.Printf("-  Network: %s://%s:%d/swagger/admin/index.html \r\n", "http", pkg.GetLocaHonst(), config.ApplicationConfig.Port)
+	fmt.Printf("-  Network: %s://%s:%d/swagger/admin/index.html \r\n", "http", pkg.GetLocalHost(), config.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal, 1)
@@ -142,12 +142,12 @@ func run() error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	fmt.Printf("%s Shutdown Server ... \r\n", pkg.GetCurrentTimeStr())
+	log.Info("Shutdown Server ... ")
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
-	log.Println("Server exiting")
+	log.Info("Server exiting")
 
 	return nil
 }
