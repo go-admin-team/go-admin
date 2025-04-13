@@ -1,8 +1,8 @@
 /*
- * @Author: lwnmengjing
- * @Date: 2021/6/10 3:39 下午
- * @Last Modified by: lwnmengjing
- * @Last Modified time: 2021/6/10 3:39 下午
+ * @Author: zhangwenjian
+ * @Date: 2025/04/13 22:03
+ * @Last Modified by: zhangwenjian
+ * @Last Modified time: 2025/04/13 22:03
  */
 
 package storage
@@ -17,27 +17,34 @@ import (
 
 // Setup 配置storage组件
 func Setup() {
-	//4. 设置缓存
+	setupCache()
+	setupCaptcha()
+	setupQueue()
+}
+
+func setupCache() {
 	cacheAdapter, err := config.CacheConfig.Setup()
 	if err != nil {
 		log.Fatalf("cache setup error, %s\n", err.Error())
 	}
 	sdk.Runtime.SetCacheAdapter(cacheAdapter)
-	//5. 设置验证码store
-	captcha.SetStore(captcha.NewCacheStore(cacheAdapter, 600))
+}
 
-	//6. 设置队列
-	if !config.QueueConfig.Empty() {
-		if q := sdk.Runtime.GetQueueAdapter(); q != nil {
-			q.Shutdown()
-		}
-		queueAdapter, err := config.QueueConfig.Setup()
-		if err != nil {
-			log.Fatalf("queue setup error, %s\n", err.Error())
-		}
-		sdk.Runtime.SetQueueAdapter(queueAdapter)
-		defer func() {
-			go queueAdapter.Run()
-		}()
+func setupCaptcha() {
+	captcha.SetStore(captcha.NewCacheStore(sdk.Runtime.GetCacheAdapter(), 600))
+}
+
+func setupQueue() {
+	if config.QueueConfig.Empty() {
+		return
 	}
+	if q := sdk.Runtime.GetQueueAdapter(); q != nil {
+		q.Shutdown()
+	}
+	queueAdapter, err := config.QueueConfig.Setup()
+	if err != nil {
+		log.Fatalf("queue setup error, %s\n", err.Error())
+	}
+	sdk.Runtime.SetQueueAdapter(queueAdapter)
+	go queueAdapter.Run()
 }
