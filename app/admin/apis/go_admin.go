@@ -11,10 +11,11 @@ const INDEX = `
 <meta charset="utf-8">
 <title>GO-ADMIN欢迎您</title>
 <style>
-body{
+html,body{
   margin:0; 
   padding:0; 
   overflow-y:hidden
+  height:100%;
 }
 </style>
 <script src="https://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
@@ -28,7 +29,7 @@ $(function(){
 </script>
 </head>
 <body>
-<iframe id="iframe" frameborder="0" src="https://www.go-admin.pro" style="width:100%;"></iframe>
+<iframe id="iframe" frameborder="0" src="https://www.go-admin.pro" style="width:100%;height:100%;"></iframe>
 </body>
 </html>
 `
