@@ -175,7 +175,7 @@
                                 {{- else }}
                                     <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
                                         {{ if eq "input" .HtmlType -}}
-                                            <el-input v-model="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"
+                                            <el-input v-model{{if eq .GoType "int64" -}}.number{{- end}}="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"
                                                       {{if eq .IsEdit "false" -}}:disabled="isEdit" {{- end}}/>
                                         {{- else if eq "select" .HtmlType -}}
                                             {{- if ne .FkTableName "" -}}
