@@ -89,6 +89,8 @@ func run() error {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
 		Handler: sdk.Runtime.GetEngine(),
+		ReadTimeout:  time.Duration(config.ApplicationConfig.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(config.ApplicationConfig.WriterTimeout) * time.Second,
 	}
 
 	go func() {
