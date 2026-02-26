@@ -12,6 +12,8 @@ settings:
     writertimeout: 2
     # 数据权限功能开关
     enabledp: false
+    #允许访问的域（用于设置前端跨域）
+    alloworigin: 'http://localhost:9527'
   logger:
     # 日志存放路径
     path: temp/logs
