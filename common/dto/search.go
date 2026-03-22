@@ -13,21 +13,15 @@ type GeneralDelDto struct {
 
 func (g GeneralDelDto) GetIds() []int {
 	ids := make([]int, 0)
-	if g.Id != 0 {
+	if g.Id > 0 {
 		ids = append(ids, g.Id)
 	}
-	if len(g.Ids) > 0 {
-		for _, id := range g.Ids {
-			if id > 0 {
-				ids = append(ids, id)
-			}
-		}
-	} else {
-		if g.Id > 0 {
-			ids = append(ids, g.Id)
+	for _, id := range g.Ids {
+		if id > 0 {
+			ids = append(ids, id)
 		}
 	}
-	if len(ids) <= 0 {
+	if len(ids) == 0 {
 		//方式全部删除
 		ids = append(ids, 0)
 	}
