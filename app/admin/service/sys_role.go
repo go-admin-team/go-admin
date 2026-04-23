@@ -110,6 +110,11 @@ func (e *SysRole) Insert(c *dto.SysRoleInsertReq, cb *casbin.SyncedEnforcer) err
 			if mp[data.RoleKey+"-"+api.Path+"-"+api.Action] != "" {
 				mp[data.RoleKey+"-"+api.Path+"-"+api.Action] = ""
 				polices = append(polices, []string{data.RoleKey, api.Path, api.Action})
+				// raohongfu 2026-04-23 核心：如果是 GET + /:id 结尾 → 自动补 list
+				if api.Action == "GET" && strings.HasSuffix(api.Path, "/:id") {
+					basePath := strings.TrimSuffix(api.Path, "/:id")
+					polices = append(polices, []string{data.RoleKey, basePath, "GET"})
+				}
 			}
 		}
 	}
@@ -177,6 +182,11 @@ func (e *SysRole) Update(c *dto.SysRoleUpdateReq, cb *casbin.SyncedEnforcer) err
 				mp[model.RoleKey+"-"+api.Path+"-"+api.Action] = ""
 				//_, err = cb.AddNamedPolicy("p", model.RoleKey, api.Path, api.Action)
 				polices = append(polices, []string{model.RoleKey, api.Path, api.Action})
+				// raohongfu 2026-04-23 核心：如果是 GET + /:id 结尾 → 自动补 list
+				if api.Action == "GET" && strings.HasSuffix(api.Path, "/:id") {
+					basePath := strings.TrimSuffix(api.Path, "/:id")
+					polices = append(polices, []string{model.RoleKey, basePath, "GET"})
+				}
 			}
 		}
 	}
