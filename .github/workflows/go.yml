@@ -16,22 +16,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.24
-      uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+    - name: Set up Go 1.26
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
       with:
-        go-version: 1.24
+        go-version: 1.26.5
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Get dependencies
       run: go mod tidy
     - name: Build
       run: make build
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      if: startsWith(${{github.ref}}, 'refs/tags/')
+
     - name: Log in to the Container registry
-      uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2
+      uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
       if: startsWith(${{github.ref}}, 'refs/tags/')
       with:
         registry: ${{ env.REGISTRY }}
@@ -41,7 +45,7 @@ jobs:
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       if: startsWith(${{github.ref}}, 'refs/tags/')
-      uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175 # v4
+      uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         flavor: |
@@ -52,7 +56,7 @@ jobs:
           type=sha,prefix=,format=long,enable=true,priority=100
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3
+      uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       if: startsWith(${{github.ref}}, 'refs/tags/')
       with:
         context: .
