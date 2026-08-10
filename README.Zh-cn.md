@@ -109,11 +109,11 @@ antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
 
 ### 环境要求
 
-go 1.18
+go 1.26.5
 
-node版本: v14.16.0
+node版本: v22+（推荐 v24 LTS）
 
-npm版本: 6.14.11
+包管理器: pnpm v9+（UI 项目使用 pnpm）
 
 ### 开发目录创建
 
@@ -237,14 +237,17 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ### UI交互端启动说明
 
 ```bash
-# 安装依赖
-npm install
+# 安装 pnpm（若未安装）
+npm install -g pnpm
 
-# 建议不要直接使用 cnpm 安装依赖，会有各种诡异的 bug。可以通过如下操作解决 npm 下载速度慢的问题
-npm install --registry=https://registry.npmmirror.com
+# 安装依赖
+pnpm install
+
+# 国内网络可指定镜像源加速
+pnpm install --registry=https://registry.npmmirror.com
 
 # 启动服务
-npm run dev
+pnpm dev
 ```
 
 ## 📨 互动

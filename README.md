@@ -107,11 +107,11 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Environmental requirements
 
-go 1.18
+go 1.26.5
 
-nodejs: v14.16.0
+nodejs: v22+ (v24 LTS recommended)
 
-npm: 6.14.11
+package manager: pnpm v9+ (the UI project uses pnpm)
 
 ### Development directory creation
 
@@ -229,11 +229,14 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ### UI interactive terminal startup instructions
 
 ```bash
+# Install pnpm if you don't have it
+npm install -g pnpm
+
 # Installation dependencies
-npm install   # or cnpm install
+pnpm install
 
 # Start service
-npm run dev
+pnpm dev
 ```
 
 ## 📨 Interactive
