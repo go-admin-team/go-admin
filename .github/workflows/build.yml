@@ -29,7 +29,12 @@ jobs:
       - name: Build
         run: env CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -tags "sqlite3,json1" --ldflags "-extldflags -static" -o main .
 
+      # 以下推镜像与重启步骤仅在 master 收到 push 时执行。
+      # pull_request 事件同样会触发本工作流，若不加限制，任何指向 master 的
+      # PR 一经创建就会把 PR 分支的镜像推上仓库，并直接重启线上 API 服务，
+      # 且发生在合并之前。构建与编译校验不受影响，PR 仍会执行。
       - name: Build the Docker image and push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           docker login --username=${{ secrets.DOCKER_USERNAME }} registry.ap-northeast-1.aliyuncs.com --password=${{ secrets.DOCKER_PASSWORD }}
           echo "************ docker login end"
@@ -43,6 +48,7 @@ jobs:
           echo "************ docker push end"
 
       - name: Restart server   # 第五步，重启服务
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         env:
           GITHUB_SHA_X: ${GITHUB_SHA}

@@ -19,10 +19,7 @@
 
 ## 🎬 在线体验
 
-Element UI vue体验：[https://vue2.go-admin.dev](https://vue2.go-admin.dev/#/login)
-> ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
-
-Arco Design vue3 demo：[https://vue3.go-admin.dev](https://vue3.go-admin.dev/#/login)
+Element Plus vue3 体验：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
 antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
