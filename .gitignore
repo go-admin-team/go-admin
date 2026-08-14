@@ -1,6 +1,6 @@
 .idea
 .vscode
-*/.DS_Store
+.DS_Store
 static/uploadfile
 main.exe
 *.exe
