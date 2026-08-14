@@ -69,8 +69,15 @@ func sysCheckRoleRouterInit(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	v1 := r.Group("/api/v1")
 	{
 		v1.POST("/login", authMiddleware.LoginHandler)
-		// Refresh time can be longer than token timeout
-		v1.GET("/refresh_token", authMiddleware.RefreshHandler)
+		// GET /api/v1/refresh_token 已移除，原因见 issue #820：
+		// 该接口用业务 token 即可换取新 token，而续期上限 MaxRefresh 依据的
+		// orig_iat 在每次续期时被一并重置，上限永远无法到达 —— token 一旦泄
+		// 露即等同于永久访问权。它此前还位于 CasbinExclude 中，任何角色的已
+		// 登录用户都能调用，不受权限约束。
+		//
+		// 官方前端从未调用该接口（store 中的 refreshToken action 无人 dispatch），
+		// 移除不影响正常使用。若确需无感续期，应在 go-admin-core 中区分
+		// access token 与 refresh token 后重新实现，而非沿用此路由。
 	}
 	registerBaseRouter(v1, authMiddleware)
 }
