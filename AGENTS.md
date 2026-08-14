@@ -159,10 +159,36 @@ Handler 必须带完整注解，`go generate` 会据此生成文档：
 // @Security Bearer
 ```
 
+## 本地运行
+
+**配置 `driver: sqlite3` 时必须带构建标签**，否则启动即 panic：
+
+```bash
+go run -tags sqlite3 . migrate -c config/settings.sqlite.yml
+go run -tags sqlite3 . server  -c config/settings.sqlite.yml
+```
+
+原因：`common/database/open.go` 带 `//go:build !sqlite3`，不加标签时编进的是
+不含 sqlite3 的版本，`opens["sqlite3"]` 为 nil，调用时在 nil 函数上崩溃。
+报错信息不会提到构建标签，容易误判成环境损坏。MySQL / PostgreSQL 无此问题。
+
+对应 `Makefile` 的 `build-sqlite` 目标。
+
 ## 数据库迁移
 
-新增迁移放 `cmd/migrate/migration/version-local/`，文件名前 13 位为时间戳。
-**已执行过的迁移文件不可修改** —— `sys_migration` 表按版本号去重，改动不会重跑。
+文件名前 13 位为时间戳版本号。**已执行过的迁移文件不可修改** ——
+`sys_migration` 表按版本号去重，改动不会重跑，只能新增一个迁移来修正。
+
+放哪个目录取决于身份：
+
+| 目录 | 用途 | 是否入库 |
+|---|---|---|
+| `version/` | 框架自带迁移，随仓库分发给所有使用者 | 是 |
+| `version-local/` | 使用者自己项目的迁移 | 否（已在 `.gitignore`） |
+
+**向本仓库提交迁移必须放 `version/`** —— 放进 `version-local/` 会被忽略掉，
+`git status` 看不到，PR 里也不会出现。两个目录的包名分别是 `version` 与
+`version_local`（后者与目录名不一致，因为标识符不能含连字符）。
 
 ## 提交规范
 
