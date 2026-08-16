@@ -22,7 +22,7 @@
 Element Plus vue3 体验：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
-antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
+antd 体验（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
 ## ✨ 特性
