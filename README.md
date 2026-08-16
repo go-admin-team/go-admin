@@ -23,7 +23,7 @@ The front-end and back-end separation authority management system based on Gin +
 Element Plus vue3 demo：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
 > 账号 / 密码： admin / 123456
 
-antd demo：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
+antd demo (go-admin-pro)：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
 > 账号 / 密码： admin / 123456
 > 
 ## ✨ Feature
