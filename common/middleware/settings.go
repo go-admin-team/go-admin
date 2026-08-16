@@ -24,7 +24,6 @@ var CasbinExclude = []UrlInfo{
 	{Url: "/api/v1/menuids", Method: "GET"},
 	{Url: "/api/v1/roleMenuTreeselect/:roleId", Method: "GET"},
 	{Url: "/api/v1/roleDeptTreeselect/:roleId", Method: "GET"},
-	{Url: "/api/v1/refresh_token", Method: "GET"},
 	{Url: "/api/v1/configKey/:configKey", Method: "GET"},
 	{Url: "/api/v1/app-config", Method: "GET"},
 	{Url: "/api/v1/user/profile", Method: "GET"},
