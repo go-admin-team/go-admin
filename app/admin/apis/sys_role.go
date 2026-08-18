@@ -122,7 +122,7 @@ func (e SysRole) Insert(c *gin.Context) {
 	if req.Status == "" {
 		req.Status = "2"
 	}
-	cb := sdk.Runtime.GetCasbinKey(c.Request.Host)
+	cb := sdk.Runtime.GetCasbinByTenant(c.Request.Host)
 	err = s.Insert(&req, cb)
 	if err != nil {
 		e.Logger.Error(err)
@@ -161,7 +161,7 @@ func (e SysRole) Update(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	cb := sdk.Runtime.GetCasbinKey(c.Request.Host)
+	cb := sdk.Runtime.GetCasbinByTenant(c.Request.Host)
 
 	req.SetUpdateBy(user.GetUserId(c))
 
@@ -203,7 +203,7 @@ func (e SysRole) Delete(c *gin.Context) {
 		return
 	}
 
-	cb := sdk.Runtime.GetCasbinKey(c.Request.Host)
+	cb := sdk.Runtime.GetCasbinByTenant(c.Request.Host)
 	err = s.Remove(&req, cb)
 	if err != nil {
 		e.Logger.Error(err)

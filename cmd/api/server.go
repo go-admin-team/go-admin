@@ -66,7 +66,7 @@ func setup() {
 		storage.Setup,
 	)
 	//注册监听函数
-	queue := sdk.Runtime.GetMemoryQueue("")
+	queue := sdk.Runtime.GetQueuePrefix("")
 	queue.Register(global.LoginLog, models.SaveLoginLog)
 	queue.Register(global.OperateLog, models.SaveOperaLog)
 	queue.Register(global.ApiCheck, models.SaveSysApi)
@@ -95,13 +95,13 @@ func run() error {
 
 	go func() {
 		jobs.InitJob()
-		jobs.Setup(sdk.Runtime.GetDb())
+		jobs.Setup(sdk.Runtime.GetAllDb())
 
 	}()
 
 	if apiCheck {
 		var routers = sdk.Runtime.GetRouter()
-		q := sdk.Runtime.GetMemoryQueue("")
+		q := sdk.Runtime.GetQueuePrefix("")
 		mp := make(map[string]interface{})
 		mp["List"] = routers
 		message, err := sdk.Runtime.GetStreamMessage("", global.ApiCheck, mp)

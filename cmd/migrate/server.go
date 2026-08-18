@@ -62,10 +62,10 @@ func migrateModel() error {
 	if host == "" {
 		host = "*"
 	}
-	db := sdk.Runtime.GetDbByKey(host)
+	db := sdk.Runtime.GetDbByTenant(host)
 	if db == nil {
-		if len(sdk.Runtime.GetDb()) == 1 && host == "*" {
-			for k, v := range sdk.Runtime.GetDb() {
+		if len(sdk.Runtime.GetAllDb()) == 1 && host == "*" {
+			for k, v := range sdk.Runtime.GetAllDb() {
 				db = v
 				host = k
 				break

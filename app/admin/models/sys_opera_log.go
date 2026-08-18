@@ -53,7 +53,7 @@ func (e *SysOperaLog) GetId() interface{} {
 // SaveOperaLog 从队列中获取操作日志
 func SaveOperaLog(message storage.Messager) (err error) {
 	//准备db
-	db := sdk.Runtime.GetDbByKey(message.GetPrefix())
+	db := sdk.Runtime.GetDbByTenant(message.GetPrefix())
 	if db == nil {
 		err = errors.New("db not exist")
 		log.Errorf("host[%s]'s %s", message.GetPrefix(), err.Error())

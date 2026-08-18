@@ -6,7 +6,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"gorm.io/gorm/clause"
 
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
