@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-admin-team/go-admin-core/sdk"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
+	"github.com/go-admin-team/go-admin-core/captcha"
 )
 
 // Setup 配置storage组件

@@ -8,10 +8,9 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/bitly/go-simplejson v0.5.1
 	github.com/bytedance/go-tagexpr/v2 v2.9.11
-	github.com/casbin/casbin/v2 v2.135.0
+	github.com/casbin/casbin/v3 v3.8.1
 	github.com/gin-gonic/gin v1.12.0
-	github.com/go-admin-team/go-admin-core v1.5.3-rc.3.0.20250408121721-2763de5dcdf4
-	github.com/go-admin-team/go-admin-core/sdk v1.5.3-rc.3.0.20250408121721-2763de5dcdf4
+	github.com/go-admin-team/go-admin-core v1.7.1-0.20260818135152-a912b404d5c0
 	github.com/google/uuid v1.6.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.26.6+incompatible
 	github.com/mssola/user_agent v0.6.0
@@ -35,7 +34,7 @@ require (
 )
 
 require (
-	dario.cat/mergo v1.0.1 // indirect
+	dario.cat/mergo v1.0.2 // indirect
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -47,7 +46,7 @@ require (
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.2 // indirect
 	github.com/bytedance/sonic/loader v0.5.2 // indirect
-	github.com/casbin/gorm-adapter/v3 v3.32.0 // indirect
+	github.com/casbin/gorm-adapter/v3 v3.41.0 // indirect
 	github.com/casbin/govaluate v1.10.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chanxuehong/rand v0.0.0-20211009035549-2f07823e8e99 // indirect
@@ -60,7 +59,6 @@ require (
 	github.com/gin-contrib/sse v1.1.1 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/glebarez/sqlite v1.11.0 // indirect
-	github.com/go-admin-team/go-admin-core/plugins/logger/zap v1.5.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-openapi/jsonpointer v1.0.0 // indirect
 	github.com/go-openapi/jsonreference v1.0.0 // indirect
@@ -102,7 +100,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mojocn/base64Captcha v1.3.8 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/ncruces/go-strftime v0.1.9 // indirect
+	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/nyaruka/phonenumbers v1.2.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
@@ -111,10 +109,12 @@ require (
 	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.61.0 // indirect
+	github.com/redis/go-redis/v9 v9.22.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/shamsher31/goimgext v1.0.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
@@ -123,11 +123,12 @@ require (
 	github.com/ugorji/go/codec v1.3.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.8.0 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
+	go.uber.org/zap v1.27.1 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/arch v0.30.0 // indirect
-	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
+	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
 	golang.org/x/image v0.41.0 // indirect
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/net v0.57.0 // indirect
@@ -137,13 +138,14 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.48.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/plugin/dbresolver v1.6.2 // indirect
-	modernc.org/fileutil v1.3.0 // indirect
-	modernc.org/libc v1.62.1 // indirect
+	modernc.org/fileutil v1.3.40 // indirect
+	modernc.org/libc v1.67.4 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.9.1 // indirect
-	modernc.org/sqlite v1.37.0 // indirect
+	modernc.org/memory v1.11.0 // indirect
+	modernc.org/sqlite v1.42.2 // indirect
 )
 
 //replace (

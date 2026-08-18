@@ -127,7 +127,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	l["username"] = username
 	l["msg"] = msg
 
-	q := sdk.Runtime.GetMemoryQueue(c.Request.Host)
+	q := sdk.Runtime.GetQueuePrefix(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.LoginLog, l)
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())

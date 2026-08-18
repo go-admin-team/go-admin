@@ -45,7 +45,7 @@ func (e *SysLoginLog) GetId() interface{} {
 // SaveLoginLog 从队列中获取登录日志
 func SaveLoginLog(message storage.Messager) (err error) {
 	//准备db
-	db := sdk.Runtime.GetDbByKey(message.GetPrefix())
+	db := sdk.Runtime.GetDbByTenant(message.GetPrefix())
 	if db == nil {
 		err = errors.New("db not exist")
 		log.Errorf("host[%s]'s %s", message.GetPrefix(), err.Error())

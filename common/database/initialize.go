@@ -60,6 +60,6 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 
 	e := mycasbin.Setup(db, "")
 
-	sdk.Runtime.SetDb(host, db)
-	sdk.Runtime.SetCasbin(host, e)
+	sdk.Runtime.SetDbByTenant(host, db)
+	sdk.Runtime.SetCasbinByTenant(host, e)
 }

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/casbin/casbin/v2/util"
+	"github.com/casbin/casbin/v3/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ func AuthCheckRole() gin.HandlerFunc {
 		log := api.GetRequestLogger(c)
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := sdk.Runtime.GetCasbinKey(c.Request.Host)
+		e := sdk.Runtime.GetCasbinByTenant(c.Request.Host)
 		var res, casbinExclude bool
 		var err error
 		//检查权限

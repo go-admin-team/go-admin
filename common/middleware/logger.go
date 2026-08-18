@@ -124,7 +124,7 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	} else {
 		l["status"] = dto.OperaStatusDisable
 	}
-	q := sdk.Runtime.GetMemoryQueue(c.Request.Host)
+	q := sdk.Runtime.GetQueuePrefix(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.OperateLog, l)
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())

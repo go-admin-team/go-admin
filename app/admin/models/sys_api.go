@@ -54,7 +54,7 @@ func SaveSysApi(message storage.Messager) (err error) {
 		err = fmt.Errorf("json Unmarshal error, %s", err.Error())
 		return err
 	}
-	dbList := sdk.Runtime.GetDb()
+	dbList := sdk.Runtime.GetAllDb()
 	for _, d := range dbList {
 		for _, v := range l.List {
 			if v.HttpMethod != "HEAD" ||
