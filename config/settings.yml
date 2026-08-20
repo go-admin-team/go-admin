@@ -61,14 +61,8 @@ settings:
 #    redis:
 #      addr: 127.0.0.1:6379
 #      password: xxxxxx
-#      producer:
-#        streamMaxLength: 100
-#        approximateMaxLength: true
-#      consumer:
-#        visibilityTimeout: 60
-#        bufferSize: 100
-#        concurrency: 10
-#        blockingTimeout: 5
-#        reclaimInterval: 1
+#      group: go-admin          # 消费组，同一应用的多个实例必须用同一个值
+#      key_prefix: go-admin     # 加在 stream key 前面，多个应用共用一个 redis 时用于隔离
+#      max_attempts: 5          # 消息投递失败的最大重试次数
   locker:
     redis:
