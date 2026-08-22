@@ -21,10 +21,10 @@ The front-end and back-end separation authority management system based on Gin +
 ## 🎬 Online Demo
 
 Element Plus vue3 demo：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
-> 账号 / 密码： admin / 123456
+> Account / Password: admin / 123456
 
 antd demo (go-admin-pro)：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
-> 账号 / 密码： admin / 123456
+> Account / Password: admin / 123456
 > 
 ## ✨ Feature
 
@@ -76,9 +76,9 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Easily implement go-admin to write the first application-documentation tutorial
 
-[Step 1 - basic content introduction](https://doc.zhangwj.com/guide/intro/tutorial01.html)
+[Step 1 - basic content introduction](https://doc.go-admin.dev/guide/intro/tutorial01.html)
 
-[Step 2 - Practical application - writing database operations](https://doc.zhangwj.com/guide/intro/tutorial02.html)
+[Step 2 - Practical application - writing database operations](https://doc.go-admin.dev/guide/intro/tutorial02.html)
 
 ### Teach you from getting started to giving up-video tutorial
 
@@ -320,7 +320,7 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 2. [spf13/viper](https://github.com/spf13/viper)
 2. [gorm](https://github.com/jinzhu/gorm)
 2. [gin-swagger](https://github.com/swaggo/gin-swagger)
-2. [jwt-go](https://github.com/dgrijalva/jwt-go)
+2. [golang-jwt](https://github.com/golang-jwt/jwt)
 2. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 2. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 2. [form-generator](https://github.com/JakHuang/form-generator)
@@ -332,11 +332,10 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 <img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="200px" >
 
 ## 🤝 Link
-- [Go developer growth roadmap](http://www.golangroadmap.com/)
 - [mss-boot-io](https://docs.mss-boot-io.top/)
 
 ## 🔑 License
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2022 wenjianzhang
+Copyright (c) 2026 wenjianzhang
