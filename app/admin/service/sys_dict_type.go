@@ -59,7 +59,12 @@ func (e *SysDictType) Insert(c *dto.SysDictTypeInsertReq) error {
 	var data models.SysDictType
 	c.Generate(&data)
 	var count int64
-	e.Orm.Model(&data).Where("dict_type = ?", data.DictType).Count(&count)
+	// The error was dropped, so a query that failed left count at zero and the
+	// insert went ahead as though the name were free.
+	if err = e.Orm.Model(&data).Where("dict_type = ?", data.DictType).Count(&count).Error; err != nil {
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
 	if count > 0 {
 		return fmt.Errorf("当前字典类型[%s]已经存在！", data.DictType)
 	}
