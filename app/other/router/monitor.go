@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/tools/transfer"
+	"github.com/go-admin-team/go-admin-core/v2/tools/transfer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

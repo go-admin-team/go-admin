@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/config/source/file"
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/config/source/file"
+	log "github.com/go-admin-team/go-admin-core/v2/logger"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
