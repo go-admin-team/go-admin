@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
+	jwt "github.com/go-admin-team/go-admin-core/v2/jwtauth"
 
 	"go-admin/app/demo/models"
 	"go-admin/app/demo/service/dto"

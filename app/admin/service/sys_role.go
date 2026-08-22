@@ -3,12 +3,12 @@ package service
 import (
 	"errors"
 
-	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 	"gorm.io/gorm/clause"
 
 	"github.com/casbin/casbin/v3"
 
-	"github.com/go-admin-team/go-admin-core/sdk/service"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/service"
 	"gorm.io/gorm"
 
 	"go-admin/app/admin/models"

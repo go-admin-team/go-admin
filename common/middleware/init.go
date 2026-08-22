@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
+	jwt "github.com/go-admin-team/go-admin-core/v2/jwtauth"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
 	"go-admin/common/actions"
 )
 
