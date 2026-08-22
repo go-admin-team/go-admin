@@ -24,45 +24,36 @@ type DBColumns struct {
 }
 
 func (e *DBColumns) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBColumns, int, error) {
+	pkg.Assert(config.DatabaseConfig.Driver == "mysql", "目前只支持mysql数据库", 500)
+
 	var doc []DBColumns
 	var count int64
-	table := new(gorm.DB)
 
-	if config.DatabaseConfig.Driver == "mysql" {
-		table = tx.Table("information_schema.`COLUMNS`")
-		table = table.Where("table_schema= ? ", config.GenConfig.DBName)
-
-		if e.TableName != "" {
-			return nil, 0, errors.New("table name cannot be empty！")
-		}
-
-		table = table.Where("TABLE_NAME = ?", e.TableName)
+	if e.TableName == "" {
+		return nil, 0, errors.New("table name cannot be empty！")
 	}
+
+	table := tx.Table("information_schema.`COLUMNS`")
+	table = table.Where("table_schema= ? ", config.GenConfig.DBName)
+	table = table.Where("TABLE_NAME = ?", e.TableName)
 
 	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
 		return nil, 0, err
 	}
-	//table.Count(&count)
 	return doc, int(count), nil
-
 }
 
 func (e *DBColumns) GetList(tx *gorm.DB) ([]DBColumns, error) {
-	var doc []DBColumns
-	table := new(gorm.DB)
+	pkg.Assert(config.DatabaseConfig.Driver == "mysql", "目前只支持mysql数据库", 500)
 
+	var doc []DBColumns
 	if e.TableName == "" {
 		return nil, errors.New("table name cannot be empty！")
 	}
 
-	if config.DatabaseConfig.Driver == "mysql" {
-		table = tx.Table("information_schema.columns")
-		table = table.Where("table_schema= ? ", config.GenConfig.DBName)
-
-		table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
-	} else {
-		pkg.Assert(true, "目前只支持mysql数据库", 500)
-	}
+	table := tx.Table("information_schema.columns")
+	table = table.Where("table_schema= ? ", config.GenConfig.DBName)
+	table = table.Where("TABLE_NAME = ?", e.TableName).Order("ORDINAL_POSITION asc")
 	if err := table.Find(&doc).Error; err != nil {
 		return doc, err
 	}
