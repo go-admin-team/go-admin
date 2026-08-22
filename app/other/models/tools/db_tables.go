@@ -25,9 +25,22 @@ func (e *DBTables) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBTables
 	var doc []DBTables
 	var count int64
 
+	// Tables already registered with the generator are not candidates. Read them
+	// through the model on this connection: the subquery used to spell the
+	// schema out by hand, so it only resolved when sys_tables happened to live
+	// in the schema being generated from, and it counted soft-deleted rows.
+	var generated []string
+	if err := tx.Model(&SysTables{}).Pluck("table_name", &generated).Error; err != nil {
+		return nil, 0, err
+	}
+
 	table := tx.Table("information_schema.tables")
-	table = table.Where("TABLE_NAME not in (select table_name from `" + config2.GenConfig.DBName + "`.sys_tables) ")
 	table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+	if len(generated) > 0 {
+		// NOT IN (NULL) is unknown for every row, so an empty list has to skip
+		// the clause instead of rendering it.
+		table = table.Where("TABLE_NAME not in (?)", generated)
+	}
 
 	if e.TableName != "" {
 		table = table.Where("TABLE_NAME = ?", e.TableName)
