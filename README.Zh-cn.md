@@ -78,9 +78,9 @@ antd 体验（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admi
 
 ### 轻松实现go-admin写出第一个应用 - 文档教程
 
-[步骤一 - 基础内容介绍](https://doc.zhangwj.com/guide/intro/tutorial01.html)
+[步骤一 - 基础内容介绍](https://doc.go-admin.dev/guide/intro/tutorial01.html)
 
-[步骤二 - 实际应用 - 编写增删改查](https://doc.zhangwj.com/guide/intro/tutorial02.html)
+[步骤二 - 实际应用 - 编写增删改查](https://doc.go-admin.dev/guide/intro/tutorial02.html)
 
 ### 手把手教你从入门到放弃 - 视频教程
 
@@ -329,7 +329,7 @@ pnpm dev
 6. [spf13/viper](https://github.com/spf13/viper)
 7. [gorm](https://github.com/jinzhu/gorm)
 8. [gin-swagger](https://github.com/swaggo/gin-swagger)
-9. [jwt-go](https://github.com/dgrijalva/jwt-go)
+9. [golang-jwt](https://github.com/golang-jwt/jwt)
 10. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 11. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 12. [form-generator](https://github.com/JakHuang/form-generator)
@@ -343,10 +343,10 @@ pnpm dev
 
 ## 🤝 链接
 
-[Go开发者成长线路图](http://www.golangroadmap.com/)
+- [mss-boot-io](https://docs.mss-boot-io.top/)
 
 ## 🔑 License
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2024 wenjianzhang
+Copyright (c) 2026 wenjianzhang
