@@ -41,7 +41,7 @@ func (e Gen) GetDBColumnList(c *gin.Context) {
 	}
 
 	data.TableName = c.Request.FormValue("tableName")
-	pkg.Assert(data.TableName == "", "table name cannot be empty！", 500)
+	pkg.Assert(data.TableName != "", "table name cannot be empty！", 500)
 	result, count, err := data.GetPage(db, pageSize, pageIndex)
 	if err != nil {
 		log.Errorf("GetPage error, %s", err.Error())
