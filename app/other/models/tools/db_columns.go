@@ -28,14 +28,13 @@ func (e *DBColumns) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBColum
 	var count int64
 	table := new(gorm.DB)
 
+	if e.TableName == "" {
+		return nil, 0, errors.New("table name cannot be empty！")
+	}
+
 	if config.DatabaseConfig.Driver == "mysql" {
 		table = tx.Table("information_schema.`COLUMNS`")
 		table = table.Where("table_schema= ? ", config.GenConfig.DBName)
-
-		if e.TableName != "" {
-			return nil, 0, errors.New("table name cannot be empty！")
-		}
-
 		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
 
