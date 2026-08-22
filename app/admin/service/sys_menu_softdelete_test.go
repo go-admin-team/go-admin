@@ -35,9 +35,15 @@ func TestSoftDeletedMenusAreNotReturned(t *testing.T) {
 		t.Fatalf("delete: %v", err)
 	}
 
-	var got []models.SysMenu
-	if err := db.Where("menu_type in ('M','C')").Order("sort").Find(&got).Error; err != nil {
-		t.Fatalf("find: %v", err)
+	// Through getByRoleName rather than a copy of its query: a test that
+	// reissues the statement passes whether or not the production line still
+	// says what it is supposed to, which is what the first version of this
+	// test did.
+	e := &SysMenu{}
+	e.Orm = db
+	got, err := e.getByRoleName("admin")
+	if err != nil {
+		t.Fatalf("getByRoleName: %v", err)
 	}
 
 	if len(got) != 1 {
