@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 	"gorm.io/gorm"
 )
 

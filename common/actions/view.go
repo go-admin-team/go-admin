@@ -2,12 +2,12 @@ package actions
 
 import (
 	"errors"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"github.com/go-admin-team/go-admin-core/v2/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	log "github.com/go-admin-team/go-admin-core/v2/logger"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 	"gorm.io/gorm"
 
 	"go-admin/common/dto"

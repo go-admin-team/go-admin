@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 
 	"go-admin/app/other/models/tools"
 )

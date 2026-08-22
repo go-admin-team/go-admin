@@ -3,16 +3,16 @@ package migrate
 import (
 	"bytes"
 	"fmt"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 	"strconv"
 	"text/template"
 	"time"
 
-	"github.com/go-admin-team/go-admin-core/config/source/file"
+	"github.com/go-admin-team/go-admin-core/v2/config/source/file"
 	"github.com/spf13/cobra"
 
-	"github.com/go-admin-team/go-admin-core/sdk/config"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 	"go-admin/cmd/migrate/migration"
 	_ "go-admin/cmd/migrate/migration/version"
 	_ "go-admin/cmd/migrate/migration/version-local"

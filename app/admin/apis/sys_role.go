@@ -6,13 +6,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin/binding"
-	"github.com/go-admin-team/go-admin-core/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
 	"go-admin/app/admin/models"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
-	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"github.com/go-admin-team/go-admin-core/v2/jwtauth/user"
+	_ "github.com/go-admin-team/go-admin-core/v2/response"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"

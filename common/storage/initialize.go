@@ -10,9 +10,9 @@ package storage
 import (
 	"log"
 
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/captcha"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
+	"github.com/go-admin-team/go-admin-core/v2/captcha"
 )
 
 // Setup 配置storage组件

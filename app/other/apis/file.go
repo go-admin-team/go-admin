@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/utils"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg/utils"
 	"github.com/google/uuid"
 
 	"go-admin/common/file_store"
