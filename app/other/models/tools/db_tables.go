@@ -20,43 +20,36 @@ type DBTables struct {
 }
 
 func (e *DBTables) GetPage(tx *gorm.DB, pageSize int, pageIndex int) ([]DBTables, int, error) {
+	pkg.Assert(config2.DatabaseConfig.Driver == "mysql", "目前只支持mysql数据库", 500)
+
 	var doc []DBTables
-	table := new(gorm.DB)
 	var count int64
 
-	if config2.DatabaseConfig.Driver == "mysql" {
-		table = tx.Table("information_schema.tables")
-		table = table.Where("TABLE_NAME not in (select table_name from `" + config2.GenConfig.DBName + "`.sys_tables) ")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+	table := tx.Table("information_schema.tables")
+	table = table.Where("TABLE_NAME not in (select table_name from `" + config2.GenConfig.DBName + "`.sys_tables) ")
+	table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
 
-		if e.TableName != "" {
-			table = table.Where("TABLE_NAME = ?", e.TableName)
-		}
-		if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
-			return nil, 0, err
-		}
-	} else {
-		pkg.Assert(true, "目前只支持mysql数据库", 500)
+	if e.TableName != "" {
+		table = table.Where("TABLE_NAME = ?", e.TableName)
 	}
-
-	//table.Count(&count)
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+		return nil, 0, err
+	}
 	return doc, int(count), nil
 }
 
 func (e *DBTables) Get(tx *gorm.DB) (DBTables, error) {
+	pkg.Assert(config2.DatabaseConfig.Driver == "mysql", "目前只支持mysql数据库", 500)
+
 	var doc DBTables
-	if config2.DatabaseConfig.Driver == "mysql" {
-		table := tx.Table("information_schema.tables")
-		table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
-		if e.TableName == "" {
-			return doc, errors.New("table name cannot be empty！")
-		}
-		table = table.Where("TABLE_NAME = ?", e.TableName)
-		if err := table.First(&doc).Error; err != nil {
-			return doc, err
-		}
-	} else {
-		pkg.Assert(true, "目前只支持mysql数据库", 500)
+	if e.TableName == "" {
+		return doc, errors.New("table name cannot be empty！")
+	}
+	table := tx.Table("information_schema.tables")
+	table = table.Where("table_schema= ? ", config2.GenConfig.DBName)
+	table = table.Where("TABLE_NAME = ?", e.TableName)
+	if err := table.First(&doc).Error; err != nil {
+		return doc, err
 	}
 	return doc, nil
 }
