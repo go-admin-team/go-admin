@@ -21,5 +21,11 @@ cmd/migrate/migration/version-local/*
 config/settings.deva.yml
 go-admin-server
 CLAUDE.md
-.claude/
+# Everything under .claude is private by default. Skills meant for people using
+# go-admin are re-included one directory at a time, so a personal one dropped in
+# here is never committed by accident.
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/new-business-module/
 config/settings.local.dev.yml
