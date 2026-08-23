@@ -145,7 +145,10 @@ func registerSysPostRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 | DTO | `{Model}{Action}Req` | `SysPostPageReq` |
 | 权限标识 | `模块:资源:操作` | `admin:sysPost:add` |
 
-权限标识需与前端 `v-permisaction` 一致，并写入 `sys_menu` 种子数据。
+权限标识需与前端 `v-permisaction` 一致，并写入 `sys_menu` 种子数据——完整可运行的
+参照见 `cmd/migrate/migration/version/1786700001000_demo_menu.go`（sys_api /
+sys_menu / sys_menu_api_rule / casbin_rule 四张表如何配齐，用的是幂等 upsert，
+可以直接照抄结构）。
 
 ## Swagger
 
