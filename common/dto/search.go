@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/go-admin-team/go-admin-core/tools/search"
+	"github.com/go-admin-team/go-admin-core/v2/tools/search"
 	"go-admin/common/global"
 	"gorm.io/gorm"
 )

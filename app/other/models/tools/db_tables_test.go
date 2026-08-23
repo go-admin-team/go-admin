@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/glebarez/sqlite"
-	config2 "github.com/go-admin-team/go-admin-core/sdk/config"
+	config2 "github.com/go-admin-team/go-admin-core/v2/sdk/config"
 	"gorm.io/gorm"
 )
 

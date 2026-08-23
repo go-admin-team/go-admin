@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk"
+	log "github.com/go-admin-team/go-admin-core/v2/logger"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
 	common "go-admin/common/middleware"
 )
 

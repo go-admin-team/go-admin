@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/go-admin-team/go-admin-core/sdk/runtime"
-	"github.com/go-admin-team/go-admin-core/sdk/service"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/runtime"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/service"
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
