@@ -10,10 +10,16 @@ import (
 
 // oldUser is the shape of the table before this migration: deleted_at is a
 // nullable timestamp, and nothing constrains the username.
+//
+// It mirrors the real sys_user in the two respects that matter here, both of
+// which the migration got wrong against a live database while an id-keyed,
+// unindexed table let it pass: the key is user_id rather than id, and
+// deleted_at carries an index, which SQLite will not let a column be dropped
+// out from under.
 type oldUser struct {
-	Id        int64 `gorm:"primaryKey;autoIncrement"`
+	UserId    int64 `gorm:"column:user_id;primaryKey;autoIncrement"`
 	Username  string
-	DeletedAt *time.Time
+	DeletedAt *time.Time `gorm:"index"`
 }
 
 func (oldUser) TableName() string { return "sys_user" }
@@ -53,7 +59,7 @@ func TestConvertsDeletedAtAndKeepsWhoWasDeleted(t *testing.T) {
 		Username  string
 		DeletedAt int64
 	}
-	if err := db.Raw("SELECT username, deleted_at FROM sys_user ORDER BY id").Scan(&marks).Error; err != nil {
+	if err := db.Raw("SELECT username, deleted_at FROM sys_user ORDER BY user_id").Scan(&marks).Error; err != nil {
 		t.Fatalf("read back: %v", err)
 	}
 	if len(marks) != 2 {

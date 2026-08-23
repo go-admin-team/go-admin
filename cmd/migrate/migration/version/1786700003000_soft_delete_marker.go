@@ -131,6 +131,14 @@ func convertDeletedAt(db *gorm.DB, table string) error {
 		return err
 	}
 
+	// SQLite refuses to drop a column an index still refers to, where MySQL and
+	// PostgreSQL drop the dependent indexes along with it. Drop them first, on
+	// every dialect: the column is about to be replaced by one of the same name,
+	// and gorm recreates the index from the model's tag.
+	if err := dropIndexesOn(db, table, "deleted_at"); err != nil {
+		return err
+	}
+
 	if err := db.Exec(dropColumn(db, table, "deleted_at")).Error; err != nil {
 		return fmt.Errorf("dropping deleted_at: %w", err)
 	}
@@ -166,8 +174,15 @@ func copyTimestamps(db *gorm.DB, table string) error {
 		DeletedAt *time.Time
 	}
 
+	// The tables walked here do not agree on what the key is called: sys_dept
+	// keys on dept_id, sys_user on user_id, and only some on id.
+	key, err := primaryKeyOf(db, table)
+	if err != nil {
+		return err
+	}
+
 	var rows []row
-	q := fmt.Sprintf("SELECT id, deleted_at FROM %s WHERE deleted_at IS NOT NULL", table)
+	q := fmt.Sprintf("SELECT %s AS id, deleted_at FROM %s WHERE deleted_at IS NOT NULL", key, table)
 	if err := db.Raw(q).Scan(&rows).Error; err != nil {
 		return fmt.Errorf("reading deleted rows: %w", err)
 	}
@@ -176,12 +191,27 @@ func copyTimestamps(db *gorm.DB, table string) error {
 		if r.DeletedAt == nil {
 			continue
 		}
-		u := fmt.Sprintf("UPDATE %s SET %s = ? WHERE id = ?", table, tempColumn)
+		u := fmt.Sprintf("UPDATE %s SET %s = ? WHERE %s = ?", table, tempColumn, key)
 		if err := db.Exec(u, r.DeletedAt.UnixMilli(), r.Id).Error; err != nil {
 			return fmt.Errorf("marking row %d deleted: %w", r.Id, err)
 		}
 	}
 	return nil
+}
+
+// primaryKeyOf asks the database which column is the primary key, rather than
+// assuming the name.
+func primaryKeyOf(db *gorm.DB, table string) (string, error) {
+	columns, err := db.Migrator().ColumnTypes(table)
+	if err != nil {
+		return "", fmt.Errorf("reading columns of %s: %w", table, err)
+	}
+	for _, c := range columns {
+		if isKey, ok := c.PrimaryKey(); ok && isKey {
+			return c.Name(), nil
+		}
+	}
+	return "", fmt.Errorf("no primary key on %s", table)
 }
 
 func createUniqueIndex(db *gorm.DB, table, column, name string) error {
@@ -191,6 +221,45 @@ func createUniqueIndex(db *gorm.DB, table, column, name string) error {
 	return db.Exec(fmt.Sprintf(
 		"CREATE UNIQUE INDEX %s ON %s (%s, deleted_at)", name, table, column,
 	)).Error
+}
+
+// dropIndexesOn removes every index on table that mentions column, so the
+// column can be dropped. Named indexes are asked of the migrator rather than
+// guessed, because the names differ between a schema gorm created and one a
+// hand-written migration did.
+func dropIndexesOn(db *gorm.DB, table, column string) error {
+	names, err := indexNamesFor(db, table, column)
+	if err != nil {
+		return fmt.Errorf("listing indexes on %s.%s: %w", table, column, err)
+	}
+	m := db.Migrator()
+	for _, name := range names {
+		if !m.HasIndex(table, name) {
+			continue
+		}
+		if err := m.DropIndex(table, name); err != nil {
+			return fmt.Errorf("dropping index %s: %w", name, err)
+		}
+	}
+	return nil
+}
+
+// indexNamesFor asks the database which indexes cover column.
+func indexNamesFor(db *gorm.DB, table, column string) ([]string, error) {
+	indexes, err := db.Migrator().GetIndexes(table)
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, idx := range indexes {
+		for _, c := range idx.Columns() {
+			if c == column {
+				names = append(names, idx.Name())
+				break
+			}
+		}
+	}
+	return names, nil
 }
 
 // The three statements every dialect spells differently.
