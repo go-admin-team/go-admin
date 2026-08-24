@@ -21,26 +21,68 @@ type DataPermission struct {
 
 func PermissionAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Permission() below returns the query untouched when data permission
+		// is off, so the lookup that feeds it has nothing to feed. It used to
+		// run anyway: a sys_user join on every list, detail, update and delete,
+		// with the result discarded.
+		if !config.ApplicationConfig.EnableDP {
+			c.Set(PermissionKey, new(DataPermission))
+			c.Next()
+			return
+		}
+
+		userId := user.GetUserIdStr(c)
+		if userId == "" {
+			c.Set(PermissionKey, new(DataPermission))
+			c.Next()
+			return
+		}
+
+		// The token already carries what the scope is decided by. Reading it
+		// there costs nothing, and goes no more stale than rolekey does - which
+		// Casbin has always read from the token.
+		if p, ok := permissionFromClaims(c); ok {
+			c.Set(PermissionKey, p)
+			c.Next()
+			return
+		}
+
 		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
 			return
 		}
-
 		msgID := pkg.GenerateMsgIDFromContext(c)
-		var p = new(DataPermission)
-		if userId := user.GetUserIdStr(c); userId != "" {
-			p, err = newDataPermission(db, userId)
-			if err != nil {
-				log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
-				response.Error(c, 500, err, "权限范围鉴定错误")
-				c.Abort()
-				return
-			}
+		p, err := newDataPermission(db, userId)
+		if err != nil {
+			log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
+			response.Error(c, 500, err, "权限范围鉴定错误")
+			c.Abort()
+			return
 		}
 		c.Set(PermissionKey, p)
 		c.Next()
 	}
+}
+
+// permissionFromClaims builds the scope from the token, reporting false when
+// the token predates deptid being carried. Such a token still exists until it
+// expires, and it has to keep working.
+func permissionFromClaims(c *gin.Context) (*DataPermission, bool) {
+	claims := user.ExtractClaims(c)
+	if claims["deptid"] == nil || claims["datascope"] == nil {
+		return nil, false
+	}
+	scope, ok := claims["datascope"].(string)
+	if !ok {
+		return nil, false
+	}
+	return &DataPermission{
+		DataScope: scope,
+		UserId:    user.GetUserId(c),
+		DeptId:    user.GetDeptId(c),
+		RoleId:    user.GetRoleId(c),
+	}, true
 }
 
 func newDataPermission(tx *gorm.DB, userId interface{}) (*DataPermission, error) {
