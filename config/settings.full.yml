@@ -56,3 +56,17 @@ settings:
   extend: # 扩展项使用说明
     demo:
       name: data
+    # fileStore 对象存储。上传接口的 source 参数决定走哪一家：
+    #   source=1 只存本地，source=2 阿里云 OSS，source=3 七牛 Kodo
+    # 没有填的那一家在被请求时会返回明确错误，不会静默存到别处。
+    fileStore:
+      aliYun:
+        endpoint: oss-cn-hangzhou.aliyuncs.com
+        accessKeyId: ""
+        accessKeySecret: ""
+        bucketName: ""
+      qiNiu:
+        endpoint: ""
+        accessKeyId: ""
+        accessKeySecret: ""
+        bucketName: ""

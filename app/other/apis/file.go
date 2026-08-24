@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 
 	"go-admin/common/file_store"
+	"go-admin/config"
 )
 
 type FileResponse struct {
@@ -95,7 +96,7 @@ func (e File) baseImg(c *gin.Context, fileResponse FileResponse, urlPrefix strin
 	source, _ := c.GetPostForm("source")
 
 	if err := thirdUpload(source, fileName, base64File); err != nil {
-		e.Error(200, errors.New(""), "上传第三方失败")
+		e.Error(200, err, "上传第三方失败")
 		return fileResponse
 	}
 
@@ -126,7 +127,7 @@ func (e File) multipleFile(c *gin.Context, urlPrefix string) []FileResponse {
 
 		fileType, _ := utils.GetType(multipartFileName)
 		if err := thirdUpload(source, fileName, multipartFileName); err != nil {
-			e.Error(500, errors.New(""), "上传第三方失败")
+			e.Error(500, err, "上传第三方失败")
 			continue
 		}
 
@@ -176,22 +177,36 @@ func (e File) buildFileResponse(filePath, urlPrefix, fileName, fileType string) 
 	}
 }
 
+// thirdUpload copies the file that was already stored locally to the object
+// store the request asked for. source "1", and anything unrecognised, keeps the
+// local copy only.
+//
+// Both branches used to construct a zero-value ALiYunOSS and call UpLoad on it,
+// which panicked - and the qiniu branch constructed the aliyun client, so
+// source=3 never reached qiniu even in principle.
 func thirdUpload(source string, name string, path string) error {
 	switch source {
 	case "2":
-		return ossUpload("img/"+name, path)
+		return upload(file_store.AliYunOSS, config.ExtConfig.FileStore.AliYun, "img/"+name, path)
 	case "3":
-		return qiniuUpload("img/"+name, path)
+		return upload(file_store.QiNiuKodo, config.ExtConfig.FileStore.QiNiu, "img/"+name, path)
 	}
 	return nil
 }
 
-func ossUpload(name string, path string) error {
-	oss := file_store.ALiYunOSS{}
-	return oss.UpLoad(name, path)
-}
-
-func qiniuUpload(name string, path string) error {
-	oss := file_store.ALiYunOSS{}
-	return oss.UpLoad(name, path)
+func upload(driver file_store.DriverType, store config.ObjectStore, name, path string) error {
+	if !store.Configured() {
+		return fmt.Errorf("file store %s is not configured; set it under extend.fileStore", driver)
+	}
+	oxs := file_store.OXS{
+		Endpoint:        store.Endpoint,
+		AccessKeyID:     store.AccessKeyID,
+		AccessKeySecret: store.AccessKeySecret,
+		BucketName:      store.BucketName,
+	}
+	client, err := oxs.Setup(driver)
+	if err != nil {
+		return err
+	}
+	return client.UpLoad(name, path)
 }
