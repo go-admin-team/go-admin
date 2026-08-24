@@ -29,6 +29,10 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 			jwt.NiceKey:      u.Username,
 			jwt.DataScopeKey: r.DataScope,
 			jwt.RoleNameKey:  r.RoleName,
+			// deptid completes what the data-permission scope is decided by,
+			// so it can be read from the token instead of joined for on every
+			// request. core's user.GetDeptId has always read this claim.
+			"deptid": u.DeptId,
 		}
 	}
 	return jwt.MapClaims{}

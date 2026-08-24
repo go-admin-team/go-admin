@@ -38,6 +38,15 @@ func PermissionAction() gin.HandlerFunc {
 			return
 		}
 
+		// The token already carries what the scope is decided by. Reading it
+		// there costs nothing, and goes no more stale than rolekey does - which
+		// Casbin has always read from the token.
+		if p, ok := permissionFromClaims(c); ok {
+			c.Set(PermissionKey, p)
+			c.Next()
+			return
+		}
+
 		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
@@ -54,6 +63,26 @@ func PermissionAction() gin.HandlerFunc {
 		c.Set(PermissionKey, p)
 		c.Next()
 	}
+}
+
+// permissionFromClaims builds the scope from the token, reporting false when
+// the token predates deptid being carried. Such a token still exists until it
+// expires, and it has to keep working.
+func permissionFromClaims(c *gin.Context) (*DataPermission, bool) {
+	claims := user.ExtractClaims(c)
+	if claims["deptid"] == nil || claims["datascope"] == nil {
+		return nil, false
+	}
+	scope, ok := claims["datascope"].(string)
+	if !ok {
+		return nil, false
+	}
+	return &DataPermission{
+		DataScope: scope,
+		UserId:    user.GetUserId(c),
+		DeptId:    user.GetDeptId(c),
+		RoleId:    user.GetRoleId(c),
+	}, true
 }
 
 func newDataPermission(tx *gorm.DB, userId interface{}) (*DataPermission, error) {

@@ -44,3 +44,38 @@ func TestNoLookupWhenDataPermissionIsOff(t *testing.T) {
 		t.Fatal("the request needed a database even though data permission is off")
 	}
 }
+
+func TestScopeComesFromTheTokenWhenItCarriesOne(t *testing.T) {
+	previous := config.ApplicationConfig.EnableDP
+	config.ApplicationConfig.EnableDP = true
+	t.Cleanup(func() { config.ApplicationConfig.EnableDP = previous })
+
+	p, ok := runPermission(t, jwt.MapClaims{
+		"identity":  float64(7),
+		"roleid":    float64(3),
+		"deptid":    float64(5),
+		"datascope": "4",
+	})
+	if !ok {
+		t.Fatal("the token carried the scope and a database was still needed")
+	}
+	if p.DataScope != "4" || p.UserId != 7 || p.DeptId != 5 || p.RoleId != 3 {
+		t.Fatalf("scope read as %+v", p)
+	}
+}
+
+// A token minted before deptid was carried is still valid until it expires, and
+// has to keep working - by falling back to the query, which needs a database.
+func TestATokenWithoutDeptIdFallsBackToTheQuery(t *testing.T) {
+	previous := config.ApplicationConfig.EnableDP
+	config.ApplicationConfig.EnableDP = true
+	t.Cleanup(func() { config.ApplicationConfig.EnableDP = previous })
+
+	if _, ok := runPermission(t, jwt.MapClaims{
+		"identity":  float64(7),
+		"roleid":    float64(3),
+		"datascope": "4",
+	}); ok {
+		t.Fatal("an old token was served from claims it does not have")
+	}
+}
