@@ -29,15 +29,20 @@ type QiNiuKODO struct {
 	options    []ClientOption
 }
 
-func (e *QiNiuKODO) getToken() string {
+func (e *QiNiuKODO) getToken() (string, error) {
+	mac, ok := e.Client.(*qbox.Mac)
+	if !ok {
+		return "", notConfigured(QiNiuKodo)
+	}
 	putPolicy := storage.PutPolicy{
 		Scope: e.BucketName,
 	}
-	if len(e.options) > 0 && e.options[0]["Expires"] != nil {
-		putPolicy.Expires = e.options[0]["Expires"].(uint64)
+	if len(e.options) > 0 {
+		if expires, ok := e.options[0]["Expires"].(uint64); ok {
+			putPolicy.Expires = expires
+		}
 	}
-	upToken := putPolicy.UploadToken(e.Client.(*qbox.Mac))
-	return upToken
+	return putPolicy.UploadToken(mac), nil
 }
 
 //Setup 装载
@@ -96,16 +101,21 @@ func (e *QiNiuKODO) UpLoad(yourObjectName string, localFile interface{}) error {
 			"x:name": "github logo",
 		},
 	}
-	err := formUploader.PutFile(context.Background(), &ret, e.getToken(), yourObjectName, localFile.(string), &putExtra)
+	token, err := e.getToken()
 	if err != nil {
-		fmt.Println(err)
 		return err
+	}
+	source, ok := localFile.(string)
+	if !ok {
+		return fmt.Errorf("kodo upload wants a path, got %T", localFile)
+	}
+	if err := formUploader.PutFile(context.Background(), &ret, token, yourObjectName, source, &putExtra); err != nil {
+		return fmt.Errorf("kodo upload: %w", err)
 	}
 	fmt.Println(ret.Key, ret.Hash)
 	return nil
 }
 
 func (e *QiNiuKODO) GetTempToken() (string, error) {
-	token := e.getToken()
-	return token, nil
+	return e.getToken()
 }

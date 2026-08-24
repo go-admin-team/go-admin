@@ -26,24 +26,30 @@ func (e *HuaWeiOBS) Setup(endpoint, accessKeyID, accessKeySecret, BucketName str
 // UpLoad 文件上传
 // yourObjectName 文件路径名称，与objectKey是同一概念，表示断点续传上传文件到OSS时需要指定包含文件后缀在内的完整路径，例如abc/efg/123.jpg
 func (e *HuaWeiOBS) UpLoad(yourObjectName string, localFile interface{}) error {
+	client, ok := e.Client.(*obs.ObsClient)
+	if !ok {
+		return notConfigured(HuaweiOBS)
+	}
+	source, ok := localFile.(string)
+	if !ok {
+		return fmt.Errorf("obs upload wants a path, got %T", localFile)
+	}
+
 	// 获取存储空间。
 	input := &obs.PutFileInput{}
 	input.Bucket = e.BucketName
 	input.Key = yourObjectName
-	input.SourceFile = localFile.(string)
-	output, err := e.Client.(*obs.ObsClient).PutFile(input)
-
-	if err == nil {
-		fmt.Printf("RequestId:%s\n", output.RequestId)
-		fmt.Printf("ETag:%s, StorageClass:%s\n", output.ETag, output.StorageClass)
-	} else {
+	input.SourceFile = source
+	output, err := client.PutFile(input)
+	if err != nil {
+		// The error used to be printed and nil returned, so a failed upload
+		// reported success to the caller.
 		if obsError, ok := err.(obs.ObsError); ok {
-			fmt.Println(obsError.Code)
-			fmt.Println(obsError.Message)
-		} else {
-			fmt.Println(err)
+			return fmt.Errorf("obs upload: %s: %s", obsError.Code, obsError.Message)
 		}
+		return fmt.Errorf("obs upload: %w", err)
 	}
+	log.Printf("obs upload ok, requestId=%s etag=%s", output.RequestId, output.ETag)
 	return nil
 }
 
