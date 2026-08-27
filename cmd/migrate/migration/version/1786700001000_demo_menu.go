@@ -56,7 +56,10 @@ func _1786700001000DemoMenu(db *gorm.DB, version string) error {
 		dir := models.SysMenu{
 			MenuId: demoMenuId, MenuName: "Demo", Title: "示例模块", Icon: "example",
 			Path: "/demo", Paths: "/0/9000", MenuType: "M", ParentId: 0,
-			Component: "Layout", Sort: 900, Visible: "0", IsFrame: "1",
+			// sort is `gorm:"size:4"`, which MySQL builds as a tinyint - anything
+			// over 127 is rejected outright. The seeded menus run to 100, so 110
+			// still puts this last.
+			Component: "Layout", Sort: 110, Visible: "0", IsFrame: "1",
 		}
 		if err := upsert(tx, &models.SysMenu{}, "menu_id = ?", dir.MenuId, &dir); err != nil {
 			return err
