@@ -72,10 +72,58 @@ jobs:
           #
           # 路径本身走 secret：它不是凭据，但本仓库公开，没有理由把服务器的
           # 目录结构一并公布。DEMO_CONFIG_PATH 指向宿主机上那份配置。
+          #
+          # 顺序是有意的：迁移先跑，跑不过就保持现有版本不动；
+          # 旧容器改名保留而不是删除，新容器不健康时能原样恢复。
+          # 健康检查两条都要过——HTTP 活着不代表数据库通了。
           script: |
-            test -f "${{ secrets.DEMO_CONFIG_PATH }}" || { echo "宿主机配置缺失，中止部署"; exit 1; }
-            sudo docker rm -f go-admin-api
+            set -u
+            CFG="${{ secrets.DEMO_CONFIG_PATH }}"
+            IMG="${{ env.IMAGE_NAME_TAG }}"
+            NAME=go-admin-api
+            PREV="$NAME-prev"
+
+            test -f "$CFG" || { echo "宿主机配置缺失，中止部署"; exit 1; }
+
             sudo docker login --username=${{ secrets.DOCKER_USERNAME }} registry.ap-northeast-1.aliyuncs.com --password=${{ secrets.DOCKER_PASSWORD }}
+            sudo docker pull "$IMG" || { echo "拉取镜像失败，中止部署"; exit 1; }
+
+            # 迁移用新镜像跑。失败时线上仍是旧版本配旧 schema，是自洽的；
+            # 硬切过去才会得到代码与表对不上的服务。
+            if ! sudo docker run --rm -v "$CFG":/config/settings.yml:ro "$IMG" \
+                 /main migrate -c /config/settings.yml; then
+              echo "迁移失败，保持现有版本"; exit 1
+            fi
+
+            if sudo docker ps -a --format '{{.Names}}' | grep -qx "$NAME"; then
+              sudo docker rm -f "$PREV" >/dev/null 2>&1 || true
+              sudo docker rename "$NAME" "$PREV"
+              sudo docker stop "$PREV" >/dev/null
+            fi
+
             sudo docker run -d -p 8000:8000 \
-              -v "${{ secrets.DEMO_CONFIG_PATH }}":/config/settings.yml:ro \
-              --name go-admin-api ${{ env.IMAGE_NAME_TAG }}
+              -v "$CFG":/config/settings.yml:ro \
+              --name "$NAME" "$IMG"
+
+            ok=0
+            for i in $(seq 1 20); do
+              sleep 3
+              code=$(curl -s -o /dev/null -w '%{http_code}' -m 5 http://127.0.0.1:8000/api/v1/captcha 2>/dev/null || true)
+              if [ "$code" = "200" ] && sudo docker logs "$NAME" 2>&1 | grep -q 'connect success'; then
+                ok=1; echo "健康检查通过（第 $i 次探测）"; break
+              fi
+            done
+
+            if [ "$ok" = "1" ]; then
+              sudo docker rm -f "$PREV" >/dev/null 2>&1 || true
+            else
+              echo "健康检查失败，回滚到上一版本"
+              sudo docker logs --tail 40 "$NAME" 2>&1 || true
+              sudo docker rm -f "$NAME" >/dev/null 2>&1 || true
+              if sudo docker ps -a --format '{{.Names}}' | grep -qx "$PREV"; then
+                sudo docker rename "$PREV" "$NAME"
+                sudo docker start "$NAME" >/dev/null
+                echo "已恢复"
+              fi
+              exit 1
+            fi

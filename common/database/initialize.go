@@ -28,7 +28,7 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 	if global.Driver == "" {
 		global.Driver = c.Driver
 	}
-	log.Infof("%s => %s", host, pkg.Green(c.Source))
+	log.Infof("%s => %s", host, pkg.Green(redactDSN(c.Source)))
 	registers := make([]toolsDB.ResolverConfigure, len(c.Registers))
 	for i := range c.Registers {
 		registers[i] = toolsDB.NewResolverConfigure(

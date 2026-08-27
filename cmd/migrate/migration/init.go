@@ -43,20 +43,28 @@ func (e *Migration) Migrate() {
 	}
 	var err error
 	var count int64
+	applied := 0
 	for _, v := range versions {
 		err = e.db.Table("sys_migration").Where("version = ?", v).Count(&count).Error
 		if err != nil {
 			log.Fatalln(err)
 		}
 		if count > 0 {
-			log.Println(count)
+			// Already applied. This used to print the bare count, so a mature
+			// database wrote a screen of "1" at every start.
 			count = 0
 			continue
 		}
-		err = (e.version[v])(e.db.Debug(), v)
-		if err != nil {
-			log.Fatalln(err)
+		log.Printf("applying migration %s", v)
+		if err = (e.version[v])(e.db.Debug(), v); err != nil {
+			log.Fatalf("migration %s failed: %v", v, err)
 		}
+		applied++
+	}
+	if applied == 0 {
+		log.Println("no migrations to apply")
+	} else {
+		log.Printf("applied %d migration(s)", applied)
 	}
 }
 
