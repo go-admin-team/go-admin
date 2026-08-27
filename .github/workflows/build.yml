@@ -66,13 +66,16 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           # 重启的脚本，根据自身情况做相应改动，一般要做的是migrate数据库以及重启服务器
           #
-          # 配置从宿主机挂载，不使用镜像里的那份：演示站连的是托管 MySQL，
+          # 配置从宿主机挂载，不使用镜像里的那份：演示站连的是托管数据库，
           # 而 config/settings.demo.yml 会随仓库公开、也会打进镜像，凭据不能写在那里。
           # 镜像里那份保持 sqlite，供 clone 仓库的人开箱即用。
+          #
+          # 路径本身走 secret：它不是凭据，但本仓库公开，没有理由把服务器的
+          # 目录结构一并公布。DEMO_CONFIG_PATH 指向宿主机上那份配置。
           script: |
-            test -f /www/vue-demo/config/settings.yml || { echo "缺少 /www/vue-demo/config/settings.yml，中止部署"; exit 1; }
+            test -f "${{ secrets.DEMO_CONFIG_PATH }}" || { echo "宿主机配置缺失，中止部署"; exit 1; }
             sudo docker rm -f go-admin-api
             sudo docker login --username=${{ secrets.DOCKER_USERNAME }} registry.ap-northeast-1.aliyuncs.com --password=${{ secrets.DOCKER_PASSWORD }}
             sudo docker run -d -p 8000:8000 \
-              -v /www/vue-demo/config/settings.yml:/config/settings.yml:ro \
+              -v "${{ secrets.DEMO_CONFIG_PATH }}":/config/settings.yml:ro \
               --name go-admin-api ${{ env.IMAGE_NAME_TAG }}
