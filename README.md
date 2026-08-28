@@ -4,15 +4,15 @@
 <img align="right" width="320" src="https://raw.githubusercontent.com/wenjianzhang/image/203c5930b9ed08d5cf2fcb4516b85e412f8e0e60/img/go-admin.svg">
 
 
-[![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
+[![Build Status](https://github.com/go-admin-team/go-admin/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/go-admin-team/go-admin)
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/go-admin-team/go-admin)
+[![License](https://img.shields.io/github/license/go-admin-team/go-admin.svg)](https://github.com/go-admin-team/go-admin)
 
 English | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md)
 
-The front-end and back-end separation authority management system based on Gin + Vue + Element UI OR Arco Design is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
+The front-end and back-end separation authority management system based on Gin + Vue + Element UI OR Arco Design OR Ant Design is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
 
-[documentation](https://www.go-admin.dev)
+[documentation](https://www.go-admin.pro)
 
 [Front-end project](https://github.com/go-admin-team/go-admin-ui)
 
@@ -76,9 +76,9 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Easily implement go-admin to write the first application-documentation tutorial
 
-[Step 1 - basic content introduction](https://doc.go-admin.dev/guide/intro/tutorial01.html)
+[Step 1 - basic content introduction](https://www.go-admin.pro/guide/intro/tutorial01.html)
 
-[Step 2 - Practical application - writing database operations](https://doc.go-admin.dev/guide/intro/tutorial02.html)
+[Step 2 - Practical application - writing database operations](https://www.go-admin.pro/guide/intro/tutorial02.html)
 
 ### Teach you from getting started to giving up-video tutorial
 
@@ -171,7 +171,7 @@ D:\Code\go-admin>go build
 cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
-[Solve the cgo problem and enter](https://doc.go-admin.dev/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
+[Solve the cgo problem and enter](https://www.go-admin.pro/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
 :::
 
@@ -318,7 +318,7 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 2. [gin](https://github.com/gin-gonic/gin)
 2. [casbin](https://github.com/casbin/casbin)
 2. [spf13/viper](https://github.com/spf13/viper)
-2. [gorm](https://github.com/jinzhu/gorm)
+2. [gorm](https://github.com/go-gorm/gorm)
 2. [gin-swagger](https://github.com/swaggo/gin-swagger)
 2. [golang-jwt](https://github.com/golang-jwt/jwt)
 2. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)

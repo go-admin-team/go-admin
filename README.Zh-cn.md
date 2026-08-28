@@ -3,9 +3,9 @@
   <img align="right" width="320" src="https://doc-image.zhangwj.com/img/go-admin.svg">
 
 
-[![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
+[![Build Status](https://github.com/go-admin-team/go-admin/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/go-admin-team/go-admin)
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/go-admin-team/go-admin)
+[![License](https://img.shields.io/github/license/go-admin-team/go-admin.svg)](https://github.com/go-admin-team/go-admin)
 
 [English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | 简体中文
 
@@ -78,9 +78,9 @@ antd 体验（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admi
 
 ### 轻松实现go-admin写出第一个应用 - 文档教程
 
-[步骤一 - 基础内容介绍](https://doc.go-admin.dev/guide/intro/tutorial01.html)
+[步骤一 - 基础内容介绍](https://www.go-admin.pro/guide/intro/tutorial01.html)
 
-[步骤二 - 实际应用 - 编写增删改查](https://doc.go-admin.dev/guide/intro/tutorial02.html)
+[步骤二 - 实际应用 - 编写增删改查](https://www.go-admin.pro/guide/intro/tutorial02.html)
 
 ### 手把手教你从入门到放弃 - 视频教程
 
@@ -173,7 +173,7 @@ D:\Code\go-admin>go build
 cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
-[解决cgo问题进入](https://doc.go-admin.dev/zh-CN/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
+[解决cgo问题进入](https://www.go-admin.pro/zh-CN/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
 
 #### 初始化数据库，以及服务启动
@@ -327,7 +327,7 @@ pnpm dev
 4. [gin](https://github.com/gin-gonic/gin)
 5. [casbin](https://github.com/casbin/casbin)
 6. [spf13/viper](https://github.com/spf13/viper)
-7. [gorm](https://github.com/jinzhu/gorm)
+7. [gorm](https://github.com/go-gorm/gorm)
 8. [gin-swagger](https://github.com/swaggo/gin-swagger)
 9. [golang-jwt](https://github.com/golang-jwt/jwt)
 10. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
