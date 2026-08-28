@@ -48,6 +48,13 @@ settings:
   extend: # 扩展项使用说明
     demo:
       name: data
+    # rateLimit 全局入站限流。不配置时为 200 QPS，与此前写死在
+    # common/middleware/sentinel.go 里的值一致，升级不会改变行为。
+    # 填 0 关闭限流——部署在自带限流的网关后面时用得上。
+    # 超出阈值的请求返回 HTTP 429（旧版本返回 200，只在 body 里写 code:500，
+    # 会被负载均衡、监控和压测统计成成功）。
+    rateLimit:
+      inboundQPS: 200
   cache:
 #    redis:
 #      addr: 127.0.0.1:6379
