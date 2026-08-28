@@ -1,161 +1,163 @@
-
 # go-admin
 
-<img align="right" width="320" src="https://raw.githubusercontent.com/wenjianzhang/image/203c5930b9ed08d5cf2fcb4516b85e412f8e0e60/img/go-admin.svg">
+  <img align="right" width="320" src="https://doc-image.zhangwj.com/img/go-admin.svg">
 
 
 [![Build Status](https://github.com/go-admin-team/go-admin/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/go-admin-team/go-admin)
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
 [![License](https://img.shields.io/github/license/go-admin-team/go-admin.svg)](https://github.com/go-admin-team/go-admin)
 
-English | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md) | [繁體中文](https://github.com/go-admin-team/go-admin/blob/master/README.zh-TW.md) | [日本語](https://github.com/go-admin-team/go-admin/blob/master/README.ja-JP.md)
+[English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md) | 繁體中文 | [日本語](https://github.com/go-admin-team/go-admin/blob/master/README.ja-JP.md)
 
-The front-end and back-end separation authority management system based on Gin + Vue + Element UI OR Arco Design OR Ant Design is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
+基於 Gin + Vue + Element UI OR Arco Design OR Ant Design 的前後端分離權限管理系統。系統初始化極為簡單，只需在設定檔中修改資料庫連線資訊即可。系統支援多指令操作：遷移指令讓資料庫初始化變得更簡單，服務指令則能輕鬆啟動 API 服務。
 
-[documentation](https://www.go-admin.pro)
+[線上文件](https://www.go-admin.pro)
 
-[Front-end project](https://github.com/go-admin-team/go-admin-ui)
+[前端專案](https://github.com/go-admin-team/go-admin-ui)
 
-[Video tutorial](https://space.bilibili.com/565616721/channel/detail?cid=125737)
+[影片教學](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
-## 🎬 Online Demo
+## 🎬 線上體驗
 
-Element Plus vue3 demo：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
-> Account / Password: admin / 123456
+Element Plus vue3 體驗：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
+> ⚠️⚠️⚠️ 帳號 / 密碼： admin / 123456
 
-antd demo (go-admin-pro)：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
-> Account / Password: admin / 123456
-> 
-## ✨ Feature
+antd 體驗（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
+> ⚠️⚠️⚠️ 帳號 / 密碼： admin / 123456
 
-- Follow RESTful API design specifications
+## ✨ 特性
 
-- Based on the GIN WEB API framework, it provides rich middleware support (user authentication, cross-domain, access log, tracking ID, etc.)
+- 遵循 RESTful API 設計規範
 
-- RBAC access control model based on Casbin
+- 基於 GIN WEB API 框架，提供豐富的中介軟體支援（使用者認證、跨域、存取日誌、追蹤 ID 等）
 
-- JWT authentication
+- 基於 Casbin 的 RBAC 存取控制模型
 
-- Support Swagger documents (based on swaggo)
+- JWT 認證
 
-- Database storage based on GORM, which can expand multiple types of databases
+- 支援 Swagger 文件（基於 swaggo）
 
-- Simple model mapping of configuration files to quickly get the desired configuration
+- 基於 GORM 的資料庫儲存，可擴充多種類型資料庫
 
-- Code generation tool
+- 設定檔簡單的模型映射，快速取得所需設定
 
-- Form builder
+- 程式碼產生工具
 
-- Multi-command mode
+- 表單建構工具
 
-- TODO: unit test
+- 多指令模式
 
+- 多租戶的支援
 
-## 🎁 Internal
+- TODO: 單元測試
 
-1. User management: The user is the system operator, this function mainly completes the system user configuration.
-2. Department management: configure the system organization (company, department, group), and display the tree structure to support data permissions.
-3. Position management: configure the positions of system users.
-4. Menu management: configure the system menu, operation authority, button authority identification, interface authority, etc.
-5. Role management: Role menu permission assignment and role setting are divided into data scope permissions by organization.
-6. Dictionary management: Maintain some relatively fixed data frequently used in the system.
-7. Parameter management: dynamically configure common parameters for the system.
-8. Operation log: system normal operation log record and query; system abnormal information log record and query.
-9. Login log: The system login log record query contains login exceptions.
-1. Interface documentation: Automatically generate related api interface documents according to the business code.
-1. Code generation: According to the data table structure, generate the corresponding addition, deletion, modification, and check corresponding business, and the whole process of visual operation, so that the basic business can be implemented with zero code.
-1. Form construction: Customize the page style, drag and drop to realize the page layout.
-1. Service monitoring: View the basic information of some servers.
-1. Content management: demo function, including classification management and content management. You can refer to the easy to use quick start.
+## 🎁 內建
 
-## Ready to work
+1. 多租戶：系統預設支援多租戶，按資料庫分離，一個資料庫一個租戶。
+1. 使用者管理：使用者是系統操作者，該功能主要完成系統使用者設定。
+2. 部門管理：設定系統組織架構（公司、部門、小組），以樹狀結構呈現並支援資料權限。
+3. 職位管理：設定系統使用者所擔任的職務。
+4. 選單管理：設定系統選單、操作權限、按鈕權限標識、介面權限等。
+5. 角色管理：角色選單權限分配、設定角色按機構進行資料範圍權限劃分。
+6. 字典管理：對系統中經常使用且較為固定的資料進行維護。
+7. 參數管理：對系統動態設定常用參數。
+8. 操作日誌：系統正常操作的日誌記錄與查詢；系統異常資訊的日誌記錄與查詢。
+9. 登入日誌：系統登入日誌記錄查詢，包含登入異常。
+1. 介面文件：根據業務程式碼自動產生相關的 API 介面文件。
+1. 程式碼產生：根據資料表結構產生對應的增刪改查業務，全程視覺化操作，讓基本業務可以零程式碼實現。
+1. 表單建構：自訂頁面樣式，拖拉放實現頁面佈局。
+1. 服務監控：檢視伺服器的基本資訊。
+1. 內容管理：demo 功能，下設分類管理、內容管理，可參考使用以快速入門。
+1. 排程任務：自動化任務，目前支援介面呼叫與函式呼叫。
 
-You need to install locally [go] [gin] [node](http://nodejs.org/) 和 [git](https://git-scm.com/)
+## 準備工作
 
-At the same time, a series of tutorials including videos and documents are provided. How to complete the downloading to the proficient use, it is strongly recommended that you read these tutorials before you practice this project! ! !
+你需要在本機安裝 [go] [gin] [node](http://nodejs.org/) 和 [git](https://git-scm.com/)
 
-### Easily implement go-admin to write the first application-documentation tutorial
+同時配套了系列教學（含影片與文件），說明如何從下載到熟練使用。強烈建議先看完這些教學再來實作本專案！！！
 
-[Step 1 - basic content introduction](https://www.go-admin.pro/guide/intro/tutorial01.html)
+### 輕鬆用 go-admin 寫出第一個應用 - 文件教學
 
-[Step 2 - Practical application - writing database operations](https://www.go-admin.pro/guide/intro/tutorial02.html)
+[步驟一 - 基礎內容介紹](https://www.go-admin.pro/guide/intro/tutorial01.html)
 
-### Teach you from getting started to giving up-video tutorial
+[步驟二 - 實際應用 - 撰寫增刪改查](https://www.go-admin.pro/guide/intro/tutorial02.html)
 
-[How to start go-admin](https://www.bilibili.com/video/BV1z5411x7JG)
+### 手把手教你從入門到放棄 - 影片教學
 
-[Easily implement business using build tools](https://www.bilibili.com/video/BV1Dg4y1i79D)
+[如何啟動 go-admin](https://www.bilibili.com/video/BV1z5411x7JG)
 
-[v1.1.0 version code generation tool-free your hands](https://www.bilibili.com/video/BV1N54y1i71P) [Advanced]
+[使用產生工具輕鬆實現業務](https://www.bilibili.com/video/BV1Dg4y1i79D)
 
-[Explanation of multi-command startup mode and IDE configuration](https://www.bilibili.com/video/BV1Fg4y1q7ph)
+[v1.1.0 版本程式碼產生工具 - 釋放雙手](https://www.bilibili.com/video/BV1N54y1i71P) [進階]
 
-[Configuration instructions for go-admin menu](https://www.bilibili.com/video/BV1Wp4y1D715) [Must see]
+[多指令啟動方式講解以及 IDE 設定](https://www.bilibili.com/video/BV1Fg4y1q7ph)
 
-[How to configure menu information and interface information](https://www.bilibili.com/video/BV1zv411B7nG) [Must see]
+[go-admin 選單的設定說明](https://www.bilibili.com/video/BV1Wp4y1D715) [必看]
 
-[go-admin permission configuration instructions](https://www.bilibili.com/video/BV1rt4y197d3) [Must see]
+[如何設定選單資訊以及介面資訊](https://www.bilibili.com/video/BV1zv411B7nG) [必看]
 
-[Instructions for use of go-admin data permissions](https://www.bilibili.com/video/BV1LK4y1s71e) [Must see]
+[go-admin 權限設定使用說明](https://www.bilibili.com/video/BV1rt4y197d3) [必看]
 
-**If you have any questions, please read the above-mentioned usage documents and articles first. If you are not satisfied, welcome to issue and pr. Video tutorials and documents are being updated continuously.**
+[go-admin 資料權限使用說明](https://www.bilibili.com/video/BV1LK4y1s71e) [必看]
 
-## 📦 Local development
+**如有問題請先參閱上述文件與文章，若仍無法解決，歡迎提出 issue 與 pr。影片教學與文件持續更新中**
 
-### Environmental requirements
+## 📦 本機開發
+
+### 環境需求
 
 go 1.26.5
 
-nodejs: v22+ (v24 LTS recommended)
+node 版本: v22+（建議 v24 LTS）
 
-package manager: pnpm v9+ (the UI project uses pnpm)
+套件管理器: pnpm v9+（UI 專案使用 pnpm）
 
-### Development directory creation
+### 建立開發目錄
 
 ```bash
 
-# Create a development directory
+# 建立開發目錄
 mkdir goadmin
 cd goadmin
 ```
 
-### Get the code
+### 取得程式碼
 
-> Important note: the two projects must be placed in the same folder;
+> 重點注意：兩個專案必須放在同一資料夾下；
 
 ```bash
-# Get backend code
+# 取得後端程式碼
 git clone https://github.com/go-admin-team/go-admin.git
 
-# Get the front-end code
+# 取得前端程式碼
 git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ```
 
-### Startup instructions
+### 啟動說明
 
-#### Server startup instructions
+#### 伺服器端啟動說明
 
 ```bash
-# Enter the go-admin backend project
+# 進入 go-admin 後端專案
 cd ./go-admin
 
-# Update dependencies
+# 更新整理相依套件
 go mod tidy
 
-# Compile the project
+# 編譯專案
 go build
 
-# Change setting 
-# File path go-admin/config/settings.yml
+# 修改設定
+# 檔案路徑  go-admin/config/settings.yml
 vi ./config/settings.yml
 
-# 1. Modify the database information in the configuration file
-# Note: The corresponding configuration data under settings.database
-# 2. Confirm the log path
+# 1. 在設定檔中修改資料庫資訊
+# 注意: settings.database 下對應的設定資料
+# 2. 確認 log 路徑
 ```
 
-:::tip ⚠️Note that this problem will occur if CGO is not installed in the windows10+ environment;
+⚠️注意 在 Windows 環境若未安裝 CGO，會出現這個問題；
 
 ```bash
 E:\go-admin>go build
@@ -171,49 +173,55 @@ D:\Code\go-admin>go build
 cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
-[Solve the cgo problem and enter](https://www.go-admin.pro/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
+[解決 cgo 問題請進入](https://www.go-admin.pro/zh-CN/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
-:::
 
-#### Initialize the database, and start the service
+#### 初始化資料庫，以及服務啟動
 
 ``` bash
-# The first configuration needs to initialize the database resource information
-# Use under macOS or linux
+# 首次設定需要初始化資料庫資源資訊
+# macOS or linux 下使用
 $ ./go-admin migrate -c config/settings.dev.yml
 
-# ⚠️Note: Use under windows
+# ⚠️注意:windows 下使用
 $ go-admin.exe migrate -c config/settings.dev.yml
 
-# Start the project, you can also use the IDE for debugging
-# Use under macOS or linux
+
+# 啟動專案，也可以用 IDE 進行除錯
+# macOS or linux 下使用
 $ ./go-admin server -c config/settings.yml
 
-# ⚠️Note: Use under windows
+
+# ⚠️注意:windows 下使用
 $ go-admin.exe server -c config/settings.yml
 ```
 
-#### Use docker to compile and start
+#### sys_api 表的資料如何新增
+
+在專案啟動時，使用 `-a true` 系統會自動新增缺少的介面資料
+```bash
+./go-admin server -c config/settings.yml -a true
+```
+
+#### 使用 docker 編譯啟動
 
 ```shell
-# Compile the image
+# 編譯映像檔
 docker build -t go-admin .
 
-
-# Start the container, the first go-admin is the container name, and the second go-admin is the image name
-# -v Mapping configuration file Local path: container path
+# 啟動容器，第一個 go-admin 是容器名稱，第二個 go-admin 是映像檔名稱
+# -v 映射設定檔 本機路徑：容器路徑
 docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin-server
 ```
 
-
-
-#### Generation Document
+#### 文件產生
 
 ```bash
 go generate
 ```
 
-#### Cross compile
+#### 交叉編譯
+
 ```bash
 # windows
 env GOOS=windows GOARCH=amd64 go build main.go
@@ -223,37 +231,41 @@ env GOOS=windows GOARCH=amd64 go build main.go
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
-### UI interactive terminal startup instructions
+### UI 互動端啟動說明
 
 ```bash
-# Install pnpm if you don't have it
+# 安裝 pnpm（若未安裝）
 npm install -g pnpm
 
-# Installation dependencies
+# 安裝相依套件
 pnpm install
 
-# Start service
+# 中國大陸網路可指定鏡像來源加速
+pnpm install --registry=https://registry.npmmirror.com
+
+# 啟動服務
 pnpm dev
 ```
 
-## 📨 Interactive
+## 📨 互動
 
 <table>
-  <tr>
+   <tr>
     <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/wx.png" width="180px"></td>
     <td><img src="https://doc-image.zhangwj.com/img/qrcode_for_gh_b798dc7db30c_258.jpg" width="180px"></td>
     <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/qq2.png" width="200px"></td>
     <td><a href="https://space.bilibili.com/565616721">wenjianzhang</a></td>
   </tr>
   <tr>
-    <td>Wechat</td>
-    <td>Wechat公众号🔥🔥🔥</td>
+    <td>微信</td>
+    <td>公众号🔥🔥🔥</td>
     <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=0f2bf59f5f2edec6a4550c364242c0641f870aa328e468c4ee4b7dbfb392627b"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流乙号" title="go-admin技术交流乙号"></a></td>
-    <td>bilibili🔥🔥🔥</td>
+    <td>哔哩哔哩🔥🔥🔥</td>
   </tr>
 </table>
 
-## 💎 Contributors
+## 💎 貢獻者
+
 
 <span style="margin: 0 5px;" ><a href="https://github.com/wenjianzhang" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/3890175?v=4&h=60&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
 <span style="margin: 0 5px;" ><a href="https://github.com/G-Akiraka" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/45746659?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
@@ -299,39 +311,36 @@ pnpm dev
 " ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/1410597?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
 <span style="margin: 0 5px;" ><a href="https://github.com/Nicole0724
 " ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/10487328?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+## JetBrains 開源證書支援
 
-
-
-## JetBrains open source certificate support
-
-The `go-admin` project has always been developed in the GoLand integrated development environment under JetBrains, based on the **free JetBrains Open Source license(s)** genuine free license. I would like to express my gratitude.
+`go-admin` 專案一直以來都是在 JetBrains 公司旗下的 GoLand 整合開發環境中進行開發，基於 **free JetBrains Open Source license(s)** 正版免費授權，在此表達我的謝意。
 
 <a href="https://www.jetbrains.com/?from=kubeadm-ha" target="_blank"><img src="https://raw.githubusercontent.com/panjf2000/illustrations/master/jetbrains/jetbrains-variant-4.png" width="250" align="middle"/></a>
 
-
-## 🤝 Thanks
+## 🤝 特別感謝
 
 1. [ant-design](https://github.com/ant-design/ant-design)
 2. [ant-design-pro](https://github.com/ant-design/ant-design-pro)
 2. [arco-design](https://github.com/arco-design/arco-design)
 2. [arco-design-pro](https://github.com/arco-design/arco-design-pro)
-2. [gin](https://github.com/gin-gonic/gin)
-2. [casbin](https://github.com/casbin/casbin)
-2. [spf13/viper](https://github.com/spf13/viper)
-2. [gorm](https://github.com/go-gorm/gorm)
-2. [gin-swagger](https://github.com/swaggo/gin-swagger)
-2. [golang-jwt](https://github.com/golang-jwt/jwt)
-2. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
-2. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
-2. [form-generator](https://github.com/JakHuang/form-generator)
+4. [gin](https://github.com/gin-gonic/gin)
+5. [casbin](https://github.com/casbin/casbin)
+6. [spf13/viper](https://github.com/spf13/viper)
+7. [gorm](https://github.com/go-gorm/gorm)
+8. [gin-swagger](https://github.com/swaggo/gin-swagger)
+9. [golang-jwt](https://github.com/golang-jwt/jwt)
+10. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+11. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
+12. [form-generator](https://github.com/JakHuang/form-generator)
 
-## 🤟 Sponsor Us
+## 🤟 贊助
 
-> If you think this project helped you, you can buy a glass of juice for the author to show encouragement :tropical_drink:
+> 如果你覺得這個專案幫助到了你，可以幫作者買一杯果汁表示鼓勵 :tropical_drink:
 
 <img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="200px" >
 
-## 🤝 Link
+## 🤝 連結
+
 - [mss-boot-io](https://docs.mss-boot-io.top/)
 
 ## 🔑 License
