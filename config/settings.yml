@@ -32,6 +32,17 @@ settings:
     driver: mysql
     # 数据库连接字符串 mysql 缺省信息 charset=utf8&parseTime=True&loc=Local&timeout=1000ms
     source: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+    # 连接池。不配置这几项时走 Go 的默认值，其中 MaxIdleConns 默认只有 2：
+    # 高并发下几乎每个请求都要新建 TCP 连接、用完立刻关闭，本机端口很快耗尽，
+    # 表现为 "can't assign requested address" 且请求全部失败——不是变慢，是不可用。
+    #
+    # maxOpenConns 是单个实例的连接上限，多实例部署时总连接数是它乘以实例数，
+    # 需要小于数据库的 max_connections（MySQL 默认 151）。
+    # connMaxLifeTime 单位为秒，应小于数据库的 wait_timeout（MySQL 默认 28800），
+    # 否则会复用到已被服务端关闭的连接。
+    maxIdleConns: 20
+    maxOpenConns: 100
+    connMaxLifeTime: 3600
 #  databases:
 #    'locaohost:8000':
 #      driver: mysql
@@ -64,7 +75,15 @@ settings:
     memory: '' 
   queue:
     memory:
-      poolSize: 100
+      # poolSize 是队列的缓冲长度，不是并发度。队列满时 Append 会丢弃该消息并
+      # 返回错误，而不是阻塞等待，所以这个值实际是「开始丢消息的临界点」。
+      #
+      # 每个 stream 只有一个消费 goroutine，而登录日志、操作日志的消费要写数据库，
+      # 吞吐受限于单条写入耗时。突发流量高于消费速度时，缓冲区是唯一的缓解手段。
+      # 压测中默认的 100 丢弃率超过 60%，1000 为 0。
+      #
+      # 仅在 logger.enableddb 为 true 时才会真正入队。
+      poolSize: 1000
 #    redis:
 #      addr: 127.0.0.1:6379
 #      password: xxxxxx
