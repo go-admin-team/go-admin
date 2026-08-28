@@ -1,161 +1,163 @@
-
 # go-admin
 
-<img align="right" width="320" src="https://raw.githubusercontent.com/wenjianzhang/image/203c5930b9ed08d5cf2fcb4516b85e412f8e0e60/img/go-admin.svg">
+  <img align="right" width="320" src="https://doc-image.zhangwj.com/img/go-admin.svg">
 
 
 [![Build Status](https://github.com/go-admin-team/go-admin/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/go-admin-team/go-admin)
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
 [![License](https://img.shields.io/github/license/go-admin-team/go-admin.svg)](https://github.com/go-admin-team/go-admin)
 
-English | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md) | [繁體中文](https://github.com/go-admin-team/go-admin/blob/master/README.zh-TW.md) | [日本語](https://github.com/go-admin-team/go-admin/blob/master/README.ja-JP.md)
+[English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md) | [繁體中文](https://github.com/go-admin-team/go-admin/blob/master/README.zh-TW.md) | 日本語
 
-The front-end and back-end separation authority management system based on Gin + Vue + Element UI OR Arco Design OR Ant Design is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
+Gin + Vue + Element UI / Arco Design / Ant Design による、フロントエンドとバックエンドを分離した権限管理システムです。初期化は非常に簡単で、設定ファイルのデータベース接続情報を変更するだけで動作します。複数のコマンドに対応しており、マイグレーションコマンドでデータベースの初期化が容易になり、サーバーコマンドで API を手軽に起動できます。
 
-[documentation](https://www.go-admin.pro)
+[オンラインドキュメント](https://www.go-admin.pro)
 
-[Front-end project](https://github.com/go-admin-team/go-admin-ui)
+[フロントエンドプロジェクト](https://github.com/go-admin-team/go-admin-ui)
 
-[Video tutorial](https://space.bilibili.com/565616721/channel/detail?cid=125737)
+[動画チュートリアル](https://space.bilibili.com/565616721/channel/detail?cid=125737)
 
-## 🎬 Online Demo
+## 🎬 オンラインデモ
 
-Element Plus vue3 demo：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
-> Account / Password: admin / 123456
+Element Plus vue3 デモ：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
+> ⚠️⚠️⚠️ アカウント / パスワード： admin / 123456
 
-antd demo (go-admin-pro)：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
-> Account / Password: admin / 123456
-> 
-## ✨ Feature
+antd デモ（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
+> ⚠️⚠️⚠️ アカウント / パスワード： admin / 123456
 
-- Follow RESTful API design specifications
+## ✨ 特徴
 
-- Based on the GIN WEB API framework, it provides rich middleware support (user authentication, cross-domain, access log, tracking ID, etc.)
+- RESTful API の設計規約に準拠
 
-- RBAC access control model based on Casbin
+- GIN WEB API フレームワークをベースに、豊富なミドルウェアを提供（ユーザー認証、CORS、アクセスログ、トレース ID など）
 
-- JWT authentication
+- Casbin による RBAC アクセス制御モデル
 
-- Support Swagger documents (based on swaggo)
+- JWT 認証
 
-- Database storage based on GORM, which can expand multiple types of databases
+- Swagger ドキュメントに対応（swaggo ベース）
 
-- Simple model mapping of configuration files to quickly get the desired configuration
+- GORM によるデータベース永続化、複数種類のデータベースに拡張可能
 
-- Code generation tool
+- 設定ファイルからモデルへの単純なマッピングで、必要な設定をすぐに取得
 
-- Form builder
+- コード生成ツール
 
-- Multi-command mode
+- フォームビルダー
 
-- TODO: unit test
+- マルチコマンド方式
 
+- マルチテナント対応
 
-## 🎁 Internal
+- TODO: ユニットテスト
 
-1. User management: The user is the system operator, this function mainly completes the system user configuration.
-2. Department management: configure the system organization (company, department, group), and display the tree structure to support data permissions.
-3. Position management: configure the positions of system users.
-4. Menu management: configure the system menu, operation authority, button authority identification, interface authority, etc.
-5. Role management: Role menu permission assignment and role setting are divided into data scope permissions by organization.
-6. Dictionary management: Maintain some relatively fixed data frequently used in the system.
-7. Parameter management: dynamically configure common parameters for the system.
-8. Operation log: system normal operation log record and query; system abnormal information log record and query.
-9. Login log: The system login log record query contains login exceptions.
-1. Interface documentation: Automatically generate related api interface documents according to the business code.
-1. Code generation: According to the data table structure, generate the corresponding addition, deletion, modification, and check corresponding business, and the whole process of visual operation, so that the basic business can be implemented with zero code.
-1. Form construction: Customize the page style, drag and drop to realize the page layout.
-1. Service monitoring: View the basic information of some servers.
-1. Content management: demo function, including classification management and content management. You can refer to the easy to use quick start.
+## 🎁 標準機能
 
-## Ready to work
+1. マルチテナント：デフォルトで対応。データベース単位で分離し、1 データベースにつき 1 テナント。
+1. ユーザー管理：システムの操作者であるユーザーの設定を行います。
+2. 部門管理：組織構造（会社・部門・グループ）を設定します。ツリー構造で表示し、データ権限に対応します。
+3. 役職管理：ユーザーが担当する職務を設定します。
+4. メニュー管理：メニュー、操作権限、ボタン権限識別子、API 権限などを設定します。
+5. ロール管理：ロールへのメニュー権限の割り当て、および組織単位でのデータ範囲権限の設定を行います。
+6. 辞書管理：システム内で頻繁に使う固定的なデータを管理します。
+7. パラメータ管理：よく使うパラメータを動的に設定します。
+8. 操作ログ：正常系の操作ログと異常情報のログを記録・検索します。
+9. ログインログ：ログイン履歴を記録・検索します。ログイン異常も含みます。
+1. API ドキュメント：業務コードから API ドキュメントを自動生成します。
+1. コード生成：テーブル定義から CRUD 業務を生成します。すべて画面上で操作でき、基本的な業務をコードなしで実現できます。
+1. フォームビルダー：ページのスタイルをカスタマイズし、ドラッグ＆ドロップでレイアウトを作成します。
+1. サービス監視：サーバーの基本情報を確認します。
+1. コンテンツ管理：デモ機能。カテゴリ管理とコンテンツ管理を含み、入門用の参考実装として利用できます。
+1. スケジュールタスク：自動実行タスク。現在は API 呼び出しと関数呼び出しに対応しています。
 
-You need to install locally [go] [gin] [node](http://nodejs.org/) 和 [git](https://git-scm.com/)
+## 事前準備
 
-At the same time, a series of tutorials including videos and documents are provided. How to complete the downloading to the proficient use, it is strongly recommended that you read these tutorials before you practice this project! ! !
+ローカルに [go] [gin] [node](http://nodejs.org/) と [git](https://git-scm.com/) をインストールしてください。
 
-### Easily implement go-admin to write the first application-documentation tutorial
+ダウンロードから使いこなすまでを解説した動画とドキュメントのチュートリアルを用意しています。本プロジェクトを試す前に、まずこれらに目を通すことを強くおすすめします。
 
-[Step 1 - basic content introduction](https://www.go-admin.pro/guide/intro/tutorial01.html)
+### go-admin で最初のアプリケーションを作る - ドキュメント
 
-[Step 2 - Practical application - writing database operations](https://www.go-admin.pro/guide/intro/tutorial02.html)
+[ステップ 1 - 基礎の紹介](https://www.go-admin.pro/guide/intro/tutorial01.html)
 
-### Teach you from getting started to giving up-video tutorial
+[ステップ 2 - 実践 - CRUD を書く](https://www.go-admin.pro/guide/intro/tutorial02.html)
 
-[How to start go-admin](https://www.bilibili.com/video/BV1z5411x7JG)
+### 動画チュートリアル
 
-[Easily implement business using build tools](https://www.bilibili.com/video/BV1Dg4y1i79D)
+[go-admin の起動方法](https://www.bilibili.com/video/BV1z5411x7JG)
 
-[v1.1.0 version code generation tool-free your hands](https://www.bilibili.com/video/BV1N54y1i71P) [Advanced]
+[生成ツールで業務を手軽に実装する](https://www.bilibili.com/video/BV1Dg4y1i79D)
 
-[Explanation of multi-command startup mode and IDE configuration](https://www.bilibili.com/video/BV1Fg4y1q7ph)
+[v1.1.0 のコード生成ツール](https://www.bilibili.com/video/BV1N54y1i71P) [応用]
 
-[Configuration instructions for go-admin menu](https://www.bilibili.com/video/BV1Wp4y1D715) [Must see]
+[マルチコマンドでの起動方法と IDE 設定](https://www.bilibili.com/video/BV1Fg4y1q7ph)
 
-[How to configure menu information and interface information](https://www.bilibili.com/video/BV1zv411B7nG) [Must see]
+[go-admin のメニュー設定](https://www.bilibili.com/video/BV1Wp4y1D715) [必見]
 
-[go-admin permission configuration instructions](https://www.bilibili.com/video/BV1rt4y197d3) [Must see]
+[メニュー情報と API 情報の設定方法](https://www.bilibili.com/video/BV1zv411B7nG) [必見]
 
-[Instructions for use of go-admin data permissions](https://www.bilibili.com/video/BV1LK4y1s71e) [Must see]
+[go-admin の権限設定](https://www.bilibili.com/video/BV1rt4y197d3) [必見]
 
-**If you have any questions, please read the above-mentioned usage documents and articles first. If you are not satisfied, welcome to issue and pr. Video tutorials and documents are being updated continuously.**
+[go-admin のデータ権限](https://www.bilibili.com/video/BV1LK4y1s71e) [必見]
 
-## 📦 Local development
+**不明点はまず上記のドキュメントと記事をご確認ください。解決しない場合は issue や pr をお寄せください。動画とドキュメントは継続的に更新しています**
 
-### Environmental requirements
+## 📦 ローカル開発
+
+### 動作要件
 
 go 1.26.5
 
-nodejs: v22+ (v24 LTS recommended)
+node バージョン: v22 以上（v24 LTS 推奨）
 
-package manager: pnpm v9+ (the UI project uses pnpm)
+パッケージマネージャー: pnpm v9 以上（UI プロジェクトは pnpm を使用）
 
-### Development directory creation
+### 開発ディレクトリの作成
 
 ```bash
 
-# Create a development directory
+# 開発ディレクトリを作成
 mkdir goadmin
 cd goadmin
 ```
 
-### Get the code
+### コードの取得
 
-> Important note: the two projects must be placed in the same folder;
+> 重要：2 つのプロジェクトは同じディレクトリに配置してください。
 
 ```bash
-# Get backend code
+# バックエンドのコードを取得
 git clone https://github.com/go-admin-team/go-admin.git
 
-# Get the front-end code
+# フロントエンドのコードを取得
 git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ```
 
-### Startup instructions
+### 起動方法
 
-#### Server startup instructions
+#### サーバーの起動
 
 ```bash
-# Enter the go-admin backend project
+# go-admin バックエンドプロジェクトへ移動
 cd ./go-admin
 
-# Update dependencies
+# 依存関係を整理
 go mod tidy
 
-# Compile the project
+# ビルド
 go build
 
-# Change setting 
-# File path go-admin/config/settings.yml
+# 設定を変更
+# ファイルパス  go-admin/config/settings.yml
 vi ./config/settings.yml
 
-# 1. Modify the database information in the configuration file
-# Note: The corresponding configuration data under settings.database
-# 2. Confirm the log path
+# 1. 設定ファイル内のデータベース情報を変更
+# 注意: settings.database 配下の設定項目
+# 2. log のパスを確認
 ```
 
-:::tip ⚠️Note that this problem will occur if CGO is not installed in the windows10+ environment;
+⚠️注意 Windows 環境で CGO が未導入の場合、次のエラーが発生します。
 
 ```bash
 E:\go-admin>go build
@@ -171,49 +173,55 @@ D:\Code\go-admin>go build
 cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
-[Solve the cgo problem and enter](https://www.go-admin.pro/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
+[cgo の問題の解決方法はこちら](https://www.go-admin.pro/zh-CN/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
-:::
 
-#### Initialize the database, and start the service
+#### データベースの初期化とサービス起動
 
 ``` bash
-# The first configuration needs to initialize the database resource information
-# Use under macOS or linux
+# 初回はデータベースのリソース情報を初期化する必要があります
+# macOS または linux の場合
 $ ./go-admin migrate -c config/settings.dev.yml
 
-# ⚠️Note: Use under windows
+# ⚠️注意: windows の場合
 $ go-admin.exe migrate -c config/settings.dev.yml
 
-# Start the project, you can also use the IDE for debugging
-# Use under macOS or linux
+
+# プロジェクトを起動します。IDE からデバッグ実行することもできます
+# macOS または linux の場合
 $ ./go-admin server -c config/settings.yml
 
-# ⚠️Note: Use under windows
+
+# ⚠️注意: windows の場合
 $ go-admin.exe server -c config/settings.yml
 ```
 
-#### Use docker to compile and start
+#### sys_api テーブルへのデータ追加方法
+
+起動時に `-a true` を付けると、不足している API データが自動的に追加されます。
+```bash
+./go-admin server -c config/settings.yml -a true
+```
+
+#### docker でのビルドと起動
 
 ```shell
-# Compile the image
+# イメージをビルド
 docker build -t go-admin .
 
-
-# Start the container, the first go-admin is the container name, and the second go-admin is the image name
-# -v Mapping configuration file Local path: container path
+# コンテナを起動します。1 つ目の go-admin はコンテナ名、2 つ目はイメージ名です
+# -v は設定ファイルのマウント ローカルパス：コンテナ内パス
 docker run --name go-admin -p 8000:8000 -v /config/settings.yml:/config/settings.yml -d go-admin-server
 ```
 
-
-
-#### Generation Document
+#### ドキュメント生成
 
 ```bash
 go generate
 ```
 
-#### Cross compile
+#### クロスコンパイル
+
 ```bash
 # windows
 env GOOS=windows GOARCH=amd64 go build main.go
@@ -223,37 +231,41 @@ env GOOS=windows GOARCH=amd64 go build main.go
 env GOOS=linux GOARCH=amd64 go build main.go
 ```
 
-### UI interactive terminal startup instructions
+### UI 側の起動方法
 
 ```bash
-# Install pnpm if you don't have it
+# pnpm をインストール（未導入の場合）
 npm install -g pnpm
 
-# Installation dependencies
+# 依存関係をインストール
 pnpm install
 
-# Start service
+# 中国本土のネットワークではミラーを指定すると高速化できます
+pnpm install --registry=https://registry.npmmirror.com
+
+# 開発サーバーを起動
 pnpm dev
 ```
 
-## 📨 Interactive
+## 📨 コミュニティ
 
 <table>
-  <tr>
+   <tr>
     <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/wx.png" width="180px"></td>
     <td><img src="https://doc-image.zhangwj.com/img/qrcode_for_gh_b798dc7db30c_258.jpg" width="180px"></td>
     <td><img src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/qq2.png" width="200px"></td>
     <td><a href="https://space.bilibili.com/565616721">wenjianzhang</a></td>
   </tr>
   <tr>
-    <td>Wechat</td>
-    <td>Wechat公众号🔥🔥🔥</td>
+    <td>微信</td>
+    <td>公众号🔥🔥🔥</td>
     <td><a target="_blank" href="https://shang.qq.com/wpa/qunwpa?idkey=0f2bf59f5f2edec6a4550c364242c0641f870aa328e468c4ee4b7dbfb392627b"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="go-admin技术交流乙号" title="go-admin技术交流乙号"></a></td>
-    <td>bilibili🔥🔥🔥</td>
+    <td>哔哩哔哩🔥🔥🔥</td>
   </tr>
 </table>
 
-## 💎 Contributors
+## 💎 コントリビューター
+
 
 <span style="margin: 0 5px;" ><a href="https://github.com/wenjianzhang" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/3890175?v=4&h=60&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
 <span style="margin: 0 5px;" ><a href="https://github.com/G-Akiraka" ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/45746659?s=64&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
@@ -299,39 +311,36 @@ pnpm dev
 " ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/1410597?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
 <span style="margin: 0 5px;" ><a href="https://github.com/Nicole0724
 " ><img src="https://images.weserv.nl/?url=avatars.githubusercontent.com/u/10487328?s=60&v=4&w=60&fit=cover&mask=circle&maxage=7d" /></a></span>
+## JetBrains のオープンソースライセンス支援
 
-
-
-## JetBrains open source certificate support
-
-The `go-admin` project has always been developed in the GoLand integrated development environment under JetBrains, based on the **free JetBrains Open Source license(s)** genuine free license. I would like to express my gratitude.
+`go-admin` は一貫して JetBrains 社の GoLand 統合開発環境で開発されています。**free JetBrains Open Source license(s)** による正規の無償ライセンス提供に、この場を借りて感謝を申し上げます。
 
 <a href="https://www.jetbrains.com/?from=kubeadm-ha" target="_blank"><img src="https://raw.githubusercontent.com/panjf2000/illustrations/master/jetbrains/jetbrains-variant-4.png" width="250" align="middle"/></a>
 
-
-## 🤝 Thanks
+## 🤝 謝辞
 
 1. [ant-design](https://github.com/ant-design/ant-design)
 2. [ant-design-pro](https://github.com/ant-design/ant-design-pro)
 2. [arco-design](https://github.com/arco-design/arco-design)
 2. [arco-design-pro](https://github.com/arco-design/arco-design-pro)
-2. [gin](https://github.com/gin-gonic/gin)
-2. [casbin](https://github.com/casbin/casbin)
-2. [spf13/viper](https://github.com/spf13/viper)
-2. [gorm](https://github.com/go-gorm/gorm)
-2. [gin-swagger](https://github.com/swaggo/gin-swagger)
-2. [golang-jwt](https://github.com/golang-jwt/jwt)
-2. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
-2. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
-2. [form-generator](https://github.com/JakHuang/form-generator)
+4. [gin](https://github.com/gin-gonic/gin)
+5. [casbin](https://github.com/casbin/casbin)
+6. [spf13/viper](https://github.com/spf13/viper)
+7. [gorm](https://github.com/go-gorm/gorm)
+8. [gin-swagger](https://github.com/swaggo/gin-swagger)
+9. [golang-jwt](https://github.com/golang-jwt/jwt)
+10. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+11. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
+12. [form-generator](https://github.com/JakHuang/form-generator)
 
-## 🤟 Sponsor Us
+## 🤟 支援
 
-> If you think this project helped you, you can buy a glass of juice for the author to show encouragement :tropical_drink:
+> このプロジェクトがお役に立ちましたら、作者にジュースを一杯おごる形で応援いただけます :tropical_drink:
 
 <img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="200px" >
 
-## 🤝 Link
+## 🤝 関連リンク
+
 - [mss-boot-io](https://docs.mss-boot-io.top/)
 
 ## 🔑 License

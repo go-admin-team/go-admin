@@ -7,7 +7,7 @@
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
 [![License](https://img.shields.io/github/license/go-admin-team/go-admin.svg)](https://github.com/go-admin-team/go-admin)
 
-[English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | 简体中文
+[English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | 简体中文 | [繁體中文](https://github.com/go-admin-team/go-admin/blob/master/README.zh-TW.md) | [日本語](https://github.com/go-admin-team/go-admin/blob/master/README.ja-JP.md)
 
 基于Gin + Vue + Element UI OR Arco Design OR Ant Design的前后端分离权限管理系统,系统初始化极度简单，只需要配置文件中，修改数据库连接，系统支持多指令操作，迁移指令可以让初始化数据库信息变得更简单，服务指令可以很简单的启动api服务
 
