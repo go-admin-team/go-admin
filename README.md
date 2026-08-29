@@ -155,7 +155,7 @@ vi ./config/settings.yml
 # 2. Confirm the log path
 ```
 
-:::tip ⚠️Note that this problem will occur if CGO is not installed in the windows10+ environment;
+⚠️ Note that this problem will occur if CGO is not installed in the windows10+ environment;
 
 ```bash
 E:\go-admin>go build
@@ -172,8 +172,6 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
 [Solve the cgo problem and enter](https://www.go-admin.pro/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
-
-:::
 
 #### Initialize the database, and start the service
 
