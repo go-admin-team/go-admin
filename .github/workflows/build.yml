@@ -1,10 +1,27 @@
 name: Build
 
+# Documentation-only changes skip this workflow entirely.
+#
+# A push to master here does not just build - it pushes an image, runs the
+# migrations and restarts the demo container, so the site takes a short outage.
+# Paying that for a README edit is waste at best; at worst a deploy fails for a
+# reason unrelated to anything in the change. Code coverage is unaffected,
+# because go.yml still builds every push and pull request.
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE*'
+      - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE*'
+      - '.github/ISSUE_TEMPLATE/**'
 
 # One deploy at a time. Two merges seconds apart raced here: both runs did
 # docker rm -f then docker run, the second removed the container the first had
