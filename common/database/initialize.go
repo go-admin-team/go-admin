@@ -63,7 +63,11 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 		log.Info(pkg.Green(c.Driver + " connect success !"))
 	}
 
-	e := mycasbin.Setup(db, "")
+	// Keyed by host, matching the database this enforcer reads from. Passing
+	// the same key for every host would hand each one the enforcer built from
+	// whichever database was configured first, and the rest would be decided
+	// by a casbin_rule table that is not theirs.
+	e := mycasbin.Setup(db, host)
 
 	sdk.Runtime.SetDbByTenant(host, db)
 	sdk.Runtime.SetCasbinByTenant(host, e)

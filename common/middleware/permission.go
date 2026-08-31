@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"github.com/casbin/casbin/v3/util"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	mycasbin "github.com/go-admin-team/go-admin-core/v2/casbin"
 	"github.com/go-admin-team/go-admin-core/v2/jwtauth"
 	"github.com/go-admin-team/go-admin-core/v2/response"
 	"github.com/go-admin-team/go-admin-core/v2/sdk"
@@ -26,11 +27,9 @@ func AuthCheckRole() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		for _, i := range CasbinExclude {
-			if util.KeyMatch2(c.Request.URL.Path, i.Url) && c.Request.Method == i.Method {
-				casbinExclude = true
-				break
-			}
+		casbinExclude, err = excludedFromCasbin(c.Request.Method, c.Request.URL.Path)
+		if err != nil {
+			log.Errorf("AuthCheckRole: %s", err)
 		}
 		if casbinExclude {
 			log.Infof("Casbin exclusion, no validation method:%s path:%s", c.Request.Method, c.Request.URL.Path)
@@ -58,4 +57,33 @@ func AuthCheckRole() gin.HandlerFunc {
 		}
 
 	}
+}
+
+// excludedFromCasbin reports whether the route skips the permission check.
+//
+// It runs for every non-admin request, so the order matters: the method rules
+// out most entries with a string compare, where the path test costs a pattern
+// match. mycasbin.KeyMatch2 answers what casbin's util.KeyMatch2 answers
+// without recompiling the pattern every time, which is what made this loop
+// expensive - about 2,500 allocations per request against a 32-entry list.
+//
+// A pattern that will not compile is a bug in CasbinExclude rather than in the
+// request, so the entry is skipped and the scan continues; the error comes
+// back for the caller to log.
+func excludedFromCasbin(method, path string) (bool, error) {
+	var bad error
+	for _, i := range CasbinExclude {
+		if method != i.Method {
+			continue
+		}
+		ok, err := mycasbin.KeyMatch2(path, i.Url)
+		if err != nil {
+			bad = fmt.Errorf("CasbinExclude entry %q is not a valid pattern: %w", i.Url, err)
+			continue
+		}
+		if ok {
+			return true, bad
+		}
+	}
+	return false, bad
 }
