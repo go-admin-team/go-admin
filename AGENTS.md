@@ -193,6 +193,22 @@ go run -tags sqlite3 . server  -c config/settings.sqlite.yml
 `git status` 看不到，PR 里也不会出现。两个目录的包名分别是 `version` 与
 `version_local`（后者与目录名不一致，因为标识符不能含连字符）。
 
+### 写种子数据用哪个 models 包
+
+`1786700003000` 之后新增的迁移，**种子数据要用 `app/` 下的运行时模型**
+（如 `app/admin/models.SysApi`、`SysMenu`），**不要用 `cmd/migrate/migration/models`**。
+
+后者的 `ModelTime` 声明的是可空的 `gorm.DeletedAt`，这对它之前的迁移是对的（那正是
+当时列的形状），转换之后就不再成立，两个方向都会出问题：
+
+- **写**：往 NOT NULL 列里塞 NULL，第一条 insert 就 `NOT NULL constraint failed`
+- **读**：GORM 拼 `WHERE deleted_at IS NULL`，而活跃行存的是 `0`，静默查不到——
+  照抄 `demo_menu.go` 的授权段落会因此跳过授权，菜单建好、权限没授、迁移仍记为成功
+
+干净库跑不出这个问题，今天所有用该包的迁移都排在转换之前。完整推导见
+`schema_coverage_test.go` 里 `TestPostConversionMigrationsAvoidFrozenSeedModels`
+的注释，那个测试也守着这条边界。
+
 ## 提交规范
 
 格式 `type+emoji: 描述`：

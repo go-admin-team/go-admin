@@ -49,8 +49,18 @@ model、dto、router 三个文件，完整写法照抄 `app/demo/` 的结构。
 ### 4. 写菜单、接口与权限种子数据
 
 这一步最容易被漏掉——代码能编译、接口能测通，但界面上看不到菜单、点了按钮说
-没权限，往往就是漏了这一步。**完整参照 `cmd/migrate/migration/version/1786700001000_demo_menu.go`**
-——那是可运行、幂等（用 `upsert`，重复跑不会报错）的真实例子，逐字照抄结构，只换 ID 和业务字段。
+没权限，往往就是漏了这一步。结构参照 `cmd/migrate/migration/version/1786700001000_demo_menu.go`
+——它是可运行、幂等（用 `upsert`，重复跑不会报错）的真实例子。
+
+:::danger
+**但不要照抄它的 import。** 那个文件用的是 `cmd/migrate/migration/models`，
+只因为它的版本号排在软删除转换（`1786700003000`）之前才是安全的。
+
+**你新写的迁移版本号在转换之后，必须改用 `app/` 下的运行时模型**
+（`app/admin/models.SysApi`、`SysMenu`），否则第一条 insert 就会
+`NOT NULL constraint failed: sys_api.deleted_at`。
+`TestPostConversionMigrationsAvoidFrozenSeedModels` 会拦住这个错误。
+:::
 
 一个模块要在界面上可用，需要四类数据，缺一样都不行：
 
