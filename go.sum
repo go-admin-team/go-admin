@@ -145,8 +145,8 @@ github.com/glebarez/go-sqlite v1.22.0 h1:uAcMJhaA6r3LHMTFgP0SifzgXg46yJkgxqyuyec
 github.com/glebarez/go-sqlite v1.22.0/go.mod h1:PlBIdHe0+aUEFn+r2/uthrWq4FxbzugL0L8Li6yQJbc=
 github.com/glebarez/sqlite v1.11.0 h1:wSG0irqzP6VurnMEpFGer5Li19RpIRi2qvQz++w0GMw=
 github.com/glebarez/sqlite v1.11.0/go.mod h1:h8/o8j5wiAsqSPoWELDUdJXhjAhsVliSn7bWZjOhrgQ=
-github.com/go-admin-team/go-admin-core/v2 v2.4.0 h1:sead/t2KUmJEz/LC+R+WEkK+6Zh4LHX88z9QeoSiRv0=
-github.com/go-admin-team/go-admin-core/v2 v2.4.0/go.mod h1:YiJr2+vqC9qV5AoGeL+1W55h3XZ99CB5xWnP3Wo8c5g=
+github.com/go-admin-team/go-admin-core/v2 v2.4.1 h1:69QprBVMcQzjVP0UksCwi//A0qh8gwcIHcwHmABPp2U=
+github.com/go-admin-team/go-admin-core/v2 v2.4.1/go.mod h1:YiJr2+vqC9qV5AoGeL+1W55h3XZ99CB5xWnP3Wo8c5g=
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-kit/kit v0.9.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
 github.com/go-kit/kit v0.10.0/go.mod h1:xUsJbQ/Fp4kEt7AFgCuvyX4a71u8h9jB8tj/ORgOZ7o=
