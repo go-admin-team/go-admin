@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"go-admin/app/admin/models"
 	"go-admin/common"
 	"net/http"
 
@@ -163,19 +162,30 @@ func LogOut(c *gin.Context) {
 
 }
 
+// Authorizator decides whether a parsed identity may proceed. It authorizes
+// every identity IdentityHandler was able to build, which is what it has always
+// done.
+//
+// It used to also assert data["user"] and data["role"] into app/admin/models
+// types and copy five fields onto the context. Those two keys are not in the
+// map: IdentityHandler builds it from the token claims and puts in
+// IdentityKey / UserName / RoleKey / UserId / RoleIds / DataScope. Both
+// assertions therefore failed on every request, and because the ok result was
+// discarded, the five c.Set calls stored zero values and the function returned
+// true regardless.
+//
+// Nothing in this repository or in go-admin-core reads role / roleIds /
+// userId / userName / dataScope off the context - the open-source data
+// permission path reads the JWT claims through
+// common/actions.Permission -> user.GetUserIdStr(c). Dropping the block
+// therefore removes five zero values nobody read, and with them the last
+// import of app/admin from a contract package.
+//
+// go-admin-pro has its own copy of this file and does read those keys; this
+// change must not be carried over there verbatim.
 func Authorizator(data interface{}, c *gin.Context) bool {
-
-	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(models.SysUser)
-		r, _ := v["role"].(models.SysRole)
-		c.Set("role", r.RoleName)
-		c.Set("roleIds", r.RoleId)
-		c.Set("userId", u.UserId)
-		c.Set("userName", u.Username)
-		c.Set("dataScope", r.DataScope)
-		return true
-	}
-	return false
+	_, ok := data.(map[string]interface{})
+	return ok
 }
 
 func Unauthorized(c *gin.Context, code int, message string) {
