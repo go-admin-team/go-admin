@@ -181,8 +181,9 @@ func LogOut(c *gin.Context) {
 // therefore removes five zero values nobody read, and with them the last
 // import of app/admin from a contract package.
 //
-// go-admin-pro has its own copy of this file and does read those keys; this
-// change must not be carried over there verbatim.
+// Anything maintaining its own copy of this file must check its own consumers
+// before taking this change: a codebase that does read those keys off the
+// context needs Authorizator to keep setting them.
 func Authorizator(data interface{}, c *gin.Context) bool {
 	_, ok := data.(map[string]interface{})
 	return ok
