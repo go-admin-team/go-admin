@@ -45,6 +45,20 @@ stop:
 test:
 	go test -race -cover ./...
 
+# Reports the failures that do not announce themselves - see
+# tools/checksilent. Exits non-zero on an ERROR; the one WARN-level check
+# prints and does not fail the build.
+#
+# Pass UI_DIR to enable the cross-repository menu-name check, which is skipped
+# without it:  make checksilent UI_DIR=../go-admin-ui/src
+.PHONY: checksilent
+checksilent:
+ifdef UI_DIR
+	go run ./tools/checksilent -ui-dir $(UI_DIR)
+else
+	go run ./tools/checksilent
+endif
+
 #.PHONY: docker
 #docker:
 #	docker build . -t go-admin:latest
