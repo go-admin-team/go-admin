@@ -74,7 +74,13 @@ func (e *SysApi) Get(d *dto.SysApiGetReq, p *actions.DataPermission, model *mode
 // Update 修改SysApi对象
 func (e *SysApi) Update(c *dto.SysApiUpdateReq, p *actions.DataPermission) error {
 	var model = models.SysApi{}
-	db := e.Orm.Debug().First(&model, c.GetId())
+	db := e.Orm.Scopes(
+		actions.Permission(model.TableName(), p),
+	).First(&model, c.GetId())
+	if err := db.Error; err != nil {
+		e.Log.Errorf("Service UpdateSysApi error:%s", err)
+		return err
+	}
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
 	}
