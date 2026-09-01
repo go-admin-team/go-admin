@@ -153,7 +153,8 @@ go-admin migrate --app crm -c config/settings.yml       # 只跑 crm 的迁移
 
 `init()` 是最省事的位置：Go 规范保证包级变量初始化与 `init()` 在 `main()` 之前
 **单 goroutine 顺序执行**，注册期天然没有并发写。但它不是唯一合法位置——
-只要在启动钩子之前就行（go-admin-pro 就在 `run()` 里注册）。
+在 `run()` 之类早于启动钩子的地方注册同样成立。这条规则约束的是**顺序**，
+不是你写在哪个函数里。
 
 `sdk.Runtime.SetAppRouters` 的准确语义以 core 为准：
 

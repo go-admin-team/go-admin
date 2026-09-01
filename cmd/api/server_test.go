@@ -55,10 +55,10 @@ func TestRunStartupHooksRunsBothRegistriesInOrder(t *testing.T) {
 
 // Acceptance 17: a before callback registered through core actually runs.
 //
-// It did not, ever, in the open-source edition: core stored the callbacks and
-// nothing executed them, so SetBefore was accepted and silently did nothing.
-// go-admin-pro had its own loop, which is why the gap survived - the same core
-// API behaved differently in the two downstreams.
+// It did not, ever: core stored the callbacks and nothing executed them, so
+// SetBefore was accepted and silently did nothing. The gap survived because
+// core offered the registry without ever running it, leaving each consumer to
+// write - or forget - its own loop.
 func TestBeforeCallbacksRun(t *testing.T) {
 	freshRuntime(t)
 
