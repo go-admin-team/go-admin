@@ -42,19 +42,35 @@ func (e *SysUser) GetId() interface{} {
 	return e.UserId
 }
 
-// Encrypt 加密
-func (e *SysUser) Encrypt() (err error) {
+// Encrypt hashes Password, unless it already holds a hash.
+//
+// The hooks below run on whatever is in the struct, and a user read from the
+// database carries the stored hash in that field. Hashing it again produces a
+// hash of a hash, and the password that user knows no longer matches anything:
+// they cannot log in, and nothing reports an error. The only thing preventing
+// that today is an Omit("password") on the one update that loads a user first,
+// which makes every other write to this model one line away from destroying
+// credentials.
+//
+// bcrypt.Cost parses a hash and fails on anything else, so it distinguishes
+// the two cases without the call site having to say which it is. The cost is
+// that a password which is itself a well-formed bcrypt hash would be stored
+// unchanged - a 60-character string beginning "$2a$", not something a person
+// types, and it grants whoever set it no access they did not already have.
+func (e *SysUser) Encrypt() error {
 	if e.Password == "" {
-		return
+		return nil
+	}
+	if _, err := bcrypt.Cost([]byte(e.Password)); err == nil {
+		return nil
 	}
 
-	var hash []byte
-	if hash, err = bcrypt.GenerateFromPassword([]byte(e.Password), bcrypt.DefaultCost); err != nil {
-		return
-	} else {
-		e.Password = string(hash)
-		return
+	hash, err := bcrypt.GenerateFromPassword([]byte(e.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
 	}
+	e.Password = string(hash)
+	return nil
 }
 
 func (e *SysUser) BeforeCreate(_ *gorm.DB) error {
@@ -62,11 +78,7 @@ func (e *SysUser) BeforeCreate(_ *gorm.DB) error {
 }
 
 func (e *SysUser) BeforeUpdate(_ *gorm.DB) error {
-	var err error
-	if e.Password != "" {
-		err = e.Encrypt()
-	}
-	return err
+	return e.Encrypt()
 }
 
 func (e *SysUser) AfterFind(_ *gorm.DB) error {
