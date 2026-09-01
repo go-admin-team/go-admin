@@ -117,6 +117,18 @@ func (SysPost) TableName() string { return "sys_post" }
 
 `TableName()` 必须显式声明（GORM 配置了 `SingularTable`，不会自动推导复数）。
 
+## 公共契约面
+
+第三方应用（`app/` 下的业务模块）可以稳定依赖哪些包、路由与迁移怎么注册、
+哪些约束是硬的，见 `docs/contract.md`。
+
+两条与主仓贡献者直接相关的：
+
+- **`common/`、`core/` 不得 import `app/`** —— `make checksilent` 在 CI 里守着，违反即红。
+- **注册类 API（`AppRouters` / `sdk.Runtime.SetAppRouters` / `migration.ForApp`）
+  只允许在 `init()` 中调用** —— 注册期靠 Go 的包初始化顺序保证无并发写，
+  core 侧的 setter 没有加锁。
+
 ## 路由注册
 
 通过 `init()` 自注册，不在中心文件手工添加：
@@ -208,6 +220,29 @@ go run -tags sqlite3 . server  -c config/settings.sqlite.yml
 干净库跑不出这个问题，今天所有用该包的迁移都排在转换之前。完整推导见
 `schema_coverage_test.go` 里 `TestPostConversionMigrationsAvoidFrozenSeedModels`
 的注释，那个测试也守着这条边界。
+
+## 静默失败校验
+
+`make checksilent` 检查六类**不报错、不记日志、行为悄悄变得不对**的问题，
+CI 会跑，命中 ERROR 即失败：
+
+| 检查 | 级别 | 静默后果 |
+|---|---|---|
+| `modeltime-mix` | ERROR | 两个 `ModelTime` 混用，整张表查不到数据 |
+| `menu-sort-overflow` | ERROR | 菜单 `sort` 超 127，MySQL tinyint 拒绝写入，迁移中断 |
+| `config-value-truncation` | ERROR | `sys_config.config_value` 超 255 字符被静默截断 |
+| `menu-id-collision` | ERROR | 两个模块硬编码同一菜单 ID，互相覆盖 |
+| `contract-import-boundary` | ERROR | 契约包 import `app/`，应用无法独立编译 |
+| `menu-name-mismatch` | WARN | 菜单名与前端组件 `name` 不一致，keep-alive 缓存静默失效 |
+
+最后一条要跨仓库比对，只能做正则启发式，因此是 WARN，**不影响退出码**，
+且默认跳过；要跑它得指定前端目录：
+
+```bash
+make checksilent UI_DIR=../go-admin-ui/src
+```
+
+升级门槛：连续 2 个发版周期零误报后转为 ERROR。
 
 ## 提交规范
 
