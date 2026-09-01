@@ -5,12 +5,17 @@ import (
 
 	"go-admin/app/admin/models"
 	"go-admin/common/dto"
+	"go-admin/common/global"
 	common "go-admin/common/models"
 )
 
+// Deprecated: use global.OperaStatusEnabled / global.OperaStatusDisabled.
+// These two names are kept - misspelling and all - because forks import them;
+// the values moved to common/global so common/middleware no longer has to
+// import this package. See docs/contract.md.
 const (
-	OperaStatusEnabel  = "1" // 状态-正常
-	OperaStatusDisable = "2" // 状态-关闭
+	OperaStatusEnabel  = global.OperaStatusEnabled  // 状态-正常
+	OperaStatusDisable = global.OperaStatusDisabled // 状态-关闭
 )
 
 type SysOperaLogGetPageReq struct {
