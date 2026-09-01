@@ -28,6 +28,13 @@ jobs:
 
     - name: Get dependencies
       run: go mod tidy
+
+    # go build does not compile _test.go, so building alone never ran a single
+    # test. This is the only workflow that fires on every push and pull request,
+    # which makes it the one place a test gate belongs.
+    - name: Test
+      run: make test
+
     - name: Build
       run: make build
 
