@@ -38,6 +38,13 @@ jobs:
     - name: Build
       run: make build
 
+    # Fails the build on the silent-failure classes listed in
+    # tools/checksilent, one of which is the contract boundary: nothing under
+    # common/ may import app/. A boundary that is only written down erodes; this
+    # is what keeps it true.
+    - name: Silent-failure checks
+      run: make checksilent
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
       if: startsWith(github.ref, 'refs/tags/')

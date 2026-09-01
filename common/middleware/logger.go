@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"go-admin/app/admin/service/dto"
 	"go-admin/common"
 	"io"
 	"net/http"
@@ -138,10 +137,12 @@ type readCloser struct {
 	io.Closer
 }
 
-// SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
-func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) {
-
-	log := api.GetRequestLogger(c)
+// operaLogFields builds the message written to the operation log queue.
+//
+// Split out of SetDBOperLog so the field set can be asserted in a test: the
+// consumer on the other end of the queue reads these keys by name, so a
+// dropped or renamed key costs a column in sys_opera_log and reports nothing.
+func operaLogFields(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) map[string]interface{} {
 	l := make(map[string]interface{})
 	l["_fullPath"] = c.FullPath()
 	l["operUrl"] = reqUri
@@ -158,10 +159,18 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	l["createBy"] = user.GetUserId(c)
 	l["updateBy"] = user.GetUserId(c)
 	if status == http.StatusOK {
-		l["status"] = dto.OperaStatusEnabel
+		l["status"] = global.OperaStatusEnabled
 	} else {
-		l["status"] = dto.OperaStatusDisable
+		l["status"] = global.OperaStatusDisabled
 	}
+	return l
+}
+
+// SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
+func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) {
+
+	log := api.GetRequestLogger(c)
+	l := operaLogFields(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, status)
 	q := sdk.Runtime.GetQueuePrefix(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.OperateLog, l)
 	if err != nil {

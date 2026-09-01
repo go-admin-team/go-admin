@@ -82,9 +82,7 @@ func run() error {
 	}
 	initRouter()
 
-	for _, f := range AppRouters {
-		f()
-	}
+	runStartupHooks()
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
@@ -152,6 +150,28 @@ func run() error {
 	log.Info("Server exiting")
 
 	return nil
+}
+
+// runStartupHooks runs the router registries and then the before callbacks.
+//
+// The package-level slice runs first and in its existing order, so a fork that
+// only ever appended to AppRouters sees no change at all. The core registry
+// runs second, through RunAppRouters: a module can register through
+// sdk.Runtime.SetAppRouters and no longer has to import this command package -
+// which is a main package's plumbing - just to be routed.
+//
+// The loop over the core registry now lives in core, which is what brings the
+// panic guard and the registration seal with it. RunBefore closes a gap rather
+// than moving one: the open-source edition never executed the before callbacks
+// at all, so SetBefore was accepted and silently ignored. It has to stay ahead
+// of ListenAndServe, because a callback registered WithFatal exits the process
+// and that must not happen to one that is already serving.
+func runStartupHooks() {
+	for _, f := range AppRouters {
+		f()
+	}
+	sdk.Runtime.RunAppRouters()
+	sdk.Runtime.RunBefore()
 }
 
 //var Router runtime.Router

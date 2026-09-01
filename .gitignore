@@ -6,6 +6,10 @@ main.exe
 *.exe
 go-admin
 go-admin.exe
+# `go build ./tools/checksilent` drops the binary here, next to the one for the
+# server. Anchored with a leading slash: unanchored, the same pattern matches
+# tools/checksilent/ as well and the tool's own source never gets committed.
+/checksilent
 temp/
 !temp
 vendor
@@ -29,3 +33,10 @@ CLAUDE.md
 .claude/skills/*
 !.claude/skills/new-business-module/
 config/settings.local.dev.yml
+
+# Go workspace files. They exist to point this module at a local checkout of
+# go-admin-core while the two are developed together, which is a private
+# arrangement between one machine's directories - committing one would break
+# the build for everyone else.
+go.work
+go.work.sum
