@@ -11,7 +11,7 @@ require (
 	github.com/casbin/casbin/v3 v3.8.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-admin-team/go-admin-core/v2 v2.3.0
+	github.com/go-admin-team/go-admin-core/v2 v2.4.0
 	github.com/google/uuid v1.6.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.26.6+incompatible
 	github.com/mssola/user_agent v0.6.0
