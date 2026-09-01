@@ -37,9 +37,13 @@ stop:
 	#@echo "go-admin stop success"
 
 
-#.PHONY: test
-#test:
-#	go test -v ./... -cover
+# -race is worth the extra minute here: common/actions reuses model instances
+# across concurrent requests, so a Generate() that returns in place instead of
+# a copy leaks data between them - and that is invisible to a single-threaded
+# test run.
+.PHONY: test
+test:
+	go test -race -cover ./...
 
 #.PHONY: docker
 #docker:
