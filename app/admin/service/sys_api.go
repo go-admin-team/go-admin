@@ -6,6 +6,8 @@ import (
 
 	"github.com/go-admin-team/go-admin-core/v2/sdk/runtime"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/service"
+	"gorm.io/gorm"
+
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
@@ -78,11 +80,14 @@ func (e *SysApi) Update(c *dto.SysApiUpdateReq, p *actions.DataPermission) error
 		actions.Permission(model.TableName(), p),
 	).First(&model, c.GetId())
 	if err := db.Error; err != nil {
+		// First reports a row the data permission excluded exactly as it
+		// reports one that does not exist, and the caller should not be able
+		// to tell those apart either.
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("无权更新该数据")
+		}
 		e.Log.Errorf("Service UpdateSysApi error:%s", err)
 		return err
-	}
-	if db.RowsAffected == 0 {
-		return errors.New("无权更新该数据")
 	}
 	c.Generate(&model)
 	db = e.Orm.Save(&model)
