@@ -578,3 +578,28 @@ func TestShimAliasCoverageCountsTheAliasesItGuards(t *testing.T) {
 		t.Errorf("ScannedShimAliases = %d, want 2", n)
 	}
 }
+
+// A menu written as a seed.MenuSpec lands in the same sys_menu.sort column as
+// one written as a SysMenu, so the same tinyint bound applies. Until this was
+// covered, an application - the one author furthest from the schema - was the
+// one the check went quiet for.
+func TestMenuSortOverflowIsDetectedInAContractMenuSpec(t *testing.T) {
+	root := fixture(t, map[string]string{
+		"example/app-order/migration/migration.go": `package migration
+
+import "github.com/go-admin-team/go-admin-core/v2/sdk/contract/seed"
+
+func menus() []seed.MenuSpec {
+	return []seed.MenuSpec{
+		{Code: "dir", Sort: 200},
+		{Code: "ok", Sort: 20},
+	}
+}
+`,
+	})
+
+	f := requireOne(t, check(t, root, options{}), checkMenuSort)
+	if !strings.Contains(f.Message, "200") {
+		t.Errorf("finding should name the offending value, got: %s", f.Message)
+	}
+}

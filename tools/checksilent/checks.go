@@ -525,9 +525,23 @@ func migrationVersion(rel string) (int64, bool) {
 	return v, true
 }
 
-// isMenuModel reports whether a literal is one of the SysMenu models rather
-// than, say, the SysMenu service struct that shares the name.
+// isMenuModel reports whether a literal describes a menu row, whichever of
+// the two shapes it is written in.
+//
+// A host module seeds a menu by building the SysMenu model directly. An
+// application installed from outside this repository cannot reach that type,
+// so it describes the same row as a seed.MenuSpec and hands it to the host's
+// Seeder. Both end up in sys_menu and both are subject to its column widths,
+// so a check that knew only the first shape would go quiet exactly when the
+// author is furthest from the schema it protects.
+//
+// That is not hypothetical: this repository's own reference application was
+// written with a Sort of 200 - past the tinyint sys_menu.sort is built as -
+// and this check passed it, because a MenuSpec is not a SysMenu.
 func (s *snapshot) isMenuModel(lit structLiteral) bool {
+	if lit.Name == "MenuSpec" && isCoreContractPkg(lit.PkgPath) {
+		return true
+	}
 	return lit.Name == "SysMenu" && s.isModelPackage(lit.PkgPath)
 }
 
