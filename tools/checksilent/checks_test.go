@@ -452,3 +452,129 @@ func TestComponentNameParsesBothVueStyles(t *testing.T) {
 		t.Error("a component with no declared name must not be compared")
 	}
 }
+
+// ---------------------------------------------------------------------------
+
+const coreContractModels = "github.com/go-admin-team/go-admin-core/v2/sdk/contract/models"
+
+// shimFixture writes one shim file declaring ControlBy from core's contract
+// package, in whichever of the two forms the caller asks for.
+func shimFixture(t *testing.T, decl string) string {
+	t.Helper()
+	return fixture(t, map[string]string{
+		"common/models/by.go": "package models\n\nimport \"" + coreContractModels + "\"\n\n" + decl + "\n",
+	})
+}
+
+func TestShimAliasDetectsADefinedType(t *testing.T) {
+	root := shimFixture(t, "type ControlBy models.ControlBy")
+
+	f := requireOne(t, check(t, root, options{}), checkShimAlias)
+	if f.Severity != "ERROR" {
+		t.Errorf("severity = %s", f.Severity)
+	}
+	if !strings.Contains(f.Message, "type ControlBy = models.ControlBy") {
+		t.Errorf("the message must spell out the fix; got %s", f.Message)
+	}
+	if f.File != "common/models/by.go" || f.Line != 5 {
+		t.Errorf("position = %s:%d", f.File, f.Line)
+	}
+}
+
+// The counterproof for the check above: the same fixture with the one
+// character that makes it correct must produce nothing. Without this the check
+// could be reporting every type declaration it sees and the test above would
+// still pass.
+func TestShimAliasAcceptsAnAlias(t *testing.T) {
+	root := shimFixture(t, "type ControlBy = models.ControlBy")
+	if got := only(t, check(t, root, options{}), checkShimAlias); len(got) != 0 {
+		t.Errorf("reported %v", got)
+	}
+}
+
+// A parenthesised type block is how a shim package with more than one type
+// tends to get written, and a walker that only looked at single-spec
+// declarations would skip all but the first.
+func TestShimAliasReadsAParenthesisedBlock(t *testing.T) {
+	root := shimFixture(t, `type (
+	Model     = models.Model
+	ControlBy models.ControlBy
+	ModelTime = models.ModelTime
+)`)
+	f := requireOne(t, check(t, root, options{}), checkShimAlias)
+	if !strings.Contains(f.Message, "ControlBy") {
+		t.Errorf("message = %s", f.Message)
+	}
+}
+
+// A defined type over a package that is not core's contract namespace is
+// somebody's ordinary code. The check exists for the surface core promises to
+// keep stable, and reporting anything else would make it a style rule.
+func TestShimAliasIgnoresOtherPackages(t *testing.T) {
+	root := fixture(t, map[string]string{
+		"app/demo/models/product.go": `package models
+
+import "go-admin/common/models"
+
+type Product models.Model
+`,
+	})
+	if got := only(t, check(t, root, options{}), checkShimAlias); len(got) != 0 {
+		t.Errorf("reported %v", got)
+	}
+}
+
+// The version is part of core's import path and changes on every major bump.
+// Matching the whole path literally would turn the check off on that day and
+// say nothing about it.
+func TestShimAliasSurvivesACoreMajorVersionBump(t *testing.T) {
+	root := fixture(t, map[string]string{
+		"common/models/by.go": `package models
+
+import "github.com/go-admin-team/go-admin-core/v9/sdk/contract/models"
+
+type ControlBy models.ControlBy
+`,
+	})
+	if got := only(t, check(t, root, options{}), checkShimAlias); len(got) != 1 {
+		t.Errorf("findings = %v", got)
+	}
+}
+
+// A tree with no shims in it is the state of this repository until the
+// contract packages are lowered, and the check saying nothing there must not
+// be reported as a boundary being guarded.
+func TestShimAliasCoverageIsReportedAsZeroWhenThereAreNoShims(t *testing.T) {
+	root := fixture(t, map[string]string{
+		"common/models/by.go": "package models\n\ntype ControlBy struct{}\n",
+	})
+	s, err := load(root)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if n := ScannedShimAliases(s); n != 0 {
+		t.Errorf("ScannedShimAliases = %d, want 0", n)
+	}
+
+	var buf strings.Builder
+	if _, err := run(&buf, root, options{}, false); err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	if !strings.Contains(buf.String(), "guarded nothing") {
+		t.Errorf("the summary must say the check covered nothing; got:\n%s", buf.String())
+	}
+}
+
+func TestShimAliasCoverageCountsTheAliasesItGuards(t *testing.T) {
+	root := shimFixture(t, `type (
+	Model     = models.Model
+	ControlBy = models.ControlBy
+)`)
+	s, err := load(root)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if n := ScannedShimAliases(s); n != 2 {
+		t.Errorf("ScannedShimAliases = %d, want 2", n)
+	}
+}
