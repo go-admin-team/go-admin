@@ -42,7 +42,7 @@ type SysRoleInsertReq struct {
 	Flag      string           `form:"flag" comment:"标记"`       // 标记
 	Remark    string           `form:"remark" comment:"备注"`     // 备注
 	Admin     bool             `form:"admin" comment:"是否管理员"`
-	DataScope string           `form:"dataScope"`
+	DataScope string           `form:"dataScope" vd:"$=='1'||$=='2'||$=='3'||$=='4'||$=='5'"` // must be one of actions.DataScope{All,Custom,Dept,DeptTree,Self}; PRD 006 F14/H2
 	SysMenu   []models.SysMenu `form:"sysMenu"`
 	MenuIds   []int            `form:"menuIds"`
 	SysDept   []models.SysDept `form:"sysDept"`
@@ -79,7 +79,7 @@ type SysRoleUpdateReq struct {
 	Flag      string           `form:"flag" comment:"标记"`       // 标记
 	Remark    string           `form:"remark" comment:"备注"`     // 备注
 	Admin     bool             `form:"admin" comment:"是否管理员"`
-	DataScope string           `form:"dataScope"`
+	DataScope string           `form:"dataScope" vd:"$=='1'||$=='2'||$=='3'||$=='4'||$=='5'"` // must be one of actions.DataScope{All,Custom,Dept,DeptTree,Self}; PRD 006 F14/H2
 	SysMenu   []models.SysMenu `form:"sysMenu"`
 	MenuIds   []int            `form:"menuIds"`
 	SysDept   []models.SysDept `form:"sysDept"`
@@ -147,7 +147,7 @@ func (s *SysRoleDeleteReq) GetId() interface{} {
 // RoleDataScopeReq 角色数据权限修改
 type RoleDataScopeReq struct {
 	RoleId    int    `json:"roleId" binding:"required"`
-	DataScope string `json:"dataScope" binding:"required"`
+	DataScope string `json:"dataScope" binding:"required" vd:"$=='1'||$=='2'||$=='3'||$=='4'||$=='5'"` // must be one of actions.DataScope{All,Custom,Dept,DeptTree,Self}; PRD 006 F14/H2
 	DeptIds   []int  `json:"deptIds"`
 }
 
