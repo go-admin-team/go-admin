@@ -318,6 +318,6 @@ INSERT INTO sys_menu_api_rule VALUES (46, 156);
 INSERT INTO sys_post VALUES (1, '首席执行官', 'CEO', 0, '2','首席执行官', 1, 1, '2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', NULL);
 INSERT INTO sys_post VALUES (2, '首席技术执行官', 'CTO', 2, '2','首席技术执行官', 1, 1,'2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', NULL);
 INSERT INTO sys_post VALUES (3, '首席运营官', 'COO', 3, '2','测试工程师', 1, 1,'2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', NULL);
-INSERT INTO sys_role VALUES (1, '系统管理员', '2', 'admin', 1, '', '', true, '', 1, 1, '2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', NULL);
+INSERT INTO sys_role VALUES (1, '系统管理员', '2', 'admin', 1, '', '', true, '1', 1, 1, '2021-05-13 19:56:37.913', '2021-05-13 19:56:37.913', NULL);
 INSERT INTO sys_user VALUES (1, 'admin', '$2a$10$/Glr4g9Svr6O0kvjsRJCXu3f0W8/dsP3XZyVNi1019ratWpSPMyw.', 'zhangwj', '13818888888', 1, '', '', '1', '1@qq.com', 1, 1, '', '2', 1, 1, '2021-05-13 19:56:37.914', '2021-05-13 19:56:40.205', NULL);
 -- 数据完成 ;
