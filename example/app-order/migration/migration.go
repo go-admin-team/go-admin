@@ -51,7 +51,7 @@ func createOrderSchema(db *gorm.DB, migrationVersion, appCode string) error {
 			{
 				Code: "dir", Kind: contractmodels.Directory,
 				Title: "Order Example", Path: "/apps/order", Component: "Layout",
-				Icon: "shopping", Sort: 200,
+				Icon: "shopping", Sort: 20,
 			},
 			{
 				Code: "list", Parent: "dir", Kind: contractmodels.Menu,
