@@ -34,12 +34,17 @@ import (
 func setupPrivescDB(t *testing.T) (*gorm.DB, string) {
 	t.Helper()
 
+	// Fatalf, not Skipf: this database is in-memory sqlite with no external
+	// dependency, so failing to open or migrate it means the environment is
+	// actually broken. Skipping here would let these two anti-privesc
+	// regression tests silently stop running while CI stays green - a
+	// standing assertion that never fires is worse than no assertion.
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	if err != nil {
-		t.Skipf("sqlite unavailable: %v", err)
+		t.Fatalf("sqlite unavailable: %v", err)
 	}
 	if err := db.AutoMigrate(&models.SysUser{}); err != nil {
-		t.Skipf("automigrate: %v", err)
+		t.Fatalf("automigrate: %v", err)
 	}
 
 	tenant := "sys-user-privesc-" + t.Name()
