@@ -59,6 +59,33 @@ func AuthCheckRole() gin.HandlerFunc {
 	}
 }
 
+// EnforceRoleFor reports whether the caller's role has explicit Casbin
+// permission to act on path with method.
+//
+// AuthCheckRole never calls Enforce for a route CasbinExclude lists - that
+// is the whole point of the list. A handler on such a route can still need
+// the real answer for part of what it does: sys_user.go's Update shares its
+// excluded route between the personal-center screen editing the caller's own
+// record (which is why the route is excluded at all) and an admin editing
+// someone else's, and only the second case is meant to require a policy
+// grant. That handler asks here instead of assuming the middleware already
+// checked.
+func EnforceRoleFor(c *gin.Context, path, method string) (bool, error) {
+	data, ok := c.Get(jwtauth.JwtPayloadKey)
+	if !ok {
+		return false, nil
+	}
+	v, ok := data.(jwtauth.MapClaims)
+	if !ok {
+		return false, nil
+	}
+	if v["rolekey"] == "admin" {
+		return true, nil
+	}
+	e := sdk.Runtime.GetCasbinByTenant(c.Request.Host)
+	return e.Enforce(v["rolekey"], path, method)
+}
+
 // excludedFromCasbin reports whether the route skips the permission check.
 //
 // It runs for every non-admin request, so the order matters: the method rules

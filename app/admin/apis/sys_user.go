@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"golang.org/x/crypto/bcrypt"
@@ -15,6 +16,7 @@ import (
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
+	"go-admin/common/middleware"
 )
 
 type SysUser struct {
@@ -149,12 +151,34 @@ func (e SysUser) Update(c *gin.Context) {
 		return
 	}
 
-	req.SetUpdateBy(user.GetUserId(c))
+	callerId := user.GetUserId(c)
+
+	// This route is in CasbinExclude so the personal-center screen can edit
+	// the caller's own record without a policy grant (see settings.go). That
+	// exclusion covers the whole route, not just the caller's own record, and
+	// the request carries the target userId in the body - so without this
+	// check here, any authenticated caller could edit any other user, up to
+	// and including their roleId. When the target is someone else, ask Casbin
+	// directly for the permission AuthCheckRole skipped.
+	if req.UserId != callerId {
+		allowed, err := middleware.EnforceRoleFor(c, c.Request.URL.Path, c.Request.Method)
+		if err != nil {
+			e.Logger.Error(err)
+			e.Error(500, err, err.Error())
+			return
+		}
+		if !allowed {
+			e.Error(http.StatusForbidden, errors.New("无权更新其他用户数据"), "对不起，您没有该接口访问权限，请联系管理员")
+			return
+		}
+	}
+
+	req.SetUpdateBy(callerId)
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.Update(&req, p)
+	err = s.Update(&req, p, callerId)
 	if err != nil {
 		e.Logger.Error(err)
 		return
