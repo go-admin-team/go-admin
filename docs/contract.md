@@ -567,6 +567,28 @@ core 里**没有** `SysMenu`、没有 `SysApi`、没有任何表名。这是刻�
 两者在软删语义上不一致，害过人，为此专门建了一个仓库内的工具来守。
 往 core 里再放第三份表结构，就等于在**唯一没有工具守着**的地方重造同一类 bug。
 
+### `Sort` 有上界，越界会中断整场迁移
+
+`sys_menu.sort` 声明为 `gorm:"size:4"`，MySQL 据此建成 **tinyint，取值 -128..127**。
+sqlite 忽略宽度，所以越界值在本地测试里一路绿灯，到真实安装时是 Error 1264 ——
+而且发生在一次迁移的**中途**，后面的迁移全部不再执行。
+
+`make checksilent` 的 `menu-sort-overflow` 会扫出仓库树里的越界字面量，
+**但它扫不到 module cache 里的应用**。外置应用只有宿主 Seeder 的运行期校验兜底。
+
+### `MenuSpec` 没有菜单名字段，名字由宿主合成
+
+前端用菜单名做 keep-alive 的缓存键。两个应用如果都取 `Code: "list"`，
+缓存键就会撞在一起 —— 后打开的那个页面会拿到前一个的缓存实例。
+
+所以宿主的 Seeder 不直接用 `Code` 当菜单名，而是用
+**PascalCase(appCode) + PascalCase(Code)** 合成（`order` + `list` → `OrderList`）。
+你不需要做什么，但要知道两件事：
+
+- 菜单名不是你能指定的，也不必与 `Title` 一致 —— `Title` 才是界面上显示的文字
+- 前端组件的 `name` 若要与菜单名对齐（`checksilent` 的 `menu-name-mismatch` 会比对），
+  按合成后的名字写，不是按 `Code`
+
 ---
 
 ## 应用配置节
