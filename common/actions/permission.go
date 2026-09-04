@@ -153,8 +153,24 @@ func Permission(tableName string, p *DataPermission) func(db *gorm.DB) *gorm.DB 
 		case DataScopeCustom:
 			return db.Where(tableName+".create_by in (select sys_user.user_id from sys_role_dept left join sys_user on sys_user.dept_id=sys_role_dept.dept_id where sys_role_dept.role_id = ?)", p.RoleId)
 		case DataScopeDept:
+			if p.DeptId <= 0 {
+				// A department id of 0 identifies no real department (see
+				// sys_dept.go: dept_path always starts with "/0/", the
+				// reserved root). Matching it literally would mean "every
+				// user whose dept_id happens to be unset", not "no one" -
+				// fail closed instead. PRD 006 F14/H3.
+				return db.Where("1 = 0")
+			}
 			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", p.DeptId)
 		case DataScopeDeptTree:
+			if p.DeptId <= 0 {
+				// dept_path is built as "/0/" + id + "/..." for every
+				// department (sys_dept.go), so a DeptId of 0 turns the LIKE
+				// pattern below into '%/0/%', which matches every row in
+				// sys_dept - full visibility instead of none. PRD 006
+				// F14/H3.
+				return db.Where("1 = 0")
+			}
 			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%/"+pkg.IntToString(p.DeptId)+"/%")
 		case DataScopeSelf:
 			return db.Where(tableName+".create_by = ?", p.UserId)
