@@ -42,8 +42,13 @@ func _1786700005000NormalizeRoleDataScope(db *gorm.DB, version string) error {
 
 // normalizeRoleDataScope is split out so tests can run it against a database
 // that only has sys_role, without also standing up sys_migration.
+//
+// The explicit "IS NULL OR" matters: sys_role.data_scope has no NOT NULL
+// constraint, and SQL's three-valued logic makes `NULL NOT IN (...)`
+// evaluate to NULL rather than TRUE, so a bare NOT IN clause silently skips
+// NULL rows instead of normalizing them.
 func normalizeRoleDataScope(tx *gorm.DB) error {
 	return tx.Exec(
-		"UPDATE sys_role SET data_scope = '1' WHERE data_scope NOT IN ('1', '2', '3', '4', '5')",
+		"UPDATE sys_role SET data_scope = '1' WHERE data_scope IS NULL OR data_scope NOT IN ('1', '2', '3', '4', '5')",
 	).Error
 }

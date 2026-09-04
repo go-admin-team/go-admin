@@ -97,6 +97,30 @@ func TestNormalizesGarbageScopesToo(t *testing.T) {
 	}
 }
 
+// A NULL data_scope must be normalized too. sys_role.data_scope has no NOT
+// NULL constraint, and `NULL NOT IN (...)` evaluates to NULL rather than
+// TRUE under SQL's three-valued logic, so a bare NOT IN clause would leave
+// this row untouched - the exact gap that let a NULL-scoped role go blind
+// once Permission's default branch starts fail-closing.
+func TestNormalizesNullDataScope(t *testing.T) {
+	db := openRoleTable(t)
+	if err := db.Exec("INSERT INTO sys_role (role_id, data_scope) VALUES (1, NULL)").Error; err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	if err := normalizeRoleDataScope(db); err != nil {
+		t.Fatalf("migrate: %v", err)
+	}
+
+	var row roleDataScopeRow
+	if err := db.First(&row, 1).Error; err != nil {
+		t.Fatalf("read back: %v", err)
+	}
+	if row.DataScope != "1" {
+		t.Fatalf("data_scope = %q, want %q", row.DataScope, "1")
+	}
+}
+
 // Running it twice must be safe: it is a plain UPDATE, not DDL, but
 // sys_migration only records success once, and an operator who reruns
 // `migrate` on a partially-applied database has to be able to trust that.
