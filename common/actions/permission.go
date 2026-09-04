@@ -50,6 +50,14 @@ func PermissionAction() gin.HandlerFunc {
 		db, err := pkg.GetOrm(c)
 		if err != nil {
 			log.Error(err)
+			// Same fix as the newDataPermission branch below: without Abort,
+			// gin's "return means continue" semantics send the request on to
+			// the business handler with PermissionKey never set. The caller
+			// then reads a zero-value DataPermission, which used to fall
+			// into Permission()'s fail-open default - a database hiccup
+			// silently turning into "see everything". PRD 006 F14/H1.
+			response.Error(c, 500, err, "权限范围鉴定错误")
+			c.Abort()
 			return
 		}
 		msgID := pkg.GenerateMsgIDFromContext(c)
