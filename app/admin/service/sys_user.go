@@ -84,7 +84,16 @@ func (e *SysUser) Insert(c *dto.SysUserInsertReq) error {
 }
 
 // Update 修改SysUser对象
-func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission) error {
+//
+// callerId is who is asking, not who SetUpdateBy recorded - that field only
+// says who to blame, it never constrained who could be edited. When the
+// target is the caller themselves, roleId/deptId/status are kept at whatever
+// the database already has no matter what the request body carries: this is
+// the personal-center screen's route (see CasbinExclude in settings.go, and
+// the check in the API handler ahead of this call), and letting a caller
+// grant themselves a different role or department through it would be a
+// privilege escalation the exclusion was never meant to open.
+func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission, callerId int) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -97,6 +106,11 @@ func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission) err
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
 
+	}
+	if model.UserId == callerId {
+		c.RoleId = model.RoleId
+		c.DeptId = model.DeptId
+		c.Status = model.Status
 	}
 	c.Generate(&model)
 	update := e.Orm.Model(&model).Where("user_id = ?", &model.UserId).Omit("password", "salt").Updates(&model)
