@@ -72,6 +72,13 @@ func setup() {
 	// queue would have no consumers until somebody edited the config file.
 	sdk.Runtime.SetPhase(runtime.AfterResource, attachQueueConsumers)
 
+	// On AfterListen rather than on a bare goroutine from run(). Two reasons:
+	// the phase runs behind core's panic guard, which does not reach across a
+	// goroutine boundary - a panic while loading jobs used to take the whole
+	// process down with a stack that named this file - and the jobs it starts
+	// can call the API, which is only true once the socket is accepting.
+	sdk.Runtime.SetPhase(runtime.AfterListen, startCronJobs)
+
 	//1. 读取配置
 	bootstrap.SetupConfig(
 		file.NewSource(file.WithPath(configYml)),
@@ -81,6 +88,18 @@ func setup() {
 
 	usageStr := `starting api server...`
 	log.Info(usageStr)
+}
+
+// startCronJobs registers the job implementations and starts a scheduler for
+// every tenant database.
+//
+// It is synchronous, like the phase that runs it. jobs.Setup returns now that
+// the `select {}` at the end of its per-tenant setup is gone, which is what
+// makes that possible; while it was there this could only be a goroutine, and
+// a goroutine is outside the panic guard.
+func startCronJobs() {
+	jobs.InitJob()
+	jobs.Setup(sdk.Runtime.GetAllDb())
 }
 
 // attachedQueue is the queue generation the consumers are attached to, plus
@@ -156,12 +175,6 @@ func run() error {
 		ReadTimeout:  time.Duration(config.ApplicationConfig.ReadTimeout) * time.Second,
 		WriteTimeout: time.Duration(config.ApplicationConfig.WriterTimeout) * time.Second,
 	}
-
-	go func() {
-		jobs.InitJob()
-		jobs.Setup(sdk.Runtime.GetAllDb())
-
-	}()
 
 	if apiCheck {
 		var routers = sdk.Runtime.GetRouter()
