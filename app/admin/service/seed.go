@@ -175,10 +175,10 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				ParentId:   parentRow.MenuId,
 				Component:  s.Component,
 				Sort:       s.Sort,
-				// Hidden by default and marked as an external frame, the
-				// same defaults 1786700001000_demo_menu.go seeds its own
-				// menu with: a freshly installed application's menu should
-				// not need an administrator to first find and unhide it.
+				// Visible "0" is shown, not hidden - the same defaults
+				// 1786700001000_demo_menu.go seeds its own menu with. A
+				// freshly installed application's menu should not need an
+				// administrator to first find and unhide it.
 				Visible: "0",
 				IsFrame: "1",
 				AppCode: appCode,
