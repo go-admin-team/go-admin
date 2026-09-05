@@ -159,15 +159,7 @@ func run() error {
 	if config.ApplicationConfig.Mode == pkg.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	// The last point at which a module can still affect how routes are built.
-	// It is not the same moment as the before registry, which runStartupHooks
-	// drains below - those callbacks run after initRouter has built the engine,
-	// not before it.
-	sdk.Runtime.RunPhase(runtime.BeforeRouter)
-
-	initRouter()
-
-	runStartupHooks()
+	buildRouter()
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
@@ -340,6 +332,21 @@ func runShutdownHooks(timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return sdk.Runtime.RunShutdown(ctx)
+}
+
+// buildRouter announces BeforeRouter, builds the engine, and then drains the
+// startup registries.
+//
+// The order is the contract. BeforeRouter is the last point at which a module
+// can still affect how routes are built, so it has to run while there is no
+// engine yet. The before registry runStartupHooks drains is a different moment
+// despite the name: those callbacks run after initRouter has built the engine.
+// Two lines apart, and describing them as equivalent is a mistake this
+// repository has already made once in writing.
+func buildRouter() {
+	sdk.Runtime.RunPhase(runtime.BeforeRouter)
+	initRouter()
+	runStartupHooks()
 }
 
 // runStartupHooks runs the router registries and then the before callbacks.

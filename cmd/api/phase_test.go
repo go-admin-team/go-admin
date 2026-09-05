@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/runtime"
 )
 
@@ -85,4 +86,61 @@ func TestAfterListenIsAnnouncedOnlyOnceThePortIsBound(t *testing.T) {
 		t.Fatalf("AfterListen ran but the port does not answer: %v", err)
 	}
 	_ = c.Close()
+}
+
+// BeforeRouter is the last point at which a module can still affect how routes
+// are built, so it has to run while there is no engine yet. The before registry
+// is a different moment despite the name: those callbacks run after initRouter
+// has built the engine.
+//
+// The two are two lines apart in buildRouter, and calling them equivalent is a
+// mistake this repository has already made in writing. Until this test the
+// ordering was checked by reading - which is how the stop signals came to be
+// armed after the readiness banner in the same file.
+func TestBeforeRouterRunsWhileThereIsNoEngine(t *testing.T) {
+	freshRuntime(t)
+
+	// AuthInit reads these two package-level values and nothing else. No
+	// database is involved in building a router: the handlers are registered,
+	// not called.
+	config.ApplicationConfig.Mode = "dev"
+	config.JwtConfig.Secret = "test-secret-for-the-router-build"
+
+	type observation struct {
+		ran        int
+		engineWas  interface{}
+		engineSeen bool
+	}
+	var phase, before observation
+
+	sdk.Runtime.SetPhase(runtime.BeforeRouter, func() {
+		phase.ran++
+		phase.engineWas = sdk.Runtime.GetEngine()
+		phase.engineSeen = true
+	})
+	sdk.Runtime.SetBefore(func() {
+		before.ran++
+		before.engineWas = sdk.Runtime.GetEngine()
+		before.engineSeen = true
+	})
+
+	buildRouter()
+
+	if phase.ran != 1 {
+		t.Fatalf("BeforeRouter ran %d times, want 1", phase.ran)
+	}
+	if !phase.engineSeen || phase.engineWas != nil {
+		t.Errorf("BeforeRouter saw engine %v, want nil: it is meant to run before initRouter builds one", phase.engineWas)
+	}
+
+	if before.ran != 1 {
+		t.Fatalf("the before registry ran %d times, want 1", before.ran)
+	}
+	if before.engineWas == nil {
+		t.Error("a before callback saw no engine; that registry is meant to run after initRouter, and describing it as equivalent to BeforeRouter is the error this asserts against")
+	}
+
+	if sdk.Runtime.GetEngine() == nil {
+		t.Error("buildRouter returned with no engine built")
+	}
 }
