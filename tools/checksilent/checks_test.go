@@ -603,3 +603,49 @@ func menus() []seed.MenuSpec {
 		t.Errorf("finding should name the offending value, got: %s", f.Message)
 	}
 }
+
+// Every guard against a bad seeded value needs a test that writes the very
+// value it rejects. Scanning _test.go made each of those guards report its
+// own test - the check firing on the proof that it works.
+func TestSeededValueChecksSkipTestFiles(t *testing.T) {
+	root := fixture(t, map[string]string{
+		"cmd/migrate/migration/models/models.go": frozenModelsPkg,
+		"app/admin/service/seed_test.go": `package service
+
+import "go-admin/cmd/migrate/migration/models"
+
+func fixtureMenus() []models.SysMenu {
+	return []models.SysMenu{
+		{MenuId: 9000, Sort: 900},
+	}
+}
+`,
+	})
+
+	if got := only(t, check(t, root, options{}), checkMenuSort); len(got) != 0 {
+		t.Fatalf("%s fired on a test fixture: %v", checkMenuSort, got)
+	}
+}
+
+// The other direction: the exemption must not turn the check off. A real
+// seed - the thing that actually reaches MySQL - is still reported.
+func TestSeededValueChecksStillCoverNonTestFiles(t *testing.T) {
+	root := fixture(t, map[string]string{
+		"cmd/migrate/migration/models/models.go": frozenModelsPkg,
+		"cmd/migrate/migration/version/1786700001000_seed.go": `package version
+
+import "go-admin/cmd/migrate/migration/models"
+
+func seed() []models.SysMenu {
+	return []models.SysMenu{
+		{MenuId: 9000, Sort: 900},
+	}
+}
+`,
+	})
+
+	f := requireOne(t, check(t, root, options{}), checkMenuSort)
+	if !strings.Contains(f.Message, "900") {
+		t.Errorf("finding = %+v", f)
+	}
+}

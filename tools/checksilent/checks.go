@@ -112,6 +112,9 @@ func checkModelTimeMixing(s *snapshot) []Finding {
 	frozen := s.pkg(pkgFrozenModels)
 
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		if strings.HasPrefix(sf.Path, "app/") && sf.Imports(frozen) {
 			tables := tableNames(sf)
 			for name, st := range structTypes(sf) {
@@ -169,6 +172,9 @@ func checkMenuSortOverflow(s *snapshot) []Finding {
 	)
 	var out []Finding
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		forEachStructLiteral(sf, func(lit structLiteral) {
 			if !s.isMenuModel(lit) {
 				return
@@ -207,6 +213,9 @@ func checkConfigValueLength(s *snapshot) []Finding {
 	const limit = 255
 	var out []Finding
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		forEachStructLiteral(sf, func(lit structLiteral) {
 			if lit.Name != "SysConfig" || !s.isModelPackage(lit.PkgPath) {
 				return
@@ -254,6 +263,9 @@ func checkMenuIDCollisions(s *snapshot) []Finding {
 	sites := map[int64][]site{}
 
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		forEachStructLiteral(sf, func(lit structLiteral) {
 			if !s.isMenuModel(lit) {
 				return
