@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,6 +17,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/runtime"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -81,6 +83,12 @@ func run() error {
 	if config.ApplicationConfig.Mode == pkg.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	// The last point at which a module can still affect how routes are built.
+	// It is not the same moment as the before registry, which runStartupHooks
+	// drains below - those callbacks run after initRouter has built the engine,
+	// not before it.
+	sdk.Runtime.RunPhase(runtime.BeforeRouter)
+
 	initRouter()
 
 	runStartupHooks()
@@ -122,18 +130,10 @@ func run() error {
 	// arming is separate from waiting.
 	quit, disarmStopSignals := armStopSignals()
 
-	go func() {
-		// 服务连接
-		if config.SslConfig.Enable {
-			if err := srv.ListenAndServeTLS(config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				log.Fatal("listen: ", err)
-			}
-		} else {
-			if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				log.Fatal("listen: ", err)
-			}
-		}
-	}()
+	if err := startServing(srv, config.SslConfig.Enable, config.SslConfig.Pem, config.SslConfig.KeyStr); err != nil {
+		return err
+	}
+
 	fmt.Println(pkg.Red(string(global.LogoContent)))
 	tip()
 	fmt.Println(pkg.Green("Server run at:"))
@@ -183,6 +183,50 @@ func armStopSignals() (<-chan os.Signal, func()) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	return quit, func() { signal.Stop(quit) }
+}
+
+// startServing binds srv.Addr, hands the listener to srv on its own goroutine,
+// and announces AfterListen.
+//
+// The bind is done here rather than left to ListenAndServe, which binds on the
+// goroutine that serves. That put the failure every deployment actually hits -
+// "address already in use" - on a goroutine nobody was reading, so the banner
+// went on to claim the server was up, and there would be no way to keep
+// AfterListen from announcing a socket that does not exist. A hook there is
+// promised a reachable port; the only way to keep that promise is for the bind
+// to have already happened on this goroutine.
+//
+// AfterListen is announced synchronously. Running it in a goroutine to save the
+// few milliseconds would let it overlap the shutdown: on a fast SIGTERM the
+// cleanup callbacks could finish before the startup ones had.
+func startServing(srv *http.Server, useTLS bool, pem, key string) error {
+	ln, err := net.Listen("tcp", srv.Addr)
+	if err != nil {
+		return errors.Wrap(err, "listen")
+	}
+
+	go func() {
+		// 服务连接
+		var err error
+		if useTLS {
+			err = srv.ServeTLS(ln, pem, key)
+		} else {
+			err = srv.Serve(ln)
+		}
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			// Still fatal, as it was. The bind is no longer among the errors
+			// that reach here; what is left is a serve that failed after the
+			// port was taken, and carrying on would park the process on
+			// <-quit with nothing serving. TLS is the one case that can still
+			// fail immediately - ServeTLS reads the certificate files - so
+			// with ssl enabled AfterListen can run against a server that is
+			// already on its way down.
+			log.Fatal("listen: ", err)
+		}
+	}()
+
+	sdk.Runtime.RunPhase(runtime.AfterListen)
+	return nil
 }
 
 // shutdownServer stops srv, giving in-flight requests up to timeout to finish.
