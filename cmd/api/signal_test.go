@@ -41,7 +41,22 @@ func TestSignalChild(t *testing.T) {
 		fmt.Println("listen:", err)
 		os.Exit(3)
 	}
-	srv := &http.Server{Handler: http.NewServeMux()}
+	// accepted fires once the server has taken a connection off the listener.
+	// Dialling is not enough: Shutdown only waits for connections the server
+	// has already accepted, so calling it between the dial and the accept
+	// finds nothing to wait for and returns immediately.
+	accepted := make(chan struct{}, 1)
+	srv := &http.Server{
+		Handler: http.NewServeMux(),
+		ConnState: func(_ net.Conn, state http.ConnState) {
+			if state == http.StateNew {
+				select {
+				case accepted <- struct{}{}:
+				default:
+				}
+			}
+		},
+	}
 	go func() { _ = srv.Serve(ln) }()
 
 	// Arm before announcing readiness. Doing it the other way round leaves a
@@ -78,6 +93,15 @@ func TestSignalChild(t *testing.T) {
 			os.Exit(5)
 		}
 		defer func() { _ = c.Close() }()
+
+		// And wait for the accept, for the opposite reason: an unaccepted
+		// connection is not one Shutdown waits for either.
+		select {
+		case <-accepted:
+		case <-time.After(10 * time.Second):
+			fmt.Println("the server never accepted the stalling connection")
+			os.Exit(6)
+		}
 
 		// A connection that has sent nothing keeps Shutdown busy: net/http
 		// only treats a StateNew connection as idle once it is more than five
