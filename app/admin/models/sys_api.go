@@ -23,6 +23,10 @@ type SysApi struct {
 	Path   string `json:"path" gorm:"size:128;comment:地址"`
 	Action string `json:"action" gorm:"size:16;comment:请求类型"`
 	Type   string `json:"type" gorm:"size:16;comment:接口类型"`
+	// AppCode identifies which application's seed.SeedMenus call wrote this
+	// row; empty for the host's own built-in APIs. Same NOT NULL DEFAULT ''
+	// reasoning as SysMenu.AppCode.
+	AppCode string `json:"appCode" gorm:"type:varchar(64);not null;default:'';index:idx_sys_api_app_code;comment:AppCode"`
 	models.ModelTime
 	models.ControlBy
 }

@@ -12,8 +12,25 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	contractmigration "github.com/go-admin-team/go-admin-core/v2/sdk/contract/migration"
+
 	common "go-admin/common/models"
 )
+
+// withContractRegistry points contractSnapshot at an isolated
+// *contractmigration.Registry for the duration of one test, instead of
+// go-admin-core's single process-wide one - see contractSnapshot's doc
+// comment for why that indirection exists. Restored on cleanup so other
+// tests in this package keep seeing an empty contract registry regardless of
+// run order.
+func withContractRegistry(t *testing.T) *contractmigration.Registry {
+	t.Helper()
+	reg := contractmigration.NewRegistry()
+	orig := contractSnapshot
+	contractSnapshot = reg.Snapshot
+	t.Cleanup(func() { contractSnapshot = orig })
+	return reg
+}
 
 func newTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
@@ -387,4 +404,179 @@ func TestMigrateAppOnAnUnknownCodeSaysSo(t *testing.T) {
 	if rows := rowsByVersion(t, db); len(rows) != 0 {
 		t.Errorf("a typo ran %v", rows)
 	}
+}
+
+// This is the acceptance test for PRD 006's host-wiring gap: a migration
+// registered through contract/migration.ForApp - the only door open to a
+// third-party application - must actually run, be recorded under its app
+// code, and show up in AppCodes/Status/--app the same as one registered
+// through the host's own m.ForApp. Before mergedEntries existed, m.Migrate()
+// never looked at contract/migration's registry at all, so this compiled,
+// registered, and silently never ran.
+func TestMergedEntriesRunsAContractRegisteredAppMigration(t *testing.T) {
+	reg := withContractRegistry(t)
+	db := newTestDB(t)
+	m := newMigration()
+	m.SetDb(db)
+
+	ran := false
+	reg.ForApp("order").SetVersion("1793800000000", func(db *gorm.DB, version, appCode string) error {
+		ran = true
+		return recordFor(db, version, appCode)
+	})
+
+	m.Migrate()
+
+	if !ran {
+		t.Fatal("contract-registered migration did not run")
+	}
+	rows := rowsByVersion(t, db)
+	row, ok := rows["order-1793800000000"]
+	if !ok {
+		t.Fatalf("no row for order-1793800000000; got %v", rows)
+	}
+	if row.AppCode != "order" {
+		t.Errorf("app_code = %q, want %q", row.AppCode, "order")
+	}
+}
+
+// migrate status and --dry-run both read Status; a contract-registered
+// migration has to appear there under its app code exactly like a
+// host-registered one, both before and after it is applied.
+func TestMergedEntriesStatusIncludesContractRegisteredMigrations(t *testing.T) {
+	reg := withContractRegistry(t)
+	db := newTestDB(t)
+	m := newMigration()
+	m.SetDb(db)
+
+	reg.ForApp("order").SetVersion("1793800000000", func(db *gorm.DB, version, appCode string) error {
+		return recordFor(db, version, appCode)
+	})
+
+	entries, err := m.Status()
+	if err != nil {
+		t.Fatal(err)
+	}
+	byVersion := map[string]StatusEntry{}
+	for _, e := range entries {
+		byVersion[e.Version] = e
+	}
+	e, ok := byVersion["order-1793800000000"]
+	if !ok || !e.Registered || e.Applied || e.AppCode != "order" {
+		t.Fatalf("pending contract entry = %+v (ok=%v)", e, ok)
+	}
+
+	m.Migrate()
+
+	entries, err = m.Status()
+	if err != nil {
+		t.Fatal(err)
+	}
+	byVersion = map[string]StatusEntry{}
+	for _, e := range entries {
+		byVersion[e.Version] = e
+	}
+	if e := byVersion["order-1793800000000"]; !e.Applied {
+		t.Errorf("applied contract entry = %+v", e)
+	}
+}
+
+// AppCodes feeds both --app's typo detection (appRegistrationError) and the
+// group headings status prints; a contract-registered app has to appear
+// there or a real "go-admin migrate --app order" would be told the app does
+// not exist.
+func TestMergedEntriesAppCodesIncludesContractRegisteredApps(t *testing.T) {
+	reg := withContractRegistry(t)
+	m := newMigration()
+	m.SetVersion("1786700009000", func(db *gorm.DB, version string) error { return nil })
+	reg.ForApp("order").SetVersion("1793800000000", func(db *gorm.DB, version, appCode string) error { return nil })
+
+	got := m.AppCodes()
+	want := []string{"core", "order"}
+	if len(got) != len(want) {
+		t.Fatalf("AppCodes = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("AppCodes = %v, want %v", got, want)
+		}
+	}
+}
+
+// --app order has to actually run only order's migrations - the same
+// per-app isolation MigrateApp already gives host-registered apps - even
+// though order is registered in a different registry entirely.
+func TestMergedEntriesMigrateAppRunsOnlyThatContractApp(t *testing.T) {
+	reg := withContractRegistry(t)
+	db := newTestDB(t)
+	m := newMigration()
+	m.SetDb(db)
+
+	ran := map[string]bool{}
+	m.SetVersion("1786700009000", func(db *gorm.DB, version string) error {
+		ran["core"] = true
+		return db.Create(&common.Migration{Version: version}).Error
+	})
+	reg.ForApp("order").SetVersion("1793800000000", func(db *gorm.DB, version, appCode string) error {
+		ran["order"] = true
+		return recordFor(db, version, appCode)
+	})
+
+	m.MigrateApp("order")
+
+	if !ran["order"] {
+		t.Error("order did not run")
+	}
+	if ran["core"] {
+		t.Errorf("MigrateApp(order) also ran %v", ran)
+	}
+}
+
+// A host-registered key is not supposed to collide with a namespaced
+// contract key (see mergedEntries' doc comment), but if it somehow did, the
+// host's own registration must win rather than a third-party application
+// silently overwriting a framework migration under the same key.
+func TestMergedEntriesHostRegistrationWinsOnKeyCollision(t *testing.T) {
+	reg := withContractRegistry(t)
+	db := newTestDB(t)
+	m := newMigration()
+	m.SetDb(db)
+
+	hostRan, contractRan := false, false
+	m.ForApp("dup").SetVersion("1786800001000", func(db *gorm.DB, version, appCode string) error {
+		hostRan = true
+		return recordFor(db, version, appCode)
+	})
+	reg.ForApp("dup").SetVersion("1786800001000", func(db *gorm.DB, version, appCode string) error {
+		contractRan = true
+		return recordFor(db, version, appCode)
+	})
+
+	m.Migrate()
+
+	if !hostRan {
+		t.Error("host registration did not run")
+	}
+	if contractRan {
+		t.Error("contract registration ran; host registration should have won the collision")
+	}
+}
+
+// GetFilename must stay the same rule the contract package applies, since an
+// application registering through contract/migration names its files by that
+// convention and has to land on the same version string. Pinning the reject
+// case is what catches a re-divergence: a local copy that only sliced would
+// return "add_orders.go" here and register a migration under a key that never
+// matches anything.
+func TestGetFilenameDelegatesToTheContractRule(t *testing.T) {
+	if got := GetFilename("version/1786700001000_demo_menu.go"); got != "1786700001000" {
+		t.Fatalf("GetFilename = %q, want %q", got, "1786700001000")
+	}
+
+	defer func() {
+		if recover() == nil {
+			t.Fatal("a file name carrying no version did not panic")
+		}
+	}()
+	GetFilename("version/add_orders.go")
 }

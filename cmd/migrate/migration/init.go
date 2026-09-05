@@ -3,7 +3,6 @@ package migration
 import (
 	"fmt"
 	"log"
-	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -11,10 +10,20 @@ import (
 
 	"gorm.io/gorm"
 
+	contractmigration "github.com/go-admin-team/go-admin-core/v2/sdk/contract/migration"
+
 	common "go-admin/common/models"
 )
 
 var Migrate = newMigration()
+
+// contractSnapshot is contractmigration.Snapshot, indirected through a
+// package-level variable so tests can substitute an isolated
+// *contractmigration.Registry's Snapshot instead of reaching into
+// go-admin-core's single process-wide registry, which every *Migration in
+// this process - test-local or the package-level Migrate - reads through the
+// same call. See mergedEntries.
+var contractSnapshot = contractmigration.Snapshot
 
 func newMigration() *Migration {
 	return &Migration{version: make(map[string]versionEntry)}
@@ -135,6 +144,47 @@ func namespacedKey(appCode, k string) string {
 	return appCode + "-" + k
 }
 
+// mergedEntries returns every migration this process knows about: the
+// host's own registry (e.version, filled by version/*.go and
+// version-local/*.go through SetVersion/ForApp) plus whatever a third-party
+// application registered through go-admin-core's sdk/contract/migration
+// package (PRD 006, F9's host wiring).
+//
+// That package keeps its own process-wide registry, entirely separate from
+// e.version, because a third-party application cannot reach into this
+// process to call an unexported method on *Migration - contract/migration's
+// package-level ForApp/Snapshot are the only door open to it. Without this
+// merge, migrate/status/--dry-run would only ever see the host's own
+// migrations: an application's ForApp("crm").SetVersion(...) would compile,
+// register successfully into contract/migration's registry, and then never
+// run, with no error anywhere - the exact silent gap this method closes.
+//
+// Entry and versionEntry are structurally identical (an app code plus a
+// func(db, version) error); the conversion below exists only because they
+// are two distinct named types, one per package, not because the data
+// differs.
+func (e *Migration) mergedEntries() map[string]versionEntry {
+	e.mutex.Lock()
+	out := make(map[string]versionEntry, len(e.version))
+	for k, v := range e.version {
+		out[k] = v
+	}
+	e.mutex.Unlock()
+
+	for k, entry := range contractSnapshot() {
+		if _, exists := out[k]; exists {
+			// contract/migration.ForApp namespaces every app-owned key as
+			// appCode + "-" + k, and appCode is reserved from ""/"core", so
+			// this should never collide with a host-registered key. If it
+			// somehow does, the host's own registration wins rather than
+			// silently overwriting it.
+			continue
+		}
+		out[k] = versionEntry{appCode: entry.AppCode, fn: entry.Fn}
+	}
+	return out
+}
+
 // StatusEntry is one row of migrate status.
 type StatusEntry struct {
 	AppCode    string
@@ -156,12 +206,11 @@ func (e *Migration) Status() ([]StatusEntry, error) {
 		return nil, fmt.Errorf("migration: no database configured")
 	}
 
-	e.mutex.Lock()
-	registered := make(map[string]string, len(e.version))
-	for k, v := range e.version {
+	all := e.mergedEntries()
+	registered := make(map[string]string, len(all))
+	for k, v := range all {
 		registered[k] = v.appCode
 	}
-	e.mutex.Unlock()
 
 	applied := make(map[string]common.Migration)
 	// A database that has never been migrated has no sys_migration table.
@@ -247,12 +296,11 @@ func DisplayAppCode(code string) string {
 // AppCodes lists the app codes with at least one registered migration, framework
 // included under its display name, sorted.
 func (e *Migration) AppCodes() []string {
-	e.mutex.Lock()
+	all := e.mergedEntries()
 	seen := map[string]struct{}{}
-	for _, v := range e.version {
+	for _, v := range all {
 		seen[DisplayAppCode(v.appCode)] = struct{}{}
 	}
-	e.mutex.Unlock()
 
 	out := make([]string, 0, len(seen))
 	for code := range seen {
@@ -263,17 +311,16 @@ func (e *Migration) AppCodes() []string {
 }
 
 func (e *Migration) run(appCode string) {
-	e.mutex.Lock()
-	versions := make([]string, 0, len(e.version))
-	entries := make(map[string]versionEntry, len(e.version))
-	for k, v := range e.version {
+	all := e.mergedEntries()
+	versions := make([]string, 0, len(all))
+	entries := make(map[string]versionEntry, len(all))
+	for k, v := range all {
 		if appCode != allApps && v.appCode != appCode {
 			continue
 		}
 		versions = append(versions, k)
 		entries[k] = v
 	}
-	e.mutex.Unlock()
 	sort.Strings(versions)
 
 	// A mistyped --app would otherwise select nothing and report "no
@@ -315,7 +362,10 @@ func (e *Migration) run(appCode string) {
 // from the empty app code, which selects the framework's own migrations.
 const allApps = "\x00all"
 
+// GetFilename derives a migration's version from its file name. The rule
+// lives in contract/migration, because an application registering through
+// that package names its files by the same convention and must land on the
+// same version string; a second copy here is a second thing to keep in step.
 func GetFilename(s string) string {
-	s = filepath.Base(s)
-	return s[:13]
+	return contractmigration.GetFilename(s)
 }

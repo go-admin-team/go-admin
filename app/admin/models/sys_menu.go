@@ -26,6 +26,12 @@ type SysMenu struct {
 	RoleId     int       `gorm:"-"`
 	Children   []SysMenu `json:"children,omitempty" gorm:"-"`
 	IsSelect   bool      `json:"is_select" gorm:"-"`
+	// AppCode identifies which application's seed.SeedMenus call wrote this
+	// row; empty for the host's own built-in menus. NOT NULL DEFAULT '' for
+	// the same reason sys_migration.app_code is (see contract/models.Migration):
+	// AutoMigrate adding this column to an existing table leaves every
+	// pre-existing row reading back as "" rather than NULL.
+	AppCode string `json:"appCode" gorm:"type:varchar(64);not null;default:'';index:idx_sys_menu_app_code;comment:AppCode"`
 	models.ControlBy
 	models.ModelTime
 }
