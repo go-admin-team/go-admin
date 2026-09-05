@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -10,6 +11,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
 )
 
 // The signal path cannot be exercised in-process: delivering a signal to the
@@ -21,13 +24,15 @@ import (
 // this repository's CI has no database (.github/workflows/go.yml runs neither
 // MySQL nor a sqlite-tagged build), and none of what is under test needs one.
 const (
-	childEnv       = "GO_ADMIN_SIGNAL_CHILD"
-	childStuckEnv  = "GO_ADMIN_SIGNAL_CHILD_STUCK"
-	childHangConn  = "GO_ADMIN_SIGNAL_CHILD_HANGCONN"
-	markerReady    = "CHILD-READY"
-	markerSignal   = "CHILD-SIGNAL"
-	markerShutdown = "CHILD-SHUTDOWN-OK"
-	markerExiting  = "CHILD-EXITING"
+	childEnv         = "GO_ADMIN_SIGNAL_CHILD"
+	childStuckEnv    = "GO_ADMIN_SIGNAL_CHILD_STUCK"
+	childHangConn    = "GO_ADMIN_SIGNAL_CHILD_HANGCONN"
+	childSlowCleanup = "GO_ADMIN_SIGNAL_CHILD_SLOWCLEANUP"
+	markerReady      = "CHILD-READY"
+	markerSignal     = "CHILD-SIGNAL"
+	markerShutdown   = "CHILD-SHUTDOWN-OK"
+	markerCleanup    = "CHILD-CLEANUP-RAN"
+	markerExiting    = "CHILD-EXITING"
 )
 
 // TestSignalChild is the child process. It is skipped in a normal run.
@@ -58,6 +63,24 @@ func TestSignalChild(t *testing.T) {
 		},
 	}
 	go func() { _ = srv.Serve(ln) }()
+
+	// A BeforeExit callback, registered the way a module would. What the tests
+	// below care about is whether it runs at all - after a Shutdown that
+	// failed, and after its own budget has been spent.
+	cleanupBudget := cleanupTimeout
+	sdk.Runtime.SetShutdown(func(ctx context.Context) {
+		if os.Getenv(childSlowCleanup) == "1" {
+			// Outlasts the budget on purpose, and does not consult ctx -
+			// which is the case the contract is explicit about: what the
+			// context bounds is the wait, not the work.
+			time.Sleep(2 * time.Second)
+		}
+		fmt.Println(markerCleanup)
+		os.Stdout.Sync()
+	})
+	if os.Getenv(childSlowCleanup) == "1" {
+		cleanupBudget = 300 * time.Millisecond
+	}
 
 	// Arm before announcing readiness. Doing it the other way round leaves a
 	// window in which the parent's signal reaches the default handler and
@@ -110,12 +133,18 @@ func TestSignalChild(t *testing.T) {
 		timeout = 300 * time.Millisecond
 	}
 
+	sdk.Runtime.BeginShutdown()
+
 	if err := shutdownServer(srv, timeout); err != nil {
 		// Deliberately not fatal, and deliberately not a bare return: the
 		// point is that whatever follows still runs.
 		fmt.Println("shutdown error:", err)
 	} else {
 		fmt.Println(markerShutdown)
+	}
+
+	if err := runShutdownHooks(cleanupBudget); err != nil {
+		fmt.Println("cleanup error:", err)
 	}
 	fmt.Println(markerExiting)
 	os.Stdout.Sync()
@@ -286,7 +315,55 @@ func TestShutdownTimeoutDoesNotStopWhatFollows(t *testing.T) {
 		t.Fatalf("Shutdown did not time out, so this test proves nothing; saw:\n%s",
 			strings.Join(seen, "\n"))
 	}
+	var cleaned bool
+	for _, l := range seen {
+		if strings.Contains(l, markerCleanup) {
+			cleaned = true
+		}
+	}
+	if !cleaned {
+		t.Fatalf("the BeforeExit callback did not run after a failed Shutdown; saw:\n%s",
+			strings.Join(seen, "\n"))
+	}
 	if err := cmd.Wait(); err != nil {
 		t.Fatalf("child exited with %v after a failed Shutdown, want a clean exit", err)
+	}
+}
+
+// A callback that outlasts its budget must not take the process with it, and
+// must not be waited for: RunShutdown reports the deadline and returns, the
+// callback carries on, and the process still exits cleanly. This is the half of
+// the contract that is easy to get backwards - the context bounds the wait, not
+// the work, because Go cannot cancel a function that does not check for it.
+func TestACleanupThatOutlastsItsBudgetIsAbandonedNotAwaited(t *testing.T) {
+	cmd, _, lines := startChild(t, false, childSlowCleanup+"=1")
+	await(t, lines, markerReady, 30*time.Second)
+
+	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
+		t.Fatalf("signal: %v", err)
+	}
+	await(t, lines, markerSignal, 10*time.Second)
+
+	// The budget is 300ms and the callback sleeps two seconds. If RunShutdown
+	// waited for it, this marker would not arrive for two seconds; the one
+	// second here is what makes "abandoned, not awaited" the thing asserted.
+	seen := await(t, lines, markerExiting, 1*time.Second)
+
+	var reported bool
+	for _, l := range seen {
+		if strings.Contains(l, "cleanup error:") {
+			reported = true
+		}
+		if strings.Contains(l, markerCleanup) {
+			t.Fatalf("the slow callback finished before the process moved on, so nothing was abandoned; saw:\n%s",
+				strings.Join(seen, "\n"))
+		}
+	}
+	if !reported {
+		t.Fatalf("RunShutdown returned no error for a callback that outlasted the budget; saw:\n%s",
+			strings.Join(seen, "\n"))
+	}
+	if err := cmd.Wait(); err != nil {
+		t.Fatalf("child exited with %v, want a clean exit despite the abandoned callback", err)
 	}
 }

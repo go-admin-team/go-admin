@@ -377,7 +377,7 @@ if res.RowsAffected == 0 { return ErrAlreadyPaid }   // 别人先改了
 | 应用间调用 | 零定义。A 应用要调 B 应用只能直接 import 对方的包，循环依赖就回来了 |
 | 领域事件 / EventBus | 无 |
 | 缓存的租户隔离 | `service.Service` 有 `Cache` 字段，**是否按租户隔离未验证**。当作没隔离来写 |
-| 异步任务 | 有队列，但热更新后消费者会丢（issue #892） |
+| 生命周期钩子之外的时点 | 只有下面那四个。没有「路由装好之后、开始监听之前」这一档 |
 
 这几条留给后续批次，按真实需求补——现在凭空设计只会设计错。
 如果你的应用卡在这里，在 issue 里说一声，那正是我们要的输入。
@@ -669,6 +669,91 @@ if sdk.Runtime.AppRoutersSealed() { /* RunAppRouters 已经跑过了 */ }
    `cmd/api/server_test.go` 里的 `freshRuntime` 就是这个。
 3. **迁移的调度循环是主仓的东西**，core 只有注册面。迁移注册的约束仍然是
    "赶在调度循环跑起来之前"，实践上就是 `init()`。
+
+---
+
+## 生命周期挂载点
+
+除了注册路由和迁移，应用还可以把工作挂在进程生命的四个时点上，不必等宿主按名字来调自己。
+契约本身在 core，见
+[go-admin-core `docs/contract.md`](https://github.com/go-admin-team/go-admin-core/blob/main/docs/contract.md)
+的「Life-cycle phases」一节。这里只写**在本仓里它们分别落在哪一行**。
+
+| 阶段 | 在 `cmd/api/server.go` 的位置 | 此时可用 |
+|---|---|---|
+| `AfterResource` | `bootstrap.SetupConfig` 跑完 `database.Setup` / `storage.Setup` 之后 | 配置、库、缓存、队列、casbin |
+| `BeforeRouter` | `initRouter()` **之前** | 以上，加引擎尚未构建这一事实 |
+| `AfterListen` | `startServing()` 里，`net.Listen` 返回之后 | 全部，端口**已绑定**、连接进得来 |
+| `BeforeExit` | `srv.Shutdown` 返回之后（无论它是否报错） | 全部，正在被拆掉 |
+
+`AfterListen` 承诺的是**端口已绑定**，不是「`Serve` 已经在 accept 循环里」——
+`srv.Serve` 在另一个 goroutine 上。这个区别是真实的：绑定成功之后内核就会把连接排进
+backlog，所以钩子里去连自己的端口不会被拒;但此刻 `Serve` 可能还没跑到第一次 `Accept`。
+绑定失败则**根本不会有这个阶段**：`net.Listen` 的错误直接从 `run()` 返回，
+横幅不打印，进程非零退出。
+
+```go
+sdk.Runtime.SetPhase(runtime.AfterResource, func() { /* ... */ })
+sdk.Runtime.SetShutdown(func(ctx context.Context) { /* ... */ })
+```
+
+### `BeforeRouter` 不等于 `before` 注册表
+
+**这两个不是同一个时点，文档里别混着写。** `SetBefore` 的回调由
+`runStartupHooks()` 执行，而那是在 `initRouter()` **之后**——引擎已经建好了。
+`BeforeRouter` 在它之前。
+
+顺带：`BeforeRouter` 是「硬约束：注册要赶在启动钩子之前」那一节所说的合法注册窗口之一。
+它早于 `runStartupHooks()`，所以在这里调 `sdk.Runtime.SetAppRouters` 仍然来得及。
+
+### `AfterResource` 会跑很多次，回调必须扛得住
+
+它在**每次配置热更新之后**都会再跑一遍，因为热更新会重建它所命名的那些资源。
+所以这里的回调要求是**「对同一个资源幂等」，不是「第二次什么都不做」**。
+
+本仓自己的队列消费者就是这条规则的样板，也是它存在的理由
+（`cmd/api/server.go` 的 `attachQueueConsumers`）：
+
+- 热更新重建了队列适配器，挂在旧适配器上的消费者连着一个**再没人往里发消息**的队列，
+  登录日志和操作日志就此停写且不出声。所以新适配器**必须**重新注册。
+- 但同一个适配器不能注册两次，否则每条消息有两个消费者，每行日志写两遍。
+
+**身份不能从访问器取。** `sdk.Runtime.GetQueueAdapter()` 与 `GetQueuePrefix()`
+每次调用都新造一个 `runtime.Queue` 包装，比较两次返回等于比较两个包装，
+**底层适配器换过多少次都不相等**。要在**创建资源的地方**记身份——
+本仓是 `common/storage.QueueGeneration()`。
+
+### 注册消费者要赶在队列启动之前
+
+走哪条实现，取决于配置里有没有 `redis:` 段（`config.QueueConfig.Setup()`）：
+
+| 配置 | 实际类型 | 启动后还能注册吗 |
+|---|---|---|
+| `queue: memory:` | `queue.NewMemory` | **能**。它的 `Register` 每次起一个消费 goroutine，不看是否已 `Run` |
+| `queue: redis:` | `storage.LegacyQueueAdapter` 包着新契约实现 | **不能**。`Register` 内部调 `Subscribe`，启动后返回 `storage.ErrQueueAlreadyStarted` |
+
+而 `LegacyQueueAdapter.Register` **没有返回值**——它只能把这个错误写进 slog，
+core 里那行注释自己写着「The interface has no way to report this to the caller」。
+**静默的是注册这一步，不是之后。** 没有建立消费组，redis 会用
+`storage.ErrNoHandler` 拒绝**之后的每一次投递**，而本仓两个调用点
+（`common/middleware/logger.go`、`common/middleware/handler/auth.go`）
+都把它记为 error——于是日志行一条都不落库，同时每个请求刷一条错误日志。
+
+所以顺序是硬的：**先 `Register` 完，再由注册方 `Run()`。**
+`common/storage` 的 `setupQueue` 有意不启动队列。
+
+默认配置选的是 memory 后端,它不在乎顺序——**这个缺陷在默认部署里看不见,
+只在配了 redis 的部署上发作**,而丢掉的正是登录日志、操作日志和 api 检查。
+
+### `BeforeExit` 反序执行，预算约束的是等待
+
+清理按**注册的逆序**执行。`SetShutdown` 拿到宿主剩余的预算，
+但**它约束的是等待，不是工作**：预算用尽时 `RunShutdown` 停止等待并返回，
+而不检查 context 的回调会一直跑到进程退出。Go 没法取消一个不检查取消的函数。
+
+本仓的样板是 cron（`app/jobs/jobbase.go` 的 `startCrontab`）：
+`cron.Stop()` 返回一个在**已经在跑的任务结束时**关闭的 context，
+钩子在它和预算之间二选一。
 
 ---
 
