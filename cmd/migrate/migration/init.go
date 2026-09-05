@@ -3,7 +3,6 @@ package migration
 import (
 	"fmt"
 	"log"
-	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -363,7 +362,10 @@ func (e *Migration) run(appCode string) {
 // from the empty app code, which selects the framework's own migrations.
 const allApps = "\x00all"
 
+// GetFilename derives a migration's version from its file name. The rule
+// lives in contract/migration, because an application registering through
+// that package names its files by the same convention and must land on the
+// same version string; a second copy here is a second thing to keep in step.
 func GetFilename(s string) string {
-	s = filepath.Base(s)
-	return s[:13]
+	return contractmigration.GetFilename(s)
 }

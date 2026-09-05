@@ -561,3 +561,22 @@ func TestMergedEntriesHostRegistrationWinsOnKeyCollision(t *testing.T) {
 		t.Error("contract registration ran; host registration should have won the collision")
 	}
 }
+
+// GetFilename must stay the same rule the contract package applies, since an
+// application registering through contract/migration names its files by that
+// convention and has to land on the same version string. Pinning the reject
+// case is what catches a re-divergence: a local copy that only sliced would
+// return "add_orders.go" here and register a migration under a key that never
+// matches anything.
+func TestGetFilenameDelegatesToTheContractRule(t *testing.T) {
+	if got := GetFilename("version/1786700001000_demo_menu.go"); got != "1786700001000" {
+		t.Fatalf("GetFilename = %q, want %q", got, "1786700001000")
+	}
+
+	defer func() {
+		if recover() == nil {
+			t.Fatal("a file name carrying no version did not panic")
+		}
+	}()
+	GetFilename("version/add_orders.go")
+}
