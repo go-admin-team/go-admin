@@ -444,7 +444,6 @@ func (e SysUser) GetInfo(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	p := actions.GetPermissionFromContext(c)
 	var roles = make([]string, 1)
 	roles[0] = user.GetRoleName(c)
 	var permissions = make([]string, 1)
@@ -464,7 +463,14 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	}
 	sysUser := models.SysUser{}
 	req.Id = user.GetUserId(c)
-	err = s.Get(&req, p, &sysUser)
+	// Unscoped on purpose: the id is the caller's own, taken from the token.
+	// This used to go through Get with whatever GetPermissionFromContext
+	// returned - and this route installs no PermissionAction, so that was the
+	// zero value. An unset scope is not a recognised one, so once unknown
+	// scopes started failing closed rather than silently matching everything,
+	// every login on a deployment with enabledp: true ended here with a 401
+	// and the browser went straight back to the login page.
+	err = s.GetSelf(&req, &sysUser)
 	if err != nil {
 		e.Error(http.StatusUnauthorized, err, "登录失败")
 		return
