@@ -64,7 +64,12 @@ type probeIndexReq struct {
 	dto.Pagination `search:"-"`
 }
 
-func (p *probeIndexReq) Generate() dto.Index        { return p }
+// Generate returns a copy, the way every dto.Index in this repository does:
+// IndexAction closes over one instance and serves every request to the route
+// from it, so returning the receiver would share one struct across them. The
+// probe has to model that faithfully or it is not the shape IndexAction is
+// written against.
+func (p *probeIndexReq) Generate() dto.Index        { o := *p; return &o }
 func (p *probeIndexReq) Bind(*gin.Context) error    { return nil }
 func (p *probeIndexReq) GetNeedSearch() interface{} { return *p }
 
@@ -83,6 +88,14 @@ type pageEnvelope struct {
 // database, and inspects the SQL GORM actually executed - not just that
 // the handler returned success, which it would just as happily do with no
 // filter applied at all.
+func TestProbeIndexReqGenerateReturnsAFreshInstance(t *testing.T) {
+	p := &probeIndexReq{}
+	got := p.Generate()
+	if got == dto.Index(p) {
+		t.Fatal("Generate returned the receiver; IndexAction would share one instance across every request to the route")
+	}
+}
+
 func TestIndexActionAppliesDataPermission(t *testing.T) {
 	previous := config.ApplicationConfig.EnableDP
 	config.ApplicationConfig.EnableDP = true
