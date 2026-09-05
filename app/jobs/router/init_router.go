@@ -26,10 +26,9 @@ func InitRouter() {
 		os.Exit(-1)
 	}
 
-	authMiddleware, err := common.AuthInit()
-	if err != nil {
-		log.Fatalf("JWT Init Error, %s", err.Error())
-	}
+	// the jwt middleware: shared instance InitMiddleware built at startup,
+	// not one built here per module (see common/middleware.GetAuthMiddleware).
+	authMiddleware := common.GetAuthMiddleware()
 
 	// 注册业务路由
 	initRouter(r, authMiddleware)
