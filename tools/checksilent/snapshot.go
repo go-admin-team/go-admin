@@ -38,6 +38,19 @@ type sourceFile struct {
 	consts  map[string]int64  // package-level integer constants, filled per package
 }
 
+// isTest reports whether this file is a _test.go.
+//
+// The checks about a seeded value - a menu sort, a config value, a menu id, a
+// soft-delete shape - are all about what reaches a real database through a
+// migration, and a test fixture reaches none. Worse, each of those guards
+// needs a test that writes the very value it rejects, so scanning test files
+// makes every such guard report its own test. The import and alias checks do
+// not skip tests: those are about the dependency graph, where a test file's
+// import is as real as any other.
+func (f *sourceFile) isTest() bool {
+	return strings.HasSuffix(f.Path, "_test.go")
+}
+
 // snapshot is every Go file under the root, parsed once and shared by all the
 // checks.
 type snapshot struct {

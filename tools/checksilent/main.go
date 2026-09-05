@@ -1,9 +1,9 @@
 // Command checksilent reports the failures in this repository that do not
 // announce themselves: no error, no log line, behaviour quietly wrong.
 //
-// Six checks, five of them ERROR and one WARN. An ERROR fails the run; a WARN
+// Seven checks, six of them ERROR and one WARN. An ERROR fails the run; a WARN
 // prints and does not. The split is not about how bad the consequence is - all
-// six are bad - but about how certain the detection is. Everything reported as
+// seven are bad - but about how certain the detection is. Everything reported as
 // an ERROR is decided from this repository's own syntax. The one WARN compares
 // against a second repository through a regular expression, and a check that
 // can be wrong must not be able to stop a build, or the first response to it
@@ -101,5 +101,17 @@ func printSummary(w io.Writer, findings []Finding, opt options, s *snapshot) {
 	if scanned, absent := ScannedContractRoots(s); len(absent) > 0 {
 		fmt.Fprintf(w, "The %s check covered %s; %s does not exist here and was not scanned.\n",
 			checkImportBoundary, strings.Join(scanned, ", "), strings.Join(absent, ", "))
+	}
+	// Same reason: a tree with no alias into core's contract packages gives
+	// this check nothing to look at, and its silence must not be read as a
+	// pass. That is now the interesting case rather than the expected one -
+	// the shims exist, so a count of zero means they stopped being aliases,
+	// or stopped being here.
+	if n := ScannedShimAliases(s); n == 0 {
+		fmt.Fprintf(w, "The %s check found no type alias into core's contract packages and guarded nothing.\n",
+			checkShimAlias)
+	} else {
+		fmt.Fprintf(w, "The %s check covered %d type alias(es) into core's contract packages.\n",
+			checkShimAlias, n)
 	}
 }

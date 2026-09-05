@@ -125,9 +125,12 @@ func (SysPost) TableName() string { return "sys_post" }
 两条与主仓贡献者直接相关的：
 
 - **`common/`、`core/` 不得 import `app/`** —— `make checksilent` 在 CI 里守着，违反即红。
+- **从 core 契约包声明出来的类型必须写成别名**（`type X = pkg.Y`，不是 `type X pkg.Y`）
+  —— `contract-shim-alias` 检查守着。defined type 会丢掉整个方法集，
+  而且**不一定在本仓编译失败**，理由见 `docs/contract.md` 末节。
 - **注册类 API（`AppRouters` / `sdk.Runtime.SetAppRouters` / `migration.ForApp`）
-  只允许在 `init()` 中调用** —— 注册期靠 Go 的包初始化顺序保证无并发写，
-  core 侧的 setter 没有加锁。
+  必须在 `runStartupHooks()` 之前调用完** —— `init()` 是最省事的位置，
+  但约束的是**顺序**，不是写在哪个函数里；晚到的注册会被丢弃并只记一条 ERROR。
 
 ## 路由注册
 
@@ -191,7 +194,8 @@ go run -tags sqlite3 . server  -c config/settings.sqlite.yml
 
 ## 数据库迁移
 
-文件名前 13 位为时间戳版本号。**已执行过的迁移文件不可修改** ——
+文件名前 13 位为毫秒时间戳版本号，不合规的名字会在启动时 panic 并报出该文件名。
+**已执行过的迁移文件不可修改** ——
 `sys_migration` 表按版本号去重，改动不会重跑，只能新增一个迁移来修正。
 
 放哪个目录取决于身份：
@@ -223,7 +227,7 @@ go run -tags sqlite3 . server  -c config/settings.sqlite.yml
 
 ## 静默失败校验
 
-`make checksilent` 检查六类**不报错、不记日志、行为悄悄变得不对**的问题，
+`make checksilent` 检查七类**不报错、不记日志、行为悄悄变得不对**的问题，
 CI 会跑，命中 ERROR 即失败：
 
 | 检查 | 级别 | 静默后果 |
@@ -233,6 +237,7 @@ CI 会跑，命中 ERROR 即失败：
 | `config-value-truncation` | ERROR | `sys_config.config_value` 超 255 字符被静默截断 |
 | `menu-id-collision` | ERROR | 两个模块硬编码同一菜单 ID，互相覆盖 |
 | `contract-import-boundary` | ERROR | 契约包 import `app/`，应用无法独立编译 |
+| `contract-shim-alias` | ERROR | 契约薄壳写成 defined type 而非别名，方法集丢失，本仓可能照常编译、第三方应用编译不过 |
 | `menu-name-mismatch` | WARN | 菜单名与前端组件 `name` 不一致，keep-alive 缓存静默失效 |
 
 最后一条要跨仓库比对，只能做正则启发式，因此是 WARN，**不影响退出码**，

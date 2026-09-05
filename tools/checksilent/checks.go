@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go/ast"
 	"go/token"
 	"path"
 	"sort"
@@ -18,6 +19,7 @@ const (
 	checkConfigValue    = "config-value-truncation"
 	checkMenuIDConflict = "menu-id-collision"
 	checkImportBoundary = "contract-import-boundary"
+	checkShimAlias      = "contract-shim-alias"
 )
 
 // Package paths, relative to the module. Spelled once so a module rename
@@ -44,6 +46,7 @@ func runChecks(s *snapshot, opt options) ([]Finding, error) {
 	out = append(out, checkConfigValueLength(s)...)
 	out = append(out, checkMenuIDCollisions(s)...)
 	out = append(out, checkContractImportBoundary(s)...)
+	out = append(out, checkContractShimAlias(s)...)
 
 	if opt.UIDir != "" {
 		fs, err := checkMenuNames(s, opt.UIDir)
@@ -109,6 +112,9 @@ func checkModelTimeMixing(s *snapshot) []Finding {
 	frozen := s.pkg(pkgFrozenModels)
 
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		if strings.HasPrefix(sf.Path, "app/") && sf.Imports(frozen) {
 			tables := tableNames(sf)
 			for name, st := range structTypes(sf) {
@@ -166,6 +172,9 @@ func checkMenuSortOverflow(s *snapshot) []Finding {
 	)
 	var out []Finding
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		forEachStructLiteral(sf, func(lit structLiteral) {
 			if !s.isMenuModel(lit) {
 				return
@@ -204,6 +213,9 @@ func checkConfigValueLength(s *snapshot) []Finding {
 	const limit = 255
 	var out []Finding
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		forEachStructLiteral(sf, func(lit structLiteral) {
 			if lit.Name != "SysConfig" || !s.isModelPackage(lit.PkgPath) {
 				return
@@ -251,6 +263,9 @@ func checkMenuIDCollisions(s *snapshot) []Finding {
 	sites := map[int64][]site{}
 
 	for _, sf := range s.Files {
+		if sf.isTest() {
+			continue
+		}
 		forEachStructLiteral(sf, func(lit structLiteral) {
 			if !s.isMenuModel(lit) {
 				return
@@ -379,6 +394,135 @@ func checkContractImportBoundary(s *snapshot) []Finding {
 	return out
 }
 
+// ---------------------------------------------------------------------------
+// check 7: a shim of a core contract type must be an alias
+// ---------------------------------------------------------------------------
+
+// coreModulePrefix and coreContractSegment together identify a package under
+// core's contract namespace. Matched as prefix plus segment rather than as one
+// literal path so that a major-version bump of core - which rewrites the
+// /v2 in every import - does not quietly turn this check off.
+const (
+	coreModulePrefix    = "github.com/go-admin-team/go-admin-core/"
+	coreContractSegment = "/sdk/contract/"
+)
+
+// isCoreContractPkg reports whether an import path names one of core's
+// contract packages.
+func isCoreContractPkg(path string) bool {
+	return strings.HasPrefix(path, coreModulePrefix) && strings.Contains(path, coreContractSegment)
+}
+
+// checkContractShimAlias reports a shim of a core contract type that was
+// written as a defined type instead of an alias.
+//
+//	type ControlBy = models.ControlBy   // alias: same type, same method set
+//	type ControlBy models.ControlBy     // defined type: methods are gone
+//
+// The two lines differ by one character and by everything else. A defined type
+// takes the underlying struct and none of the methods declared on it, so a
+// model embedding the second one no longer has SetCreateBy or SetUpdateBy and
+// no longer satisfies ActiveRecord - which is not a warning, it is a compile
+// error, but only in code that actually uses the method set.
+//
+// That is why the compiler is not enough on its own. This repository exercises
+// some of the contract types through interfaces and some not at all; the ones
+// it does not exercise compile perfectly well as defined types here and break
+// in a third-party application, or in a fork's own module, which is where
+// nobody is looking. The check costs one field of the AST - a type alias
+// records the position of its '=' - and covers the surface uniformly rather
+// than covering whatever app/demo happens to touch this month.
+//
+// The trigger is the right-hand side, not a list of names: any type declared
+// from a core contract package is one of these, whoever wrote it and whenever
+// it was added. A type declared from a local struct literal is not caught by
+// this - see ScannedShimAliases, which is what stops a run over a tree with no
+// shims in it from reading as a clean bill of health.
+func checkContractShimAlias(s *snapshot) []Finding {
+	var out []Finding
+	for _, sf := range s.Files {
+		forEachTypeSpec(sf, func(ts *ast.TypeSpec) {
+			qualifier, pkg, name, ok := qualifiedType(sf, ts.Type)
+			if !ok || !isCoreContractPkg(pkg) {
+				return
+			}
+			if ts.Assign.IsValid() {
+				return // "type X = pkg.Y", which is what it must be
+			}
+			out = append(out, s.finding(Error, checkShimAlias, sf, ts,
+				"%s is declared from %s.%s as a defined type, not an alias;\n"+
+					"    a defined type keeps the fields and drops the method set, so anything embedding it stops satisfying\n"+
+					"    the interfaces it satisfied before - here it may still compile, in a fork or a third-party app it does not.\n"+
+					"    Write it as: type %s = %s.%s",
+				ts.Name.Name, qualifier, name, ts.Name.Name, qualifier, name))
+		})
+	}
+	return out
+}
+
+// ScannedShimAliases counts the type aliases into core's contract packages the
+// snapshot holds, so the summary can say whether checkContractShimAlias found
+// anything to guard at all.
+//
+// Reported for the same reason ScannedContractRoots is: before the contract
+// packages are lowered into core there are no shims here, the check has
+// nothing to look at, and a run that printed nothing would look exactly like a
+// run over a tree that passed.
+func ScannedShimAliases(s *snapshot) int {
+	n := 0
+	for _, sf := range s.Files {
+		forEachTypeSpec(sf, func(ts *ast.TypeSpec) {
+			_, pkg, _, ok := qualifiedType(sf, ts.Type)
+			if ok && isCoreContractPkg(pkg) && ts.Assign.IsValid() {
+				n++
+			}
+		})
+	}
+	return n
+}
+
+// forEachTypeSpec visits every type declaration in the file, including the
+// ones inside a parenthesised type block.
+func forEachTypeSpec(sf *sourceFile, fn func(*ast.TypeSpec)) {
+	for _, decl := range sf.Syntax.Decls {
+		gen, ok := decl.(*ast.GenDecl)
+		if !ok || gen.Tok != token.TYPE {
+			continue
+		}
+		for _, spec := range gen.Specs {
+			if ts, ok := spec.(*ast.TypeSpec); ok {
+				fn(ts)
+			}
+		}
+	}
+}
+
+// qualifiedType resolves a type expression that names a type in another
+// package, returning that package's import path and the type name. A bare
+// identifier, a struct literal or anything else reports false: this asks
+// specifically "is the right-hand side pkg.Name", which is the shape both a
+// correct shim and the mistake it guards against are written in.
+// The qualifier returned is the one written in this file, which is not
+// path.Base of the import path whenever the import is aliased - and the shim
+// files alias every one of them (contractmodels, contractdto). A message that
+// suggests a fix has to spell it the way the file already does, or the line it
+// tells the author to write does not compile.
+func qualifiedType(sf *sourceFile, typ ast.Expr) (qualifier, pkgPath, name string, ok bool) {
+	sel, isSel := typ.(*ast.SelectorExpr)
+	if !isSel {
+		return "", "", "", false
+	}
+	ident, isIdent := sel.X.(*ast.Ident)
+	if !isIdent {
+		return "", "", "", false
+	}
+	p, found := sf.imports[ident.Name]
+	if !found {
+		return "", "", "", false
+	}
+	return ident.Name, p, sel.Sel.Name, true
+}
+
 // migrationVersion reads the 13-digit timestamp a migration file name starts
 // with. Files outside the two migration directories are not migrations, however
 // they are named.
@@ -398,9 +542,23 @@ func migrationVersion(rel string) (int64, bool) {
 	return v, true
 }
 
-// isMenuModel reports whether a literal is one of the SysMenu models rather
-// than, say, the SysMenu service struct that shares the name.
+// isMenuModel reports whether a literal describes a menu row, whichever of
+// the two shapes it is written in.
+//
+// A host module seeds a menu by building the SysMenu model directly. An
+// application installed from outside this repository cannot reach that type,
+// so it describes the same row as a seed.MenuSpec and hands it to the host's
+// Seeder. Both end up in sys_menu and both are subject to its column widths,
+// so a check that knew only the first shape would go quiet exactly when the
+// author is furthest from the schema it protects.
+//
+// That is not hypothetical: this repository's own reference application was
+// written with a Sort of 200 - past the tinyint sys_menu.sort is built as -
+// and this check passed it, because a MenuSpec is not a SysMenu.
 func (s *snapshot) isMenuModel(lit structLiteral) bool {
+	if lit.Name == "MenuSpec" && isCoreContractPkg(lit.PkgPath) {
+		return true
+	}
 	return lit.Name == "SysMenu" && s.isModelPackage(lit.PkgPath)
 }
 
