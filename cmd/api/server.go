@@ -149,6 +149,12 @@ func run() error {
 	// the default handler, so a shutdown that hangs can still be interrupted.
 	disarmStopSignals()
 
+	// Said before anything is taken apart. A configuration reload arriving in
+	// this window would otherwise re-run AfterResource - rebuilding the pool
+	// and the queue adapter, and re-registering consumers - on top of cleanup
+	// that has already run.
+	sdk.Runtime.BeginShutdown()
+
 	log.Info("Shutdown Server ... ")
 	if err := shutdownServer(srv, shutdownTimeout); err != nil {
 		// Not log.Fatal: that is an unconditional os.Exit(1), and Shutdown
@@ -156,15 +162,28 @@ func run() error {
 		// which is when the cleanup that follows matters most.
 		log.Error("Server Shutdown: ", err)
 	}
+
+	// Runs whether or not the line above reported an error, for that reason.
+	if err := runShutdownHooks(cleanupTimeout); err != nil {
+		log.Error("Cleanup: ", err)
+	}
 	log.Info("Server exiting")
 
 	return nil
 }
 
-// shutdownTimeout is how long Shutdown waits for in-flight requests. It plus
-// whatever cleanup follows has to stay inside the orchestrator's grace period
-// - `docker stop` allows 10s by default before it sends SIGKILL.
-const shutdownTimeout = 5 * time.Second
+// shutdownTimeout is how long Shutdown waits for in-flight requests, and
+// cleanupTimeout how long the BeforeExit callbacks get after it.
+//
+// They are consumed one after the other, so the two together are what has to
+// stay inside the orchestrator's grace period: `docker stop` allows 10s by
+// default before it sends SIGKILL, and 5+3 leaves room for the process to
+// finish returning. Raising either without lowering the other buys nothing -
+// the budget that runs out is the orchestrator's.
+const (
+	shutdownTimeout = 5 * time.Second
+	cleanupTimeout  = 3 * time.Second
+)
 
 // armStopSignals registers for the stop signals and returns the channel they
 // arrive on together with the function that restores the default disposition.
@@ -238,6 +257,19 @@ func shutdownServer(srv *http.Server, timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return srv.Shutdown(ctx)
+}
+
+// runShutdownHooks runs the BeforeExit callbacks with timeout to share.
+//
+// What the budget bounds is the wait, not the work. When it is gone RunShutdown
+// stops waiting and returns; a callback that never looks at its context carries
+// on until the process exits, and may leave a partial write behind. Go cannot
+// cancel a function that does not check for cancellation, which is why the
+// callbacks are handed a context at all.
+func runShutdownHooks(timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return sdk.Runtime.RunShutdown(ctx)
 }
 
 // runStartupHooks runs the router registries and then the before callbacks.
