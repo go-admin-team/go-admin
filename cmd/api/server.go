@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -280,7 +281,25 @@ func armStopSignals() (<-chan os.Signal, func()) {
 // AfterListen is announced synchronously. Running it in a goroutine to save the
 // few milliseconds would let it overlap the shutdown: on a fast SIGTERM the
 // cleanup callbacks could finish before the startup ones had.
+//
+// Both ways of failing to start are therefore checked before the announcement:
+// the bind, and - with ssl enabled - the certificate.
 func startServing(srv *http.Server, useTLS bool, pem, key string) error {
+	if useTLS {
+		// Read the certificate before anything is announced. ServeTLS reads
+		// these files itself, but on the serving goroutine - so a bad
+		// certificate used to surface after AfterListen had already promised a
+		// reachable port. Loading it here costs one extra read and moves the
+		// failure onto this goroutine, where run() can return it.
+		//
+		// ServeTLS still does the real work below rather than this handing it a
+		// tls.Listener: that is what sets up HTTP/2 negotiation, and taking it
+		// over here would quietly drop h2 for every TLS deployment.
+		if _, err := tls.LoadX509KeyPair(pem, key); err != nil {
+			return errors.Wrap(err, "tls certificate")
+		}
+	}
+
 	ln, err := net.Listen("tcp", srv.Addr)
 	if err != nil {
 		return errors.Wrap(err, "listen")
@@ -295,14 +314,12 @@ func startServing(srv *http.Server, useTLS bool, pem, key string) error {
 			err = srv.Serve(ln)
 		}
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			// Still fatal, as it was. The bind is no longer among the errors
-			// that reach here; what is left is a serve that failed after the
-			// port was taken, and carrying on would park the process on
-			// <-quit with nothing serving. TLS is the one case that can still
-			// fail immediately - ServeTLS reads the certificate files - so
-			// with ssl enabled AfterListen can run against a server that is
-			// already on its way down.
-			log.Fatal("listen: ", err)
+			// Still fatal, as it was. Neither the bind nor the certificate is
+			// among the errors that reach here any more - both are checked
+			// above, on the caller's goroutine. What is left is a serve that
+			// failed after the port was taken, and carrying on would park the
+			// process on <-quit with nothing serving.
+			log.Fatal("serve: ", err)
 		}
 	}()
 

@@ -63,6 +63,20 @@ func TestAfterListenIsAnnouncedOnlyOnceThePortIsBound(t *testing.T) {
 		t.Error("a failed bind sealed AfterListen, so the phase could never run for a server that did start")
 	}
 
+	// A certificate that cannot be read is the other way to fail before there
+	// is anything to announce. ServeTLS reads it on the serving goroutine, so
+	// without the check in startServing this would be a hook told the port was
+	// reachable while the server was already on its way down.
+	if err := startServing(&http.Server{Addr: "127.0.0.1:0"}, true, "no-such.pem", "no-such.key"); err == nil {
+		t.Fatal("startServing returned no error for a certificate that does not exist")
+	}
+	if ran != 0 {
+		t.Errorf("AfterListen ran %d times after a certificate failure", ran)
+	}
+	if sdk.Runtime.PhaseSealed(runtime.AfterListen) {
+		t.Error("a certificate failure sealed AfterListen")
+	}
+
 	// And now a bind that works.
 	port := freePort(t)
 	srv := &http.Server{Addr: fmt.Sprintf("127.0.0.1:%d", port), Handler: http.NewServeMux()}

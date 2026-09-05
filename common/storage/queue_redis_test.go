@@ -21,10 +21,18 @@ const redisAddrEnv = "GO_ADMIN_TEST_REDIS_ADDR"
 func redisAddr(t *testing.T) string {
 	t.Helper()
 	addr := os.Getenv(redisAddrEnv)
-	if addr == "" {
-		t.Skipf("%s is not set; skipping the redis-backed queue tests", redisAddrEnv)
+	if addr != "" {
+		return addr
 	}
-	return addr
+	// Skipping locally is the point; skipping in CI is the failure this whole
+	// file exists to prevent. A workflow that renamed the variable, or dropped
+	// the service, would otherwise go green while these two tests quietly did
+	// nothing - which is the same shape as the defect they cover.
+	if os.Getenv("CI") != "" {
+		t.Fatalf("%s is not set while CI is: the redis-backed queue tests must not skip here", redisAddrEnv)
+	}
+	t.Skipf("%s is not set; skipping the redis-backed queue tests", redisAddrEnv)
+	return ""
 }
 
 // newRedisQueue builds the queue the same way setupQueue does - through
