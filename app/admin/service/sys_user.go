@@ -38,6 +38,30 @@ func (e *SysUser) GetPage(c *dto.SysUserGetPageReq, p *actions.DataPermission, l
 	return nil
 }
 
+// GetSelf 获取调用者自己的 SysUser 对象，不套数据权限
+//
+// The data scope answers "whose rows may this user see"; the caller here is
+// reading their own, and the id comes from the token, so there is nothing left
+// for a scope to restrict. Applying one is not a stricter version of this
+// query - it is a broken one. DataScopeSelf matches on create_by, and a user
+// account is created by whoever added it, so a scoped self-read would fail for
+// every user who did not create their own account.
+//
+// GetProfile has always read the same row this way, with no scope at all.
+func (e *SysUser) GetSelf(d *dto.SysUserById, model *models.SysUser) error {
+	err := e.Orm.First(model, d.GetId()).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
+	if err != nil {
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
+	return nil
+}
+
 // Get 获取SysUser对象
 func (e *SysUser) Get(d *dto.SysUserById, p *actions.DataPermission, model *models.SysUser) error {
 	var data models.SysUser
