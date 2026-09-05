@@ -15,6 +15,27 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+
+    # The queue's ordering rule - consumers registered before the queue is
+    # started - is invisible on the memory backend, which is the default and
+    # therefore what every other test runs on: queue.Memory's Register starts a
+    # consumer goroutine whatever the state. Only redis refuses a late
+    # registration, so without a server here the tests that cover it would skip
+    # and the suite would report success for a queue that accepts no consumers.
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      GO_ADMIN_TEST_REDIS_ADDR: 127.0.0.1:6379
+
     steps:
 
     - name: Set up Go 1.26
