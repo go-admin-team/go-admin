@@ -111,8 +111,12 @@ func permissionReadingHandlers(s *snapshot) map[handlerKey]bool {
 // routeFindings walks one function looking for group definitions and the routes
 // registered on them.
 func (s *snapshot) routeFindings(sf *sourceFile, fn *ast.FuncDecl, handlers map[handlerKey]bool) []Finding {
-	// Local variable bindings, filled as the body is walked in order so that a
-	// registration only ever sees definitions that precede it.
+	// Local variable bindings for the whole function. The first pass below
+	// fills these and the second reads them, so a registration sees every
+	// binding in the function rather than only the ones written above it -
+	// deliberately, because a `.Use` can be written below a route and still be
+	// part of the chain. The cost is that a name reused for two different
+	// things in one function resolves to whichever assignment came last.
 	apiVars := map[string]handlerKey{} // var -> the type it holds
 	guarded := map[string]bool{}       // group var -> middleware installed
 	known := map[string]bool{}         // group var -> is a router group at all
