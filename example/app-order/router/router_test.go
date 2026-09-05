@@ -28,11 +28,12 @@ func testAuthMiddleware(t *testing.T) *jwt.GinJWTMiddleware {
 	return mw
 }
 
-// This test must run before anything in this package calls
-// sdk.Runtime.SetMiddleware(coreruntime.RoleCheck, ...) - sdk.Runtime is a
-// single process-wide instance (see sdk.Runtime's doc comment) with no way
-// to unregister a key, and Go runs a package's tests in source order by
-// default. It is declared first in the file for that reason.
+// sdk.Runtime is a single process-wide instance (see its doc comment) with no
+// way to unregister a middleware key, so this test needs RoleCheck to be
+// unset - which makes it look order-dependent. It is not: the test that does
+// register RoleCheck puts it back in a t.Cleanup, and the guard below turns a
+// wrong order into a loud failure rather than a silent pass. Verified with
+// `go test -shuffle=<seed>` on seeds that run the two in either order.
 func TestRegisterRouterPanicsWithoutHostRoleCheck(t *testing.T) {
 	if _, ok := sdk.Runtime.GetHandlerFunc(coreruntime.RoleCheck); ok {
 		t.Fatal("RoleCheck is already registered; this test must run before any test that registers it")
