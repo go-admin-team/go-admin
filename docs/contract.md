@@ -504,7 +504,7 @@ func initCrmTables(db *gorm.DB, version, appCode string) error {
 仓库内的模块继续经 `go-admin/cmd/migrate/migration` 走，那个包现在是薄壳，
 导入路径不变；外置应用直接 import core 的那个包，**两边写法一模一样**。
 
-四条必须知道的规则：
+五条必须知道的规则：
 
 1. **完成记录由迁移函数自己写**，而且要写在自己的事务里。框架的调度循环只做
    "这个 version 在 `sys_migration` 里有没有" 的判断，从不代你插入 —— 这样
@@ -519,6 +519,11 @@ func initCrmTables(db *gorm.DB, version, appCode string) error {
 4. **应用 code 一律小写**，`ForApp` 会自己 `strings.ToLower` 一遍。`core` 是保留字
    （`migrate status` 用它表示框架自身，`--app core` 选中框架），`ForApp("core")`
    会 panic。
+5. **文件名前 13 位必须是毫秒时间戳**，`GetFilename` 就是从这里取版本号的。
+   不合规的名字会 panic，并把违规文件名报出来 —— 这是**故意的**：调用点全在
+   `init()` 里，没有 error 可返回，而另一条路是把文件名本身注册成"版本号"
+   （`add_orders.go` 恰好 13 个字符，只查长度是拦不住的），那样这条迁移
+   永远不会被执行，且不会有任何提示。宁可启动失败。
 
 顺序保证：**同一应用内按版本号严格有序**。跨应用顺序不做承诺 —— 由于前缀的存在，
 今天的实际顺序是"先跑完全部框架迁移，再按 appCode 字母序逐个应用跑完"，
