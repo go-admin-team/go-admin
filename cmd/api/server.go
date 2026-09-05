@@ -115,6 +115,13 @@ func run() error {
 		}
 	}
 
+	// Armed before the server starts serving, and well before the readiness
+	// banner: a signal arriving between "the process is up" and "the process
+	// is listening for signals" reaches the default handler and kills it
+	// without any of the shutdown below. That window is the whole reason
+	// arming is separate from waiting.
+	quit, disarmStopSignals := armStopSignals()
+
 	go func() {
 		// 服务连接
 		if config.SslConfig.Enable {
@@ -137,7 +144,10 @@ func run() error {
 	fmt.Printf("-  Network: %s://%s:%d/swagger/admin/index.html \r\n", "http", pkg.GetLocalHost(), config.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
 
-	waitForStopSignal()
+	<-quit
+	// Restored here, not deferred: from this point a second signal must reach
+	// the default handler, so a shutdown that hangs can still be interrupted.
+	disarmStopSignals()
 
 	log.Info("Shutdown Server ... ")
 	if err := shutdownServer(srv, shutdownTimeout); err != nil {
@@ -156,26 +166,14 @@ func run() error {
 // - `docker stop` allows 10s by default before it sends SIGKILL.
 const shutdownTimeout = 5 * time.Second
 
-// waitForStopSignal blocks until the process is asked to stop.
+// armStopSignals registers for the stop signals and returns the channel they
+// arrive on together with the function that restores the default disposition.
 //
 // SIGTERM is what actually arrives in production: `docker stop`, a Kubernetes
 // pod deletion and `systemctl stop` all send it, and Go terminates the process
 // immediately for a signal nobody listens for. Registering only os.Interrupt
-// meant every graceful shutdown below this line was dead code outside a
+// meant every graceful shutdown below the wait was dead code outside a
 // terminal.
-//
-// The disposition is restored before returning, so a second signal kills the
-// process the default way. The channel keeps the notification we already took,
-// so without this a stuck shutdown would swallow every further signal - once
-// SIGTERM is registered there is no escape hatch left but SIGKILL.
-func waitForStopSignal() os.Signal {
-	quit, disarm := armStopSignals()
-	defer disarm()
-	return <-quit
-}
-
-// armStopSignals registers for the stop signals and returns the channel they
-// arrive on together with the function that restores the default disposition.
 //
 // Registering is separate from waiting so a caller can arm before it announces
 // that it is ready: a signal that arrives between the two is delivered to the

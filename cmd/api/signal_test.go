@@ -15,7 +15,7 @@ import (
 // The signal path cannot be exercised in-process: delivering a signal to the
 // test binary would race with the test framework, and the disposition changes
 // are global. So the test re-executes itself as a child, and the child runs the
-// same waitForStopSignal / shutdownServer the server does.
+// same armStopSignals / shutdownServer the server does.
 //
 // The child deliberately serves an empty http.Server rather than the real one:
 // this repository's CI has no database (.github/workflows/go.yml runs neither
@@ -77,6 +77,7 @@ func TestSignalChild(t *testing.T) {
 
 	timeout := shutdownTimeout
 	if os.Getenv(childHangConn) == "1" {
+
 		// A connection that has sent nothing keeps Shutdown busy: net/http
 		// only treats a StateNew connection as idle once it is more than five
 		// seconds old. A short budget makes the timeout deterministic without
