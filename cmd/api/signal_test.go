@@ -44,15 +44,6 @@ func TestSignalChild(t *testing.T) {
 	srv := &http.Server{Handler: http.NewServeMux()}
 	go func() { _ = srv.Serve(ln) }()
 
-	if os.Getenv(childHangConn) == "1" {
-		c, err := net.Dial("tcp", ln.Addr().String())
-		if err != nil {
-			fmt.Println("dial:", err)
-			os.Exit(5)
-		}
-		defer func() { _ = c.Close() }()
-	}
-
 	// Arm before announcing readiness. Doing it the other way round leaves a
 	// window in which the parent's signal reaches the default handler and
 	// kills the child before any of this runs - which is exactly the failure
@@ -77,6 +68,16 @@ func TestSignalChild(t *testing.T) {
 
 	timeout := shutdownTimeout
 	if os.Getenv(childHangConn) == "1" {
+		// Dialled here, not at start-up. net/http stops counting a StateNew
+		// connection against Shutdown once it is more than five seconds old,
+		// so a connection opened before the wait would age out on a slow CI
+		// run and Shutdown would succeed - leaving the test asserting nothing.
+		c, err := net.Dial("tcp", ln.Addr().String())
+		if err != nil {
+			fmt.Println("dial:", err)
+			os.Exit(5)
+		}
+		defer func() { _ = c.Close() }()
 
 		// A connection that has sent nothing keeps Shutdown busy: net/http
 		// only treats a StateNew connection as idle once it is more than five
