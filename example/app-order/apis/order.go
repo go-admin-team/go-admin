@@ -14,6 +14,12 @@ import (
 	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/contract/actions"
 
+	// models.Response in the @Success annotations below resolves to
+	// go-admin-core's sdk/contract/models.Response, not to this package -
+	// swaggo finds it through --parseDependency. It is the envelope with a
+	// data field; core's response.Response, which the framework's own
+	// handlers name, has no data field and would document these endpoints
+	// as returning none.
 	"github.com/go-admin-team/example-app-order/models"
 	"github.com/go-admin-team/example-app-order/service"
 	orderdto "github.com/go-admin-team/example-app-order/service/dto"
@@ -94,7 +100,7 @@ func (e Order) Get(c *gin.Context) {
 // @Summary Place a new order
 // @Tags order
 // @Accept application/json
-// @Param data body dto.OrderCreateReq true "data"
+// @Param data body orderdto.OrderCreateReq true "data"
 // @Success 200 {object} models.Response
 // @Router /api/v1/order [post]
 // @Security Bearer
