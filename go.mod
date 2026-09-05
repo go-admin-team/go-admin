@@ -11,7 +11,7 @@ require (
 	github.com/casbin/casbin/v3 v3.8.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-admin-team/go-admin-core/v2 v2.4.1
+	github.com/go-admin-team/go-admin-core/v2 v2.5.0
 	github.com/google/uuid v1.6.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.26.6+incompatible
 	github.com/mssola/user_agent v0.6.0
@@ -32,7 +32,6 @@ require (
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/driver/sqlserver v1.6.4
 	gorm.io/gorm v1.31.2
-	gorm.io/plugin/soft_delete v1.2.1
 )
 
 require (
@@ -142,6 +141,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/plugin/dbresolver v1.6.2 // indirect
+	gorm.io/plugin/soft_delete v1.2.1 // indirect
 	modernc.org/fileutil v1.3.40 // indirect
 	modernc.org/libc v1.67.4 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
