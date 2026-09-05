@@ -67,7 +67,13 @@ func (adminSeeder) SeedMenus(tx *gorm.DB, appCode string, menus []seed.MenuSpec,
 		return fmt.Errorf("seed: app %q: menus: %w", appCode, err)
 	}
 
-	if len(menuIDs) == 0 {
+	// Not `len(menuIDs) == 0`: grantToAdminRole grants two independent
+	// things, and an application is free to register apis without menus -
+	// endpoints another service calls, or a UI mounted somewhere else.
+	// Skipping the whole call on an empty menu list wrote the sys_api rows
+	// and then no casbin rule for them, so those endpoints were denied to
+	// everyone, admin included, with a migration that reported success.
+	if len(menuIDs) == 0 && len(apiRows) == 0 {
 		return nil
 	}
 	return grantToAdminRole(tx, menuIDs, apiRows)

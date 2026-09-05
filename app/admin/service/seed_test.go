@@ -237,3 +237,55 @@ func TestSeederIsRegistered(t *testing.T) {
 		t.Fatalf("SeedMenus through the package-level entry point: %v", err)
 	}
 }
+
+// An application is free to register apis with no menus at all - endpoints
+// another service calls, or a UI mounted somewhere else. Skipping
+// grantToAdminRole on an empty menu list wrote the sys_api rows and then no
+// casbin rule for them, so every one of those endpoints was denied to
+// everyone including admin, from a migration that reported success.
+func TestSeedMenusGrantsApisWhenThereAreNoMenus(t *testing.T) {
+	db := newSeedTestDB(t)
+	role := seedAdminRole(t, db)
+
+	apis := []seed.ApiSpec{
+		{Code: "hook", Title: "Inbound hook", Path: "/api/v1/hook", Method: "POST", Handle: "hook.Receive"},
+		{Code: "sync", Title: "Sync", Path: "/api/v1/sync", Method: "GET", Handle: "hook.Sync"},
+	}
+	if err := (adminSeeder{}).SeedMenus(db, "hooks", nil, apis); err != nil {
+		t.Fatalf("SeedMenus: %v", err)
+	}
+
+	var apiCount int64
+	db.Model(&models.SysApi{}).Where("app_code = ?", "hooks").Count(&apiCount)
+	if apiCount != int64(len(apis)) {
+		t.Fatalf("sys_api rows = %d, want %d", apiCount, len(apis))
+	}
+
+	for _, a := range apis {
+		var n int64
+		db.Table("casbin_rule").
+			Where("ptype = 'p' AND v0 = ? AND v1 = ? AND v2 = ?", role.RoleKey, a.Path, a.Method).
+			Count(&n)
+		if n != 1 {
+			t.Errorf("casbin_rule for %s %s = %d rows, want 1: the endpoint is denied to admin", a.Method, a.Path, n)
+		}
+	}
+}
+
+// The other half of the same guard: nothing registered at all must stay a
+// no-op rather than start touching sys_role_menu or casbin_rule.
+func TestSeedMenusWithNothingRegisteredWritesNothing(t *testing.T) {
+	db := newSeedTestDB(t)
+	seedAdminRole(t, db)
+
+	if err := (adminSeeder{}).SeedMenus(db, "empty", nil, nil); err != nil {
+		t.Fatalf("SeedMenus: %v", err)
+	}
+	for _, table := range []string{"casbin_rule", "sys_role_menu"} {
+		var n int64
+		db.Table(table).Count(&n)
+		if n != 0 {
+			t.Errorf("%s has %d rows, want 0", table, n)
+		}
+	}
+}
