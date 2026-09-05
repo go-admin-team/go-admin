@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -85,8 +86,8 @@ func run() error {
 	runStartupHooks()
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
-		Handler: sdk.Runtime.GetEngine(),
+		Addr:         fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
+		Handler:      sdk.Runtime.GetEngine(),
 		ReadTimeout:  time.Duration(config.ApplicationConfig.ReadTimeout) * time.Second,
 		WriteTimeout: time.Duration(config.ApplicationConfig.WriterTimeout) * time.Second,
 	}
@@ -114,6 +115,13 @@ func run() error {
 		}
 	}
 
+	// Armed before the server starts serving, and well before the readiness
+	// banner: a signal arriving between "the process is up" and "the process
+	// is listening for signals" reaches the default handler and kills it
+	// without any of the shutdown below. That window is the whole reason
+	// arming is separate from waiting.
+	quit, disarmStopSignals := armStopSignals()
+
 	go func() {
 		// 服务连接
 		if config.SslConfig.Enable {
@@ -135,21 +143,57 @@ func run() error {
 	fmt.Printf("-  Local:   http://localhost:%d/swagger/admin/index.html \r\n", config.ApplicationConfig.Port)
 	fmt.Printf("-  Network: %s://%s:%d/swagger/admin/index.html \r\n", "http", pkg.GetLocalHost(), config.ApplicationConfig.Port)
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
-	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
+
 	<-quit
+	// Restored here, not deferred: from this point a second signal must reach
+	// the default handler, so a shutdown that hangs can still be interrupted.
+	disarmStopSignals()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 	log.Info("Shutdown Server ... ")
-
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+	if err := shutdownServer(srv, shutdownTimeout); err != nil {
+		// Not log.Fatal: that is an unconditional os.Exit(1), and Shutdown
+		// reports an error exactly when connections were still in flight -
+		// which is when the cleanup that follows matters most.
+		log.Error("Server Shutdown: ", err)
 	}
 	log.Info("Server exiting")
 
 	return nil
+}
+
+// shutdownTimeout is how long Shutdown waits for in-flight requests. It plus
+// whatever cleanup follows has to stay inside the orchestrator's grace period
+// - `docker stop` allows 10s by default before it sends SIGKILL.
+const shutdownTimeout = 5 * time.Second
+
+// armStopSignals registers for the stop signals and returns the channel they
+// arrive on together with the function that restores the default disposition.
+//
+// SIGTERM is what actually arrives in production: `docker stop`, a Kubernetes
+// pod deletion and `systemctl stop` all send it, and Go terminates the process
+// immediately for a signal nobody listens for. Registering only os.Interrupt
+// meant every graceful shutdown below the wait was dead code outside a
+// terminal.
+//
+// Registering is separate from waiting so a caller can arm before it announces
+// that it is ready: a signal that arrives between the two is delivered to the
+// default handler, which for both of these means the process dies without
+// running any of this.
+func armStopSignals() (<-chan os.Signal, func()) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	return quit, func() { signal.Stop(quit) }
+}
+
+// shutdownServer stops srv, giving in-flight requests up to timeout to finish.
+//
+// It returns the error instead of exiting on it. A caller that exits here skips
+// its own cleanup, and Shutdown fails precisely when there was something left
+// to clean up after.
+func shutdownServer(srv *http.Server, timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return srv.Shutdown(ctx)
 }
 
 // runStartupHooks runs the router registries and then the before callbacks.
