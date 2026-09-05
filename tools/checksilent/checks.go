@@ -442,7 +442,7 @@ func checkContractShimAlias(s *snapshot) []Finding {
 	var out []Finding
 	for _, sf := range s.Files {
 		forEachTypeSpec(sf, func(ts *ast.TypeSpec) {
-			pkg, name, ok := qualifiedType(sf, ts.Type)
+			qualifier, pkg, name, ok := qualifiedType(sf, ts.Type)
 			if !ok || !isCoreContractPkg(pkg) {
 				return
 			}
@@ -454,7 +454,7 @@ func checkContractShimAlias(s *snapshot) []Finding {
 					"    a defined type keeps the fields and drops the method set, so anything embedding it stops satisfying\n"+
 					"    the interfaces it satisfied before - here it may still compile, in a fork or a third-party app it does not.\n"+
 					"    Write it as: type %s = %s.%s",
-				ts.Name.Name, path.Base(pkg), name, ts.Name.Name, path.Base(pkg), name))
+				ts.Name.Name, qualifier, name, ts.Name.Name, qualifier, name))
 		})
 	}
 	return out
@@ -472,7 +472,7 @@ func ScannedShimAliases(s *snapshot) int {
 	n := 0
 	for _, sf := range s.Files {
 		forEachTypeSpec(sf, func(ts *ast.TypeSpec) {
-			pkg, _, ok := qualifiedType(sf, ts.Type)
+			_, pkg, _, ok := qualifiedType(sf, ts.Type)
 			if ok && isCoreContractPkg(pkg) && ts.Assign.IsValid() {
 				n++
 			}
@@ -502,20 +502,25 @@ func forEachTypeSpec(sf *sourceFile, fn func(*ast.TypeSpec)) {
 // identifier, a struct literal or anything else reports false: this asks
 // specifically "is the right-hand side pkg.Name", which is the shape both a
 // correct shim and the mistake it guards against are written in.
-func qualifiedType(sf *sourceFile, typ ast.Expr) (string, string, bool) {
-	sel, ok := typ.(*ast.SelectorExpr)
-	if !ok {
-		return "", "", false
+// The qualifier returned is the one written in this file, which is not
+// path.Base of the import path whenever the import is aliased - and the shim
+// files alias every one of them (contractmodels, contractdto). A message that
+// suggests a fix has to spell it the way the file already does, or the line it
+// tells the author to write does not compile.
+func qualifiedType(sf *sourceFile, typ ast.Expr) (qualifier, pkgPath, name string, ok bool) {
+	sel, isSel := typ.(*ast.SelectorExpr)
+	if !isSel {
+		return "", "", "", false
 	}
-	ident, ok := sel.X.(*ast.Ident)
-	if !ok {
-		return "", "", false
+	ident, isIdent := sel.X.(*ast.Ident)
+	if !isIdent {
+		return "", "", "", false
 	}
-	path, ok := sf.imports[ident.Name]
-	if !ok {
-		return "", "", false
+	p, found := sf.imports[ident.Name]
+	if !found {
+		return "", "", "", false
 	}
-	return path, sel.Sel.Name, true
+	return ident.Name, p, sel.Sel.Name, true
 }
 
 // migrationVersion reads the 13-digit timestamp a migration file name starts

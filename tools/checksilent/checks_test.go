@@ -649,3 +649,22 @@ func seed() []models.SysMenu {
 		t.Errorf("finding = %+v", f)
 	}
 }
+
+// The suggested fix has to use the qualifier the file actually writes. Every
+// shim in this repository aliases its import (contractmodels, contractdto),
+// so building the message from path.Base of the import path told the author
+// to write a line that does not compile.
+func TestShimAliasSuggestionUsesTheInSourceQualifier(t *testing.T) {
+	root := fixture(t, map[string]string{
+		"common/models/by.go": "package models\n\nimport contractmodels \"" + coreContractModels +
+			"\"\n\ntype ControlBy contractmodels.ControlBy\n",
+	})
+
+	f := requireOne(t, check(t, root, options{}), checkShimAlias)
+	if !strings.Contains(f.Message, "type ControlBy = contractmodels.ControlBy") {
+		t.Errorf("the fix must name the import as this file spells it; got %s", f.Message)
+	}
+	if strings.Contains(f.Message, "= models.ControlBy") {
+		t.Errorf("the fix names a qualifier this file does not bind; got %s", f.Message)
+	}
+}
