@@ -1,4 +1,4 @@
-package actions
+package actions_test
 
 import (
 	"net/http"
@@ -6,201 +6,101 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/glebarez/sqlite"
+
 	jwt "github.com/go-admin-team/go-admin-core/v2/jwtauth"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
-	"gorm.io/gorm"
+
+	"go-admin/common/actions"
 )
 
-// No database is placed in the context on purpose. The middleware needs one
-// only to run the sys_user join, so reaching the handler proves it did not.
-func runPermission(t *testing.T, claims jwt.MapClaims) (*DataPermission, bool) {
-	t.Helper()
-	gin.SetMode(gin.TestMode)
+// The detailed data-permission regression suite (claims parsing, the
+// GetOrm-unavailable abort, the SQL each data scope produces) now lives in
+// go-admin-core's sdk/contract/actions, alongside the logic itself (PRD 006
+// F3). What is left to test here is the shim's own wiring: that this
+// package's exported names still round-trip through the same *gin.Context
+// key core's PermissionAction and GetPermissionFromContext use.
+//
+// This file lives in package actions_test, an external test, deliberately:
+// it exercises PermissionAction and GetPermissionFromContext exactly as an
+// app/admin Service does, through this package's public API only, not
+// through anything internal a forward could paper over.
 
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
-	c.Request = httptest.NewRequest(http.MethodGet, "/", nil)
-	if claims != nil {
-		c.Set(jwt.JwtPayloadKey, claims)
-	}
-
-	PermissionAction()(c)
-
-	value, exists := c.Get(PermissionKey)
-	if !exists {
-		return nil, false
-	}
-	p, _ := value.(*DataPermission)
-	return p, true
-}
-
-// Permission() returns the query untouched when data permission is off, so the
-// lookup feeding it has nothing to feed. It used to run regardless: a sys_user
-// join on every list, detail, update and delete, discarded immediately.
-func TestNoLookupWhenDataPermissionIsOff(t *testing.T) {
-	previous := config.ApplicationConfig.EnableDP
-	config.ApplicationConfig.EnableDP = false
-	t.Cleanup(func() { config.ApplicationConfig.EnableDP = previous })
-
-	if _, ok := runPermission(t, jwt.MapClaims{"identity": float64(7)}); !ok {
-		t.Fatal("the request needed a database even though data permission is off")
-	}
-}
-
-func TestScopeComesFromTheTokenWhenItCarriesOne(t *testing.T) {
+// TestPermissionKeyMatchesWhatPermissionActionSets guards PRD 006's hard
+// constraint 4: PermissionKey must be declared as
+// `const PermissionKey = contractactions.PermissionKey`, a direct
+// reference, never a restated literal (see type.go). PermissionAction is
+// core's middleware and always writes under core's own key. This test reads
+// the value back with actions.PermissionKey exactly as code outside
+// GetPermissionFromContext would - c.Get(actions.PermissionKey) is a real,
+// if uncommon, way to read the value go-admin has always allowed, and it is
+// the one call site where an independently declared PermissionKey would
+// stop working without GetPermissionFromContext's own forward hiding it.
+//
+// If PermissionKey were ever re-declared as an independent literal in this
+// package, a later edit to core's copy would make this test fail without a
+// single byte of this package having changed - which is the silent-failure
+// mode hard constraint 4 exists to rule out (evaluation S2).
+func TestPermissionKeyMatchesWhatPermissionActionSets(t *testing.T) {
 	previous := config.ApplicationConfig.EnableDP
 	config.ApplicationConfig.EnableDP = true
 	t.Cleanup(func() { config.ApplicationConfig.EnableDP = previous })
 
-	p, ok := runPermission(t, jwt.MapClaims{
+	gin.SetMode(gin.TestMode)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c.Request = httptest.NewRequest(http.MethodGet, "/", nil)
+	c.Set(jwt.JwtPayloadKey, jwt.MapClaims{
 		"identity":  float64(7),
 		"roleid":    float64(3),
 		"deptid":    float64(5),
-		"datascope": "4",
+		"datascope": actions.DataScopeDeptTree,
 	})
+
+	actions.PermissionAction()(c)
+
+	value, ok := c.Get(actions.PermissionKey)
 	if !ok {
-		t.Fatal("the token carried the scope and a database was still needed")
+		t.Fatal("PermissionAction did not set the key actions.PermissionKey names; the two have diverged")
 	}
-	if p.DataScope != "4" || p.UserId != 7 || p.DeptId != 5 || p.RoleId != 3 {
-		t.Fatalf("scope read as %+v", p)
-	}
-}
-
-// A token minted before deptid was carried is still valid until it expires, and
-// has to keep working - by falling back to the query, which needs a database.
-func TestATokenWithoutDeptIdFallsBackToTheQuery(t *testing.T) {
-	previous := config.ApplicationConfig.EnableDP
-	config.ApplicationConfig.EnableDP = true
-	t.Cleanup(func() { config.ApplicationConfig.EnableDP = previous })
-
-	if _, ok := runPermission(t, jwt.MapClaims{
-		"identity":  float64(7),
-		"roleid":    float64(3),
-		"datascope": "4",
-	}); ok {
-		t.Fatal("an old token was served from claims it does not have")
+	p, ok := value.(*actions.DataPermission)
+	if !ok || p.DataScope != actions.DataScopeDeptTree || p.DeptId != 5 {
+		t.Fatalf("value under actions.PermissionKey = %#v, want a DataPermission carrying the token's scope", value)
 	}
 }
 
-// PRD 006 F14/H1. A token without deptid/datascope forces the fallback
-// query, which needs pkg.GetOrm(c) - and no "db" key is set in this
-// context, so GetOrm fails exactly as it would if a tenant's database were
-// unreachable. Before the fix, that error was logged and the handler ran
-// anyway with no data permission filter at all.
-func TestPermissionActionAbortsWhenDBIsUnavailable(t *testing.T) {
+// TestGetPermissionFromContextRoundTrips is the same guard from the other
+// exported entry point: GetPermissionFromContext must read back exactly
+// what PermissionAction wrote, both reached through this package's own
+// forwards rather than core's directly.
+func TestGetPermissionFromContextRoundTrips(t *testing.T) {
 	previous := config.ApplicationConfig.EnableDP
 	config.ApplicationConfig.EnableDP = true
 	t.Cleanup(func() { config.ApplicationConfig.EnableDP = previous })
 
 	gin.SetMode(gin.TestMode)
-	r := gin.New()
-	handlerReached := false
-	r.Use(func(c *gin.Context) {
-		c.Set(jwt.JwtPayloadKey, jwt.MapClaims{"identity": float64(7)})
-	})
-	r.Use(PermissionAction())
-	r.GET("/", func(c *gin.Context) {
-		handlerReached = true
-		c.Status(http.StatusOK)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c.Request = httptest.NewRequest(http.MethodGet, "/", nil)
+	c.Set(jwt.JwtPayloadKey, jwt.MapClaims{
+		"identity":  float64(7),
+		"roleid":    float64(3),
+		"deptid":    float64(5),
+		"datascope": actions.DataScopeSelf,
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	actions.PermissionAction()(c)
 
-	if handlerReached {
-		t.Fatal("the business handler ran with no database and no data permission filter set")
+	p := actions.GetPermissionFromContext(c)
+	if p.DataScope != actions.DataScopeSelf || p.UserId != 7 {
+		t.Fatalf("GetPermissionFromContext() = %+v, want DataScope=%q UserId=7", p, actions.DataScopeSelf)
 	}
 }
 
-// PRD 006 F14/H2 and H3. Table-driven over gorm DryRun so the exact SQL
-// Permission produces for each scope is pinned down, not just "some WHERE
-// clause got added".
-func TestPermissionScopes(t *testing.T) {
-	previous := config.ApplicationConfig.EnableDP
-	config.ApplicationConfig.EnableDP = true
-	t.Cleanup(func() { config.ApplicationConfig.EnableDP = previous })
-
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{DryRun: true})
-	if err != nil {
-		t.Fatalf("open: %v", err)
+func TestIsValidDataScope(t *testing.T) {
+	for _, s := range []string{actions.DataScopeAll, actions.DataScopeCustom, actions.DataScopeDept, actions.DataScopeDeptTree, actions.DataScopeSelf} {
+		if !actions.IsValidDataScope(s) {
+			t.Errorf("IsValidDataScope(%q) = false, want true", s)
+		}
 	}
-
-	const noRows = "SELECT * FROM `t` WHERE 1 = 0"
-
-	cases := []struct {
-		name string
-		p    *DataPermission
-		want string
-		vars []interface{}
-	}{
-		{
-			name: "all",
-			p:    &DataPermission{DataScope: DataScopeAll},
-			want: "SELECT * FROM `t`",
-		},
-		{
-			name: "custom",
-			p:    &DataPermission{DataScope: DataScopeCustom, RoleId: 3},
-			want: "SELECT * FROM `t` WHERE t.create_by in (select sys_user.user_id from sys_role_dept left join sys_user on sys_user.dept_id=sys_role_dept.dept_id where sys_role_dept.role_id = ?)",
-			vars: []interface{}{3},
-		},
-		{
-			name: "dept",
-			p:    &DataPermission{DataScope: DataScopeDept, DeptId: 5},
-			want: "SELECT * FROM `t` WHERE t.create_by in (SELECT user_id from sys_user where dept_id = ? )",
-			vars: []interface{}{5},
-		},
-		{
-			name: "dept-tree",
-			p:    &DataPermission{DataScope: DataScopeDeptTree, DeptId: 5},
-			want: "SELECT * FROM `t` WHERE t.create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))",
-			vars: []interface{}{"%/5/%"},
-		},
-		{
-			name: "self",
-			p:    &DataPermission{DataScope: DataScopeSelf, UserId: 7},
-			want: "SELECT * FROM `t` WHERE t.create_by = ?",
-			vars: []interface{}{7},
-		},
-		// H2: an unrecognized scope must not read like "all data" any more.
-		{name: "unrecognized value", p: &DataPermission{DataScope: "6"}, want: noRows},
-		// H2/H1: the zero-value DataPermission is what getPermissionFromContext
-		// and the two "give up and continue" branches in PermissionAction hand
-		// out when nothing else is available.
-		{name: "zero value (no scope at all)", p: &DataPermission{}, want: noRows},
-		// H3: dept_path always starts with "/0/" (sys_dept.go), so DeptId 0
-		// must not be allowed to build a pattern that matches every row.
-		{name: "dept with DeptId 0", p: &DataPermission{DataScope: DataScopeDept, DeptId: 0}, want: noRows},
-		{name: "dept-tree with DeptId 0", p: &DataPermission{DataScope: DataScopeDeptTree, DeptId: 0}, want: noRows},
-		{name: "dept-tree with negative DeptId", p: &DataPermission{DataScope: DataScopeDeptTree, DeptId: -1}, want: noRows},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			stmt := db.Session(&gorm.Session{DryRun: true}).
-				Table("t").
-				Scopes(Permission("t", tc.p)).
-				Find(&[]map[string]interface{}{}).
-				Statement
-
-			if stmt.SQL.String() != tc.want {
-				t.Errorf("SQL = %q, want %q", stmt.SQL.String(), tc.want)
-			}
-			if tc.vars == nil {
-				if len(stmt.Vars) != 0 {
-					t.Errorf("vars = %v, want none", stmt.Vars)
-				}
-				return
-			}
-			if len(stmt.Vars) != len(tc.vars) {
-				t.Fatalf("vars = %v, want %v", stmt.Vars, tc.vars)
-			}
-			for i := range tc.vars {
-				if stmt.Vars[i] != tc.vars[i] {
-					t.Errorf("vars[%d] = %v, want %v", i, stmt.Vars[i], tc.vars[i])
-				}
-			}
-		})
+	if actions.IsValidDataScope("6") {
+		t.Error(`IsValidDataScope("6") = true, want false`)
 	}
 }
