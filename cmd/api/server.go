@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -15,9 +16,11 @@ import (
 	log "github.com/go-admin-team/go-admin-core/v2/logger"
 	"github.com/go-admin-team/go-admin-core/v2/sdk"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/bootstrap"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/runtime"
+	corestorage "github.com/go-admin-team/go-admin-core/v2/storage"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -62,21 +65,75 @@ func init() {
 func setup() {
 	// 注入配置扩展项
 	config.ExtendConfig = &ext.ExtConfig
+
+	// Registered before the configuration is read. SetupConfig announces
+	// AfterResource as soon as the callbacks that build the resources have
+	// run, so a hook added after that call would miss the first round and the
+	// queue would have no consumers until somebody edited the config file.
+	sdk.Runtime.SetPhase(runtime.AfterResource, attachQueueConsumers)
+
 	//1. 读取配置
-	config.Setup(
+	bootstrap.SetupConfig(
 		file.NewSource(file.WithPath(configYml)),
 		database.Setup,
 		storage.Setup,
 	)
-	//注册监听函数
-	queue := sdk.Runtime.GetQueuePrefix("")
-	queue.Register(global.LoginLog, models.SaveLoginLog)
-	queue.Register(global.OperateLog, models.SaveOperaLog)
-	queue.Register(global.ApiCheck, models.SaveSysApi)
-	go queue.Run()
 
 	usageStr := `starting api server...`
 	log.Info(usageStr)
+}
+
+// attachedQueue is the queue generation the consumers are attached to, plus
+// one, so that the zero value means "attached to nothing yet". Written from
+// the goroutine running the phase, read from the next one - rounds never
+// overlap, but they are not the same goroutine.
+var attachedQueue atomic.Uint64
+
+// attachQueueConsumers registers the log consumers against the queue that is
+// current, and starts it.
+//
+// It runs on AfterResource, so it runs again after every configuration reload
+// - and it has to. A reload rebuilds the queue adapter, and consumers
+// registered against the one that existed at start-up are attached to an
+// adapter nobody publishes to any more, so the login and operation logs stop
+// being written with nothing said about it.
+//
+// It is therefore idempotent with respect to a given queue rather than "does
+// nothing the second time": a new adapter gets a fresh set of consumers, the
+// same one gets none. Registering twice on the same queue would give every
+// message two consumers and write every log row twice.
+//
+// Generation 0 means the configuration has no queue section, so nothing was
+// installed and GetQueuePrefix hands back the runtime's own memory queue.
+// That case still gets consumers - it is what the previous unconditional
+// registration did, and dropping it would silently stop logging for anyone who
+// commented the section out - it just never gets them twice.
+func attachQueueConsumers() {
+	attachConsumersOnce(storage.QueueGeneration(), sdk.Runtime.GetQueuePrefix(""))
+}
+
+// attachConsumersOnce puts the log consumers on q and starts it, unless gen
+// says this queue already has them.
+//
+// Split out from attachQueueConsumers so that the order and the once-ness can
+// be checked against a queue the test controls: the sequence that matters here
+// cannot be read back out of a real adapter.
+func attachConsumersOnce(gen uint64, q corestorage.AdapterQueue) {
+	if attachedQueue.Load() == gen+1 {
+		return
+	}
+	attachedQueue.Store(gen + 1)
+
+	//注册监听函数
+	q.Register(global.LoginLog, models.SaveLoginLog)
+	q.Register(global.OperateLog, models.SaveOperaLog)
+	q.Register(global.ApiCheck, models.SaveSysApi)
+
+	// Started only now, and by whoever registered. setupQueue deliberately
+	// leaves it stopped: a queue that is already running refuses further
+	// registration, and the adapter in this path drops that error on the
+	// floor, so starting first loses consumers without a word.
+	go q.Run()
 }
 
 func run() error {
