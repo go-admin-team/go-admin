@@ -20,6 +20,7 @@ const (
 	checkMenuIDConflict = "menu-id-collision"
 	checkImportBoundary = "contract-import-boundary"
 	checkShimAlias      = "contract-shim-alias"
+	checkDataScopeRoute = "datascope-route-unguarded"
 )
 
 // Package paths, relative to the module. Spelled once so a module rename
@@ -47,6 +48,7 @@ func runChecks(s *snapshot, opt options) ([]Finding, error) {
 	out = append(out, checkMenuIDCollisions(s)...)
 	out = append(out, checkContractImportBoundary(s)...)
 	out = append(out, checkContractShimAlias(s)...)
+	out = append(out, checkDataScopeRoutes(s)...)
 
 	if opt.UIDir != "" {
 		fs, err := checkMenuNames(s, opt.UIDir)
