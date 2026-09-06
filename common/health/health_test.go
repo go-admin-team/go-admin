@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -20,30 +21,93 @@ func freshRuntime(t *testing.T) {
 
 // fakeCache answers whatever the test needs it to.
 type fakeCache struct {
+	mu      sync.Mutex
 	setErr  error
 	getErr  error
 	getBack string // returned instead of what was written, when non-empty
-	stored  string
+	stored  map[string]string
+
+	// oneSlot makes the cache keep a single value however many keys are
+	// written, which is what a shared probe key turns any cache into.
+	oneSlot bool
+	slot    string
+
+	// setBarrier, when set, holds every writer until all of them have written.
+	// Without it the probes are short enough that the scheduler usually runs
+	// them one after another, and a shared key survives by luck rather than by
+	// design - which would leave the test below asserting nothing.
+	setBarrier *barrier
+}
+
+// barrier releases every waiter once n of them have arrived.
+type barrier struct {
+	n   int
+	mu  sync.Mutex
+	got int
+	ch  chan struct{}
+}
+
+func newBarrier(n int) *barrier { return &barrier{n: n, ch: make(chan struct{})} }
+
+func (b *barrier) wait() {
+	b.mu.Lock()
+	b.got++
+	if b.got == b.n {
+		close(b.ch)
+	}
+	b.mu.Unlock()
+	<-b.ch
 }
 
 func (c *fakeCache) String() string { return "fake" }
-func (c *fakeCache) Set(_ string, val interface{}, _ int) error {
+
+func (c *fakeCache) Set(key string, val interface{}, _ int) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if c.setErr != nil {
 		return c.setErr
 	}
-	c.stored, _ = val.(string)
+	v, _ := val.(string)
+	if c.oneSlot {
+		c.slot = v
+		return nil
+	}
+	if c.stored == nil {
+		c.stored = map[string]string{}
+	}
+	c.stored[key] = v
+	c.mu.Unlock()
+	if c.setBarrier != nil {
+		// Outside the lock on purpose: waiting while holding it would deadlock
+		// every other writer before the barrier could fill.
+		c.setBarrier.wait()
+	}
+	c.mu.Lock()
 	return nil
 }
-func (c *fakeCache) Get(string) (string, error) {
+
+func (c *fakeCache) Get(key string) (string, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if c.getErr != nil {
 		return "", c.getErr
 	}
 	if c.getBack != "" {
 		return c.getBack, nil
 	}
-	return c.stored, nil
+	if c.oneSlot {
+		return c.slot, nil
+	}
+	return c.stored[key], nil
 }
-func (c *fakeCache) Del(string) error                    { return nil }
+
+func (c *fakeCache) Del(key string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.stored, key)
+	return nil
+}
+
 func (c *fakeCache) HashGet(_, _ string) (string, error) { return "", nil }
 func (c *fakeCache) HashDel(_, _ string) error           { return nil }
 func (c *fakeCache) Increase(string) error               { return nil }
@@ -137,5 +201,41 @@ func TestDrainingIsObservableOnceItBegins(t *testing.T) {
 	BeginDraining()
 	if !Draining() {
 		t.Error("Draining still reported false after BeginDraining")
+	}
+}
+
+// Two probes at once must both pass. With one fixed key they overwrite each
+// other's value between the write and the read, and a readiness probe that
+// reports false negatives under load takes healthy instances out of the pool -
+// which is worse than not probing at all.
+func TestConcurrentProbesDoNotOverwriteEachOther(t *testing.T) {
+	freshRuntime(t)
+	const probes = 16
+	sdk.Runtime.SetCacheAdapter(&fakeCache{setBarrier: newBarrier(probes)})
+
+	var wg sync.WaitGroup
+	failures := make(chan string, probes)
+	for i := 0; i < probes; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if c := named(Ready(context.Background()), "cache"); !c.OK {
+				failures <- c.Err
+			}
+		}()
+	}
+	wg.Wait()
+	close(failures)
+
+	var n int
+	var first string
+	for err := range failures {
+		if n == 0 {
+			first = err
+		}
+		n++
+	}
+	if n > 0 {
+		t.Errorf("%d of %d concurrent probes called a healthy cache broken; first: %s", n, probes, first)
 	}
 }

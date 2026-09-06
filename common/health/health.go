@@ -17,6 +17,8 @@ package health
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"sync/atomic"
@@ -107,22 +109,44 @@ func pingDB(ctx context.Context) error {
 	return sqlDB.PingContext(ctx)
 }
 
-// cacheProbeKey is written and read back rather than only read: a cache that
-// answers "miss" for every key is indistinguishable from a healthy one on a
-// read alone, and that is precisely the failure - a client pointed at the wrong
-// server - this is meant to catch.
-const cacheProbeKey = "go-admin:health"
+// cacheProbePrefix names the probe's keys. The key itself is per probe, not
+// fixed: two /ready requests arriving together - or two instances sharing one
+// redis, which is the normal deployment - would otherwise overwrite each
+// other's value between the write and the read and each conclude the cache was
+// broken. A readiness probe that reports false negatives under load takes
+// healthy instances out of the pool, which is worse than not probing.
+const cacheProbePrefix = "go-admin:health:"
+
+// cacheProbeTTL is short because these keys are write-once and never read
+// again by anyone else; it only has to outlive the read that follows.
+const cacheProbeTTL = 30
 
 func probeCache() error {
 	adapter := sdk.Runtime.GetCacheAdapter()
 	if adapter == nil {
 		return errors.New("no cache configured")
 	}
+
+	suffix := make([]byte, 8)
+	if _, err := rand.Read(suffix); err != nil {
+		return fmt.Errorf("could not build a probe key: %w", err)
+	}
+	key := cacheProbePrefix + hex.EncodeToString(suffix)
+
+	// Written and read back rather than only read: a cache that answers "miss"
+	// for every key - a client pointed at the wrong server - is
+	// indistinguishable from a healthy one on a read alone.
 	want := time.Now().Format(time.RFC3339Nano)
-	if err := adapter.Set(cacheProbeKey, want, 30); err != nil {
+	if err := adapter.Set(key, want, cacheProbeTTL); err != nil {
 		return err
 	}
-	got, err := adapter.Get(cacheProbeKey)
+	// Best effort, and its error is deliberately dropped: the verdict is
+	// already decided by the read below, and a cache that cannot delete a key
+	// it just wrote is not a reason to refuse traffic. The TTL is the real
+	// cleanup.
+	defer func() { _ = adapter.Del(key) }()
+
+	got, err := adapter.Get(key)
 	if err != nil {
 		return err
 	}
