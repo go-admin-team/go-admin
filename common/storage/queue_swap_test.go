@@ -73,7 +73,12 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 	var refused atomic.Int64
 	var attempts atomic.Int64
 	stop := make(chan struct{})
+	// publishing is closed by the producer on its way out. The test joins on it
+	// before returning: t.Cleanup restores sdk.Runtime, and a producer still in
+	// flight would be reading the variable that restore writes.
+	publishing := make(chan struct{})
 	go func() {
+		defer close(publishing)
 		for {
 			select {
 			case <-stop:
@@ -97,6 +102,7 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 		t.Fatal("the reload never finished")
 	}
 	close(stop)
+	<-publishing
 
 	if attempts.Load() == 0 {
 		t.Fatal("nothing was published during the reload; the test proves nothing")
