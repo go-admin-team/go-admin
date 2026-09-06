@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -12,6 +13,11 @@ import (
 	corestorage "github.com/go-admin-team/go-admin-core/v2/storage"
 	"github.com/go-admin-team/go-admin-core/v2/storage/queue"
 )
+
+// sampleSize is how many publishes have to land inside the reload before the
+// measurement is taken. Waiting on the count rather than on wall clock keeps
+// the window the test covers the same on a loaded runner as on an idle one.
+const sampleSize = 200
 
 func swapMsg() corestorage.Messager {
 	m := new(queue.Message)
@@ -63,8 +69,11 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 	// A consumer that will not finish until this test lets it, so the reload's
 	// Shutdown has something to wait for.
 	release := make(chan struct{})
+	consuming := make(chan struct{})
+	var picked sync.Once
 	first := sdk.Runtime.GetQueuePrefix("")
 	first.Register("t", func(corestorage.Messager) error {
+		picked.Do(func() { close(consuming) })
 		<-release
 		return nil
 	})
@@ -74,7 +83,11 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 			t.Fatalf("seed append %d: %v", i, err)
 		}
 	}
-	time.Sleep(100 * time.Millisecond) // let the consumer pick one up and block
+	select {
+	case <-consuming:
+	case <-time.After(10 * time.Second):
+		t.Fatal("the consumer never picked a message up, so the reload has nothing to wait for")
+	}
 
 	reloaded := make(chan struct{})
 	go func() { Setup(); close(reloaded) }()
@@ -103,20 +116,24 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 		}
 	}()
 
-	time.Sleep(200 * time.Millisecond) // the reload is now inside Shutdown's wait
+	deadline := time.After(30 * time.Second)
+	for attempts.Load() < sampleSize {
+		select {
+		case <-deadline:
+			t.Fatalf("only %d publishes landed inside the reload; the window was never sampled", attempts.Load())
+		case <-time.After(time.Millisecond):
+		}
+	}
 	close(release)
 
 	select {
 	case <-reloaded:
-	case <-time.After(10 * time.Second):
+	case <-time.After(30 * time.Second):
 		t.Fatal("the reload never finished")
 	}
 	close(stop)
 	<-publishing
 
-	if attempts.Load() == 0 {
-		t.Fatal("nothing was published during the reload; the test proves nothing")
-	}
 	if n := refused.Load(); n > 1 {
 		t.Errorf("%d of %d publishes during the reload were refused: producers were pointed at the closed queue",
 			n, attempts.Load())
