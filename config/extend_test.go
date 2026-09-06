@@ -38,10 +38,11 @@ func TestRateLimitThreshold(t *testing.T) {
 
 func ptr(v int) *int { return &v }
 
-// The zero-value rule is the one the section would otherwise need a paragraph
-// of documentation to survive: nil takes the default, a number that was
-// written down is spent literally. A `server: 0` that quietly became five
-// seconds would be configuration accepted and not applied.
+// The zero-value rule is the same for all four fields, and it is the one the
+// section would otherwise need a paragraph of documentation to survive: nil
+// takes the default, a number that was written down is spent literally. A
+// `server: 0` that quietly became five seconds would be the same class of
+// failure this whole batch is about - configuration accepted and not applied.
 func TestShutdownBudgetFallbacks(t *testing.T) {
 	for _, tc := range []struct {
 		name string
@@ -54,25 +55,25 @@ func TestShutdownBudgetFallbacks(t *testing.T) {
 			// already had.
 			name: "nothing configured",
 			in:   Shutdown{},
-			want: ShutdownBudget{Server: 5, Cleanup: 3},
+			want: ShutdownBudget{Drain: 0, Server: 5, Cleanup: 3},
 		},
 		{
-			name: "both configured",
-			in:   Shutdown{Server: ptr(8), Cleanup: ptr(4)},
-			want: ShutdownBudget{Server: 8, Cleanup: 4},
+			name: "all three configured",
+			in:   Shutdown{Drain: ptr(10), Server: ptr(8), Cleanup: ptr(4)},
+			want: ShutdownBudget{Drain: 10, Server: 8, Cleanup: 4},
 		},
 		{
 			// The case a plain int could not express: do not wait for
-			// in-flight requests, which is a reasonable thing to ask when the
-			// grace period is very short.
+			// in-flight requests, which is a reasonable thing to ask for when
+			// the grace period is very short.
 			name: "explicit zeros are spent, not replaced",
-			in:   Shutdown{Server: ptr(0), Cleanup: ptr(0)},
-			want: ShutdownBudget{Server: 0, Cleanup: 0},
+			in:   Shutdown{Drain: ptr(0), Server: ptr(0), Cleanup: ptr(0)},
+			want: ShutdownBudget{Drain: 0, Server: 0, Cleanup: 0},
 		},
 		{
 			name: "one field configured, the rest default",
-			in:   Shutdown{Cleanup: ptr(15)},
-			want: ShutdownBudget{Server: 5, Cleanup: 15},
+			in:   Shutdown{Drain: ptr(15)},
+			want: ShutdownBudget{Drain: 15, Server: 5, Cleanup: 3},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -91,17 +92,18 @@ func TestShutdownBudgetFallbacks(t *testing.T) {
 // failure this section exists to remove - written down, accepted, and not what
 // happens - and there is no reading of a negative wait to honour.
 //
-// The last row is what makes the others mean anything: an implementation that
-// refused every value would pass them all.
+// The last row is what makes the other four mean anything: an implementation
+// that refused every value would pass them all.
 func TestShutdownBudgetRefusesNegativeSeconds(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
 		in      Shutdown
 		wantErr bool
 	}{
+		{name: "negative drain", in: Shutdown{Drain: ptr(-1)}, wantErr: true},
 		{name: "negative server", in: Shutdown{Server: ptr(-1)}, wantErr: true},
 		{name: "negative cleanup", in: Shutdown{Cleanup: ptr(-1)}, wantErr: true},
-		{name: "explicit zeros are not negative", in: Shutdown{Server: ptr(0), Cleanup: ptr(0)}},
+		{name: "explicit zeros are not negative", in: Shutdown{Drain: ptr(0), Server: ptr(0), Cleanup: ptr(0)}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := tc.in.Budget()
@@ -118,11 +120,11 @@ func TestShutdownBudgetRefusesNegativeSeconds(t *testing.T) {
 // The message has to name every field that is wrong, not the first one: a
 // caller who fixes one and gets the same error back learns to distrust it.
 func TestShutdownBudgetNamesEveryNegativeField(t *testing.T) {
-	_, err := Shutdown{Server: ptr(-30), Cleanup: ptr(-3)}.Budget()
+	_, err := Shutdown{Drain: ptr(-1), Server: ptr(-30), Cleanup: ptr(-3)}.Budget()
 	if err == nil {
-		t.Fatal("Budget() accepted two negative values")
+		t.Fatal("Budget() accepted three negative values")
 	}
-	for _, name := range []string{"server", "cleanup"} {
+	for _, name := range []string{"drain", "server", "cleanup"} {
 		if !strings.Contains(err.Error(), name) {
 			t.Errorf("%q does not name %s", err, name)
 		}

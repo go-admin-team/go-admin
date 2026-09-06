@@ -53,9 +53,10 @@ func RegisterMonitorRouter(v1 *gin.RouterGroup) {
 	// 就绪检查
 	//
 	// The answer to "should I send you requests". It fails while a dependency
-	// is unreachable, and from the moment shutdown begins. Nothing waits on
-	// that second answer today, so it is readable rather than actionable -
-	// the package comment in common/health says what it would take.
+	// is unreachable, and from the moment shutdown begins - for as long as
+	// extend.shutdown.drain says, which is zero unless it is configured. The
+	// package comment in common/health says what that window is worth, and to
+	// whom.
 	v1.GET(ReadyPath, func(c *gin.Context) {
 		if health.Draining() {
 			c.JSON(http.StatusServiceUnavailable, gin.H{

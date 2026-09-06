@@ -22,7 +22,7 @@ func (*shippedSettings) OnChange() {}
 // The shutdown section has to arrive where it is read from, and with the
 // values the documentation claims.
 //
-// This is the failure this section exists to remove, one level up: the loader
+// This is the failure this batch exists to remove, one level up: the loader
 // discards keys no field matches, without an error and without a log line, so
 // a section put in the wrong place is written, accepted, and never applied.
 // Nothing but loading the shipped file through the real loader can tell the
@@ -46,12 +46,13 @@ func TestTheShippedSettingsReachTheShutdownStruct(t *testing.T) {
 			t.Cleanup(func() { _ = c.Close() })
 
 			s := loaded.Settings.Extend.Shutdown
-			if s.Server == nil || s.Cleanup == nil {
+			if s.Drain == nil || s.Server == nil || s.Cleanup == nil {
 				t.Fatalf("%s left extend.shutdown unfilled (%+v); the section is written but nothing reads it",
 					name, s)
 			}
 
 			want := ShutdownBudget{
+				Drain:   DefaultDrainSeconds,
 				Server:  DefaultServerSeconds,
 				Cleanup: DefaultCleanupSeconds,
 			}

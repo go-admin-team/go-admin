@@ -9,14 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 
 	otherrouter "go-admin/app/other/router"
+	"go-admin/common/health"
 	ext "go-admin/config"
 )
 
 // The seconds in the configuration and the durations the sequence waits on are
-// two spellings of one budget.
+// two spellings of one budget, and only one of them is printed at start-up.
 func TestBudgetFromSeconds(t *testing.T) {
-	got := budgetFrom(ext.ShutdownBudget{Server: 5, Cleanup: 3})
+	got := budgetFrom(ext.ShutdownBudget{Drain: 10, Server: 5, Cleanup: 3})
 	want := budget{
+		drain:   10 * time.Second,
 		server:  5 * time.Second,
 		cleanup: 3 * time.Second,
 	}
@@ -98,5 +100,40 @@ func TestTheProbesSkipTheRateLimiter(t *testing.T) {
 		if probePaths[p] {
 			t.Errorf("the middleware ran for %s", p)
 		}
+	}
+}
+
+// /health has to stay 200 while draining, and it is the assertion most easily
+// lost by accident: making the liveness probe follow the readiness flag reads
+// like tidying up, and it turns every rolling restart into a kubelet-issued
+// kill part-way through the drain.
+func TestHealthStaysUpWhileDraining(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	r := gin.New()
+	v1 := r.Group(otherrouter.APIPrefix)
+	otherrouter.RegisterMonitorRouter(v1)
+
+	ask := func(path string) int {
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, httptest.NewRequest(http.MethodGet, path, nil))
+		return w.Code
+	}
+
+	if got := ask(otherrouter.APIPrefix + otherrouter.HealthPath); got != http.StatusOK {
+		t.Fatalf("/health answered %d before draining, want 200", got)
+	}
+
+	// Process-wide and one-way - nothing clears it - so this is the last thing
+	// in this package that may run in-process and care. Everything else that
+	// exercises draining does so in a child process of its own.
+	health.BeginDraining()
+
+	if got := ask(otherrouter.APIPrefix + otherrouter.HealthPath); got != http.StatusOK {
+		t.Errorf("/health answered %d while draining, want 200 - liveness is "+
+			"\"should I restart you\", and the answer during a drain is no", got)
+	}
+	if got := ask(otherrouter.APIPrefix + otherrouter.ReadyPath); got != http.StatusServiceUnavailable {
+		t.Errorf("/ready answered %d while draining, want 503", got)
 	}
 }

@@ -159,14 +159,18 @@ func attachConsumersOnce(gen uint64, q corestorage.AdapterQueue) {
 }
 
 func run() error {
-	// Resolved first, and refused rather than corrected: a budget that cannot
-	// be spent as written is a configuration error, and the moment to say so
-	// is while nothing depends on this process yet.
+	// Resolved first, and used both for the line it prints and for the
+	// shutdown that spends it. Reading the configuration again at signal time
+	// would let the two disagree, and the sum that gets printed is the whole
+	// point of printing it.
+	//
+	// Refused rather than corrected, and refused before anything is built: a
+	// budget that cannot be spent as written is a configuration error, and the
+	// moment to say so is while nothing depends on this process yet.
 	seconds, err := ext.ExtConfig.Shutdown.Budget()
 	if err != nil {
 		return err
 	}
-
 	if config.ApplicationConfig.Mode == pkg.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -218,7 +222,7 @@ func run() error {
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
 
 	<-quit
-	serverErr, cleanupErr := gracefulShutdown(srv, disarmStopSignals, budgetFrom(seconds))
+	serverErr, cleanupErr := gracefulShutdown(srv, quit, disarmStopSignals, budgetFrom(seconds))
 	if serverErr != nil {
 		// Not log.Fatal: that is an unconditional os.Exit(1), and Shutdown
 		// reports an error exactly when connections were still in flight -
@@ -232,8 +236,9 @@ func run() error {
 	return nil
 }
 
-// budget is the waits a shutdown spends, in the order it spends them.
+// budget is the three waits a shutdown spends, in the order it spends them.
 type budget struct {
+	drain   time.Duration
 	server  time.Duration
 	cleanup time.Duration
 }
@@ -242,6 +247,7 @@ type budget struct {
 // on.
 func budgetFrom(s ext.ShutdownBudget) budget {
 	return budget{
+		drain:   time.Duration(s.Drain) * time.Second,
 		server:  time.Duration(s.Server) * time.Second,
 		cleanup: time.Duration(s.Cleanup) * time.Second,
 	}
@@ -249,40 +255,64 @@ func budgetFrom(s ext.ShutdownBudget) budget {
 
 // defaultBudget is what a process with no extend.shutdown section spends.
 func defaultBudget() budget {
-	return budget{server: shutdownTimeout, cleanup: cleanupTimeout}
+	return budget{drain: drainTimeout, server: shutdownTimeout, cleanup: cleanupTimeout}
 }
 
 // gracefulShutdown takes the process down in the order that gives something
 // else a chance to notice first.
 //
-// The whole order lives here so that it has one home. run() is not meant to be
-// the only caller: a test that reproduces this sequence instead of running it
-// asserts against its own copy, and stays green while the sequence it was
-// written for regresses.
+// The whole order lives here, and run() is not the only caller: the signal
+// tests run this function rather than reproducing it. A test that reproduces a
+// sequence asserts against its own copy and stays green while the sequence it
+// was written for regresses.
 //
-// The caller has already taken the stop signal off its channel. disarm is
-// called first, before anything is taken apart: from that point a second
-// signal reaches the default handler again, so a shutdown that hangs can still
-// be interrupted.
+// The caller has already taken the first signal off quit. quit is handed on
+// because a second signal during the drain window ends the window early -
+// somebody sending another kill wants this over with sooner - and because
+// until the window is over that signal must not reach the default handler and
+// kill the process outright.
+//
+// disarm is therefore called at the end of the window rather than on the first
+// signal. After it, a second signal is handled by the default disposition
+// again, which is the only way out of a Shutdown or a cleanup callback that
+// never returns. Restoring it any earlier would put every ordinary shutdown
+// inside that escape hatch for the whole length of the drain, where before
+// this window existed only a hung callback could reach it.
 //
 // The two waits' errors are returned separately rather than logged: they fail
 // for different reasons, and the caller decides what each is worth.
-func gracefulShutdown(srv *http.Server, disarm func(), b budget) (serverErr, cleanupErr error) {
-	// Restored here, not deferred: from this point a second signal must reach
-	// the default handler, so a shutdown that hangs can still be interrupted.
-	disarm()
-
+func gracefulShutdown(srv *http.Server, quit <-chan os.Signal, disarm func(), b budget) (serverErr, cleanupErr error) {
 	// Said before anything is taken apart. A configuration reload arriving in
 	// this window would otherwise re-run AfterResource - rebuilding the pool
 	// and the queue adapter, and re-registering consumers - on top of cleanup
 	// that has already run.
 	sdk.Runtime.BeginShutdown()
+
 	// Readiness fails from here, which is before the server stops accepting.
-	// That order is necessary and not sufficient: reversed, the state is
-	// reported after the connections are already cut, but as written there is
-	// nothing between the two lines for a balancer to observe. See the package
-	// comment in common/health.
+	// That order is necessary and not sufficient: with nothing between this
+	// line and the listener closing, the two are microseconds apart and a
+	// poller on a multi-second interval sees the refused connection instead of
+	// the 503. The window below is what turns the order into something
+	// observable - extend.shutdown.drain, which is zero unless it is
+	// configured.
 	health.BeginDraining()
+
+	// Keep-alive off for the same window, and for the same reason. The server
+	// keeps connections alive while !disableKeepAlives && !shuttingDown(), and
+	// shuttingDown() is only set by Shutdown itself - so without this line
+	// every pooled connection stays open for the whole drain and is cut at the
+	// end of it anyway, which is the cost of the window without its benefit.
+	// This is the switch Shutdown flips, moved earlier by the window's length:
+	// answers now carry Connection: close, and the idle connections a balancer
+	// is holding are closed at once rather than when it next tries to use one.
+	srv.SetKeepAlivesEnabled(false)
+
+	drain(quit, b.drain)
+
+	// Restored here, not on the first signal: from this point a second signal
+	// must reach the default handler, so a shutdown that hangs can still be
+	// interrupted.
+	disarm()
 
 	log.Info("Shutdown Server ... ")
 	serverErr = shutdownServer(srv, b.server)
@@ -295,7 +325,28 @@ func gracefulShutdown(srv *http.Server, disarm func(), b budget) (serverErr, cle
 	return serverErr, cleanupErr
 }
 
+// drain keeps serving for d, or until another stop signal arrives.
+//
+// Requests are answered normally throughout. Refusing them would move the
+// outage earlier rather than avoid it - the point of the window is that this
+// instance is still able to work while whoever routes to it stops routing.
+func drain(quit <-chan os.Signal, d time.Duration) {
+	if d <= 0 {
+		return
+	}
+	log.Infof("Draining for %s: still serving, /ready answers 503 from here", d)
+
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+	select {
+	case <-quit:
+		log.Info("Second signal during the drain window, closing the listener now")
+	case <-timer.C:
+	}
+}
+
 // The budgets a shutdown spends when extend.shutdown configures nothing:
+// drainTimeout keeps the process serving after the stop signal, then
 // shutdownTimeout waits for in-flight requests, then cleanupTimeout is what
 // the BeforeExit callbacks get.
 //
@@ -304,10 +355,12 @@ func gracefulShutdown(srv *http.Server, disarm func(), b budget) (serverErr, cle
 //
 // They are consumed one after the other, so their sum is what has to stay
 // inside the orchestrator's grace period: `docker stop` allows 10s by default
-// before it sends SIGKILL, and 5+3 leaves room for the process to finish
-// returning. Raising one without lowering the other buys nothing - the budget
-// that runs out is the orchestrator's.
+// before it sends SIGKILL, and 0+5+3 leaves room for the process to finish
+// returning. Raising one without lowering another buys nothing - the budget
+// that runs out is the orchestrator's, and reportShutdownBudget is what says
+// so at start-up.
 var (
+	drainTimeout    = time.Duration(ext.DefaultDrainSeconds) * time.Second
 	shutdownTimeout = time.Duration(ext.DefaultServerSeconds) * time.Second
 	cleanupTimeout  = time.Duration(ext.DefaultCleanupSeconds) * time.Second
 )

@@ -82,11 +82,28 @@ settings:
     # 会被负载均衡、监控和压测统计成成功）。
     rateLimit:
       inboundQPS: 200
-    # shutdown budgets, in seconds. The two are spent one after the other, and
-    # their sum has to stay inside the stop grace period the orchestrator
+    # shutdown budgets, in seconds. The three are spent one after the other,
+    # and their sum has to stay inside the stop grace period the orchestrator
     # allows - once it is up, SIGKILL arrives part-way through the cleanup
-    # callbacks, which is worse than not waiting at all.
+    # callbacks, which is worse than not draining at all.
     shutdown:
+      # How long to keep serving normally after a stop signal arrives. For that
+      # long /ready answers 503 and keep-alive is switched off, which is what
+      # gives a load balancer time to take this instance out of rotation before
+      # the listener closes.
+      #
+      # What to set depends on who removes this instance and on what basis. A
+      # load balancer that polls /ready itself needs at least "check interval x
+      # failure threshold + however long removal takes to apply". A Kubernetes
+      # Service removes the endpoint when the Pod is deleted, concurrently with
+      # SIGTERM and regardless of what the probe returns, so here this covers
+      # the delay in that removal reaching every node.
+      #
+      # 0 by default: a deployment that leaves this alone shuts down exactly as
+      # it did before this section existed. It also means /ready never reports
+      # draining - the flip and the closed listener are microseconds apart, and
+      # no poller reads anything in between.
+      drain: 0
       # How long to wait for in-flight requests once the listener is closed.
       server: 5
       # How long the BeforeExit cleanup callbacks get after that.

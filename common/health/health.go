@@ -13,18 +13,26 @@
 //     because of the life-cycle phases - it fails as soon as shutdown begins,
 //     before the server stops accepting.
 //
-// # What the draining answer is worth today
+// # What the draining answer is worth
 //
-// It is an answer that can be read, not one a balancer acts on. Nothing waits
-// between the flip and the shutdown, and a poller on a multi-second interval
-// never observes it. On Kubernetes the endpoint is withdrawn when the Pod
-// receives a deletionTimestamp, concurrently with SIGTERM and whatever the
-// probe returns; the probe result is not what removes it.
+// Order alone does not produce a window. Answering before the server stops
+// accepting is the right order - the reverse reports the state after the
+// connections are already cut - but with nothing between the two they are
+// microseconds apart, and a poller on a multi-second interval never sees the
+// 503.
 //
-// Answering before the server stops accepting is still the right order - the
-// reverse reports the state after the connections are already cut - but order
-// alone does not produce a window. That needs a configured delay between the
-// two, which this process does not have.
+// The delay between them is extend.shutdown.drain, which is zero unless it is
+// configured. On the shipped defaults this is therefore still an answer that
+// can be read rather than one anything acts on; a deployment that sets a drain
+// window is the one that gets a window to act in.
+//
+// What acts on it depends on who does the removing. A load balancer that polls
+// /ready takes this instance out when it reads the 503, and the window has to
+// cover its check interval times its failure threshold, plus however long the
+// removal takes to apply. On Kubernetes the endpoint is withdrawn when the Pod
+// receives a deletionTimestamp, concurrently with SIGTERM and regardless of
+// what the probe returns - there the window covers the delay in that removal
+// reaching every node, and the 503 is what makes the state observable.
 package health
 
 import (

@@ -83,7 +83,16 @@ func (o ObjectStore) Configured() bool {
 // matching field of extend.shutdown when that field is absent, and together
 // they are what the process spent before the section existed - so a deployment
 // that configures nothing keeps the shutdown it already had.
+//
+// The drain default is zero deliberately. The three budgets are spent one
+// after the other, and once their sum reaches the orchestrator's stop grace
+// period the process is killed part-way through its cleanup callbacks, which
+// is worse than not draining at all. `docker stop` allows ten seconds by
+// default and 5+3 already leaves little room, so a non-zero default here would
+// slow down every existing shutdown to buy something only a load balancer that
+// polls /ready can collect.
 const (
+	DefaultDrainSeconds   = 0
 	DefaultServerSeconds  = 5
 	DefaultCleanupSeconds = 3
 )
@@ -92,6 +101,7 @@ const (
 //
 //	extend:
 //	  shutdown:
+//	    drain: 0
 //	    server: 5
 //	    cleanup: 3
 //
@@ -99,8 +109,20 @@ const (
 // "not configured" and takes the default, while a value that was written down
 // is taken literally, zero included. Without that separation `server: 0` - do
 // not wait for in-flight requests, which is a reasonable thing to ask under a
-// very short grace period - could not be said at all.
+// very short grace period - could not be said at all, and `drain: 0` would
+// have to mean something different from `server: 0` in the same section.
 type Shutdown struct {
+	// Drain is how long to keep serving normally after a stop signal arrives.
+	// Throughout it /ready answers 503 and keep-alive is switched off, which
+	// is what gives whatever routes traffic here time to stop routing it
+	// before the listener closes. Zero is no window: the readiness flip and
+	// the listener closing are then microseconds apart and nothing observes
+	// the first.
+	//
+	// What the window is worth depends on who does the removing and on what
+	// basis; the package comment in common/health has the two cases, and they
+	// do not want the same value.
+	Drain *int
 	// Server is how long the server waits for in-flight requests once the
 	// listener is closed.
 	Server *int
@@ -111,6 +133,7 @@ type Shutdown struct {
 // ShutdownBudget is what a shutdown will actually spend, in seconds, after the
 // fallbacks have been applied.
 type ShutdownBudget struct {
+	Drain   int
 	Server  int
 	Cleanup int
 }
@@ -128,6 +151,7 @@ func (s Shutdown) Budget() (ShutdownBudget, error) {
 		name  string
 		value *int
 	}{
+		{"drain", s.Drain},
 		{"server", s.Server},
 		{"cleanup", s.Cleanup},
 	} {
@@ -143,6 +167,7 @@ func (s Shutdown) Budget() (ShutdownBudget, error) {
 	}
 
 	return ShutdownBudget{
+		Drain:   budgetSeconds(s.Drain, DefaultDrainSeconds),
 		Server:  budgetSeconds(s.Server, DefaultServerSeconds),
 		Cleanup: budgetSeconds(s.Cleanup, DefaultCleanupSeconds),
 	}, nil
