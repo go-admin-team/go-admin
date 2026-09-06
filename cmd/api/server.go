@@ -219,10 +219,10 @@ func run() error {
 	// that has already run.
 	sdk.Runtime.BeginShutdown()
 	// Readiness fails from here, which is before the server stops accepting.
-	// The order is the whole point: a load balancer that is told "not ready"
-	// while this instance can still finish what it has in flight takes it out
-	// of the pool without dropping anything. Reversed, the connections are cut
-	// first and the health check reports it afterwards.
+	// That order is necessary and not sufficient: reversed, the state is
+	// reported after the connections are already cut, but as written there is
+	// nothing between the two lines for a balancer to observe. See the package
+	// comment in common/health.
 	health.BeginDraining()
 
 	log.Info("Shutdown Server ... ")

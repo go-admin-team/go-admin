@@ -38,9 +38,9 @@ func registerMonitorRouter(v1 *gin.RouterGroup) {
 	// 就绪检查
 	//
 	// The answer to "should I send you requests". It fails while a dependency
-	// is unreachable, and from the moment shutdown begins - which is before
-	// the server stops accepting, so a load balancer can take this instance
-	// out of the pool while it can still finish what it has.
+	// is unreachable, and from the moment shutdown begins. Nothing waits on
+	// that second answer today, so it is readable rather than actionable -
+	// the package comment in common/health says what it would take.
 	v1.GET("/ready", func(c *gin.Context) {
 		if health.Draining() {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
