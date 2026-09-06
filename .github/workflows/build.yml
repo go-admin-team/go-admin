@@ -115,7 +115,14 @@ jobs:
             if sudo docker ps -a --format '{{.Names}}' | grep -qx "$NAME"; then
               sudo docker rm -f "$PREV" >/dev/null 2>&1 || true
               sudo docker rename "$NAME" "$PREV"
-              sudo docker stop "$PREV" >/dev/null
+              # --timeout, because the default is 10 seconds and the process
+              # spends drain + server + cleanup from extend.shutdown before it
+              # exits - 8 seconds out of the box, and more for anyone who
+              # configures a drain window. Past the deadline docker sends
+              # SIGKILL and the cleanup callbacks are cut off part-way through.
+              # checksilent's docker-stop-cuts-shutdown-short check compares
+              # this number against config/settings.yml.
+              sudo docker stop --timeout 30 "$PREV" >/dev/null
             fi
 
             sudo docker run -d -p 8000:8000 \
