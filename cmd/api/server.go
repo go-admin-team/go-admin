@@ -28,6 +28,7 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/router"
 	"go-admin/app/jobs"
+	otherrouter "go-admin/app/other/router"
 	"go-admin/common/database"
 	"go-admin/common/global"
 	"go-admin/common/health"
@@ -476,10 +477,38 @@ func initRouter() {
 		r.Use(handler.TlsHandler())
 	}
 	//r.Use(middleware.Metrics())
-	r.Use(common.Sentinel()).
+	r.Use(exemptProbes(common.Sentinel())).
 		Use(common.RequestId(pkg.TrafficKey)).
 		Use(api.SetRequestLogger)
 
 	common.InitMiddleware(r)
 
+}
+
+// probePaths are the two routes the rate limiter must not answer for.
+var probePaths = map[string]bool{
+	otherrouter.APIPrefix + otherrouter.HealthPath: true,
+	otherrouter.APIPrefix + otherrouter.ReadyPath:  true,
+}
+
+// exemptProbes wraps a middleware so the health and readiness routes skip it.
+//
+// The limiter is installed on the engine and the probes are routes like any
+// other, so above the threshold they are answered with 429 as well. A liveness
+// probe that collects 429s fails its threshold and the container is restarted,
+// which takes capacity out of a deployment that is already short of it and
+// pushes the rest closer to the threshold - the limiter working exactly as
+// intended is what causes it. It is the argument common/health makes about
+// restarting a process whose database is unreachable, applied to load.
+//
+// Wrapping rather than teaching the limiter about these paths: the limiter
+// lives under common/, which may not import the package that registers them.
+func exemptProbes(h gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if probePaths[c.FullPath()] {
+			c.Next()
+			return
+		}
+		h(c)
+	}
 }
