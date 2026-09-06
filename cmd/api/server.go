@@ -209,9 +209,50 @@ func run() error {
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
 
 	<-quit
+	serverErr, cleanupErr := gracefulShutdown(srv, disarmStopSignals, defaultBudget())
+	if serverErr != nil {
+		// Not log.Fatal: that is an unconditional os.Exit(1), and Shutdown
+		// reports an error exactly when connections were still in flight -
+		// which is when the cleanup that ran after it mattered most.
+		log.Error("Server Shutdown: ", serverErr)
+	}
+	if cleanupErr != nil {
+		log.Error("Cleanup: ", cleanupErr)
+	}
+
+	return nil
+}
+
+// budget is the waits a shutdown spends, in the order it spends them.
+type budget struct {
+	server  time.Duration
+	cleanup time.Duration
+}
+
+// defaultBudget is what a shutdown spends today.
+func defaultBudget() budget {
+	return budget{server: shutdownTimeout, cleanup: cleanupTimeout}
+}
+
+// gracefulShutdown takes the process down in the order that gives something
+// else a chance to notice first.
+//
+// The whole order lives here so that it has one home. run() is not meant to be
+// the only caller: a test that reproduces this sequence instead of running it
+// asserts against its own copy, and stays green while the sequence it was
+// written for regresses.
+//
+// The caller has already taken the stop signal off its channel. disarm is
+// called first, before anything is taken apart: from that point a second
+// signal reaches the default handler again, so a shutdown that hangs can still
+// be interrupted.
+//
+// The two waits' errors are returned separately rather than logged: they fail
+// for different reasons, and the caller decides what each is worth.
+func gracefulShutdown(srv *http.Server, disarm func(), b budget) (serverErr, cleanupErr error) {
 	// Restored here, not deferred: from this point a second signal must reach
 	// the default handler, so a shutdown that hangs can still be interrupted.
-	disarmStopSignals()
+	disarm()
 
 	// Said before anything is taken apart. A configuration reload arriving in
 	// this window would otherwise re-run AfterResource - rebuilding the pool
@@ -226,20 +267,14 @@ func run() error {
 	health.BeginDraining()
 
 	log.Info("Shutdown Server ... ")
-	if err := shutdownServer(srv, shutdownTimeout); err != nil {
-		// Not log.Fatal: that is an unconditional os.Exit(1), and Shutdown
-		// reports an error exactly when connections were still in flight -
-		// which is when the cleanup that follows matters most.
-		log.Error("Server Shutdown: ", err)
-	}
-
-	// Runs whether or not the line above reported an error, for that reason.
-	if err := runShutdownHooks(cleanupTimeout); err != nil {
-		log.Error("Cleanup: ", err)
-	}
+	serverErr = shutdownServer(srv, b.server)
+	// Runs whether or not the wait above failed, and deliberately so: Shutdown
+	// reports an error exactly when connections were still in flight, which is
+	// when there is most left to clean up after.
+	cleanupErr = runShutdownHooks(b.cleanup)
 	log.Info("Server exiting")
 
-	return nil
+	return serverErr, cleanupErr
 }
 
 // shutdownTimeout is how long Shutdown waits for in-flight requests, and
