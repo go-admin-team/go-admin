@@ -227,8 +227,9 @@ go run -tags sqlite3 . server  -c config/settings.sqlite.yml
 
 ## 静默失败校验
 
-`make checksilent` 检查七类**不报错、不记日志、行为悄悄变得不对**的问题，
-CI 会跑，命中 ERROR 即失败：
+`make checksilent` 逐条检查那些**不报错、不记日志、行为悄悄变得不对**的问题，
+CI 会跑，命中 ERROR 即失败。这里不写条数——写死的数字会悄悄过时，
+真正的清单是 `tools/checksilent/checks.go` 里 `runChecks` 跑的那几个：
 
 | 检查 | 级别 | 静默后果 |
 |---|---|---|
@@ -238,7 +239,14 @@ CI 会跑，命中 ERROR 即失败：
 | `menu-id-collision` | ERROR | 两个模块硬编码同一菜单 ID，互相覆盖 |
 | `contract-import-boundary` | ERROR | 契约包 import `app/`，应用无法独立编译 |
 | `contract-shim-alias` | ERROR | 契约薄壳写成 defined type 而非别名，方法集丢失，本仓可能照常编译、第三方应用编译不过 |
+| `datascope-route-unguarded` | ERROR | handler 读调用方的数据权限，而注册它的路由组没装提供权限的中间件。取不到时拿到零值、走 fail-closed 分支，查询被塞进 `1 = 0`：接口对确实存在的行返回「查不到」，且只在 `enabledp: true` 的部署上出现 |
+| `shutdown-budget-overruns-grace` | ERROR / WARN | `settings.yml` 的 `extend.shutdown` 预算（含清单里的 `preStop`）放不进自带 k8s 清单的 `terminationGracePeriodSeconds`，SIGKILL 在清理回调跑到一半时到达 |
+| `docker-stop-cuts-shutdown-short` | ERROR / WARN | 停止容器的两条路径——脚本/工作流里的 `docker stop`，和 `docker-compose.yml` 的 `stop_grace_period`——没写或写得不够关闭预算用。两边默认都是 10 秒，而这个数字离命令很远，调大预算的人不会想起它 |
 | `menu-name-mismatch` | WARN | 菜单名与前端组件 `name` 不一致，keep-alive 缓存静默失效 |
+
+两条关闭预算检查分两级，用的是同一条算术和同一个 5 秒边际：真的超限报 ERROR，
+放得进但余量不足 5 秒报 WARN。余量不足做 WARN 不做 ERROR，是因为那是个技术上
+跑得通的配置——**一条在正确配置下也会响的 ERROR，训练的是忽略它**。
 
 最后一条要跨仓库比对，只能做正则启发式，因此是 WARN，**不影响退出码**，
 且默认跳过；要跑它得指定前端目录：
