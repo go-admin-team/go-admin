@@ -62,7 +62,10 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 	})
 	sdk.Runtime = runtime.NewConfig()
 	config.CacheConfig = &config.Cache{Memory: struct{}{}}
-	config.QueueConfig = &config.Queue{Memory: &config.QueueMemory{PoolSize: 64}}
+	// Sized so the buffer cannot fill while the consumer is held: a full queue
+	// returns an error of its own, and this test needs every error other than
+	// ErrQueueClosed to mean something it does not model has happened.
+	config.QueueConfig = &config.Queue{Memory: &config.QueueMemory{PoolSize: 4096}}
 
 	Setup()
 
@@ -95,6 +98,7 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 	// Publish continuously while the reload is in progress.
 	var refused atomic.Int64
 	var attempts atomic.Int64
+	unexpected := make(chan error, 1)
 	stop := make(chan struct{})
 	// publishing is closed by the producer on its way out. The test joins on it
 	// before returning: t.Cleanup restores sdk.Runtime, and a producer still in
@@ -109,8 +113,19 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 			default:
 			}
 			attempts.Add(1)
-			if err := sdk.Runtime.GetQueuePrefix("").Append(swapMsg()); errors.Is(err, corestorage.ErrQueueClosed) {
+			err := sdk.Runtime.GetQueuePrefix("").Append(swapMsg())
+			switch {
+			case err == nil:
+			case errors.Is(err, corestorage.ErrQueueClosed):
 				refused.Add(1)
+			default:
+				// Kept rather than counted: an Append refused for some other
+				// reason would otherwise leave refused at zero and the test
+				// green while nothing was reaching a queue at all.
+				select {
+				case unexpected <- err:
+				default:
+				}
 			}
 			time.Sleep(time.Millisecond)
 		}
@@ -134,6 +149,11 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 	close(stop)
 	<-publishing
 
+	select {
+	case err := <-unexpected:
+		t.Fatalf("a publish failed for a reason this test does not model: %v", err)
+	default:
+	}
 	if n := refused.Load(); n > 1 {
 		t.Errorf("%d of %d publishes during the reload were refused: producers were pointed at the closed queue",
 			n, attempts.Load())
