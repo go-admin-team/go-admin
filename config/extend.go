@@ -1,5 +1,10 @@
 package config
 
+import (
+	"fmt"
+	"strings"
+)
+
 var ExtConfig Extend
 
 // Extend 扩展配置
@@ -13,6 +18,7 @@ type Extend struct {
 	AMap      AMap // 这里配置对应配置文件的结构即可
 	FileStore FileStore
 	RateLimit RateLimit
+	Shutdown  Shutdown
 }
 
 // DefaultInboundQPS is the limit applied when nothing is configured. It is the
@@ -71,4 +77,80 @@ type ObjectStore struct {
 // Configured reports whether enough was filled in to attempt a connection.
 func (o ObjectStore) Configured() bool {
 	return o.Endpoint != "" && o.AccessKeyID != "" && o.AccessKeySecret != "" && o.BucketName != ""
+}
+
+// Default budgets for a graceful shutdown, in seconds. Each applies to the
+// matching field of extend.shutdown when that field is absent, and together
+// they are what the process spent before the section existed - so a deployment
+// that configures nothing keeps the shutdown it already had.
+const (
+	DefaultServerSeconds  = 5
+	DefaultCleanupSeconds = 3
+)
+
+// Shutdown is how long a graceful shutdown may spend, stage by stage.
+//
+//	extend:
+//	  shutdown:
+//	    server: 5
+//	    cleanup: 3
+//
+// Every field is a pointer for the reason RateLimit.InboundQPS is: nil means
+// "not configured" and takes the default, while a value that was written down
+// is taken literally, zero included. Without that separation `server: 0` - do
+// not wait for in-flight requests, which is a reasonable thing to ask under a
+// very short grace period - could not be said at all.
+type Shutdown struct {
+	// Server is how long the server waits for in-flight requests once the
+	// listener is closed.
+	Server *int
+	// Cleanup is how long the BeforeExit callbacks get after that.
+	Cleanup *int
+}
+
+// ShutdownBudget is what a shutdown will actually spend, in seconds, after the
+// fallbacks have been applied.
+type ShutdownBudget struct {
+	Server  int
+	Cleanup int
+}
+
+// Budget resolves the configured section into the values that will be spent.
+//
+// A negative is refused rather than corrected. A wait cannot be negative, so
+// there is no reading of one to honour, and quietly turning it into zero would
+// be the failure this whole section exists to remove: written down, accepted,
+// and not what happens. It is returned as an error rather than reported here
+// so that the rule can be checked without ending the process.
+func (s Shutdown) Budget() (ShutdownBudget, error) {
+	var negative []string
+	for _, f := range []struct {
+		name  string
+		value *int
+	}{
+		{"server", s.Server},
+		{"cleanup", s.Cleanup},
+	} {
+		if f.value != nil && *f.value < 0 {
+			negative = append(negative, fmt.Sprintf("%s: %d", f.name, *f.value))
+		}
+	}
+	if len(negative) > 0 {
+		return ShutdownBudget{}, fmt.Errorf(
+			"extend.shutdown was given a negative number of seconds (%s); "+
+				"a wait cannot be negative, and 0 is how to say \"do not wait\"",
+			strings.Join(negative, ", "))
+	}
+
+	return ShutdownBudget{
+		Server:  budgetSeconds(s.Server, DefaultServerSeconds),
+		Cleanup: budgetSeconds(s.Cleanup, DefaultCleanupSeconds),
+	}, nil
+}
+
+func budgetSeconds(configured *int, fallback int) int {
+	if configured != nil {
+		return *configured
+	}
+	return fallback
 }

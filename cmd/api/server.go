@@ -158,6 +158,14 @@ func attachConsumersOnce(gen uint64, q corestorage.AdapterQueue) {
 }
 
 func run() error {
+	// Resolved first, and refused rather than corrected: a budget that cannot
+	// be spent as written is a configuration error, and the moment to say so
+	// is while nothing depends on this process yet.
+	seconds, err := ext.ExtConfig.Shutdown.Budget()
+	if err != nil {
+		return err
+	}
+
 	if config.ApplicationConfig.Mode == pkg.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -209,7 +217,7 @@ func run() error {
 	fmt.Printf("%s Enter Control + C Shutdown Server \r\n", pkg.GetCurrentTimeStr())
 
 	<-quit
-	serverErr, cleanupErr := gracefulShutdown(srv, disarmStopSignals, defaultBudget())
+	serverErr, cleanupErr := gracefulShutdown(srv, disarmStopSignals, budgetFrom(seconds))
 	if serverErr != nil {
 		// Not log.Fatal: that is an unconditional os.Exit(1), and Shutdown
 		// reports an error exactly when connections were still in flight -
@@ -229,7 +237,16 @@ type budget struct {
 	cleanup time.Duration
 }
 
-// defaultBudget is what a shutdown spends today.
+// budgetFrom turns the resolved seconds into the durations the sequence waits
+// on.
+func budgetFrom(s ext.ShutdownBudget) budget {
+	return budget{
+		server:  time.Duration(s.Server) * time.Second,
+		cleanup: time.Duration(s.Cleanup) * time.Second,
+	}
+}
+
+// defaultBudget is what a process with no extend.shutdown section spends.
 func defaultBudget() budget {
 	return budget{server: shutdownTimeout, cleanup: cleanupTimeout}
 }
@@ -277,17 +294,21 @@ func gracefulShutdown(srv *http.Server, disarm func(), b budget) (serverErr, cle
 	return serverErr, cleanupErr
 }
 
-// shutdownTimeout is how long Shutdown waits for in-flight requests, and
-// cleanupTimeout how long the BeforeExit callbacks get after it.
+// The budgets a shutdown spends when extend.shutdown configures nothing:
+// shutdownTimeout waits for in-flight requests, then cleanupTimeout is what
+// the BeforeExit callbacks get.
 //
-// They are consumed one after the other, so the two together are what has to
-// stay inside the orchestrator's grace period: `docker stop` allows 10s by
-// default before it sends SIGKILL, and 5+3 leaves room for the process to
-// finish returning. Raising either without lowering the other buys nothing -
-// the budget that runs out is the orchestrator's.
-const (
-	shutdownTimeout = 5 * time.Second
-	cleanupTimeout  = 3 * time.Second
+// The seconds come from config, which is where an absent field falls back, so
+// the default is one number rather than two that can drift apart.
+//
+// They are consumed one after the other, so their sum is what has to stay
+// inside the orchestrator's grace period: `docker stop` allows 10s by default
+// before it sends SIGKILL, and 5+3 leaves room for the process to finish
+// returning. Raising one without lowering the other buys nothing - the budget
+// that runs out is the orchestrator's.
+var (
+	shutdownTimeout = time.Duration(ext.DefaultServerSeconds) * time.Second
+	cleanupTimeout  = time.Duration(ext.DefaultCleanupSeconds) * time.Second
 )
 
 // armStopSignals registers for the stop signals and returns the channel they
