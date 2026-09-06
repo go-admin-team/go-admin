@@ -11,8 +11,20 @@
 //   - /ready is readiness: should this instance receive requests now. It fails
 //     while the dependencies are unreachable, and - the part that only exists
 //     because of the life-cycle phases - it fails as soon as shutdown begins,
-//     before the server stops accepting, so a load balancer has a chance to
-//     take the instance out before connections are cut.
+//     before the server stops accepting.
+//
+// # What the draining answer is worth today
+//
+// It is an answer that can be read, not one a balancer acts on. Nothing waits
+// between the flip and the shutdown, and a poller on a multi-second interval
+// never observes it. On Kubernetes the endpoint is withdrawn when the Pod
+// receives a deletionTimestamp, concurrently with SIGTERM and whatever the
+// probe returns; the probe result is not what removes it.
+//
+// Answering before the server stops accepting is still the right order - the
+// reverse reports the state after the connections are already cut - but order
+// alone does not produce a window. That needs a configured delay between the
+// two, which this process does not have.
 package health
 
 import (
