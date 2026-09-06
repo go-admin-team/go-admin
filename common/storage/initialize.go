@@ -71,22 +71,32 @@ func setupQueue() {
 	queueMu.Lock()
 	defer queueMu.Unlock()
 
+	queueAdapter, err := config.QueueConfig.Setup()
+	if err != nil {
+		log.Fatalf("queue setup error, %s\n", err.Error())
+	}
+
+	previous := installed
+	sdk.Runtime.SetQueueAdapter(queueAdapter)
+	installed = queueAdapter
+	installedGen++
+
+	// The previous adapter goes down after the new one is installed, not
+	// before. Shutdown waits for its consumers to deliver what it still holds,
+	// and for that whole wait the runtime would otherwise be handing producers
+	// a queue that has stopped accepting: every Append in the window comes back
+	// ErrQueueClosed, and both call sites in common/middleware log it. Swapping
+	// first leaves no such window - a producer gets the new queue or the old
+	// one, and both work.
+	//
 	// Only an adapter this package installed. GetQueueAdapter never returns
 	// nil - with nothing configured the runtime falls back to its own memory
 	// queue and wraps that - so the `if q := GetQueueAdapter(); q != nil` this
 	// replaces was always true, and shut down the fallback queue on the very
 	// first start, before anything had used it.
-	if installed != nil {
-		installed.Shutdown()
+	if previous != nil {
+		previous.Shutdown()
 	}
-
-	queueAdapter, err := config.QueueConfig.Setup()
-	if err != nil {
-		log.Fatalf("queue setup error, %s\n", err.Error())
-	}
-	sdk.Runtime.SetQueueAdapter(queueAdapter)
-	installed = queueAdapter
-	installedGen++
 
 	// Deliberately not started here. Run has to come after the consumers have
 	// registered: the contract implementations refuse a registration once the
