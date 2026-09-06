@@ -17,8 +17,10 @@ import (
 
 // The signal path cannot be exercised in-process: delivering a signal to the
 // test binary would race with the test framework, and the disposition changes
-// are global. So the test re-executes itself as a child, and the child runs the
-// same armStopSignals / shutdownServer the server does.
+// are global. So the test re-executes itself as a child, and the child runs
+// gracefulShutdown - the same function run() runs, not a second copy of the
+// sequence. A test that reproduces a sequence asserts against its own copy and
+// stays green while the sequence it was written for regresses.
 //
 // The child deliberately serves an empty http.Server rather than the real one:
 // this repository's CI has no database (.github/workflows/go.yml runs neither
@@ -64,22 +66,34 @@ func TestSignalChild(t *testing.T) {
 	}
 	go func() { _ = srv.Serve(ln) }()
 
+	// The budget the child spends, which with nothing set is the one a
+	// shutdown spends today.
+	b := defaultBudget()
+
 	// A BeforeExit callback, registered the way a module would. What the tests
 	// below care about is whether it runs at all - after a Shutdown that
 	// failed, and after its own budget has been spent.
-	cleanupBudget := cleanupTimeout
 	sdk.Runtime.SetShutdown(func(ctx context.Context) {
-		if os.Getenv(childSlowCleanup) == "1" {
-			// Outlasts the budget on purpose, and does not consult ctx -
-			// which is the case the contract is explicit about: what the
-			// context bounds is the wait, not the work.
+		switch {
+		case os.Getenv(childStuckEnv) == "1":
+			// Stands in for a cleanup hook that never finishes. The point of
+			// restoring the signal disposition is that a second signal still
+			// reaches the default handler and kills this.
+			time.Sleep(2 * time.Minute)
+		case os.Getenv(childSlowCleanup) == "1":
+			// Outlasts the budget on purpose, and does not consult ctx - which
+			// is the case the contract is explicit about: what the context
+			// bounds is the wait, not the work.
 			time.Sleep(2 * time.Second)
 		}
 		fmt.Println(markerCleanup)
-		os.Stdout.Sync()
+		_ = os.Stdout.Sync()
 	})
-	if os.Getenv(childSlowCleanup) == "1" {
-		cleanupBudget = 300 * time.Millisecond
+	switch {
+	case os.Getenv(childStuckEnv) == "1":
+		b.cleanup = 2 * time.Minute
+	case os.Getenv(childSlowCleanup) == "1":
+		b.cleanup = 300 * time.Millisecond
 	}
 
 	// Arm before announcing readiness. Doing it the other way round leaves a
@@ -90,21 +104,12 @@ func TestSignalChild(t *testing.T) {
 	quit, disarm := armStopSignals()
 
 	fmt.Println(markerReady)
-	os.Stdout.Sync()
+	_ = os.Stdout.Sync()
 
 	sig := <-quit
-	disarm()
 	fmt.Println(markerSignal, sig)
-	os.Stdout.Sync()
+	_ = os.Stdout.Sync()
 
-	if os.Getenv(childStuckEnv) == "1" {
-		// Stand in for a cleanup hook that never finishes. The point of
-		// restoring the signal disposition is that a second signal still
-		// reaches the default handler and kills this.
-		time.Sleep(2 * time.Minute)
-	}
-
-	timeout := shutdownTimeout
 	if os.Getenv(childHangConn) == "1" {
 		// Dialled here, not at start-up. net/http stops counting a StateNew
 		// connection against Shutdown once it is more than five seconds old,
@@ -130,27 +135,26 @@ func TestSignalChild(t *testing.T) {
 		// only treats a StateNew connection as idle once it is more than five
 		// seconds old. A short budget makes the timeout deterministic without
 		// waiting out the real one.
-		timeout = 300 * time.Millisecond
+		b.server = 300 * time.Millisecond
 	}
 
-	sdk.Runtime.BeginShutdown()
+	serverErr, cleanupErr := gracefulShutdown(srv, disarm, b)
 
-	if err := shutdownServer(srv, timeout); err != nil {
+	if serverErr != nil {
 		// Deliberately not fatal, and deliberately not a bare return: the
 		// point is that whatever follows still runs.
-		fmt.Println("shutdown error:", err)
+		fmt.Println("shutdown error:", serverErr)
 	} else {
 		fmt.Println(markerShutdown)
 	}
-
-	if err := runShutdownHooks(cleanupBudget); err != nil {
-		fmt.Println("cleanup error:", err)
+	if cleanupErr != nil {
+		fmt.Println("cleanup error:", cleanupErr)
 	}
 	fmt.Println(markerExiting)
-	os.Stdout.Sync()
+	_ = os.Stdout.Sync()
 }
 
-func startChild(t *testing.T, stuck bool, extraEnv ...string) (*exec.Cmd, *os.File, chan string) {
+func startChild(t *testing.T, stuck bool, extraEnv ...string) (*exec.Cmd, chan string) {
 	t.Helper()
 
 	r, w, err := os.Pipe()
@@ -170,7 +174,7 @@ func startChild(t *testing.T, stuck bool, extraEnv ...string) (*exec.Cmd, *os.Fi
 	}
 	_ = w.Close()
 
-	lines := make(chan string, 64)
+	lines := make(chan string, 256)
 	go func() {
 		defer close(lines)
 		buf := make([]byte, 4096)
@@ -204,12 +208,13 @@ func startChild(t *testing.T, stuck bool, extraEnv ...string) (*exec.Cmd, *os.Fi
 		_, _ = cmd.Process.Wait()
 		_ = r.Close()
 	})
-	return cmd, r, lines
+	return cmd, lines
 }
 
 // await drains lines until one contains want, or the deadline passes. It
-// returns everything it saw, so a failure says what the child actually did.
-func await(t *testing.T, lines chan string, want string, d time.Duration) []string {
+// returns everything it saw, so a failure says what the child actually did,
+// and the matching line, so a marker can carry a value.
+func await(t *testing.T, lines chan string, want string, d time.Duration) ([]string, string) {
 	t.Helper()
 	var seen []string
 	deadline := time.After(d)
@@ -221,7 +226,7 @@ func await(t *testing.T, lines chan string, want string, d time.Duration) []stri
 			}
 			seen = append(seen, l)
 			if strings.Contains(l, want) {
-				return seen
+				return seen, l
 			}
 		case <-deadline:
 			t.Fatalf("timed out waiting for %q; saw:\n%s", want, strings.Join(seen, "\n"))
@@ -241,7 +246,7 @@ func TestBothSignalsRunTheShutdownPath(t *testing.T) {
 		{"SIGTERM", syscall.SIGTERM},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			cmd, _, lines := startChild(t, false)
+			cmd, lines := startChild(t, false)
 			await(t, lines, markerReady, 30*time.Second)
 
 			if err := cmd.Process.Signal(tc.sig); err != nil {
@@ -263,8 +268,12 @@ func TestBothSignalsRunTheShutdownPath(t *testing.T) {
 // without restoring the disposition a second signal only refills the buffer:
 // once SIGTERM is registered, a shutdown that hangs could not be interrupted by
 // anything short of SIGKILL.
+//
+// The hang is a cleanup callback that never returns, which is where a shutdown
+// actually hangs, and it is reached through gracefulShutdown - so this also
+// pins where the disposition is restored.
 func TestASecondSignalStillKillsAStuckShutdown(t *testing.T) {
-	cmd, _, lines := startChild(t, true)
+	cmd, lines := startChild(t, true)
 	await(t, lines, markerReady, 30*time.Second)
 
 	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
@@ -272,21 +281,31 @@ func TestASecondSignalStillKillsAStuckShutdown(t *testing.T) {
 	}
 	await(t, lines, markerSignal, 10*time.Second)
 
-	// The child is now inside a cleanup that will not finish on its own.
-	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
-		t.Fatalf("second signal: %v", err)
-	}
-
+	// The child is now on its way into a cleanup that will not finish on its
+	// own. Signalled repeatedly rather than once: the marker is printed just
+	// before gracefulShutdown is entered, so a single signal sent immediately
+	// after it can still land in the buffered channel and be dropped. Which of
+	// them does the killing is not the assertion; that one of them can is.
 	done := make(chan error, 1)
 	go func() { done <- cmd.Wait() }()
 
-	select {
-	case err := <-done:
-		if err == nil {
-			t.Fatal("child exited cleanly; it was supposed to be killed by the second signal")
+	retry := time.NewTicker(200 * time.Millisecond)
+	defer retry.Stop()
+	deadline := time.After(15 * time.Second)
+	for {
+		select {
+		case err := <-done:
+			if err == nil {
+				t.Fatal("child exited cleanly; it was supposed to be killed by the second signal")
+			}
+			return
+		case <-retry.C:
+			if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
+				t.Fatalf("second signal: %v", err)
+			}
+		case <-deadline:
+			t.Fatal("the second signal did not kill a stuck shutdown - the escape hatch is gone")
 		}
-	case <-time.After(15 * time.Second):
-		t.Fatal("the second signal did not kill a stuck shutdown - the escape hatch is gone")
 	}
 }
 
@@ -295,7 +314,7 @@ func TestASecondSignalStillKillsAStuckShutdown(t *testing.T) {
 // unconditional os.Exit(1). Everything after it, which is where the cleanup
 // hooks will hang, never ran. A failed Shutdown must not end the process.
 func TestShutdownTimeoutDoesNotStopWhatFollows(t *testing.T) {
-	cmd, _, lines := startChild(t, false, childHangConn+"=1")
+	cmd, lines := startChild(t, false, childHangConn+"=1")
 	await(t, lines, markerReady, 30*time.Second)
 
 	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
@@ -303,7 +322,7 @@ func TestShutdownTimeoutDoesNotStopWhatFollows(t *testing.T) {
 	}
 	await(t, lines, markerSignal, 10*time.Second)
 
-	seen := await(t, lines, markerExiting, 20*time.Second)
+	seen, _ := await(t, lines, markerExiting, 20*time.Second)
 
 	var timedOut bool
 	for _, l := range seen {
@@ -336,7 +355,7 @@ func TestShutdownTimeoutDoesNotStopWhatFollows(t *testing.T) {
 // the contract that is easy to get backwards - the context bounds the wait, not
 // the work, because Go cannot cancel a function that does not check for it.
 func TestACleanupThatOutlastsItsBudgetIsAbandonedNotAwaited(t *testing.T) {
-	cmd, _, lines := startChild(t, false, childSlowCleanup+"=1")
+	cmd, lines := startChild(t, false, childSlowCleanup+"=1")
 	await(t, lines, markerReady, 30*time.Second)
 
 	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
@@ -347,7 +366,7 @@ func TestACleanupThatOutlastsItsBudgetIsAbandonedNotAwaited(t *testing.T) {
 	// The budget is 300ms and the callback sleeps two seconds. If RunShutdown
 	// waited for it, this marker would not arrive for two seconds; the one
 	// second here is what makes "abandoned, not awaited" the thing asserted.
-	seen := await(t, lines, markerExiting, 1*time.Second)
+	seen, _ := await(t, lines, markerExiting, 1*time.Second)
 
 	var reported bool
 	for _, l := range seen {
