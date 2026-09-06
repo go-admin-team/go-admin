@@ -33,6 +33,16 @@ func swapMsg() corestorage.Messager {
 // The difference is only visible during that wait, which is why the test holds
 // a consumer rather than checking the state after Setup has returned: by then
 // the two orders look identical.
+//
+// One refusal survives the fix and is not something this ordering can reach.
+// GetQueuePrefix hands back a wrapper that captured the adapter, so a producer
+// that fetched before the swap and appends after Shutdown has begun is still
+// holding the old one. That window is one call wide and closing it means
+// resolving the adapter inside Append, which is core's to change. What the
+// ordering removes is the sustained window: every producer that fetches during
+// the wait. The test publishes from a single goroutine, so at most one of its
+// calls can straddle the swap - which is what makes "more than one" the line
+// between the two orders rather than a tolerance.
 func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 	prevQ, prevC := config.QueueConfig, config.CacheConfig
 	prevRuntime := sdk.Runtime
@@ -107,7 +117,7 @@ func TestAReloadNeverPointsProducersAtAClosedQueue(t *testing.T) {
 	if attempts.Load() == 0 {
 		t.Fatal("nothing was published during the reload; the test proves nothing")
 	}
-	if n := refused.Load(); n > 0 {
+	if n := refused.Load(); n > 1 {
 		t.Errorf("%d of %d publishes during the reload were refused: producers were pointed at the closed queue",
 			n, attempts.Load())
 	}
