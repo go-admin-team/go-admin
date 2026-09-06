@@ -171,6 +171,8 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	reportShutdownBudget(seconds)
+
 	if config.ApplicationConfig.Mode == pkg.ModeProd.String() {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -343,6 +345,45 @@ func drain(quit <-chan os.Signal, d time.Duration) {
 		log.Info("Second signal during the drain window, closing the listener now")
 	case <-timer.C:
 	}
+}
+
+// Reference stop grace periods, printed when nothing was configured to compare
+// against. They are three times apart, which is why the check below needs a
+// configured value rather than a constant of its own: a budget that overruns
+// under one of them fits comfortably under the other.
+const (
+	dockerStopGraceSeconds = 10
+	kubernetesGraceSeconds = 30
+)
+
+// reportShutdownBudget states what a shutdown will spend and whether it fits.
+//
+// The sum is taken from the resolved values, not from the configuration file:
+// a field left out of extend.shutdown still costs its default, so adding up
+// what was written down understates the budget by exactly the fields nobody
+// wrote.
+func reportShutdownBudget(s ext.ShutdownBudget) {
+	log.Infof("shutdown budget: drain %ds + server %ds + cleanup %ds = %ds",
+		s.Drain, s.Server, s.Cleanup, s.Total())
+
+	if s.Grace <= 0 {
+		log.Infof("shutdown budget: extend.shutdown.grace is not set, so nothing is compared against it - "+
+			"for reference `docker stop` allows %ds and Kubernetes terminationGracePeriodSeconds defaults to %ds",
+			dockerStopGraceSeconds, kubernetesGraceSeconds)
+		return
+	}
+	if over := s.Overrun(); over > 0 {
+		// A minimum, not a target. This is somebody else's deployment under
+		// constraints this process cannot see, so the honest thing to state is
+		// how much is missing - the repository's own files are where there is
+		// standing to ask for headroom on top, and checksilent does that.
+		log.Warnf("shutdown budget of %ds does not fit inside the %ds of extend.shutdown.grace: "+
+			"SIGKILL arrives while the cleanup callbacks are still running, and the work they "+
+			"were about to finish is lost. It needs at least %ds more, or %ds less budget.",
+			s.Total(), s.Grace, over, over)
+		return
+	}
+	log.Infof("shutdown budget of %ds fits inside the %ds of extend.shutdown.grace", s.Total(), s.Grace)
 }
 
 // The budgets a shutdown spends when extend.shutdown configures nothing:

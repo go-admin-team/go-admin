@@ -92,6 +92,14 @@ settings:
       server: 5
       # How long the BeforeExit cleanup callbacks get after that.
       cleanup: 3
+      # The stop grace period the orchestrator gives this process - `docker stop
+      # --timeout`, or terminationGracePeriodSeconds. Nothing reads it during a
+      # shutdown; start-up uses it to say whether the three budgets above fit
+      # inside it, and warns when they do not. Left out, nothing is compared:
+      # the reference values are 10s for docker and 30s for Kubernetes, three
+      # times apart, and a fixed threshold would warn about correct
+      # configurations.
+      #grace: 30
   cache:
 #    redis:
 #      addr: 127.0.0.1:6379

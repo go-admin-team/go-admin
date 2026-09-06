@@ -104,6 +104,7 @@ const (
 //	    drain: 0
 //	    server: 5
 //	    cleanup: 3
+//	    grace: 30
 //
 // Every field is a pointer for the reason RateLimit.InboundQPS is: nil means
 // "not configured" and takes the default, while a value that was written down
@@ -128,6 +129,13 @@ type Shutdown struct {
 	Server *int
 	// Cleanup is how long the BeforeExit callbacks get after that.
 	Cleanup *int
+	// Grace is the stop grace period the orchestrator gives this process -
+	// `docker stop --timeout`, or terminationGracePeriodSeconds. Nothing reads
+	// it during a shutdown; it exists so start-up can say whether the budget
+	// fits inside it. Absent means no comparison is made, because the
+	// reference values differ threefold between runtimes and a fixed threshold
+	// would warn about configurations that are correct.
+	Grace *int
 }
 
 // ShutdownBudget is what a shutdown will actually spend, in seconds, after the
@@ -136,6 +144,8 @@ type ShutdownBudget struct {
 	Drain   int
 	Server  int
 	Cleanup int
+	// Grace is zero when extend.shutdown.grace was not configured.
+	Grace int
 }
 
 // Budget resolves the configured section into the values that will be spent.
@@ -154,6 +164,7 @@ func (s Shutdown) Budget() (ShutdownBudget, error) {
 		{"drain", s.Drain},
 		{"server", s.Server},
 		{"cleanup", s.Cleanup},
+		{"grace", s.Grace},
 	} {
 		if f.value != nil && *f.value < 0 {
 			negative = append(negative, fmt.Sprintf("%s: %d", f.name, *f.value))
@@ -170,6 +181,7 @@ func (s Shutdown) Budget() (ShutdownBudget, error) {
 		Drain:   budgetSeconds(s.Drain, DefaultDrainSeconds),
 		Server:  budgetSeconds(s.Server, DefaultServerSeconds),
 		Cleanup: budgetSeconds(s.Cleanup, DefaultCleanupSeconds),
+		Grace:   budgetSeconds(s.Grace, 0),
 	}, nil
 }
 
@@ -178,4 +190,21 @@ func budgetSeconds(configured *int, fallback int) int {
 		return *configured
 	}
 	return fallback
+}
+
+// Total is the whole of the shutdown, since the three stages run one after the
+// other.
+func (b ShutdownBudget) Total() int { return b.Drain + b.Server + b.Cleanup }
+
+// Overrun reports how many seconds have to be found for the budget to fit
+// inside the configured grace period. It is zero when no grace period was
+// configured and when the budget already fits.
+//
+// Fitting means strictly less: the grace period is when SIGKILL is sent, so a
+// budget that ends exactly then leaves the last callback no time to return.
+func (b ShutdownBudget) Overrun() int {
+	if b.Grace <= 0 || b.Total() < b.Grace {
+		return 0
+	}
+	return b.Total() - b.Grace + 1
 }

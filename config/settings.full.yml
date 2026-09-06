@@ -108,6 +108,14 @@ settings:
       server: 5
       # How long the BeforeExit cleanup callbacks get after that.
       cleanup: 3
+      # The stop grace period the orchestrator gives this process - `docker stop
+      # --timeout`, or terminationGracePeriodSeconds. Nothing reads it during a
+      # shutdown; start-up uses it to say whether the three budgets above fit
+      # inside it, and warns when they do not. Left out, nothing is compared:
+      # the reference values are 10s for docker and 30s for Kubernetes, three
+      # times apart, and a fixed threshold would warn about correct
+      # configurations.
+      #grace: 30
     # fileStore 对象存储。上传接口的 source 参数决定走哪一家：
     #   source=1 只存本地，source=2 阿里云 OSS，source=3 七牛 Kodo
     # 没有填的那一家在被请求时会返回明确错误，不会静默存到别处。
