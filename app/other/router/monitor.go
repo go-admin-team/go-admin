@@ -16,9 +16,12 @@ func init() {
 	routerNoCheckRole = append(routerNoCheckRole, RegisterMonitorRouter)
 }
 
-// readyTimeout bounds the whole probe. It has to stay under whatever period
-// the orchestrator polls on, or a slow dependency turns a readiness check into
-// a queue of readiness checks.
+// readyTimeout bounds the whole probe. What constrains it is the orchestrator's
+// per-check timeout rather than its polling period: Kubernetes allows a probe
+// one second by default, so a dependency that answers in 1.2s is recorded as a
+// failed check however promptly this handler returns. A manifest that mounts
+// this probe has to raise timeoutSeconds above this value, and
+// scripts/k8s/deploy.yml does.
 const readyTimeout = 2 * time.Second
 
 // HealthPath and ReadyPath are the two probe routes, relative to APIPrefix.

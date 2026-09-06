@@ -22,6 +22,11 @@ metadata:
     app: go-admin
     version: v1
 spec:
+  # One replica, and the drain window below buys nothing at one replica: there
+  # is nowhere to send the traffic this pod stops taking. Raising it needs one
+  # more change than the number - the volume below is shared by every replica,
+  # and the log path in settings.yml lives on it, so a second pod would append
+  # to the same rotating file.
   replicas: 1
   selector:
     matchLabels:
@@ -39,6 +44,40 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
+        # Readiness answers "send me requests". It fails while the database or
+        # the cache is unreachable, so this pod stays out of the Service until
+        # the datastore settings.yml names is really there - which is a change
+        # from having no probe at all, where a pod with an unreachable database
+        # was still sent traffic.
+        #
+        # timeoutSeconds is 3 rather than the default 1 because the handler
+        # allows its checks 2 seconds (readyTimeout in
+        # app/other/router/monitor.go). At the default, a database that answers
+        # in 1.2s is recorded as a failed check while the handler is returning
+        # 200.
+        readinessProbe:
+          httpGet:
+            path: /api/v1/ready
+            port: 8000
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        # Liveness answers "restart me", which is a different question: a
+        # process whose database is unreachable does not want restarting, so
+        # this points at /health, which is a bare 200. Both probes skip the
+        # rate limiter - see exemptProbes in cmd/api/server.go - because a
+        # liveness probe that collects 429s under load gets the container
+        # restarted at the moment the deployment can least afford to lose it.
+        #
+        # initialDelaySeconds covers the migrations, which run before the
+        # listener opens.
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          failureThreshold: 3
         volumeMounts:
         - name: go-admin
           mountPath: /temp
@@ -47,6 +86,18 @@ spec:
         - name: go-admin-config
           mountPath: /config/
           readOnly: true
+      # SIGKILL arrives when this is up, so it has to be longer than what the
+      # process spends shutting down: extend.shutdown's drain + server +
+      # cleanup, which settings.yml ships as 0 + 5 + 3. Raise drain here and
+      # this number has to follow, or the cleanup callbacks are cut off
+      # part-way through - checksilent's shutdown-budget-overruns-grace check
+      # is what notices.
+      #
+      # No preStop hook on purpose. A sleep there would be spent before the
+      # process is told anything, so BeginDraining never runs and /ready
+      # answers 200 for the whole of it - and it would be added to the budget
+      # above rather than replacing any of it.
+      terminationGracePeriodSeconds: 30
       volumes:
       - name: go-admin
         persistentVolumeClaim:
