@@ -8,10 +8,12 @@
 package storage
 
 import (
+	"context"
 	"log"
 	"sync"
 
 	"github.com/go-admin-team/go-admin-core/v2/captcha"
+	corelog "github.com/go-admin-team/go-admin-core/v2/logger"
 	"github.com/go-admin-team/go-admin-core/v2/sdk"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 )
@@ -21,6 +23,7 @@ func Setup() {
 	setupCache()
 	setupCaptcha()
 	setupQueue()
+	registerQueueDrain()
 }
 
 func setupCache() {
@@ -41,7 +44,91 @@ var (
 	// shut it down, and counted so a consumer can tell one from the next.
 	installed    interface{ Shutdown() }
 	installedGen uint64
+	// drainRegistered records that the BeforeExit callback is on the runtime,
+	// so that a reload does not add another one.
+	drainRegistered bool
 )
+
+// setShutdown is sdk.Runtime.SetShutdown, indirected so that registering can
+// be observed.
+//
+// It has to be: the runtime does not report how many callbacks a phase holds,
+// and shutdownQueue takes the adapter on its first run, so every registration
+// after the first returns immediately and changes nothing anybody can see. A
+// reload adding one callback per round would therefore be invisible from the
+// outside - which is exactly how it would survive.
+var setShutdown = func(f func(context.Context)) { sdk.Runtime.SetShutdown(f) }
+
+// registerQueueDrain puts shutdownQueue on the BeforeExit phase, once.
+//
+// Setup is one of the callbacks bootstrap.SetupConfig re-runs on every
+// configuration change, so registering from it without a guard would leave one
+// callback per reload - each shutting down the same adapter, each reported
+// separately when the budget runs out.
+//
+// A flag under the existing mutex rather than a sync.Once: the tests in this
+// package already save and restore installed and installedGen to keep one test
+// from deciding what the next one sees, and a sync.Once cannot be put back.
+func registerQueueDrain() {
+	queueMu.Lock()
+	first := !drainRegistered
+	drainRegistered = true
+	queueMu.Unlock()
+
+	if first {
+		setShutdown(shutdownQueue)
+	}
+}
+
+// shutdownQueue drains the queue this package installed, on the way out.
+//
+// Nothing used to. core's Memory.Shutdown closes the queue and waits for every
+// consumer to finish what it is holding, and the legacy adapter cancels its
+// context and closes the underlying queue - but neither ran at exit, so the
+// process left with the login log, the operation log and the API sync still
+// buffered, and left reporting success.
+//
+// The adapter is read here rather than captured at registration because a
+// reload replaces it. Registration happens once per process; this runs against
+// whatever is current when the signal arrives.
+//
+// Only an adapter this package installed. sdk.Runtime.GetQueueAdapter never
+// returns nil - with no queue section configured the runtime wraps its own
+// fallback queue - so going through that accessor would shut down a queue this
+// package neither built nor started.
+//
+// The adapter is taken, not read: after this the package owns nothing, so a
+// reload arriving mid-shutdown builds a new one instead of being handed a
+// closed one to shut down again. Both implementations tolerate a second
+// Shutdown, so this is about who owns it rather than about a crash.
+func shutdownQueue(ctx context.Context) {
+	queueMu.Lock()
+	q := installed
+	installed = nil
+	queueMu.Unlock()
+
+	if q == nil {
+		return
+	}
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		q.Shutdown()
+	}()
+
+	select {
+	case <-done:
+		corelog.Info("queue: drained")
+	case <-ctx.Done():
+		// The wait is what the budget bounds, not the work: Shutdown takes no
+		// context and is still running in that goroutine. Saying so here names
+		// what is being lost, which the generic overrun message cannot.
+		corelog.Warnf("queue: the shutdown budget ran out while the queue was still draining - " +
+			"whatever it had not delivered goes with the process. Raise extend.shutdown.cleanup " +
+			"if this recurs.")
+	}
+}
 
 // QueueGeneration reports how many times this package has installed a queue
 // adapter. It changes every time setupQueue builds a new one, which is on
