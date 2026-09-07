@@ -177,6 +177,7 @@ func run() error {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	buildRouter()
+	reportGeneratorWriteRoutes()
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
@@ -355,6 +356,37 @@ const (
 	dockerStopGraceSeconds = 10
 	kubernetesGraceSeconds = 30
 )
+
+// reportGeneratorWriteRoutes says whether this process serves the code
+// generator's writing endpoints, and to whom.
+//
+// The endpoints are gated on the mode, and the shipped configuration says dev -
+// so the deployment most likely to be exposed is the one that changed nothing,
+// and the one least likely to go looking. Silence there would leave the gate
+// technically correct and practically useless.
+//
+// Nothing is said in demo mode. The routes are registered, but DemoEvn refuses
+// all three by name, so a warning would describe an exposure that is not there.
+func reportGeneratorWriteRoutes() {
+	if !generatorWriteRoutesNeedWarning() {
+		return
+	}
+	log.Warnf("the code generator's writing endpoints are served in mode %q: "+
+		"/api/v1/gen/{toproject,apitofile,todb} write Go and Vue source onto this host and rows "+
+		"into this database, and they are in CasbinExclude, so any account that can log in may "+
+		"call them. Set application.mode to prod or test on anything that is not a workstation.",
+		config.ApplicationConfig.Mode)
+}
+
+// generatorWriteRoutesNeedWarning reports whether there is an exposure to warn
+// about: the endpoints are served, and nothing else is refusing them.
+//
+// Split from the logging so the decision can be tested. A warning nobody can
+// make fire is indistinguishable from no warning at all, and this one exists
+// precisely for the case nobody is looking at.
+func generatorWriteRoutesNeedWarning() bool {
+	return otherrouter.GenWriteRoutesEnabled() && config.ApplicationConfig.Mode != "demo"
+}
 
 // reportShutdownBudget states what a shutdown will spend and whether it fits.
 //
