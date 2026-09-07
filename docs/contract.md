@@ -803,5 +803,6 @@ core 里那行注释自己写着「The interface has no way to report this to th
 `checksilent` 一个文件都看不到。所以它保的是**这个仓库和它的 fork**，
 不是你的应用——你的应用要自己跑自己的检查。
 
-`checksilent` 还检查另外五类"不出声的失败"，写模块时值得先看一眼
-`go run ./tools/checksilent -h`。
+`checksilent` 还检查其他几类"不出声的失败"，写模块时值得先看一眼
+`AGENTS.md` 的「静默失败校验」一节，或者 `tools/checksilent/checks.go` 里的
+`runChecks`（`-h` 只打印命令行参数，不列检查）。

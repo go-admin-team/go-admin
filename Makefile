@@ -15,7 +15,16 @@ build-sqlite:
 # make run
 run:
     # delete go-admin-api container
-	@if [ $(shell docker ps -aq --filter name=go-admin --filter publish=8000) ]; then docker rm -f go-admin; fi
+    #
+    # stop then rm, rather than `rm -f`. The force flag kills a running
+    # container with SIGKILL and no grace at all, so restarting locally cut
+    # short every shutdown this application does - the drain window was never
+    # once reached on a developer's machine. --timeout has to cover
+    # extend.shutdown's drain + server + cleanup; checksilent's
+    # docker-stop-cuts-shutdown-short check compares it against
+    # config/settings.yml. On a container that has already stopped, stop is a
+    # no-op and the removal is unchanged.
+	@if [ $(shell docker ps -aq --filter name=go-admin --filter publish=8000) ]; then docker stop --timeout 30 go-admin && docker rm go-admin; fi
 
     # 启动方法一 run go-admin-api container  docker-compose 启动方式
     # 进入到项目根目录 执行 make run 命令

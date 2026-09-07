@@ -1,13 +1,23 @@
 // Command checksilent reports the failures in this repository that do not
 // announce themselves: no error, no log line, behaviour quietly wrong.
 //
-// Seven checks, six of them ERROR and one WARN. An ERROR fails the run; a WARN
-// prints and does not. The split is not about how bad the consequence is - all
-// seven are bad - but about how certain the detection is. Everything reported as
-// an ERROR is decided from this repository's own syntax. The one WARN compares
-// against a second repository through a regular expression, and a check that
-// can be wrong must not be able to stop a build, or the first response to it
-// will be an ignore comment.
+// An ERROR fails the run; a WARN prints and does not. The split is not about
+// how bad the consequence is - every one of these is bad - but about how much
+// room is left to act.
+//
+// Most of them report only ERROR: each is decided from this repository's own
+// files and is either true or not. The menu-name check reports only WARN,
+// because it compares against a second repository through a regular
+// expression, and a check that can be wrong must not be able to stop a build
+// or the first response to it will be an ignore comment. The two
+// shutdown-budget checks report at both levels from one arithmetic: a budget
+// that already overruns is an ERROR, and one that fits with no headroom left
+// is a WARN - it works today, so failing the build on it would be failing a
+// correct configuration.
+//
+// The list of checks is runChecks in checks.go. It is deliberately not
+// repeated here as a count: the two places that carried one were both wrong by
+// the time anybody looked.
 //
 // Usage:
 //

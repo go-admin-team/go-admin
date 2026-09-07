@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestObjectStoreConfigured(t *testing.T) {
 	if (ObjectStore{}).Configured() {
@@ -30,5 +33,168 @@ func TestRateLimitThreshold(t *testing.T) {
 	custom := 1500.0
 	if got := (RateLimit{InboundQPS: &custom}).Threshold(); got != custom {
 		t.Errorf("configured limit = %v, want %v", got, custom)
+	}
+}
+
+func ptr(v int) *int { return &v }
+
+// The zero-value rule is the same for all four fields, and it is the one the
+// section would otherwise need a paragraph of documentation to survive: nil
+// takes the default, a number that was written down is spent literally. A
+// `server: 0` that quietly became five seconds would be the same class of
+// failure this whole batch is about - configuration accepted and not applied.
+func TestShutdownBudgetFallbacks(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		in   Shutdown
+		want ShutdownBudget
+	}{
+		{
+			// What an existing settings.yml hits after an upgrade: no
+			// extend.shutdown section at all, and therefore the shutdown it
+			// already had.
+			name: "nothing configured",
+			in:   Shutdown{},
+			want: ShutdownBudget{Drain: 0, Server: 5, Cleanup: 3},
+		},
+		{
+			name: "all four configured",
+			in:   Shutdown{Drain: ptr(10), Server: ptr(8), Cleanup: ptr(4), Grace: ptr(30)},
+			want: ShutdownBudget{Drain: 10, Server: 8, Cleanup: 4, Grace: 30},
+		},
+		{
+			// The case a plain int could not express: do not wait for
+			// in-flight requests, which is a reasonable thing to ask for when
+			// the grace period is very short.
+			name: "explicit zeros are spent, not replaced",
+			in:   Shutdown{Drain: ptr(0), Server: ptr(0), Cleanup: ptr(0)},
+			want: ShutdownBudget{Drain: 0, Server: 0, Cleanup: 0},
+		},
+		{
+			name: "one field configured, the rest default",
+			in:   Shutdown{Drain: ptr(15)},
+			want: ShutdownBudget{Drain: 15, Server: 5, Cleanup: 3},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := tc.in.Budget()
+			if err != nil {
+				t.Fatalf("Budget() = %v", err)
+			}
+			if got != tc.want {
+				t.Errorf("Budget() = %+v, want %+v", got, tc.want)
+			}
+		})
+	}
+}
+
+// A negative is refused, not corrected. Turning it into zero would be the
+// failure this section exists to remove - written down, accepted, and not what
+// happens - and there is no reading of a negative wait to honour.
+//
+// The last row is what makes the other four mean anything: an implementation
+// that refused every value would pass them all.
+func TestShutdownBudgetRefusesNegativeSeconds(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		in      Shutdown
+		wantErr bool
+	}{
+		{name: "negative drain", in: Shutdown{Drain: ptr(-1)}, wantErr: true},
+		{name: "negative server", in: Shutdown{Server: ptr(-1)}, wantErr: true},
+		{name: "negative cleanup", in: Shutdown{Cleanup: ptr(-1)}, wantErr: true},
+		{name: "negative grace", in: Shutdown{Grace: ptr(-1)}, wantErr: true},
+		{name: "explicit zeros are not negative", in: Shutdown{Drain: ptr(0), Server: ptr(0), Cleanup: ptr(0)}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := tc.in.Budget()
+			if tc.wantErr && err == nil {
+				t.Fatal("Budget() accepted a negative number of seconds")
+			}
+			if !tc.wantErr && err != nil {
+				t.Fatalf("Budget() = %v, want the zeros taken literally", err)
+			}
+		})
+	}
+}
+
+// The message has to name every field that is wrong, not the first one: a
+// caller who fixes one and gets the same error back learns to distrust it.
+func TestShutdownBudgetNamesEveryNegativeField(t *testing.T) {
+	_, err := Shutdown{Drain: ptr(-1), Server: ptr(-30), Cleanup: ptr(-3), Grace: ptr(-9)}.Budget()
+	if err == nil {
+		t.Fatal("Budget() accepted four negative values")
+	}
+	for _, name := range []string{"drain", "server", "cleanup", "grace"} {
+		if !strings.Contains(err.Error(), name) {
+			t.Errorf("%q does not name %s", err, name)
+		}
+	}
+}
+
+// The sum is what has to fit inside the orchestrator's grace period, and the
+// verdict is only reached when a grace period was configured. A fixed
+// threshold instead would warn about the manifest this repository ships.
+func TestShutdownBudgetOverrun(t *testing.T) {
+	resolved := func(s Shutdown) ShutdownBudget {
+		b, err := s.Budget()
+		if err != nil {
+			t.Fatalf("Budget() = %v", err)
+		}
+		return b
+	}
+	for _, tc := range []struct {
+		name        string
+		budget      ShutdownBudget
+		wantTotal   int
+		wantOverrun int
+	}{
+		{
+			name:      "defaults, no grace period to judge against",
+			budget:    resolved(Shutdown{}),
+			wantTotal: 8,
+		},
+		{
+			name:      "fits with room to spare",
+			budget:    resolved(Shutdown{Drain: ptr(10), Grace: ptr(30)}),
+			wantTotal: 18,
+		},
+		{
+			// Equal is not a fit. The grace period is when SIGKILL is sent, so
+			// a budget that ends exactly then leaves the last callback no time
+			// to return.
+			name:        "exactly equal still overruns",
+			budget:      resolved(Shutdown{Drain: ptr(22), Grace: ptr(30)}),
+			wantTotal:   30,
+			wantOverrun: 1,
+		},
+		{
+			name:        "over by five",
+			budget:      resolved(Shutdown{Drain: ptr(26), Grace: ptr(30)}),
+			wantTotal:   34,
+			wantOverrun: 5,
+		},
+		{
+			// The reason the threshold is a configured value rather than a
+			// constant: the same budget is wrong under `docker stop` and right
+			// under a Kubernetes default.
+			name:        "the docker default is the tighter one",
+			budget:      resolved(Shutdown{Drain: ptr(10), Grace: ptr(10)}),
+			wantTotal:   18,
+			wantOverrun: 9,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.budget.Total(); got != tc.wantTotal {
+				t.Errorf("Total() = %d, want %d", got, tc.wantTotal)
+			}
+			if got := tc.budget.Overrun(); got != tc.wantOverrun {
+				t.Errorf("Overrun() = %d, want %d", got, tc.wantOverrun)
+			}
+			if over := tc.budget.Overrun(); over > 0 && tc.budget.Total()-over >= tc.budget.Grace {
+				t.Errorf("Overrun() = %d does not bring %d under the %d grace period",
+					over, tc.budget.Total(), tc.budget.Grace)
+			}
+		})
 	}
 }

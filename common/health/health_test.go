@@ -187,9 +187,12 @@ func TestEveryDependencyIsReportedEvenWithNothingConfigured(t *testing.T) {
 	}
 }
 
-// Draining is what makes the shutdown graceful from the outside: it has to be
-// observable before the server stops accepting, or the load balancer learns
-// about the shutdown by having its connections cut.
+// BeginDraining sets the flag and Draining reports it, before anything else is
+// taken apart. That is the whole of what can be checked from inside the
+// process: whether anyone outside gets to read it depends on
+// extend.shutdown.drain, which is zero unless it is configured, and on who is
+// routing traffic here - the package comment has both. The subprocess tests in
+// cmd/api are where a reader on the other end of a socket sees the 503.
 func TestDrainingIsObservableOnceItBegins(t *testing.T) {
 	previous := draining.Load()
 	t.Cleanup(func() { draining.Store(previous) })

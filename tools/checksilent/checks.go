@@ -21,6 +21,8 @@ const (
 	checkImportBoundary = "contract-import-boundary"
 	checkShimAlias      = "contract-shim-alias"
 	checkDataScopeRoute = "datascope-route-unguarded"
+	checkShutdownGrace  = "shutdown-budget-overruns-grace"
+	checkDockerStop     = "docker-stop-cuts-shutdown-short"
 )
 
 // Package paths, relative to the module. Spelled once so a module rename
@@ -49,6 +51,17 @@ func runChecks(s *snapshot, opt options) ([]Finding, error) {
 	out = append(out, checkContractImportBoundary(s)...)
 	out = append(out, checkContractShimAlias(s)...)
 	out = append(out, checkDataScopeRoutes(s)...)
+
+	for _, run := range []func(*snapshot) ([]Finding, error){
+		checkShutdownBudgetFitsGrace,
+		checkDockerStopGrace,
+	} {
+		fs, err := run(s)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, fs...)
+	}
 
 	if opt.UIDir != "" {
 		fs, err := checkMenuNames(s, opt.UIDir)
