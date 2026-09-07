@@ -16,8 +16,13 @@ import (
 // The mode has to be given rather than inherited, because it now decides what
 // gets registered: a test that leaves it at the zero value would be asking
 // about a mode no deployment runs in, and would pass whether or not the gate
-// works. The previous value is put back so the order of tests in this package
-// cannot change their answers.
+// works.
+//
+// It is put back before this returns, not at the end of the test. t.Cleanup
+// would leave the mode set for everything the caller does afterwards, so a
+// caller that went on to assert something mode-dependent would be reading a
+// value this helper left behind rather than one it chose. A caller that does
+// want the mode set has to set it, which is visible where it happens.
 //
 // The JWT middleware is a zero value. MiddlewareFunc only closes over the
 // receiver and is never called here - no request is served, the engine is
@@ -27,7 +32,7 @@ func registeredRoutes(t *testing.T, mode string) map[string]bool {
 	gin.SetMode(gin.TestMode)
 
 	previous := config.ApplicationConfig.Mode
-	t.Cleanup(func() { config.ApplicationConfig.Mode = previous })
+	defer func() { config.ApplicationConfig.Mode = previous }()
 	config.ApplicationConfig.Mode = mode
 
 	r := gin.New()

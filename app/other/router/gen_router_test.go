@@ -82,9 +82,9 @@ func TestGenWriteRoutesEnabledAgreesWithWhatWasRegistered(t *testing.T) {
 		t.Run("mode="+mode, func(t *testing.T) {
 			routes := registeredRoutes(t, mode)
 
-			// registeredRoutes puts the mode back before it returns, so it
-			// has to be set again to ask the predicate about the same mode
-			// the engine was built under.
+			// registeredRoutes puts the mode back before it returns, so ask
+			// the predicate under a mode set here - about the same value the
+			// engine was just built under.
 			previous := config.ApplicationConfig.Mode
 			t.Cleanup(func() { config.ApplicationConfig.Mode = previous })
 			config.ApplicationConfig.Mode = mode
@@ -96,5 +96,27 @@ func TestGenWriteRoutesEnabledAgreesWithWhatWasRegistered(t *testing.T) {
 					mode, claimed, actual)
 			}
 		})
+	}
+}
+
+// The helper restores the mode before it returns, so nothing it was asked
+// about leaks into what the caller does next.
+//
+// Worth a test of its own because the failure is silent: a helper that left
+// the mode set would make every assertion after the call read a value the
+// caller did not choose, and each of those assertions would still pass for as
+// long as the leaked value happened to be the right one.
+func TestRegisteredRoutesRestoresTheModeBeforeReturning(t *testing.T) {
+	const sentinel = "not-a-mode"
+
+	previous := config.ApplicationConfig.Mode
+	t.Cleanup(func() { config.ApplicationConfig.Mode = previous })
+	config.ApplicationConfig.Mode = sentinel
+
+	registeredRoutes(t, "prod")
+
+	if got := config.ApplicationConfig.Mode; got != sentinel {
+		t.Errorf("mode after the helper returned = %q, want %q - it was left set to what "+
+			"the helper was asked about", got, sentinel)
 	}
 }
