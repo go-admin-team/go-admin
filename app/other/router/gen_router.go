@@ -11,7 +11,7 @@ func init() {
 	routerCheckRole = append(routerCheckRole, sysNoCheckRoleRouter, registerDBRouter, registerSysTableRouter)
 }
 
-func sysNoCheckRoleRouter(v1 *gin.RouterGroup ,authMiddleware *jwt.GinJWTMiddleware) {
+func sysNoCheckRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	r1 := v1.Group("")
 	{
 		sys := apis.System{}
