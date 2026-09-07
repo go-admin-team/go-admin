@@ -80,6 +80,44 @@ func registerQueueDrain() {
 	}
 }
 
+// drainedInTime shuts q down and reports whether it finished before ctx expired.
+func drainedInTime(ctx context.Context, q interface{ Shutdown() }) bool {
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		q.Shutdown()
+	}()
+	return finishedBeforeDeadline(ctx, done)
+}
+
+// finishedBeforeDeadline waits for done or for ctx, and resolves a tie in
+// favour of done.
+//
+// The tie is the reason this is a function of its own rather than one select
+// inline. Both channels can be ready when the select runs, select picks at
+// random among ready cases, and so a single look reports an overrun for a
+// drain that completed - about half the times it lands there, which is exactly
+// often enough to be dismissed as noise. core's own RunShutdown re-checks for
+// this reason.
+//
+// Taking channels rather than a queue is what makes it testable: a closed done
+// and an expired ctx can be handed in together, which is the state a race
+// would otherwise have to be caught in.
+func finishedBeforeDeadline(ctx context.Context, done <-chan struct{}) bool {
+	select {
+	case <-done:
+		return true
+	case <-ctx.Done():
+	}
+
+	select {
+	case <-done:
+		return true
+	default:
+		return false
+	}
+}
+
 // shutdownQueue drains the queue this package installed, on the way out.
 //
 // Nothing used to. core's Memory.Shutdown closes the queue and waits for every
@@ -111,23 +149,16 @@ func shutdownQueue(ctx context.Context) {
 		return
 	}
 
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-		q.Shutdown()
-	}()
-
-	select {
-	case <-done:
+	if drainedInTime(ctx, q) {
 		corelog.Info("queue: drained")
-	case <-ctx.Done():
-		// The wait is what the budget bounds, not the work: Shutdown takes no
-		// context and is still running in that goroutine. Saying so here names
-		// what is being lost, which the generic overrun message cannot.
-		corelog.Warnf("queue: the shutdown budget ran out while the queue was still draining - " +
-			"whatever it had not delivered goes with the process. Raise extend.shutdown.cleanup " +
-			"if this recurs.")
+		return
 	}
+	// The wait is what the budget bounds, not the work: Shutdown takes no
+	// context and is still running in that goroutine. Saying so here names what
+	// is being lost, which the generic overrun message cannot.
+	corelog.Warnf("queue: the shutdown budget ran out while the queue was still draining - " +
+		"whatever it had not delivered goes with the process. Raise extend.shutdown.cleanup " +
+		"if this recurs.")
 }
 
 // QueueGeneration reports how many times this package has installed a queue

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -19,12 +20,34 @@ import (
 type countingQueue struct {
 	calls atomic.Int32
 	block chan struct{}
+
+	// started is closed on the way into Shutdown, so a test can wait for the
+	// call rather than assume the goroutine that makes it was scheduled. The
+	// caller returns on its own deadline while Shutdown is still running, so
+	// reading calls straight after that return is a race with the increment.
+	startOnce sync.Once
+	started   chan struct{}
+}
+
+func newCountingQueue() *countingQueue {
+	return &countingQueue{started: make(chan struct{})}
 }
 
 func (q *countingQueue) Shutdown() {
+	q.startOnce.Do(func() { close(q.started) })
 	q.calls.Add(1)
 	if q.block != nil {
 		<-q.block
+	}
+}
+
+// waitStarted blocks until Shutdown has been entered, or fails the test.
+func (q *countingQueue) waitStarted(t *testing.T) {
+	t.Helper()
+	select {
+	case <-q.started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("Shutdown was never called")
 	}
 }
 
@@ -90,7 +113,7 @@ func TestSetupPutsTheQueueDrainOnBeforeExit(t *testing.T) {
 	Setup()
 	Setup()
 
-	q := &countingQueue{}
+	q := newCountingQueue()
 	setInstalled(q)
 
 	if err := sdk.Runtime.RunShutdown(context.Background()); err != nil {
@@ -142,7 +165,7 @@ func TestTheDrainRunsAgainstTheAdapterInstalledLast(t *testing.T) {
 	config.QueueConfig = &config.Queue{Memory: &config.QueueMemory{PoolSize: 10}}
 	Setup()
 
-	first, second := &countingQueue{}, &countingQueue{}
+	first, second := newCountingQueue(), newCountingQueue()
 	setInstalled(first)
 	setInstalled(second)
 
@@ -183,7 +206,8 @@ func TestTheDrainDoesNothingWhenThisPackageInstalledNothing(t *testing.T) {
 func TestTheDrainStopsWaitingWhenTheBudgetIsGone(t *testing.T) {
 	isolate(t)
 
-	blocked := &countingQueue{block: make(chan struct{})}
+	blocked := newCountingQueue()
+	blocked.block = make(chan struct{})
 	t.Cleanup(func() { close(blocked.block) })
 	setInstalled(blocked)
 
@@ -203,6 +227,10 @@ func TestTheDrainStopsWaitingWhenTheBudgetIsGone(t *testing.T) {
 			"that takes no context, so the wait has to be bounded here")
 	}
 
+	// Waited for rather than read straight after the return: Shutdown runs on a
+	// goroutine that the caller does not join, so the increment is not ordered
+	// against the caller giving up on its deadline.
+	blocked.waitStarted(t)
 	if blocked.calls.Load() != 1 {
 		t.Errorf("Shutdown called %d times, want 1 - the drain has to be attempted even when it "+
 			"cannot be waited out", blocked.calls.Load())
@@ -214,7 +242,7 @@ func TestTheDrainStopsWaitingWhenTheBudgetIsGone(t *testing.T) {
 // `previous` to shut down again.
 func TestTheDrainGivesUpOwnershipOfTheAdapter(t *testing.T) {
 	isolate(t)
-	setInstalled(&countingQueue{})
+	setInstalled(newCountingQueue())
 
 	shutdownQueue(context.Background())
 
@@ -248,7 +276,7 @@ func (q *runtimeQueue) Run()                                      {}
 func TestTheDrainNeverReachesTheRuntimesOwnQueue(t *testing.T) {
 	isolate(t)
 
-	onTheRuntime := &runtimeQueue{}
+	onTheRuntime := &runtimeQueue{countingQueue: *newCountingQueue()}
 	sdk.Runtime.SetQueueAdapter(onTheRuntime)
 
 	if currentInstalled() != nil {
@@ -263,5 +291,43 @@ func TestTheDrainNeverReachesTheRuntimesOwnQueue(t *testing.T) {
 	if got := onTheRuntime.calls.Load(); got != 0 {
 		t.Errorf("the runtime's queue was shut down %d times - the drain went through "+
 			"GetQueueAdapter instead of the adapter this package installed", got)
+	}
+}
+
+// A drain that finishes in the same instant the budget expires counts as
+// finished.
+//
+// Both channels are ready when the select runs, and select picks at random
+// among ready cases, so a single look reports an overrun for a drain that
+// completed - roughly half the times it lands here. The repetition is what
+// makes that visible: one iteration passes either way.
+func TestATieBetweenTheDeadlineAndTheDrainGoesToTheDrain(t *testing.T) {
+	expired, cancel := context.WithCancel(context.Background())
+	cancel()
+	<-expired.Done()
+
+	done := make(chan struct{})
+	close(done)
+
+	for i := 0; i < 1000; i++ {
+		if !finishedBeforeDeadline(expired, done) {
+			t.Fatalf("iteration %d of 1000: both the deadline and the drain were ready and the "+
+				"deadline won - a drain that completed is being reported as an overrun", i)
+		}
+	}
+}
+
+// The other side of it. A drain that really has not finished has to be
+// reported, or the warning never fires and the tie-break above has quietly
+// turned into "always say it drained".
+func TestADrainThatHasNotFinishedIsReportedAsAnOverrun(t *testing.T) {
+	expired, cancel := context.WithCancel(context.Background())
+	cancel()
+	<-expired.Done()
+
+	stillRunning := make(chan struct{}) // never closed
+
+	if finishedBeforeDeadline(expired, stillRunning) {
+		t.Error("an unfinished drain was reported as having finished in time")
 	}
 }
