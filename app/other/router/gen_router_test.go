@@ -120,3 +120,32 @@ func TestRegisteredRoutesRestoresTheModeBeforeReturning(t *testing.T) {
 			"the helper was asked about", got, sentinel)
 	}
 }
+
+// Changing the mode after the routes were built unregisters nothing.
+//
+// buildRouter has one call site, in run(), and route registration is not on
+// any phase or reload callback - so a configuration reload moves
+// config.ApplicationConfig.Mode without moving the routes. From that moment
+// GenWriteRoutesEnabled answers about a mode the engine was not built under.
+//
+// That gap is why the start-up warning tells the reader to restart rather than
+// only to change the mode. This pins it: if registration ever becomes dynamic,
+// this test fails and the message it justifies has to be revisited.
+func TestChangingTheModeDoesNotUnregisterWhatWasAlreadyBuilt(t *testing.T) {
+	built := registeredRoutes(t, "dev")
+	if !built["/api/v1/gen/todb/:tableId"] {
+		t.Fatal("built under dev without the writing routes, so this test asserts nothing")
+	}
+
+	previous := config.ApplicationConfig.Mode
+	t.Cleanup(func() { config.ApplicationConfig.Mode = previous })
+	config.ApplicationConfig.Mode = "prod"
+
+	if GenWriteRoutesEnabled() {
+		t.Fatal("the predicate still allows prod, so the disagreement below is not the one meant")
+	}
+	if !built["/api/v1/gen/todb/:tableId"] {
+		t.Error("the route left the engine when the mode changed - registration has become " +
+			"dynamic, and the start-up warning's advice to restart is now wrong")
+	}
+}

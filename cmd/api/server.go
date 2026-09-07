@@ -374,7 +374,9 @@ func reportGeneratorWriteRoutes() {
 	log.Warnf("the code generator's writing endpoints are served in mode %q: "+
 		"/api/v1/gen/{toproject,apitofile,todb} write Go and Vue source onto this host and rows "+
 		"into this database, and they are in CasbinExclude, so any account that can log in may "+
-		"call them. Set application.mode to prod or test on anything that is not a workstation.",
+		"call them. Set application.mode to prod or test on anything that is not a workstation, "+
+		"then restart: these routes were registered at start-up and a configuration reload does "+
+		"not rebuild them.",
 		config.ApplicationConfig.Mode)
 }
 
