@@ -1,12 +1,25 @@
 name: Build
 
-# Documentation-only changes skip this workflow entirely.
+# Documentation-only changes, and changes confined to the Kubernetes
+# manifests, skip this workflow entirely.
 #
 # A push to master here does not just build - it pushes an image, runs the
 # migrations and restarts the demo container, so the site takes a short outage.
 # Paying that for a README edit is waste at best; at worst a deploy fails for a
 # reason unrelated to anything in the change. Code coverage is unaffected,
 # because go.yml still builds every push and pull request.
+#
+# scripts/k8s holds deploy.yml, storage.yml and prerun.sh, and the deploy below
+# reads none of them - it is an ssh into one host that runs docker, building the
+# Dockerfile at the repository root. Those manifests are for people deploying to
+# a cluster of their own. The pattern is scripts/k8s/** rather than scripts/**
+# because scripts/Dockerfile is a build input: go.yml builds the release image
+# from it on a tag.
+#
+# A file outside these patterns still runs the workflow even when the rest of
+# the change is ignorable: paths-ignore skips only when every changed path
+# matches. Editing this file is one such case, on purpose - a deploy script
+# that is never exercised by the change that broke it is worse than an outage.
 on:
   push:
     branches: [ master ]
@@ -15,6 +28,7 @@ on:
       - 'docs/**'
       - 'LICENSE*'
       - '.github/ISSUE_TEMPLATE/**'
+      - 'scripts/k8s/**'
   pull_request:
     branches: [ master ]
     paths-ignore:
@@ -22,6 +36,7 @@ on:
       - 'docs/**'
       - 'LICENSE*'
       - '.github/ISSUE_TEMPLATE/**'
+      - 'scripts/k8s/**'
 
 # One deploy at a time. Two merges seconds apart raced here: both runs did
 # docker rm -f then docker run, the second removed the container the first had
