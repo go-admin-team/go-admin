@@ -223,3 +223,83 @@ func TestSeedNaturalKeysWrapperRecordsTheVersion(t *testing.T) {
 		t.Fatalf("sys_migration was not recorded: %v", err)
 	}
 }
+
+// GROUP BY treats two NULLs as equal for grouping purposes; a UNIQUE INDEX
+// treats every NULL as distinct from every other value, including another
+// NULL - both are standard SQL semantics, not a quirk of one dialect (see
+// the postgres-only test file next to this one for the same check against
+// a real server). A duplicate check that groups on the raw columns without
+// accounting for that difference refuses an install the index itself would
+// accept without complaint, on data there is nothing to "reconcile" -
+// worse than the index simply failing to build, because it stops a library
+// that has nothing wrong with it.
+//
+// sys_api.path/action carry no NOT NULL constraint - see the design doc's
+// note on this migration for why that stays true in this batch, changing
+// it is an independent, backward-incompatible migration of its own - so
+// this state is reachable in a real database even though seedApis's own
+// Create call, which always writes the Go zero value "" rather than NULL,
+// never produces it itself. Inserted via raw SQL for exactly that reason:
+// models.SysApi's Path/Action are plain (non-pointer) Go strings, which
+// cannot represent NULL through a normal Create call.
+func TestSeedNaturalKeysDoesNotFlagWhatTheIndexWouldAccept(t *testing.T) {
+	db := openSeedNaturalKeysDB(t)
+	for i := 0; i < 2; i++ {
+		if err := db.Exec(
+			"INSERT INTO sys_api (app_code, path, action, deleted_at) VALUES ('order', NULL, NULL, 0)",
+		).Error; err != nil {
+			t.Fatalf("seed NULL row %d: %v", i, err)
+		}
+	}
+
+	if err := seedNaturalKeys(db); err != nil {
+		t.Fatalf("seedNaturalKeys refused a library the unique index itself accepts: %v", err)
+	}
+	if !db.Migrator().HasIndex(&adminmodels.SysApi{}, "uk_sys_api_app_path_action_del") {
+		t.Error("the unique index was not built even though seedNaturalKeys reported success")
+	}
+}
+
+// The case above has both path and action NULL on every row, which both
+// of the query's two NULL-exclusion conditions independently catch - it
+// cannot tell "only path IS NOT NULL is doing anything here" apart from
+// "both conditions are doing something". A row missing only one of the
+// two is exactly as real (an api registered with a path but no method,
+// or vice versa) and exercises only one condition at a time: two rows
+// sharing a real path but both NULL in action, or two rows sharing a real
+// action but both NULL in path. GROUP BY treats each pair's shared NULL
+// the same way it treats a shared (NULL, NULL) - as equal - and the
+// unique index accepts both pairs for the same reason it accepts the
+// (NULL, NULL) case, so neither belongs in the count either.
+func TestSeedNaturalKeysDoesNotFlagPartiallyNullRows(t *testing.T) {
+	cases := []struct {
+		name   string
+		insert string // two rows, sharing a value in exactly one of path/action
+	}{
+		{
+			name:   "path is null, action repeats",
+			insert: "INSERT INTO sys_api (app_code, path, action, deleted_at) VALUES ('order', NULL, 'GET', 0)",
+		},
+		{
+			name:   "action is null, path repeats",
+			insert: "INSERT INTO sys_api (app_code, path, action, deleted_at) VALUES ('order', '/api/v1/order', NULL, 0)",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			db := openSeedNaturalKeysDB(t)
+			for i := 0; i < 2; i++ {
+				if err := db.Exec(tc.insert).Error; err != nil {
+					t.Fatalf("seed row %d: %v", i, err)
+				}
+			}
+
+			if err := seedNaturalKeys(db); err != nil {
+				t.Fatalf("seedNaturalKeys refused a library the unique index itself accepts: %v", err)
+			}
+			if !db.Migrator().HasIndex(&adminmodels.SysApi{}, "uk_sys_api_app_path_action_del") {
+				t.Error("the unique index was not built even though seedNaturalKeys reported success")
+			}
+		})
+	}
+}

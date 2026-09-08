@@ -40,6 +40,39 @@ func TestSeedNaturalKeysRefusesDuplicateApisOnPostgres(t *testing.T) {
 	}
 }
 
+// GROUP BY treats two NULLs as equal for grouping; a UNIQUE INDEX treats
+// every NULL as distinct from every other value, including another NULL.
+// Both are standard SQL, not a SQLite/PostgreSQL/MySQL difference - this
+// file exists to confirm that on a real server rather than assume it, the
+// same reason TestSeedNaturalKeysRefusesDuplicateApisOnPostgres above
+// exists for CONCAT(). See TestSeedNaturalKeysDoesNotFlagWhatTheIndexWouldAccept
+// in the SQLite-backed test file for the full account of why this matters:
+// a naive duplicate check that does not exclude NULL path/action refuses
+// an install the unique index itself would accept without complaint.
+func TestSeedNaturalKeysDoesNotFlagWhatTheIndexWouldAcceptOnPostgres(t *testing.T) {
+	db := postgresDB(t)
+	t.Cleanup(func() { db.Migrator().DropTable(&oldSeedMenu{}, &oldSeedApi{}) })
+	db.Migrator().DropTable(&oldSeedMenu{}, &oldSeedApi{})
+	if err := db.AutoMigrate(&oldSeedMenu{}, &oldSeedApi{}); err != nil {
+		t.Fatalf("automigrate: %v", err)
+	}
+
+	for i := 0; i < 2; i++ {
+		if err := db.Exec(
+			"INSERT INTO sys_api (app_code, path, action, deleted_at) VALUES ('order', NULL, NULL, 0)",
+		).Error; err != nil {
+			t.Fatalf("seed NULL row %d: %v", i, err)
+		}
+	}
+
+	if err := seedNaturalKeys(db); err != nil {
+		t.Fatalf("seedNaturalKeys refused a library the unique index itself accepts on PostgreSQL: %v", err)
+	}
+	if !db.Migrator().HasIndex(&oldSeedApi{}, "uk_sys_api_app_path_action_del") {
+		t.Error("the unique index was not built on PostgreSQL even though seedNaturalKeys reported success")
+	}
+}
+
 // The success path, on the same server: both columns and both unique
 // indexes have to actually build on PostgreSQL, not merely fail to error
 // out on SQLite. Mirrors TestSeedNaturalKeysIsRepeatable's SQLite coverage.

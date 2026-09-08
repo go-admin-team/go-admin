@@ -77,11 +77,62 @@ func seedNaturalKeys(db *gorm.DB) error {
 // would make the unique index impossible, rather than the index failing to
 // build and saying only that it did. Only live rows count: a soft-deleted
 // duplicate does not block the index it will never occupy a slot in.
+//
+// sys_api.path/action (app/admin/models/sys_api.go) carry no NOT NULL
+// constraint, and that stays true here on purpose: tightening it is an
+// independent, backward-incompatible change of its own - existing NULL
+// rows in a real database would need reconciling or backfilling before
+// ALTER TABLE ... NOT NULL could even run, which is a decision for
+// whoever owns that data, not something this migration should force as a
+// side effect of adding an unrelated index. So this function has to
+// tolerate NULL path/action rather than assume they cannot occur - see the
+// query below for how it does that without either crashing on them
+// (MySQL's CONCAT) or wrongly flagging them (GROUP BY's NULL-equals-NULL).
+//
+// The two are independent bugs that happened to share one root cause, and
+// SQLite's own test suite for this file would have caught neither on its
+// own: MySQL's CONCAT() returns NULL if any argument is NULL, which turned
+// a duplicate check against a NULL-holding library into "converting NULL
+// to string is unsupported" instead of a report - but SQLite's (and
+// PostgreSQL's) CONCAT() treats a NULL argument as an empty string
+// instead, so the exact same query never errors there no matter how it is
+// called. A suite that only ever ran on SQLite would report success for
+// both defects; only a real MySQL server surfaces the first one at all -
+// this migration's PostgreSQL-only sibling test file
+// (1786700008000_seed_natural_keys_postgres_test.go) rules out one more
+// dialect, but MySQL specifically has to be checked by hand, since this
+// repository's test suite has no MySQL service to run against in CI.
 func refuseOnDuplicateApis(db *gorm.DB) error {
 	var dupes []string
 	if err := db.Raw(
+		// This has to agree with what the unique index it guards actually
+		// enforces, not just with what looks like a duplicate at a glance.
+		// Two different SQL rules collide on a NULL: GROUP BY treats two
+		// NULLs as equal, so a naive query flags every pair of rows that
+		// share a NULL path or action - even a pair with only one of the
+		// two NULL, since GROUP BY's equality still holds on whichever
+		// column both rows leave NULL - but a UNIQUE INDEX treats every
+		// NULL as distinct from every other value, including another
+		// NULL, so the index itself accepts every one of those pairs
+		// without complaint. Excluding any row missing either column from
+		// consideration entirely is what makes the two agree: a row
+		// missing path, or missing action, or missing both, can never
+		// violate the index no matter how many other rows are also
+		// missing the same one, so none of them belong in this count.
+		//
+		// No COALESCE: with both columns excluded whenever either is
+		// NULL, CONCAT here never receives a NULL argument for path or
+		// action - app_code cannot be NULL at all (see its own NOT NULL
+		// tag) - so there is nothing left for COALESCE to guard against,
+		// and leaving it out is deliberate rather than an oversight. A
+		// future regression that removed the two IS NOT NULL conditions
+		// above would fail loudly on MySQL (the same Scan error this
+		// query used to produce) instead of quietly reporting a made-up
+		// "duplicate" whose path and action both print as empty - the
+		// failure this function exists to prevent in the first place.
 		`SELECT CONCAT(app_code, '|', path, '|', action) FROM sys_api
-		 WHERE deleted_at = 0 GROUP BY app_code, path, action HAVING COUNT(*) > 1`,
+		 WHERE deleted_at = 0 AND path IS NOT NULL AND action IS NOT NULL
+		 GROUP BY app_code, path, action HAVING COUNT(*) > 1`,
 	).Scan(&dupes).Error; err != nil {
 		return fmt.Errorf("checking sys_api for duplicates: %w", err)
 	}
