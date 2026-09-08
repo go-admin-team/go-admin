@@ -209,7 +209,7 @@ func (e *ExecJob) addJob(c *cron.Cron) (int, error) {
 
 // Remove 移除任务
 func Remove(c *cron.Cron, entryID int) chan bool {
-	ch := make(chan bool)
+	ch := make(chan bool, 1)
 	go func() {
 		c.Remove(cron.EntryID(entryID))
 		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Remove success ,info entryID :", entryID)
