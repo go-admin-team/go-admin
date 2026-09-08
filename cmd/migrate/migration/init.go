@@ -185,6 +185,28 @@ func (e *Migration) mergedEntries() map[string]versionEntry {
 	return out
 }
 
+// RegisteredVersions returns every migration version this binary registers,
+// sorted, without touching a database.
+//
+// Status answers a richer question - what is registered, what is applied, and
+// what is applied while nothing registers it - and needs a database to do it.
+// This is the half that can be asked of the process alone, which is what a
+// readiness check needs: the check holds the databases it is asking about, and
+// reusing Status would mean calling SetDb from a request handler, writing this
+// package's shared state from a request path.
+func (e *Migration) RegisteredVersions() []string {
+	all := e.mergedEntries()
+	out := make([]string, 0, len(all))
+	for k := range all {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
+}
+
+// RegisteredVersions reports what the process-wide registry holds.
+func RegisteredVersions() []string { return Migrate.RegisteredVersions() }
+
 // StatusEntry is one row of migrate status.
 type StatusEntry struct {
 	AppCode    string
