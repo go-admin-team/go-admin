@@ -82,6 +82,11 @@ func setup() {
 	// can call the API, which is only true once the socket is accepting.
 	sdk.Runtime.SetPhase(runtime.AfterListen, startCronJobs)
 
+	// Registered before the configuration is read, because it registers a
+	// callback rather than reading anything: the check runs per request and
+	// asks the databases that exist then.
+	registerSchemaCheck()
+
 	//1. 读取配置
 	bootstrap.SetupConfig(
 		file.NewSource(file.WithPath(configYml)),
