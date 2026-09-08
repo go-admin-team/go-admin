@@ -74,16 +74,25 @@ func TestConversionCompletesOnPostgres(t *testing.T) {
 	}
 
 	deleted := time.Now().Add(-time.Hour)
-	db.Create(&pgOldUser{Username: "gone", DeletedAt: &deleted})
-	db.Create(&pgOldUser{Username: "live"})
+	// Checked rather than fired and forgotten: a failed insert leaves the
+	// assertions below reading an empty table, and "no rows" is a shape some
+	// of them cannot tell from success.
+	if err := db.Create(&pgOldUser{Username: "gone", DeletedAt: &deleted}).Error; err != nil {
+		t.Fatalf("seeding the deleted row: %v", err)
+	}
+	if err := db.Create(&pgOldUser{Username: "live"}).Error; err != nil {
+		t.Fatalf("seeding the live row: %v", err)
+	}
 
 	if err := convertDeletedAt(db, "sd_pg_user"); err != nil {
 		t.Fatalf("convertDeletedAt: %v", err)
 	}
 
 	var dataType string
-	db.Raw(`SELECT data_type FROM information_schema.columns
-	        WHERE table_name = 'sd_pg_user' AND column_name = 'deleted_at'`).Scan(&dataType)
+	if err := db.Raw(`SELECT data_type FROM information_schema.columns
+	        WHERE table_name = 'sd_pg_user' AND column_name = 'deleted_at'`).Scan(&dataType).Error; err != nil {
+		t.Fatalf("reading the column type: %v", err)
+	}
 	if dataType != "bigint" {
 		t.Errorf("deleted_at is %q after the conversion, want bigint", dataType)
 	}
@@ -91,7 +100,9 @@ func TestConversionCompletesOnPostgres(t *testing.T) {
 	// The marker has to carry the timestamp across, or a row that was deleted
 	// comes back live.
 	var markers []int64
-	db.Raw(`SELECT deleted_at FROM sd_pg_user ORDER BY user_id`).Scan(&markers)
+	if err := db.Raw(`SELECT deleted_at FROM sd_pg_user ORDER BY user_id`).Scan(&markers).Error; err != nil {
+		t.Fatalf("reading the markers: %v", err)
+	}
 	if len(markers) != 2 {
 		t.Fatalf("read %d rows, want 2", len(markers))
 	}
@@ -118,8 +129,10 @@ func TestTheIndexOnDeletedAtIsDroppedOnPostgres(t *testing.T) {
 	}
 
 	var before int64
-	db.Raw(`SELECT count(*) FROM pg_indexes
-	        WHERE tablename = 'sd_pg_user' AND indexdef LIKE '%deleted_at%'`).Scan(&before)
+	if err := db.Raw(`SELECT count(*) FROM pg_indexes
+	        WHERE tablename = 'sd_pg_user' AND indexdef LIKE '%deleted_at%'`).Scan(&before).Error; err != nil {
+		t.Fatalf("counting the indexes before: %v", err)
+	}
 	if before == 0 {
 		t.Fatal("the old shape has no index on deleted_at, so this test asserts nothing")
 	}
@@ -128,9 +141,15 @@ func TestTheIndexOnDeletedAtIsDroppedOnPostgres(t *testing.T) {
 		t.Fatalf("dropIndexesOn: %v", err)
 	}
 
+	// This one is why the errors are checked at all rather than as a matter of
+	// habit: a query that fails leaves after at zero, and zero is what success
+	// looks like. An unchecked error here is a test that passes when it cannot
+	// reach the database.
 	var after int64
-	db.Raw(`SELECT count(*) FROM pg_indexes
-	        WHERE tablename = 'sd_pg_user' AND indexdef LIKE '%deleted_at%'`).Scan(&after)
+	if err := db.Raw(`SELECT count(*) FROM pg_indexes
+	        WHERE tablename = 'sd_pg_user' AND indexdef LIKE '%deleted_at%'`).Scan(&after).Error; err != nil {
+		t.Fatalf("counting the indexes after: %v", err)
+	}
 	if after != 0 {
 		t.Errorf("%d index(es) on deleted_at survived", after)
 	}
