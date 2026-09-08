@@ -33,8 +33,27 @@ jobs:
           --health-timeout 3s
           --health-retries 10
 
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: goadmin_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
     env:
       GO_ADMIN_TEST_REDIS_ADDR: 127.0.0.1:6379
+      # The soft-delete conversion drops an index, and gorm's PostgreSQL driver
+      # produced unparseable SQL for that - on SQLite, where the rest of these
+      # tests run, the same code works. The suite reported success for a
+      # migration that failed on every PostgreSQL database it was pointed at.
+      # See go-admin#919.
+      GO_ADMIN_TEST_POSTGRES_DSN: "host=127.0.0.1 port=5432 user=postgres password=postgres dbname=goadmin_test sslmode=disable"
 
     steps:
 

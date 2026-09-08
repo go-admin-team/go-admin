@@ -237,11 +237,51 @@ func dropIndexesOn(db *gorm.DB, table, column string) error {
 		if !m.HasIndex(table, name) {
 			continue
 		}
-		if err := m.DropIndex(table, name); err != nil {
+		if err := db.Exec(dropIndex(db, table, name)).Error; err != nil {
 			return fmt.Errorf("dropping index %s: %w", name, err)
 		}
 	}
 	return nil
+}
+
+// dropIndex spells DROP INDEX for one dialect, rather than going through
+// Migrator().DropIndex.
+//
+// The migrator cannot be used here on PostgreSQL. Its driver resolves a schema
+// for the statement and falls back to an expression when it cannot:
+//
+//	currentSchema, _ := m.CurrentSchema(stmt, stmt.Table)   // CURRENT_SCHEMA()
+//	m.DB.Exec("DROP INDEX ?.?", currentSchema, clause.Column{Name: name})
+//
+// DROP INDEX takes an identifier in that position, not an expression, so the
+// statement does not parse. The schema is unresolvable for every call made
+// here, because this passes a table name as a string rather than a model - so
+// it failed on every PostgreSQL database rather than intermittently, and took
+// the whole conversion with it. Reported as go-admin#919, where the visible
+// symptom was a login rejecting a correct password: the migration had stopped
+// here, leaving deleted_at a timestamptz that the current query compares to 0.
+//
+// Written per dialect for the same reason addBigIntColumn and renameColumn
+// already are.
+//
+// MySQL and SQL Server name the table in the statement and have no IF EXISTS
+// for it; PostgreSQL and SQLite name the index alone, in its own namespace.
+// The caller has already checked HasIndex, so IF EXISTS is only there to make
+// the two that support it say nothing rather than fail on a race with another
+// migrator.
+//
+// Verified against PostgreSQL 15, MySQL 8.0 and SQLite. The SQL Server form is
+// from its documentation and has not been run - this repository has no SQL
+// Server to run it against.
+func dropIndex(db *gorm.DB, table, index string) string {
+	switch db.Dialector.Name() {
+	case "mysql":
+		return fmt.Sprintf("DROP INDEX `%s` ON `%s`", index, table)
+	case "sqlserver":
+		return fmt.Sprintf("DROP INDEX [%s] ON [%s]", index, table)
+	default:
+		return fmt.Sprintf(`DROP INDEX IF EXISTS "%s"`, index)
+	}
 }
 
 // indexNamesFor asks the database which indexes cover column.
