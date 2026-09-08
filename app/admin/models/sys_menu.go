@@ -32,6 +32,19 @@ type SysMenu struct {
 	// AutoMigrate adding this column to an existing table leaves every
 	// pre-existing row reading back as "" rather than NULL.
 	AppCode string `json:"appCode" gorm:"type:varchar(64);not null;default:'';index:idx_sys_menu_app_code;comment:AppCode"`
+	// SeedCode is the raw seed.MenuSpec.Code this row was created from, kept
+	// so seedMenuTree can ask "did I already write this node" without
+	// relying on MenuName's PascalCase concatenation, which is not
+	// injective (see design doc §1.6). Nullable, unlike AppCode: every row
+	// seed.SeedMenus writes sets a real value, but every pre-existing row -
+	// the host's own hand-placed menus, and every app-seeded row written
+	// before this column existed - has none, and there is no way to
+	// backfill one that means anything. NULL is what lets an unbounded
+	// number of those coexist under the same app_code without tripping the
+	// unique index below: the database never treats two NULLs as equal, so
+	// only rows that do carry a real code participate in the uniqueness
+	// check at all.
+	SeedCode *string `json:"seedCode" gorm:"size:64;uniqueIndex:uk_sys_menu_app_seed_code_del;comment:raw MenuSpec.Code, null for rows not written through SeedMenus"`
 	models.ControlBy
 	models.ModelTime
 }

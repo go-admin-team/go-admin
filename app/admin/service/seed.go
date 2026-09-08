@@ -90,6 +90,23 @@ func (adminSeeder) SeedMenus(tx *gorm.DB, appCode string, menus []seed.MenuSpec,
 // application's ids in the module cache. Never accepting a caller-chosen id
 // here removes the collision this Seeder has no way to detect instead of
 // trying to detect it after the fact.
+//
+// The natural key is (app_code, path, action) - the same three columns
+// 1786700002000_remove_refresh_token_api.go already used to identify a
+// single API by hand, and the ones 1786700008000_seed_natural_keys.go put a
+// unique index on. Before inserting, this looks for a live row (deleted_at
+// = 0, applied automatically by the soft-delete plugin on every query
+// against models.SysApi) already holding that key and reuses it instead of
+// inserting a second one - see the design doc §1.6: a migration retried
+// after a partial failure previously re-ran this as a bare tx.Create and
+// produced duplicate rows on the demo site.
+//
+// Unlike seedMenuTree's reuse branch, this one has nothing left to repair
+// after finding an existing row: models.SysApi carries no association
+// (nothing like SysMenu's many2many SysApi field) and this function writes
+// nothing beyond the row itself - no second statement comparable to
+// seedMenuTree's paths UPDATE follows tx.Create below. An interrupted retry
+// can therefore only ever find this row complete or not find it at all.
 func seedApis(tx *gorm.DB, appCode string, apis []seed.ApiSpec) (map[string]models.SysApi, error) {
 	seen := make(map[string]bool, len(apis))
 	rows := make(map[string]models.SysApi, len(apis))
@@ -101,6 +118,19 @@ func seedApis(tx *gorm.DB, appCode string, apis []seed.ApiSpec) (map[string]mode
 			return nil, fmt.Errorf("duplicate ApiSpec.Code %q", a.Code)
 		}
 		seen[a.Code] = true
+
+		var existing models.SysApi
+		err := tx.Where("app_code = ? AND path = ? AND action = ?", appCode, a.Path, a.Method).
+			First(&existing).Error
+		switch {
+		case err == nil:
+			rows[a.Code] = existing
+			continue
+		case errors.Is(err, gorm.ErrRecordNotFound):
+			// Not seen yet; fall through to insert it.
+		default:
+			return nil, fmt.Errorf("api %q: checking for an existing row: %w", a.Code, err)
+		}
 
 		row := models.SysApi{
 			Handle:  a.Handle,
@@ -153,6 +183,12 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				continue
 			}
 
+			// Resolved before the idempotency check below, whether or not
+			// this spec's own row turns out to already exist: repairing an
+			// existing-but-incomplete row's paths needs the parent's
+			// already-resolved Paths exactly as much as creating a fresh
+			// row does (see repairExistingMenu), so both have to wait for
+			// it the same way.
 			var parentRow models.SysMenu
 			if s.Parent != "" {
 				parent, ok := created[s.Parent]
@@ -165,6 +201,32 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				parentRow = parent
 			}
 
+			// Idempotency check: does this node already have a row, from
+			// an earlier, possibly-interrupted attempt? The natural key is
+			// (app_code, seed_code) - menu_name's PascalCase concatenation
+			// is not injective and cannot be used for this (see menuName's
+			// doc comment and the design doc §1.6). Only a live row counts;
+			// the soft-delete plugin scopes deleted_at = 0 automatically on
+			// every query against models.SysMenu.
+			var existing models.SysMenu
+			err := tx.Where("app_code = ? AND seed_code = ?", appCode, s.Code).First(&existing).Error
+			switch {
+			case err == nil:
+				row, err := repairExistingMenu(tx, existing, s, parentRow, apiRows)
+				if err != nil {
+					return nil, fmt.Errorf("%q: repairing an existing row: %w", s.Code, err)
+				}
+				created[s.Code] = row
+				ids = append(ids, row.MenuId)
+				progressed = true
+				continue
+			case errors.Is(err, gorm.ErrRecordNotFound):
+				// Not written yet; fall through to create it below.
+			default:
+				return nil, fmt.Errorf("%q: checking for an existing row: %w", s.Code, err)
+			}
+
+			seedCode := s.Code
 			row := models.SysMenu{
 				MenuName:   menuName(appCode, s.Code),
 				Title:      s.Title,
@@ -179,9 +241,10 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				// 1786700001000_demo_menu.go seeds its own menu with. A
 				// freshly installed application's menu should not need an
 				// administrator to first find and unhide it.
-				Visible: "0",
-				IsFrame: "1",
-				AppCode: appCode,
+				Visible:  "0",
+				IsFrame:  "1",
+				AppCode:  appCode,
+				SeedCode: &seedCode,
 			}
 			for _, code := range s.ApiCodes {
 				api, ok := apiRows[code]
@@ -205,11 +268,7 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 			// two-step create-then-update 1786700001000_demo_menu.go's
 			// hand-assigned ids let it do in one literal, sequenced here
 			// instead.
-			if s.Parent == "" {
-				row.Paths = "/0/" + strconv.Itoa(row.MenuId)
-			} else {
-				row.Paths = parentRow.Paths + "/" + strconv.Itoa(row.MenuId)
-			}
+			row.Paths = expectedPaths(row.MenuId, s.Parent, parentRow)
 			if err := tx.Model(&models.SysMenu{}).Where("menu_id = ?", row.MenuId).
 				Update("paths", row.Paths).Error; err != nil {
 				return nil, fmt.Errorf("%q: writing paths: %w", s.Code, err)
@@ -224,6 +283,91 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 		}
 	}
 	return ids, nil
+}
+
+// expectedPaths is the materialized path a fresh insert of menuID under
+// parent (or at the root, if parent is "") computes - factored out so
+// repairExistingMenu can ask the same question about a row it did not just
+// create.
+func expectedPaths(menuID int, parent string, parentRow models.SysMenu) string {
+	if parent == "" {
+		return "/0/" + strconv.Itoa(menuID)
+	}
+	return parentRow.Paths + "/" + strconv.Itoa(menuID)
+}
+
+// repairExistingMenu brings a row seedMenuTree's idempotency check found up
+// to what a fresh insert of the same spec would have produced.
+//
+// A row can be found and still be incomplete: tx.Create's own association
+// write (the sys_menu_api_rule bindings from row.SysApi) and the paths
+// UPDATE that follows it are each their own statement, and design doc §1.5
+// establishes that nothing after the first DDL in a migration function can
+// be rolled back together - a process interrupted between the row insert
+// and either of those two steps leaves exactly this row: present, findable
+// by its natural key, but missing what makes it a working menu entry. A
+// retry that only checked "does the row exist" and stopped there would
+// report success while the sys_menu_api_rule binding stays missing (the
+// api is granted to no one) or paths stays empty (a materialized-path
+// break that orphans the rest of the subtree from the root) - as silent as
+// the duplicate-row defect the idempotency check itself was written to
+// close.
+//
+// Both checks are read-before-write, so a row that is already complete -
+// the ordinary case on every retry after the first successful one - causes
+// no writes at all: existing.Paths already equals what expectedPaths
+// computes, and the sys_menu_api_rule INSERT is itself guarded by
+// WHERE NOT EXISTS, the same idempotent-insert shape grantToAdminRole
+// already uses for sys_role_menu/casbin_rule. Never DELETEs an existing
+// binding to rebuild it - that is the FullSaveAssociations mistake
+// sys_role.go's SysRole.Update makes for sys_role_menu/casbin_rule
+// (app/admin/service/sys_role.go:148-153), the exact pattern this design
+// went out of its way to avoid for the tables that do use it.
+//
+// Insert-only cuts both ways, deliberately. A binding an administrator
+// added by hand through the menu management UI, for an api never in
+// s.ApiCodes at all, is never touched by this loop and survives every
+// later retry (TestSeedMenusPreservesAHandAddedBinding is the reproduction
+// case for the opposite mistake: delete-then-reinsert wipes it silently,
+// the same shape as sys_role_menu/casbin_rule getting zeroed by a role
+// edit, just with this code as the actor instead of the victim). The
+// converse case - a MenuSpec that used to list an ApiCode and no longer
+// does - is not handled here either, and that half is intentional rather
+// than an oversight: this loop only ever adds rows for codes the *current*
+// call's ApiCodes names, so a binding for a code an earlier version
+// granted and the current one dropped is left in place, stale. Reconciling
+// that is deleting something, which needs the same certainty about
+// ownership uninstall's design (see design doc §5) already requires -
+// this function has no way to tell "stale, from an older version of this
+// same app" apart from "hand-added, for a reason", and business rule 3
+// ("uninstall deletes only what it can attribute with certainty") applies
+// here just as much as it does there. Reconciling stale seed-driven
+// bindings, if it is ever wanted, belongs in the upgrade path with that
+// same ownership check - not silently inside every retry of every install.
+func repairExistingMenu(tx *gorm.DB, existing models.SysMenu, s seed.MenuSpec, parentRow models.SysMenu, apiRows map[string]models.SysApi) (models.SysMenu, error) {
+	want := expectedPaths(existing.MenuId, s.Parent, parentRow)
+	if existing.Paths != want {
+		if err := tx.Model(&models.SysMenu{}).Where("menu_id = ?", existing.MenuId).
+			Update("paths", want).Error; err != nil {
+			return models.SysMenu{}, fmt.Errorf("repairing paths: %w", err)
+		}
+		existing.Paths = want
+	}
+
+	for _, code := range s.ApiCodes {
+		api, ok := apiRows[code]
+		if !ok {
+			return models.SysMenu{}, fmt.Errorf("ApiCodes references %q, which is not an ApiSpec.Code in this call", code)
+		}
+		if err := tx.Exec(
+			"INSERT INTO sys_menu_api_rule (sys_menu_menu_id, sys_api_id) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM sys_menu_api_rule WHERE sys_menu_menu_id = ? AND sys_api_id = ?)",
+			existing.MenuId, api.Id, existing.MenuId, api.Id,
+		).Error; err != nil {
+			return models.SysMenu{}, fmt.Errorf("binding %q: %w", code, err)
+		}
+	}
+
+	return existing, nil
 }
 
 // validateMenuSpec rejects the malformed input tools/checksilent's
