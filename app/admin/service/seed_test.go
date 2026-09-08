@@ -289,3 +289,219 @@ func TestSeedMenusWithNothingRegisteredWritesNothing(t *testing.T) {
 		}
 	}
 }
+
+// newSeedTestDB's AutoMigrate builds a unique index on seed_code alone,
+// because SysMenu.SeedCode is the only field in the struct carrying the
+// uk_sys_menu_app_seed_code_del tag - app_code already carries a different,
+// non-unique index name of its own, and the embedded ModelTime's
+// DeletedAt (aliased from go-admin-core) cannot be given a third one. The
+// real migration (cmd/migrate/migration/version/1786700008000_seed_natural_keys.go)
+// never lets AutoMigrate touch this table for exactly that reason: it
+// builds the composite (app_code, seed_code, deleted_at) index by hand
+// instead. Reproduce that by hand here too, so a test that seeds two rows
+// sharing a seed_code under different deleted_at values sees what a real
+// install would, not gorm's narrower default.
+func useCompositeSeedCodeIndex(t *testing.T, db *gorm.DB) {
+	t.Helper()
+	if db.Migrator().HasIndex(&models.SysMenu{}, "uk_sys_menu_app_seed_code_del") {
+		if err := db.Migrator().DropIndex(&models.SysMenu{}, "uk_sys_menu_app_seed_code_del"); err != nil {
+			t.Fatalf("drop the single-column seed_code index: %v", err)
+		}
+	}
+	if err := db.Exec(
+		"CREATE UNIQUE INDEX uk_sys_menu_app_seed_code_del ON sys_menu (app_code, seed_code, deleted_at)",
+	).Error; err != nil {
+		t.Fatalf("create the composite seed_code index: %v", err)
+	}
+}
+
+// A retried migration - one that failed partway through and is run again,
+// or simply run twice by mistake - must not create a second sys_api or
+// sys_menu row for the same (appCode, natural key). This is the defect the
+// demo site hit in production: duplicate sys_menu/casbin_rule rows from a
+// bare tx.Create on a natural key nothing was checking.
+func TestSeedMenusIsIdempotentAcrossARetry(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+
+	menus := []seed.MenuSpec{
+		{Code: "dir", Kind: contractmodels.Directory, Title: "Order", Sort: 10},
+		{Code: "list", Parent: "dir", Kind: contractmodels.Menu, Title: "Orders", Sort: 1, ApiCodes: []string{"list"}},
+	}
+	apis := []seed.ApiSpec{
+		{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET"},
+	}
+
+	run := func() {
+		t.Helper()
+		if err := db.Transaction(func(tx *gorm.DB) error {
+			return adminSeeder{}.SeedMenus(tx, "order", menus, apis)
+		}); err != nil {
+			t.Fatalf("SeedMenus: %v", err)
+		}
+	}
+	run()
+	firstMenuIDs := allMenuIDs(t, db, "order")
+	firstApiIDs := allApiIDs(t, db, "order")
+
+	run() // the retry
+
+	if got := allMenuIDs(t, db, "order"); !sameIDs(got, firstMenuIDs) {
+		t.Errorf("sys_menu ids after retry = %v, want unchanged %v (a second call inserted new rows)", got, firstMenuIDs)
+	}
+	if got := allApiIDs(t, db, "order"); !sameIDs(got, firstApiIDs) {
+		t.Errorf("sys_api ids after retry = %v, want unchanged %v (a second call inserted new rows)", got, firstApiIDs)
+	}
+
+	assertRowCount(t, db, "sys_api", 1)
+	assertRowCount(t, db, "sys_menu", 2)
+	assertRowCount(t, db, "sys_menu_api_rule", 1)
+	assertRowCount(t, db, "sys_role_menu", 2)
+	assertRowCount(t, db, "casbin_rule", 1)
+}
+
+// Only a live row counts as "already written". A row a prior, unrelated
+// soft-delete already retired must not be reused - seedApis/seedMenuTree
+// have to insert a fresh one under the same natural key, the same way the
+// unique indexes 1786700008000_seed_natural_keys.go builds only bind live
+// rows.
+func TestSeedMenusOnlyReusesLiveRows(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+
+	menus := []seed.MenuSpec{{Code: "dir", Kind: contractmodels.Directory, Title: "Order", Sort: 10}}
+	apis := []seed.ApiSpec{{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET"}}
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		return adminSeeder{}.SeedMenus(tx, "order", menus, apis)
+	}); err != nil {
+		t.Fatalf("SeedMenus: %v", err)
+	}
+
+	// Soft-delete both rows this first call wrote, as if an operator (or an
+	// earlier uninstall) had retired them, independently of this migration
+	// ever running again.
+	if err := db.Exec("UPDATE sys_menu SET deleted_at = 1").Error; err != nil {
+		t.Fatalf("soft-delete sys_menu: %v", err)
+	}
+	if err := db.Exec("UPDATE sys_api SET deleted_at = 1").Error; err != nil {
+		t.Fatalf("soft-delete sys_api: %v", err)
+	}
+
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		return adminSeeder{}.SeedMenus(tx, "order", menus, apis)
+	}); err != nil {
+		t.Fatalf("SeedMenus after soft-delete: %v", err)
+	}
+
+	// Two rows total: the soft-deleted original, plus a fresh one - not the
+	// dead row resurrected in place, and not left with zero live rows.
+	assertRowCount(t, db, "sys_menu", 2)
+	assertRowCount(t, db, "sys_api", 2)
+
+	var liveMenus, liveApis int64
+	db.Model(&models.SysMenu{}).Where("app_code = ?", "order").Count(&liveMenus)
+	db.Model(&models.SysApi{}).Where("app_code = ?", "order").Count(&liveApis)
+	if liveMenus != 1 {
+		t.Errorf("live sys_menu rows = %d, want 1", liveMenus)
+	}
+	if liveApis != 1 {
+		t.Errorf("live sys_api rows = %d, want 1", liveApis)
+	}
+}
+
+// app_code is part of the natural key, not a descriptive column alongside
+// it. Two applications that happen to register an identical (path, action)
+// or seed_code must each get their own row - reusing one app's row for
+// another's install would make an uninstall of the first delete a row the
+// second considers its own.
+func TestSeedMenusScopesTheNaturalKeyByAppCode(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+
+	menus := []seed.MenuSpec{{Code: "dir", Kind: contractmodels.Directory, Title: "Dir", Sort: 10}}
+	apis := []seed.ApiSpec{{Code: "list", Title: "Shared endpoint", Path: "/api/v1/shared", Method: "GET"}}
+
+	for _, appCode := range []string{"order", "billing"} {
+		if err := db.Transaction(func(tx *gorm.DB) error {
+			return adminSeeder{}.SeedMenus(tx, appCode, menus, apis)
+		}); err != nil {
+			t.Fatalf("SeedMenus(%q): %v", appCode, err)
+		}
+	}
+
+	var apiRows []models.SysApi
+	if err := db.Where("path = ? AND action = ?", "/api/v1/shared", "GET").
+		Order("app_code").Find(&apiRows).Error; err != nil {
+		t.Fatalf("read sys_api: %v", err)
+	}
+	if len(apiRows) != 2 {
+		t.Fatalf("sys_api has %d row(s) for the shared (path, action), want 2 - one per app", len(apiRows))
+	}
+	if apiRows[0].AppCode != "billing" || apiRows[1].AppCode != "order" {
+		t.Errorf("sys_api app_codes = [%s %s], want [billing order]", apiRows[0].AppCode, apiRows[1].AppCode)
+	}
+
+	var menuRows []models.SysMenu
+	if err := db.Where("seed_code = ?", "dir").Order("app_code").Find(&menuRows).Error; err != nil {
+		t.Fatalf("read sys_menu: %v", err)
+	}
+	if len(menuRows) != 2 {
+		t.Fatalf("sys_menu has %d row(s) for the shared seed_code, want 2 - one per app", len(menuRows))
+	}
+	if menuRows[0].AppCode != "billing" || menuRows[1].AppCode != "order" {
+		t.Errorf("sys_menu app_codes = [%s %s], want [billing order]", menuRows[0].AppCode, menuRows[1].AppCode)
+	}
+}
+
+func allMenuIDs(t *testing.T, db *gorm.DB, appCode string) []int {
+	t.Helper()
+	var rows []models.SysMenu
+	if err := db.Where("app_code = ?", appCode).Order("menu_id").Find(&rows).Error; err != nil {
+		t.Fatalf("read sys_menu: %v", err)
+	}
+	ids := make([]int, len(rows))
+	for i, r := range rows {
+		ids[i] = r.MenuId
+	}
+	return ids
+}
+
+func allApiIDs(t *testing.T, db *gorm.DB, appCode string) []int {
+	t.Helper()
+	var rows []models.SysApi
+	if err := db.Where("app_code = ?", appCode).Order("id").Find(&rows).Error; err != nil {
+		t.Fatalf("read sys_api: %v", err)
+	}
+	ids := make([]int, len(rows))
+	for i, r := range rows {
+		ids[i] = r.Id
+	}
+	return ids
+}
+
+func sameIDs(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func assertRowCount(t *testing.T, db *gorm.DB, table string, want int64) {
+	t.Helper()
+	var n int64
+	if err := db.Table(table).Count(&n).Error; err != nil {
+		t.Fatalf("count %s: %v", table, err)
+	}
+	if n != want {
+		t.Errorf("%s has %d row(s), want %d", table, n, want)
+	}
+}

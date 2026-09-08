@@ -90,6 +90,16 @@ func (adminSeeder) SeedMenus(tx *gorm.DB, appCode string, menus []seed.MenuSpec,
 // application's ids in the module cache. Never accepting a caller-chosen id
 // here removes the collision this Seeder has no way to detect instead of
 // trying to detect it after the fact.
+//
+// The natural key is (app_code, path, action) - the same three columns
+// 1786700002000_remove_refresh_token_api.go already used to identify a
+// single API by hand, and the ones 1786700008000_seed_natural_keys.go put a
+// unique index on. Before inserting, this looks for a live row (deleted_at
+// = 0, applied automatically by the soft-delete plugin on every query
+// against models.SysApi) already holding that key and reuses it instead of
+// inserting a second one - see the design doc §1.6: a migration retried
+// after a partial failure previously re-ran this as a bare tx.Create and
+// produced duplicate rows on the demo site.
 func seedApis(tx *gorm.DB, appCode string, apis []seed.ApiSpec) (map[string]models.SysApi, error) {
 	seen := make(map[string]bool, len(apis))
 	rows := make(map[string]models.SysApi, len(apis))
@@ -101,6 +111,19 @@ func seedApis(tx *gorm.DB, appCode string, apis []seed.ApiSpec) (map[string]mode
 			return nil, fmt.Errorf("duplicate ApiSpec.Code %q", a.Code)
 		}
 		seen[a.Code] = true
+
+		var existing models.SysApi
+		err := tx.Where("app_code = ? AND path = ? AND action = ?", appCode, a.Path, a.Method).
+			First(&existing).Error
+		switch {
+		case err == nil:
+			rows[a.Code] = existing
+			continue
+		case errors.Is(err, gorm.ErrRecordNotFound):
+			// Not seen yet; fall through to insert it.
+		default:
+			return nil, fmt.Errorf("api %q: checking for an existing row: %w", a.Code, err)
+		}
 
 		row := models.SysApi{
 			Handle:  a.Handle,
@@ -153,6 +176,30 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				continue
 			}
 
+			// Idempotency check, ahead of resolving the parent: an already
+			// existing row does not need to wait on anything else in this
+			// call, and this is what lets a retried, partially-failed
+			// migration ask "did I already write this node" instead of
+			// inserting a second one (design doc §1.6). The natural key is
+			// (app_code, seed_code) - menu_name's PascalCase concatenation
+			// is not injective and cannot be used for this (see menuName's
+			// doc comment and the design doc §1.6). Only a live row counts;
+			// the soft-delete plugin scopes deleted_at = 0 automatically on
+			// every query against models.SysMenu.
+			var existing models.SysMenu
+			err := tx.Where("app_code = ? AND seed_code = ?", appCode, s.Code).First(&existing).Error
+			switch {
+			case err == nil:
+				created[s.Code] = existing
+				ids = append(ids, existing.MenuId)
+				progressed = true
+				continue
+			case errors.Is(err, gorm.ErrRecordNotFound):
+				// Not written yet; fall through to create it below.
+			default:
+				return nil, fmt.Errorf("%q: checking for an existing row: %w", s.Code, err)
+			}
+
 			var parentRow models.SysMenu
 			if s.Parent != "" {
 				parent, ok := created[s.Parent]
@@ -165,6 +212,7 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				parentRow = parent
 			}
 
+			seedCode := s.Code
 			row := models.SysMenu{
 				MenuName:   menuName(appCode, s.Code),
 				Title:      s.Title,
@@ -179,9 +227,10 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				// 1786700001000_demo_menu.go seeds its own menu with. A
 				// freshly installed application's menu should not need an
 				// administrator to first find and unhide it.
-				Visible: "0",
-				IsFrame: "1",
-				AppCode: appCode,
+				Visible:  "0",
+				IsFrame:  "1",
+				AppCode:  appCode,
+				SeedCode: &seedCode,
 			}
 			for _, code := range s.ApiCodes {
 				api, ok := apiRows[code]
