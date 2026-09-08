@@ -155,6 +155,31 @@ jobs:
 
             if [ "$ok" = "1" ]; then
               sudo docker rm -f "$PREV" >/dev/null 2>&1 || true
+
+              # Old images of this repository are deleted here and nowhere
+              # else. Every deployment pulls one image tagged with its commit
+              # and nothing ever removed the previous one, so they only ever
+              # accumulated: 68 of them filled the disk and the next deployment
+              # could not pull. That one stopped at the pull, which
+              # is the harmless place to stop - the site kept serving the image
+              # it already had - but no later run would have recovered either.
+              #
+              # Three are kept so a release can be re-run by tag by hand.
+              #
+              # Only this repository's images are listed: the host runs other
+              # services whose images are not this script's business. The image
+              # the new container is on is excluded by id rather than by
+              # position, so it survives even if the listing order is not what
+              # it looks like. No -f, so an image some container still holds is
+              # refused rather than taken away from it, and a refusal does not
+              # fail a deployment that has already succeeded.
+              REPO="${IMG%:*}"
+              LIVE=$(sudo docker inspect -f '{{.Image}}' "$NAME" | sed 's/^sha256://' | cut -c1-12)
+              sudo docker images "$REPO" --format '{{.ID}} {{.Repository}}:{{.Tag}}' \
+                | grep -v "^$LIVE" \
+                | tail -n +3 \
+                | awk '{print $2}' \
+                | xargs -r -n1 sudo docker rmi >/dev/null 2>&1 || true
             else
               echo "健康检查失败，回滚到上一版本"
               sudo docker logs --tail 40 "$NAME" 2>&1 || true
