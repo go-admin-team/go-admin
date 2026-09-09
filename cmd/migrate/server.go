@@ -48,6 +48,22 @@ var (
 			runStatus()
 		},
 	}
+	// Under migrate rather than under the existing `app` command, which
+	// already means "generate the skeleton of a new app" - a directory that
+	// does not exist yet, not an application already compiled into this
+	// binary. Installing an application is running its migrations, which is
+	// what this command is; --app, --domain and resolveDB are all already
+	// here, including the guard that refuses a mistyped code instead of
+	// reporting a successful no-op.
+	installCmd = &cobra.Command{
+		Use:     "install <code>",
+		Short:   "Install one application: run its migrations and record it in sys_app",
+		Example: "go-admin migrate install order -c config/settings.yml",
+		Args:    cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			runInstall(args[0])
+		},
+	}
 )
 
 // fixme 在您看不见代码的时候运行迁移，我觉得是不安全的，所以编译后最好不要去执行迁移
@@ -65,6 +81,7 @@ func init() {
 	StartCmd.Flags().BoolVar(&dryRun, "dry-run", false, "list what would be applied, in order, and write nothing")
 
 	StartCmd.AddCommand(statusCmd)
+	StartCmd.AddCommand(installCmd)
 }
 
 func run() {
@@ -251,6 +268,31 @@ func runStatus() {
 			if err = printStatus(os.Stdout, entries, appCode); err != nil {
 				fmt.Println(err)
 			}
+		},
+	)
+}
+
+func runInstall(code string) {
+	config.Setup(
+		file.NewSource(file.WithPath(configYml)),
+		func() {
+			database.Setup()
+			db, err := resolveDB()
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			m, err := manifestFor(code)
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			rep, err := install(db, migration.Migrate, m)
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			reportInstall(os.Stdout, rep)
 		},
 	)
 }
