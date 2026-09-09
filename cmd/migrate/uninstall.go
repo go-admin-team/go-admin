@@ -113,6 +113,12 @@ func uninstall(db *gorm.DB, code string) (uninstallReport, error) {
 
 		// 3. The many2many rows behind SysMenu.SysApi. Either side is enough
 		// to make a row this application's.
+		//
+		// The guard is intent, not necessity: GORM renders IN with an empty
+		// slice as a condition matching nothing rather than the empty IN
+		// list raw SQL would reject, so removing it changes no behaviour
+		// today. It says out loud that an application with no menus, or no
+		// apis, is a normal thing to uninstall.
 		if len(menuIDs) > 0 || len(apiIDs) > 0 {
 			q := tx.Table("sys_menu_api_rule")
 			switch {

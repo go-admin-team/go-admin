@@ -1,6 +1,7 @@
 package migrate
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -389,5 +390,115 @@ func TestUninstallRefusesTheFrameworkCode(t *testing.T) {
 	db := newUninstallDB(t)
 	if _, err := uninstall(db, migration.FrameworkAppCode); err == nil {
 		t.Fatal("the framework was uninstalled")
+	}
+}
+
+// findOrphanPolicies chunks its OR chain because a driver runs out of
+// placeholders long before an application runs out of endpoints. The
+// boundary is where an off-by-one hides: a chunk size that drops the last
+// element of each batch, or one that never advances, both leave policies
+// unreported and nothing says so.
+func TestFindOrphanPoliciesCoversEveryPathAcrossChunks(t *testing.T) {
+	db := newUninstallDB(t)
+
+	// Deliberately not a multiple of the chunk size, so the last batch is
+	// short, and large enough to need three of them.
+	const n = 205
+	keys := make([]policyKey, 0, n)
+	for i := 0; i < n; i++ {
+		path := "/api/v1/thing" + strconv.Itoa(i)
+		keys = append(keys, policyKey{V1: path, V2: "GET"})
+		if err := db.Exec(
+			"INSERT INTO casbin_rule (ptype, v0, v1, v2, v3, v4, v5) VALUES ('p', 'ops', ?, 'GET', '', '', '')",
+			path,
+		).Error; err != nil {
+			t.Fatalf("seeding policy %d: %v", i, err)
+		}
+	}
+	// One policy that must not match: a path no key names.
+	if err := db.Exec(
+		"INSERT INTO casbin_rule (ptype, v0, v1, v2, v3, v4, v5) VALUES ('p', 'ops', '/api/v1/elsewhere', 'GET', '', '', '')",
+	).Error; err != nil {
+		t.Fatalf("seeding the control policy: %v", err)
+	}
+
+	found, err := findOrphanPolicies(db, keys)
+	if err != nil {
+		t.Fatalf("findOrphanPolicies: %v", err)
+	}
+	if len(found) != n {
+		t.Fatalf("found %d policies, want %d", len(found), n)
+	}
+	seen := make(map[string]bool, len(found))
+	for _, f := range found {
+		seen[f.V1] = true
+		if f.V1 == "/api/v1/elsewhere" {
+			t.Error("a path no key names was reported")
+		}
+	}
+	for _, k := range keys {
+		if !seen[k.V1] {
+			t.Errorf("%s was not reported", k.V1)
+		}
+	}
+}
+
+// An application may register apis with no menus at all - endpoints another
+// service calls - so either of the id lists an uninstall reads can be empty.
+// The guard in front of the join-table delete turns out not to be what makes
+// this work: GORM renders IN with an empty slice as a condition that matches
+// nothing, rather than the empty IN list that would be a syntax error in raw
+// SQL, and removing the guard leaves this test green. It stays as an explicit
+// statement of intent rather than a reliance on that rendering.
+func TestUninstallWithApisButNoMenus(t *testing.T) {
+	db := newUninstallDB(t)
+	apis := []seed.ApiSpec{
+		{Code: "hook", Title: "Inbound hook", Path: "/api/v1/hook", Method: "POST", Handle: "hook.Receive"},
+	}
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		return seed.SeedMenus(tx, "hooks", nil, apis)
+	}); err != nil {
+		t.Fatalf("seeding: %v", err)
+	}
+
+	rep, err := uninstall(db, "hooks")
+	if err != nil {
+		t.Fatalf("uninstall: %v", err)
+	}
+	if rep.Apis != 1 {
+		t.Errorf("removed %d api(s), want 1", rep.Apis)
+	}
+	if rep.Policies != 1 {
+		t.Errorf("removed %d policy(ies), want 1", rep.Policies)
+	}
+	if n := count(t, db, "casbin_rule", "", nil); n != 0 {
+		t.Errorf("casbin_rule has %d row(s)", n)
+	}
+}
+
+// The mirror case: menus and no apis at all.
+func TestUninstallWithMenusButNoApis(t *testing.T) {
+	db := newUninstallDB(t)
+	menus := []seed.MenuSpec{
+		{Code: "dir", Kind: "M", Title: "Reports", Path: "/apps/reports", Component: "Layout", Sort: 10},
+	}
+	if err := db.Transaction(func(tx *gorm.DB) error {
+		return seed.SeedMenus(tx, "reports", menus, nil)
+	}); err != nil {
+		t.Fatalf("seeding: %v", err)
+	}
+
+	rep, err := uninstall(db, "reports")
+	if err != nil {
+		t.Fatalf("uninstall: %v", err)
+	}
+	if rep.Menus != 1 {
+		t.Errorf("removed %d menu(s), want 1", rep.Menus)
+	}
+	if n := count(t, db, "sys_menu", "app_code = ?", "reports"); n != 0 {
+		t.Errorf("sys_menu has %d row(s)", n)
+	}
+	if len(rep.Orphans) != 0 {
+		t.Errorf("an application with no apis reported orphans: %v", rep.Orphans)
 	}
 }
