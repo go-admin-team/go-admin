@@ -64,6 +64,15 @@ var (
 			runInstall(args[0])
 		},
 	}
+	uninstallCmd = &cobra.Command{
+		Use:     "uninstall <code>",
+		Short:   "Remove one application's menus, apis and permission grants; its own tables are left alone",
+		Example: "go-admin migrate uninstall order -c config/settings.yml",
+		Args:    cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			runUninstall(args[0])
+		},
+	}
 )
 
 // fixme 在您看不见代码的时候运行迁移，我觉得是不安全的，所以编译后最好不要去执行迁移
@@ -82,6 +91,7 @@ func init() {
 
 	StartCmd.AddCommand(statusCmd)
 	StartCmd.AddCommand(installCmd)
+	StartCmd.AddCommand(uninstallCmd)
 }
 
 func run() {
@@ -293,6 +303,29 @@ func runInstall(code string) {
 				return
 			}
 			reportInstall(os.Stdout, rep)
+		},
+	)
+}
+
+func runUninstall(code string) {
+	config.Setup(
+		file.NewSource(file.WithPath(configYml)),
+		func() {
+			database.Setup()
+			db, err := resolveDB()
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			// No manifest lookup. An application whose code has already been
+			// taken out of the binary registers nothing, and that is exactly
+			// when somebody needs to clear its rows out of the database.
+			rep, err := uninstall(db, code)
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			reportUninstall(os.Stdout, rep)
 		},
 	)
 }
