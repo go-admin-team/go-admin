@@ -11,8 +11,9 @@ import (
 // Three states rather than a single "installed", because an install that
 // stopped partway has to be an observable row rather than the absence of one:
 // the versions an app installs are separate migration files, and on MySQL a
-// DDL statement commits the transaction around it, so they cannot be wrapped
-// in one. See docs-prd/008-应用清单与安装器/数据库变更.md §1.5.
+// DDL statement commits the transaction around it - taking an outer
+// transaction and every savepoint under it with it - so they cannot be
+// wrapped in one.
 //
 // AppInstalling is also what a row reads as after the process was killed
 // mid-install, which is why it is not treated as "installed" by anything.

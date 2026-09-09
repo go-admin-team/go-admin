@@ -49,7 +49,7 @@ type installReport struct {
 // cannot be: an application's versions are separate migration files, and a
 // DDL statement inside any of them commits the transaction around it on
 // MySQL, which destroys an outer transaction and every savepoint taken from
-// it (docs-prd/008-应用清单与安装器/数据库变更.md §1.5). So this does not
+// it. So this does not
 // promise that a half-installed application cannot happen. It promises that
 // one is visible when it does: phase A writes "installing" before anything
 // that can fail, and phase C turns that into "installed" or "failed".
