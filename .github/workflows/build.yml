@@ -117,7 +117,41 @@ jobs:
 
             test -f "$CFG" || { echo "宿主机配置缺失，中止部署"; exit 1; }
 
+            # Old images of this repository are removed here and nowhere else.
+            # Every deployment pulls one tagged with its commit and nothing ever
+            # removed the previous one, so they only accumulated: 68 of them
+            # filled the disk and the next deployment could not pull.
+            #
+            # Three are kept so a release can be re-run by tag by hand.
+            #
+            # Only this repository's images are listed, because the host runs
+            # other services whose images are not this script's business. The
+            # image the live container is on is excluded by id rather than by
+            # position, so it survives even if the listing order is not what
+            # it looks like. With no container to ask, the function returns
+            # rather than running the pipeline on an empty id - which would
+            # also delete nothing, but by way of grep -v matching every line,
+            # which reads like the opposite of what it does. No -f, so an image
+            # any container still holds - including the one kept for rollback -
+            # is refused rather than taken away from it.
+            prune_old_images() {
+              REPO="${IMG%:*}"
+              LIVE=$(sudo docker inspect -f '{{.Image}}' "$NAME" 2>/dev/null | sed 's/^sha256://' | cut -c1-12)
+              [ -n "$LIVE" ] || return 0
+              sudo docker images "$REPO" --format '{{.ID}} {{.Repository}}:{{.Tag}}' \
+                | grep -v "^$LIVE" \
+                | tail -n +3 \
+                | awk '{print $2}' \
+                | xargs -r -n1 sudo docker rmi >/dev/null 2>&1 || true
+            }
+
             sudo docker login --username=${{ secrets.DOCKER_USERNAME }} registry.ap-northeast-1.aliyuncs.com --password=${{ secrets.DOCKER_PASSWORD }}
+            # Before the pull, not only after a successful deploy. The pull
+            # is the first thing here that needs space and it is where a full
+            # disk stops this script, so a cleanup that only runs afterwards
+            # never runs on the host that needs it: rerunning the workflow
+            # fails at the same pull, and the disk has to be cleared by hand.
+            prune_old_images
             sudo docker pull "$IMG" || { echo "拉取镜像失败，中止部署"; exit 1; }
 
             # 迁移用新镜像跑。失败时线上仍是旧版本配旧 schema，是自洽的；
@@ -156,30 +190,9 @@ jobs:
             if [ "$ok" = "1" ]; then
               sudo docker rm -f "$PREV" >/dev/null 2>&1 || true
 
-              # Old images of this repository are deleted here and nowhere
-              # else. Every deployment pulls one image tagged with its commit
-              # and nothing ever removed the previous one, so they only ever
-              # accumulated: 68 of them filled the disk and the next deployment
-              # could not pull. That one stopped at the pull, which
-              # is the harmless place to stop - the site kept serving the image
-              # it already had - but no later run would have recovered either.
-              #
-              # Three are kept so a release can be re-run by tag by hand.
-              #
-              # Only this repository's images are listed: the host runs other
-              # services whose images are not this script's business. The image
-              # the new container is on is excluded by id rather than by
-              # position, so it survives even if the listing order is not what
-              # it looks like. No -f, so an image some container still holds is
-              # refused rather than taken away from it, and a refusal does not
-              # fail a deployment that has already succeeded.
-              REPO="${IMG%:*}"
-              LIVE=$(sudo docker inspect -f '{{.Image}}' "$NAME" | sed 's/^sha256://' | cut -c1-12)
-              sudo docker images "$REPO" --format '{{.ID}} {{.Repository}}:{{.Tag}}' \
-                | grep -v "^$LIVE" \
-                | tail -n +3 \
-                | awk '{print $2}' \
-                | xargs -r -n1 sudo docker rmi >/dev/null 2>&1 || true
+              # Again, so the image this deployment replaced falls out of the
+              # window rather than waiting for the next deployment to notice.
+              prune_old_images
             else
               echo "健康检查失败，回滚到上一版本"
               sudo docker logs --tail 40 "$NAME" 2>&1 || true
