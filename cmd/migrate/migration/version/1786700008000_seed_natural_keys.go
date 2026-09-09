@@ -3,6 +3,7 @@ package version
 import (
 	"fmt"
 	"runtime"
+	"strings"
 
 	"gorm.io/gorm"
 
@@ -47,8 +48,9 @@ func seedNaturalKeys(db *gorm.DB) error {
 		}
 	}
 	if !m.HasIndex(&adminmodels.SysMenu{}, "uk_sys_menu_app_seed_code_del") {
-		if err := db.Exec(
-			"CREATE UNIQUE INDEX uk_sys_menu_app_seed_code_del ON sys_menu (app_code, seed_code, deleted_at)",
+		if err := db.Exec(uniqueIndexOverNullable(db.Dialector.Name(),
+			"uk_sys_menu_app_seed_code_del", "sys_menu",
+			"app_code, seed_code, deleted_at", "seed_code"),
 		).Error; err != nil {
 			return err
 		}
@@ -63,14 +65,50 @@ func seedNaturalKeys(db *gorm.DB) error {
 		return err
 	}
 	if !m.HasIndex(&adminmodels.SysApi{}, "uk_sys_api_app_path_action_del") {
-		if err := db.Exec(
-			"CREATE UNIQUE INDEX uk_sys_api_app_path_action_del ON sys_api (app_code, path, action, deleted_at)",
+		if err := db.Exec(uniqueIndexOverNullable(db.Dialector.Name(),
+			"uk_sys_api_app_path_action_del", "sys_api",
+			"app_code, path, action, deleted_at", "path", "action"),
 		).Error; err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// uniqueIndexOverNullable builds a CREATE UNIQUE INDEX whose key includes
+// columns that can be NULL, and makes it mean the same thing on all four
+// drivers this repository registers.
+//
+// Three of them treat two NULLs as different values, so any number of rows
+// missing one of these columns coexist under the index. SQL Server does not:
+// its unique index treats NULLs as equal and permits exactly one. The
+// unfiltered statement therefore fails there on any database with two rows
+// lacking a seed_code - which is every database, including a brand-new one,
+// because 1786700001000 seeds five menus and none of them has one:
+//
+//	Msg 1505 ... duplicate key ... The duplicate key value is (, <NULL>, 0).
+//
+// Adding the filter on SQL Server takes the rows that carry no value out of
+// the index, which is what the other three do by not comparing their NULLs.
+// It is not added elsewhere: MySQL has no filtered index at all, and on
+// PostgreSQL and SQLite it would only restate what those engines already do.
+//
+// Only databases that have not applied this migration are affected, and no
+// SQL Server database can have: it could not get past this statement.
+//
+// Takes the dialect by name rather than the connection, so the statement it
+// builds for every driver can be checked without one of each running.
+func uniqueIndexOverNullable(dialect, name, table, columns string, nullable ...string) string {
+	stmt := fmt.Sprintf("CREATE UNIQUE INDEX %s ON %s (%s)", name, table, columns)
+	if dialect != "sqlserver" || len(nullable) == 0 {
+		return stmt
+	}
+	preds := make([]string, 0, len(nullable))
+	for _, c := range nullable {
+		preds = append(preds, c+" IS NOT NULL")
+	}
+	return stmt + " WHERE " + strings.Join(preds, " AND ")
 }
 
 // refuseOnDuplicateApis reports the (app_code, path, action) values that
