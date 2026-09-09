@@ -32,7 +32,14 @@ func newSeedTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("open: %v", err)
 	}
-	if err := db.AutoMigrate(&models.SysMenu{}, &models.SysApi{}, &models.SysRole{}); err != nil {
+	// sys_app_casbin_grant is where grantToAdminRole records which policies
+	// this install created, so an uninstall can tell them from the ones
+	// somebody granted by hand. In a real database it is created by
+	// 1786700007000, which is a framework migration and therefore runs ahead
+	// of every application's - version strings sort bare digits before any
+	// app-prefixed one.
+	if err := db.AutoMigrate(&models.SysMenu{}, &models.SysApi{}, &models.SysRole{},
+		&models.SysAppCasbinGrant{}); err != nil {
 		t.Fatalf("automigrate: %v", err)
 	}
 	if err := db.Exec(`CREATE TABLE casbin_rule (
@@ -839,5 +846,140 @@ func TestSeedMenusPreservesAHandAddedBinding(t *testing.T) {
 	}
 	if n := bindingCount(t, db, soloRow.MenuId, apiRows[0].Id); n != 1 {
 		t.Errorf("the seed's own binding count = %d, want 1 - it must survive the retry too", n)
+	}
+}
+
+// Every policy grantToAdminRole creates has to be written down, or an
+// uninstall has no way to tell this app's grants from a hand-made one and
+// leaves all of them behind.
+func TestSeedMenusRecordsTheGrantsItCreated(t *testing.T) {
+	db := newSeedTestDB(t)
+	role := seedAdminRole(t, db)
+
+	apis := []seed.ApiSpec{
+		{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET", Handle: "apis.Order.GetPage-fm"},
+		{Code: "create", Title: "Create order", Path: "/api/v1/order", Method: "POST", Handle: "apis.Order.Insert-fm"},
+	}
+	if err := (adminSeeder{}).SeedMenus(db, "order", nil, apis); err != nil {
+		t.Fatalf("SeedMenus: %v", err)
+	}
+
+	for _, a := range apis {
+		var n int64
+		db.Model(&models.SysAppCasbinGrant{}).
+			Where("app_code = ? AND ptype = 'p' AND v0 = ? AND v1 = ? AND v2 = ?",
+				"order", role.RoleKey, a.Path, a.Method).
+			Count(&n)
+		if n != 1 {
+			t.Errorf("ledger rows for %s %s = %d, want 1", a.Method, a.Path, n)
+		}
+	}
+}
+
+// A policy that was already there was not created by this install, so it is
+// not this app's to take away later. Recording it would mean an uninstall
+// deletes a grant somebody else made, and deletes it silently - the opposite
+// mistake leaves a policy behind, which the uninstall reports.
+func TestSeedMenusDoesNotClaimAPolicyItDidNotCreate(t *testing.T) {
+	db := newSeedTestDB(t)
+	role := seedAdminRole(t, db)
+
+	if err := db.Exec(
+		"INSERT INTO casbin_rule (ptype, v0, v1, v2, v3, v4, v5) VALUES ('p', ?, '/api/v1/order', 'GET', '', '', '')",
+		role.RoleKey,
+	).Error; err != nil {
+		t.Fatalf("pre-existing policy: %v", err)
+	}
+
+	apis := []seed.ApiSpec{
+		{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET", Handle: "apis.Order.GetPage-fm"},
+		{Code: "create", Title: "Create order", Path: "/api/v1/order", Method: "POST", Handle: "apis.Order.Insert-fm"},
+	}
+	if err := (adminSeeder{}).SeedMenus(db, "order", nil, apis); err != nil {
+		t.Fatalf("SeedMenus: %v", err)
+	}
+
+	var claimed int64
+	db.Model(&models.SysAppCasbinGrant{}).
+		Where("v1 = ? AND v2 = ?", "/api/v1/order", "GET").Count(&claimed)
+	if claimed != 0 {
+		t.Errorf("the ledger claimed a policy that was already there (%d rows)", claimed)
+	}
+	// The one it did create is still recorded: the skip is per policy, not
+	// for the whole call.
+	var created int64
+	db.Model(&models.SysAppCasbinGrant{}).
+		Where("v1 = ? AND v2 = ?", "/api/v1/order", "POST").Count(&created)
+	if created != 1 {
+		t.Errorf("ledger rows for the policy it did create = %d, want 1", created)
+	}
+	// And the pre-existing policy itself is untouched.
+	var policies int64
+	db.Table("casbin_rule").Where("v1 = ? AND v2 = ?", "/api/v1/order", "GET").Count(&policies)
+	if policies != 1 {
+		t.Errorf("casbin_rule rows = %d, want the one that was already there", policies)
+	}
+}
+
+// A migration that failed partway is re-run whole. The ledger must come out
+// of a second run the same as the first, not with a duplicate or an error
+// from its own unique index.
+func TestSeedMenusLedgerSurvivesARetry(t *testing.T) {
+	db := newSeedTestDB(t)
+	seedAdminRole(t, db)
+
+	apis := []seed.ApiSpec{
+		{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET", Handle: "apis.Order.GetPage-fm"},
+	}
+	for i := 0; i < 2; i++ {
+		if err := (adminSeeder{}).SeedMenus(db, "order", nil, apis); err != nil {
+			t.Fatalf("SeedMenus run %d: %v", i+1, err)
+		}
+	}
+
+	var n int64
+	db.Model(&models.SysAppCasbinGrant{}).Count(&n)
+	if n != 1 {
+		t.Errorf("ledger has %d rows after two runs, want 1", n)
+	}
+}
+
+// The ledger's own guard against a duplicate, which the plain retry above
+// never reaches: there the policy still exists, so the insert is skipped
+// before the ledger is touched at all. This is the case that does reach it -
+// the policy row was removed while its ledger entry stayed, so the seed
+// creates the policy again and writes a ledger entry that is already there.
+// A plain insert would abort the whole seed on the ledger's unique index.
+func TestSeedMenusLedgerToleratesAnEntryWhosePolicyWasRemoved(t *testing.T) {
+	db := newSeedTestDB(t)
+	seedAdminRole(t, db)
+
+	apis := []seed.ApiSpec{
+		{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET", Handle: "apis.Order.GetPage-fm"},
+	}
+	if err := (adminSeeder{}).SeedMenus(db, "order", nil, apis); err != nil {
+		t.Fatalf("first run: %v", err)
+	}
+	if err := db.Exec("DELETE FROM casbin_rule WHERE v1 = ? AND v2 = ?", "/api/v1/order", "GET").Error; err != nil {
+		t.Fatalf("removing the policy: %v", err)
+	}
+	var ledger int64
+	db.Model(&models.SysAppCasbinGrant{}).Count(&ledger)
+	if ledger != 1 {
+		t.Fatalf("the ledger entry is gone, so this test is not set up: %d rows", ledger)
+	}
+
+	if err := (adminSeeder{}).SeedMenus(db, "order", nil, apis); err != nil {
+		t.Fatalf("second run: %v", err)
+	}
+
+	db.Model(&models.SysAppCasbinGrant{}).Count(&ledger)
+	if ledger != 1 {
+		t.Errorf("ledger has %d rows, want 1", ledger)
+	}
+	var policies int64
+	db.Table("casbin_rule").Where("v1 = ? AND v2 = ?", "/api/v1/order", "GET").Count(&policies)
+	if policies != 1 {
+		t.Errorf("the policy was not put back: %d rows", policies)
 	}
 }
