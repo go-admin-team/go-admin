@@ -6,6 +6,23 @@ import (
 	"go-admin/common/models"
 )
 
+// The values sys_app.status takes.
+//
+// Three states rather than a single "installed", because an install that
+// stopped partway has to be an observable row rather than the absence of one:
+// the versions an app installs are separate migration files, and on MySQL a
+// DDL statement commits the transaction around it - taking an outer
+// transaction and every savepoint under it with it - so they cannot be
+// wrapped in one.
+//
+// AppInstalling is also what a row reads as after the process was killed
+// mid-install, which is why it is not treated as "installed" by anything.
+const (
+	AppInstalling = 1
+	AppInstalled  = 2
+	AppFailed     = 3
+)
+
 // SysApp is the sys_app row model: one row per installed application (PRD
 // 008 F2). It deliberately does not embed models.ModelTime - see the design
 // doc (docs-prd/008-应用清单与安装器/数据库变更.md) §1.1 for why an

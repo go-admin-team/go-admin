@@ -44,7 +44,18 @@ type SysMenu struct {
 	// unique index below: the database never treats two NULLs as equal, so
 	// only rows that do carry a real code participate in the uniqueness
 	// check at all.
-	SeedCode *string `json:"seedCode" gorm:"size:64;uniqueIndex:uk_sys_menu_app_seed_code_del;comment:raw MenuSpec.Code, null for rows not written through SeedMenus"`
+	// uk_sys_menu_app_seed_code_del is created by the migration, not from
+	// this tag, and deliberately: it covers (app_code, seed_code,
+	// deleted_at), and this struct cannot say so. A named uniqueIndex tag
+	// puts every field carrying that name into one index, and deleted_at
+	// comes from the shared ModelTime embed, which no single model can add a
+	// tag to. Naming it here anyway declared a unique index on seed_code
+	// alone under the same name - stricter than the real one, forbidding two
+	// applications from both having a "dir" node - and AutoMigrate on this
+	// model would have created that one first, after which the migration's
+	// HasIndex guard finds the name taken and leaves the wrong index in
+	// place.
+	SeedCode *string `json:"seedCode" gorm:"size:64;comment:raw MenuSpec.Code, null for rows not written through SeedMenus"`
 	models.ControlBy
 	models.ModelTime
 }

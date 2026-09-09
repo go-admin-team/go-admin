@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -76,7 +77,7 @@ func (adminSeeder) SeedMenus(tx *gorm.DB, appCode string, menus []seed.MenuSpec,
 	if len(menuIDs) == 0 && len(apiRows) == 0 {
 		return nil
 	}
-	return grantToAdminRole(tx, menuIDs, apiRows)
+	return grantToAdminRole(tx, appCode, menuIDs, apiRows)
 }
 
 // seedApis writes one sys_api row per ApiSpec and returns them keyed by
@@ -422,7 +423,7 @@ func pascalCase(s string) string {
 // framework migration sorts before every app-prefixed one - means that
 // should not happen in practice, but failing this call over it would be
 // worse than a menu with no grant yet.
-func grantToAdminRole(tx *gorm.DB, menuIDs []int, apiRows map[string]models.SysApi) error {
+func grantToAdminRole(tx *gorm.DB, appCode string, menuIDs []int, apiRows map[string]models.SysApi) error {
 	var role models.SysRole
 	if err := tx.Where("role_key = ?", adminRoleKey).First(&role).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -441,12 +442,53 @@ func grantToAdminRole(tx *gorm.DB, menuIDs []int, apiRows map[string]models.SysA
 	}
 
 	for _, a := range apiRows {
-		if err := tx.Exec(
+		res := tx.Exec(
 			"INSERT INTO casbin_rule (ptype, v0, v1, v2, v3, v4, v5) SELECT 'p', ?, ?, ?, '', '', '' WHERE NOT EXISTS (SELECT 1 FROM casbin_rule WHERE ptype='p' AND v0=? AND v1=? AND v2=?)",
 			role.RoleKey, a.Path, a.Action, role.RoleKey, a.Path, a.Action,
-		).Error; err != nil {
+		)
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected == 0 {
+			// The policy was already there, so this install did not create
+			// it and it is not this app's to take away. Leaving it out of
+			// the ledger is what makes an uninstall report it instead of
+			// deleting it.
+			//
+			// The two ways this can be wrong are not equally bad, which is
+			// what settles it. Under-recording leaves a policy behind and
+			// the uninstall says so, because a policy naming an app's own
+			// path with no ledger entry is exactly what it lists as an
+			// orphan. Over-recording deletes a grant somebody else made,
+			// silently. Between a visible leftover and an invisible
+			// deletion of somebody's authorization, take the leftover.
+			continue
+		}
+		if err := recordGrant(tx, appCode, role.RoleKey, a.Path, a.Action); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// recordGrant writes down that this application's install created one casbin
+// policy, keyed by the same tuple casbin_rule is unique on.
+//
+// A ledger rather than a column on casbin_rule, because casbin_rule is not
+// this project's table: the gorm adapter's SavePolicy truncates it and writes
+// it back from memory, which would drop any column added here, and
+// SysRole.Update replaces a role's policy rows wholesale. The tuple survives
+// both, because both rebuild it from the same sys_menu/sys_api data.
+//
+// Written with the same INSERT ... WHERE NOT EXISTS shape as the policy above
+// rather than a plain insert: the ledger's unique index covers the tuple
+// alone, so a duplicate would abort the whole seed instead of being the
+// no-op it should be.
+func recordGrant(tx *gorm.DB, appCode, roleKey, path, action string) error {
+	return tx.Exec(
+		"INSERT INTO sys_app_casbin_grant (app_code, ptype, v0, v1, v2, v3, v4, v5, created_at) "+
+			"SELECT ?, 'p', ?, ?, ?, '', '', '', ? WHERE NOT EXISTS "+
+			"(SELECT 1 FROM sys_app_casbin_grant WHERE ptype='p' AND v0=? AND v1=? AND v2=? AND v3='' AND v4='' AND v5='')",
+		appCode, roleKey, path, action, time.Now(), roleKey, path, action,
+	).Error
 }

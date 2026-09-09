@@ -3,6 +3,7 @@ package migrate
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -47,6 +48,31 @@ var (
 			runStatus()
 		},
 	}
+	// Under migrate rather than under the existing `app` command, which
+	// already means "generate the skeleton of a new app" - a directory that
+	// does not exist yet, not an application already compiled into this
+	// binary. Installing an application is running its migrations, which is
+	// what this command is; --app, --domain and resolveDB are all already
+	// here, including the guard that refuses a mistyped code instead of
+	// reporting a successful no-op.
+	installCmd = &cobra.Command{
+		Use:     "install <code>",
+		Short:   "Install one application: run its migrations and record it in sys_app",
+		Example: "go-admin migrate install order -c config/settings.yml",
+		Args:    cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			runInstall(args[0])
+		},
+	}
+	uninstallCmd = &cobra.Command{
+		Use:     "uninstall <code>",
+		Short:   "Remove one application's menus, apis and permission grants; its own tables are left alone",
+		Example: "go-admin migrate uninstall order -c config/settings.yml",
+		Args:    cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			runUninstall(args[0])
+		},
+	}
 )
 
 // fixme 在您看不见代码的时候运行迁移，我觉得是不安全的，所以编译后最好不要去执行迁移
@@ -64,6 +90,8 @@ func init() {
 	StartCmd.Flags().BoolVar(&dryRun, "dry-run", false, "list what would be applied, in order, and write nothing")
 
 	StartCmd.AddCommand(statusCmd)
+	StartCmd.AddCommand(installCmd)
+	StartCmd.AddCommand(uninstallCmd)
 }
 
 func run() {
@@ -162,11 +190,9 @@ func migrateModel() error {
 	}
 	migration.Migrate.SetDb(db.Debug())
 	if appCode != "" {
-		migration.Migrate.MigrateApp(appCode)
-		return nil
+		return migration.Migrate.MigrateApp(appCode)
 	}
-	migration.Migrate.Migrate()
-	return nil
+	return migration.Migrate.Migrate()
 }
 
 func initDB() {
@@ -197,12 +223,39 @@ func initDB() {
 
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
-	if err := migrateModel(); err != nil {
-		fmt.Println(err)
-		return
-	}
+	exitOnError(os.Stderr, migrateModel())
 	fmt.Println(`数据库基础数据初始化成功`)
 }
+
+// exitOnError ends the command non-zero when the migration did not go through.
+//
+// A caller that migrates before starting a server decides whether to go ahead
+// on the exit code alone - the deploy workflow does exactly that. Every path
+// out of migrateModel used to return without one: an unreachable tenant
+// database or a failed AutoMigrate printed a line and exited 0, so a
+// deployment carried on onto a schema that had not been brought forward. A
+// failing migration function was the only one reported, and only because it
+// ended the process from inside the migration engine - which is the call this
+// batch moved out here, so without this the last reported failure would have
+// stopped being reported too.
+//
+// Split from the exit itself, the way appRegistrationError is split from
+// exitUnlessAppRegistered, so what it decides can be tested without a
+// subprocess. osExit is a variable for the same reason.
+func exitOnError(w io.Writer, err error) {
+	if err == nil {
+		return
+	}
+	fmt.Fprintln(w, err)
+	osExit(1)
+}
+
+// osExit is a variable so a test can watch the decision without ending the
+// test binary; origExit is what it is put back to.
+var (
+	osExit   = os.Exit
+	origExit = os.Exit
+)
 
 func runStatus() {
 	config.Setup(
@@ -225,6 +278,54 @@ func runStatus() {
 			if err = printStatus(os.Stdout, entries, appCode); err != nil {
 				fmt.Println(err)
 			}
+		},
+	)
+}
+
+func runInstall(code string) {
+	config.Setup(
+		file.NewSource(file.WithPath(configYml)),
+		func() {
+			database.Setup()
+			db, err := resolveDB()
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			m, err := manifestFor(code)
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			rep, err := install(db, migration.Migrate, m)
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			reportInstall(os.Stdout, rep)
+		},
+	)
+}
+
+func runUninstall(code string) {
+	config.Setup(
+		file.NewSource(file.WithPath(configYml)),
+		func() {
+			database.Setup()
+			db, err := resolveDB()
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			// No manifest lookup. An application whose code has already been
+			// taken out of the binary registers nothing, and that is exactly
+			// when somebody needs to clear its rows out of the database.
+			rep, err := uninstall(db, code)
+			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			reportUninstall(os.Stdout, rep)
 		},
 	)
 }
