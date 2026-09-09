@@ -3,6 +3,7 @@ package migrate
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -162,11 +163,9 @@ func migrateModel() error {
 	}
 	migration.Migrate.SetDb(db.Debug())
 	if appCode != "" {
-		migration.Migrate.MigrateApp(appCode)
-		return nil
+		return migration.Migrate.MigrateApp(appCode)
 	}
-	migration.Migrate.Migrate()
-	return nil
+	return migration.Migrate.Migrate()
 }
 
 func initDB() {
@@ -197,12 +196,39 @@ func initDB() {
 
 	//4. 数据库迁移
 	fmt.Println("数据库迁移开始")
-	if err := migrateModel(); err != nil {
-		fmt.Println(err)
-		return
-	}
+	exitOnError(os.Stderr, migrateModel())
 	fmt.Println(`数据库基础数据初始化成功`)
 }
+
+// exitOnError ends the command non-zero when the migration did not go through.
+//
+// A caller that migrates before starting a server decides whether to go ahead
+// on the exit code alone - the deploy workflow does exactly that. Every path
+// out of migrateModel used to return without one: an unreachable tenant
+// database or a failed AutoMigrate printed a line and exited 0, so a
+// deployment carried on onto a schema that had not been brought forward. A
+// failing migration function was the only one reported, and only because it
+// ended the process from inside the migration engine - which is the call this
+// batch moved out here, so without this the last reported failure would have
+// stopped being reported too.
+//
+// Split from the exit itself, the way appRegistrationError is split from
+// exitUnlessAppRegistered, so what it decides can be tested without a
+// subprocess. osExit is a variable for the same reason.
+func exitOnError(w io.Writer, err error) {
+	if err == nil {
+		return
+	}
+	fmt.Fprintln(w, err)
+	osExit(1)
+}
+
+// osExit is a variable so a test can watch the decision without ending the
+// test binary; origExit is what it is put back to.
+var (
+	osExit   = os.Exit
+	origExit = os.Exit
+)
 
 func runStatus() {
 	config.Setup(

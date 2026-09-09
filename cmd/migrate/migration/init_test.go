@@ -1,9 +1,7 @@
 package migration
 
 import (
-	"bytes"
-	"log"
-	"os"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -81,7 +79,9 @@ func TestForAppRecordsItsAppCode(t *testing.T) {
 	m.ForApp("x").SetVersion("1786800001000", func(db *gorm.DB, version, appCode string) error {
 		return recordFor(db, version, appCode)
 	})
-	m.Migrate()
+	if err := m.Migrate(); err != nil {
+		t.Fatalf("m.Migrate(): %v", err)
+	}
 
 	rows := rowsByVersion(t, db)
 	row, ok := rows["x-1786800001000"]
@@ -104,7 +104,9 @@ func TestSetVersionStillRecordsTheFrameworkAsEmpty(t *testing.T) {
 	m.SetVersion("1786700009000", func(db *gorm.DB, version string) error {
 		return db.Create(&common.Migration{Version: version}).Error
 	})
-	m.Migrate()
+	if err := m.Migrate(); err != nil {
+		t.Fatalf("m.Migrate(): %v", err)
+	}
 
 	rows := rowsByVersion(t, db)
 	row, ok := rows["1786700009000"]
@@ -136,7 +138,9 @@ func TestMigrateAppRunsOnlyThatApp(t *testing.T) {
 		return recordFor(db, version, appCode)
 	})
 
-	m.MigrateApp("x")
+	if err := m.MigrateApp("x"); err != nil {
+		t.Fatalf("m.MigrateApp(\"x\"): %v", err)
+	}
 
 	if !ran["x"] {
 		t.Error("x did not run")
@@ -167,7 +171,9 @@ func TestMigrateAppCoreSelectsTheFramework(t *testing.T) {
 		return recordFor(db, version, appCode)
 	})
 
-	m.MigrateApp(FrameworkAppCode)
+	if err := m.MigrateApp(FrameworkAppCode); err != nil {
+		t.Fatalf("m.MigrateApp(FrameworkAppCode): %v", err)
+	}
 
 	if !ran["core"] {
 		t.Error("framework migration did not run")
@@ -198,7 +204,9 @@ func TestMigrateRunsEveryApp(t *testing.T) {
 		return recordFor(db, version, appCode)
 	})
 
-	m.Migrate()
+	if err := m.Migrate(); err != nil {
+		t.Fatalf("m.Migrate(): %v", err)
+	}
 
 	// Namespacing puts every framework migration - bare digits - ahead of every
 	// app migration, and orders apps by code rather than by whose timestamp
@@ -232,7 +240,9 @@ func TestNamespacingKeepsTwoAppsWithTheSameTimestampApart(t *testing.T) {
 			return recordFor(db, version, appCode)
 		})
 	}
-	m.Migrate()
+	if err := m.Migrate(); err != nil {
+		t.Fatalf("m.Migrate(): %v", err)
+	}
 
 	if ran != 2 {
 		t.Errorf("ran %d migrations, want 2", ran)
@@ -357,15 +367,58 @@ func TestFailedMigrationLeavesNoRecord(t *testing.T) {
 		})
 	})
 
-	// run() calls log.Fatal on failure, which would take the test binary with
-	// it, so drive the registered function directly - the point here is the
-	// transaction boundary, not the scheduler.
-	entry := m.version["crm-1786800001000"]
-	if err := entry.fn(db, "crm-1786800001000"); err == nil {
+	// Driven through the scheduler, not by calling the registered function
+	// directly. That workaround was here because run() called log.Fatal and
+	// would have taken the test binary with it, which also meant nothing
+	// covered what the scheduler does with a failure.
+	if err := m.MigrateApp("crm"); err == nil {
 		t.Fatal("migration reported success")
 	}
 	if rows := rowsByVersion(t, db); len(rows) != 0 {
 		t.Errorf("sys_migration has %v after a failed migration", rows)
+	}
+}
+
+// An installer records which version an attempt got stuck on. It gets that
+// from the error rather than by asking the database what is still pending,
+// which is a different question - see VersionFailure.
+func TestRunReportsWhichVersionFailed(t *testing.T) {
+	db := newTestDB(t)
+	m := newMigration()
+	m.SetDb(db)
+
+	// Two versions, and the first one succeeds: the failure has to name the
+	// one that actually failed, which a report that just names the app, or
+	// the first version it looked at, would get wrong.
+	m.ForApp("crm").SetVersion("1786800001000", func(db *gorm.DB, version, appCode string) error {
+		return recordFor(db, version, appCode)
+	})
+	m.ForApp("crm").SetVersion("1786800002000", func(db *gorm.DB, version, appCode string) error {
+		return errTestMigrationFailed
+	})
+
+	err := m.MigrateApp("crm")
+	if err == nil {
+		t.Fatal("MigrateApp reported success")
+	}
+	var vf *VersionFailure
+	if !errors.As(err, &vf) {
+		t.Fatalf("error is %T, want *VersionFailure: %v", err, err)
+	}
+	if vf.Version != "crm-1786800002000" {
+		t.Errorf("failed version = %q, want crm-1786800002000", vf.Version)
+	}
+	if !errors.Is(err, errTestMigrationFailed) {
+		t.Errorf("the cause is not reachable through the wrapper: %v", err)
+	}
+	// The one that succeeded before it stays recorded: a retry must not run
+	// it again.
+	rows := rowsByVersion(t, db)
+	if _, ok := rows["crm-1786800001000"]; !ok {
+		t.Errorf("the migration that succeeded was not recorded: %v", rows)
+	}
+	if _, ok := rows["crm-1786800002000"]; ok {
+		t.Errorf("the migration that failed was recorded: %v", rows)
 	}
 }
 
@@ -389,17 +442,18 @@ func TestMigrateAppOnAnUnknownCodeSaysSo(t *testing.T) {
 		return recordFor(db, version, appCode)
 	})
 
-	var buf bytes.Buffer
-	log.SetOutput(&buf)
-	t.Cleanup(func() { log.SetOutput(os.Stderr) })
-
-	m.MigrateApp("crmm")
-
-	if !strings.Contains(buf.String(), `no migrations are registered for app "crmm"`) {
-		t.Errorf("output = %q", buf.String())
+	// Reported as an error rather than a log line, so an installer asking
+	// for one app by name cannot be told that installing an app nothing
+	// registered succeeded.
+	err := m.MigrateApp("crmm")
+	if err == nil {
+		t.Fatal("a typo reported success")
 	}
-	if !strings.Contains(buf.String(), "registered: core, crm") {
-		t.Errorf("the message must list what is registered; got %q", buf.String())
+	if !strings.Contains(err.Error(), `no migrations are registered for app "crmm"`) {
+		t.Errorf("error = %q", err)
+	}
+	if !strings.Contains(err.Error(), "registered: core, crm") {
+		t.Errorf("the message must list what is registered; got %q", err)
 	}
 	if rows := rowsByVersion(t, db); len(rows) != 0 {
 		t.Errorf("a typo ran %v", rows)
@@ -425,7 +479,9 @@ func TestMergedEntriesRunsAContractRegisteredAppMigration(t *testing.T) {
 		return recordFor(db, version, appCode)
 	})
 
-	m.Migrate()
+	if err := m.Migrate(); err != nil {
+		t.Fatalf("m.Migrate(): %v", err)
+	}
 
 	if !ran {
 		t.Fatal("contract-registered migration did not run")
@@ -466,7 +522,9 @@ func TestMergedEntriesStatusIncludesContractRegisteredMigrations(t *testing.T) {
 		t.Fatalf("pending contract entry = %+v (ok=%v)", e, ok)
 	}
 
-	m.Migrate()
+	if err := m.Migrate(); err != nil {
+		t.Fatalf("m.Migrate(): %v", err)
+	}
 
 	entries, err = m.Status()
 	if err != nil {
@@ -522,7 +580,9 @@ func TestMergedEntriesMigrateAppRunsOnlyThatContractApp(t *testing.T) {
 		return recordFor(db, version, appCode)
 	})
 
-	m.MigrateApp("order")
+	if err := m.MigrateApp("order"); err != nil {
+		t.Fatalf("m.MigrateApp(\"order\"): %v", err)
+	}
 
 	if !ran["order"] {
 		t.Error("order did not run")
@@ -552,7 +612,9 @@ func TestMergedEntriesHostRegistrationWinsOnKeyCollision(t *testing.T) {
 		return recordFor(db, version, appCode)
 	})
 
-	m.Migrate()
+	if err := m.Migrate(); err != nil {
+		t.Fatalf("m.Migrate(): %v", err)
+	}
 
 	if !hostRan {
 		t.Error("host registration did not run")

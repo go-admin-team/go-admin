@@ -284,12 +284,33 @@ func (e *Migration) Status() ([]StatusEntry, error) {
 }
 
 // Migrate applies every registered migration that has not been applied yet,
-// across all apps. Existing callers are unaffected.
-func (e *Migration) Migrate() { e.run(allApps) }
+// across all apps.
+func (e *Migration) Migrate() error { return e.run(allApps) }
 
 // MigrateApp applies only the migrations registered under appCode. Pass
 // FrameworkAppCode for the framework's own migrations.
-func (e *Migration) MigrateApp(appCode string) { e.run(AppFilter(appCode)) }
+func (e *Migration) MigrateApp(appCode string) error { return e.run(AppFilter(appCode)) }
+
+// VersionFailure names the migration that failed.
+//
+// The caller that needs this is an installer recording which version an
+// install got stuck on. That is a diagnostic snapshot and nothing more: the
+// authoritative answer to "where does a retry resume" is always recomputed
+// by subtracting sys_migration's applied rows from what is registered, never
+// read back from anywhere it was stored. Which is exactly why this carries
+// the version rather than leaving the caller to infer it - inferring it
+// would produce "what is pending now", a different question that happens to
+// have the same answer most of the time.
+type VersionFailure struct {
+	Version string
+	Err     error
+}
+
+func (e *VersionFailure) Error() string {
+	return fmt.Sprintf("migration %s failed: %v", e.Version, e.Err)
+}
+
+func (e *VersionFailure) Unwrap() error { return e.Err }
 
 // NormalizeAppCode applies the same rule ForApp does, so a code typed on the
 // command line matches one written in an init().
@@ -332,7 +353,15 @@ func (e *Migration) AppCodes() []string {
 	return out
 }
 
-func (e *Migration) run(appCode string) {
+// run applies the pending migrations selected by appCode.
+//
+// It reports failure instead of ending the process. It used to call
+// log.Fatalf, which took the whole process down at the first failing
+// migration - so a caller had nowhere to record what happened, and a test
+// could not exercise a failing migration at all without killing the test
+// binary. The exit now lives at the command layer, where the exit code is
+// the command's business (see initDB in cmd/migrate/server.go).
+func (e *Migration) run(appCode string) error {
 	all := e.mergedEntries()
 	versions := make([]string, 0, len(all))
 	entries := make(map[string]versionEntry, len(all))
@@ -347,10 +376,14 @@ func (e *Migration) run(appCode string) {
 
 	// A mistyped --app would otherwise select nothing and report "no
 	// migrations to apply", which reads exactly like "already up to date".
+	//
+	// The command layer rejects an unregistered code before any database
+	// work (exitUnlessAppRegistered), so on that path this is unreachable.
+	// It is reachable from an installer, which asks for one app by name and
+	// must not be told that installing an app nothing registered succeeded.
 	if appCode != allApps && len(versions) == 0 {
-		log.Printf("no migrations are registered for app %q; registered: %s",
+		return fmt.Errorf("no migrations are registered for app %q; registered: %s",
 			DisplayAppCode(appCode), strings.Join(e.AppCodes(), ", "))
-		return
 	}
 
 	var err error
@@ -359,7 +392,7 @@ func (e *Migration) run(appCode string) {
 	for _, v := range versions {
 		err = e.db.Table("sys_migration").Where("version = ?", v).Count(&count).Error
 		if err != nil {
-			log.Fatalln(err)
+			return fmt.Errorf("checking whether migration %s was applied: %w", v, err)
 		}
 		if count > 0 {
 			// Already applied. This used to print the bare count, so a mature
@@ -369,7 +402,7 @@ func (e *Migration) run(appCode string) {
 		}
 		log.Printf("applying migration %s", v)
 		if err = entries[v].fn(e.db.Debug(), v); err != nil {
-			log.Fatalf("migration %s failed: %v", v, err)
+			return &VersionFailure{Version: v, Err: err}
 		}
 		applied++
 	}
@@ -378,6 +411,7 @@ func (e *Migration) run(appCode string) {
 	} else {
 		log.Printf("applied %d migration(s)", applied)
 	}
+	return nil
 }
 
 // allApps is the sentinel run() takes to mean "do not filter". It is distinct
