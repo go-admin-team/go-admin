@@ -109,6 +109,16 @@ jobs:
     - name: Build
       run: make build
 
+    # A separate module, so none of the steps above see it: the main module's
+    # go.mod, its build and its tests are all unaware of the example
+    # application. This is the only thing that exercises an application being
+    # installed at all - everything below it runs against an injected engine
+    # and a hand-built schema, and none of that can catch an application's
+    # init() reaching one registry and not the other.
+    - name: End-to-end install and uninstall
+      working-directory: test/e2e-apporder
+      run: go test ./... -count=1
+
     # Fails the build on the silent-failure classes listed in
     # tools/checksilent, one of which is the contract boundary: nothing under
     # common/ may import app/. A boundary that is only written down erodes; this
