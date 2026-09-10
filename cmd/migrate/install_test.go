@@ -66,9 +66,22 @@ func orderManifest(version string) app.Manifest {
 		Version:     version,
 		Description: "order management",
 		Author:      "go-admin",
-		Requires:    []string{"crm"},
-		Pricing:     "free",
-		License:     "MIT",
+		// No dependency by default: these tests are about installing, and a
+		// declared requirement would make every one of them set up a second
+		// application first. requiresInstalled has its own tests below.
+		Requires: nil,
+		Pricing:  "free",
+		License:  "MIT",
+	}
+}
+
+// installedApp writes the sys_app row a satisfied dependency looks like.
+func installedApp(t *testing.T, db *gorm.DB, code string) {
+	t.Helper()
+	if err := db.Create(&adminmodels.SysApp{
+		AppCode: code, Name: code, Version: "1.0.0", Status: adminmodels.AppInstalled,
+	}).Error; err != nil {
+		t.Fatalf("seeding %q as installed: %v", code, err)
 	}
 }
 
@@ -118,9 +131,6 @@ func TestInstallRecordsAFirstInstall(t *testing.T) {
 	}
 	if row.Name != "Orders" || row.Author != "go-admin" || row.Description != "order management" {
 		t.Errorf("descriptive columns not copied from the manifest: %+v", row)
-	}
-	if row.Requires != "crm" {
-		t.Errorf("requires = %q, want the manifest's list as CSV", row.Requires)
 	}
 	if row.Pricing != "free" || row.License != "MIT" {
 		t.Errorf("the reserved fields were not carried through: %+v", row)
@@ -464,5 +474,159 @@ func TestInstallNormalizesTheAppCode(t *testing.T) {
 	}
 	if len(rep.Applied) != 1 {
 		t.Errorf("applied = %v; the normalized code has to match what Status reports", rep.Applied)
+	}
+}
+
+// The manifest's dependency list is stored as it was declared, in the CSV
+// shape sys_app.requires carries.
+func TestInstallStoresTheDeclaredRequires(t *testing.T) {
+	db := newInstallDB(t)
+	installedApp(t, db, "crm")
+	installedApp(t, db, "billing")
+	eng := &fakeEngine{entries: []migration.StatusEntry{
+		{Version: "order-1786800001000", AppCode: "order", Registered: true},
+	}}
+	m := orderManifest("1.0.0")
+	m.Requires = []string{"crm", "billing"}
+
+	if _, err := install(db, eng, m); err != nil {
+		t.Fatalf("install: %v", err)
+	}
+	if row := loadRow(t, db, "order"); row.Requires != "crm,billing" {
+		t.Errorf("requires = %q, want the manifest's list as CSV", row.Requires)
+	}
+}
+
+// An application is not installed for you because something else names it.
+// "Install this" would otherwise mean "and everything it happens to name, and
+// everything those name".
+func TestInstallRefusesWhenADependencyIsNotInstalled(t *testing.T) {
+	db := newInstallDB(t)
+	eng := &fakeEngine{entries: []migration.StatusEntry{
+		{Version: "order-1786800001000", AppCode: "order", Registered: true},
+	}}
+	m := orderManifest("1.0.0")
+	m.Requires = []string{"crm"}
+
+	_, err := install(db, eng, m)
+	if err == nil {
+		t.Fatal("an application with an uninstalled dependency was installed")
+	}
+	if !strings.Contains(err.Error(), "crm") || !strings.Contains(err.Error(), "not installed") {
+		t.Errorf("error = %q, it has to name what is missing and why", err)
+	}
+	if len(eng.calls) != 0 {
+		t.Errorf("the engine ran anyway: %v", eng.calls)
+	}
+	// Refused before phase A, so a refusal leaves nothing behind.
+	var n int64
+	db.Model(&adminmodels.SysApp{}).Where("app_code = ?", "order").Count(&n)
+	if n != 0 {
+		t.Errorf("a refused install wrote %d sys_app row(s)", n)
+	}
+}
+
+// A dependency whose own install failed or never finished is not a dependency
+// that is there, and the two say which they are - one sends you to install it,
+// the other to look at why.
+func TestInstallRefusesWhenADependencyIsNotFinished(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		status int
+		want   string
+	}{
+		{"failed", adminmodels.AppFailed, "its install failed"},
+		{"installing", adminmodels.AppInstalling, "did not finish"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			db := newInstallDB(t)
+			if err := db.Create(&adminmodels.SysApp{
+				AppCode: "crm", Name: "crm", Version: "1.0.0", Status: tc.status,
+			}).Error; err != nil {
+				t.Fatal(err)
+			}
+			m := orderManifest("1.0.0")
+			m.Requires = []string{"crm"}
+			_, err := install(db, &fakeEngine{}, m)
+			if err == nil {
+				t.Fatal("the dependency was accepted")
+			}
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Errorf("error = %q, want it to say %q", err, tc.want)
+			}
+		})
+	}
+}
+
+func TestInstallAcceptsASatisfiedDependency(t *testing.T) {
+	db := newInstallDB(t)
+	installedApp(t, db, "crm")
+	eng := &fakeEngine{entries: []migration.StatusEntry{
+		{Version: "order-1786800001000", AppCode: "order", Registered: true},
+	}}
+	m := orderManifest("1.0.0")
+	m.Requires = []string{"crm"}
+
+	if _, err := install(db, eng, m); err != nil {
+		t.Fatalf("install: %v", err)
+	}
+	if row := loadRow(t, db, "order"); row.Status != adminmodels.AppInstalled {
+		t.Errorf("status = %d, want installed", row.Status)
+	}
+}
+
+func TestDependencyCycleIsRefused(t *testing.T) {
+	manifests := map[string]app.Manifest{
+		"a": {Code: "a", Requires: []string{"b"}},
+		"b": {Code: "b", Requires: []string{"c"}},
+		"c": {Code: "c", Requires: []string{"a"}},
+	}
+	err := refuseOnDependencyCycle(manifests)
+	if err == nil {
+		t.Fatal("a cycle was accepted")
+	}
+	// The error is the cycle, not the walk that reached it.
+	if !strings.Contains(err.Error(), "a -> b -> c -> a") {
+		t.Errorf("error = %q", err)
+	}
+}
+
+// A cycle between two applications neither of which is being installed is
+// still an authoring mistake, and the day somebody installs into it is the
+// worse time to find out.
+func TestDependencyCycleIsRefusedEvenAwayFromTheTarget(t *testing.T) {
+	manifests := map[string]app.Manifest{
+		"order": {Code: "order"},
+		"x":     {Code: "x", Requires: []string{"y"}},
+		"y":     {Code: "y", Requires: []string{"x"}},
+	}
+	if err := refuseOnDependencyCycle(manifests); err == nil {
+		t.Fatal("a cycle away from the target was accepted")
+	}
+}
+
+func TestDependencyGraphWithoutACycle(t *testing.T) {
+	manifests := map[string]app.Manifest{
+		"a": {Code: "a", Requires: []string{"b", "c"}},
+		"b": {Code: "b", Requires: []string{"c"}},
+		"c": {Code: "c"},
+		// Naming something that is not registered is not a cycle. Whether it
+		// is installed is a question for the database, at install time.
+		"d": {Code: "d", Requires: []string{"nowhere"}},
+	}
+	if err := refuseOnDependencyCycle(manifests); err != nil {
+		t.Errorf("a graph with no cycle was refused: %v", err)
+	}
+}
+
+// An application that names itself.
+func TestDependencyCycleOfOne(t *testing.T) {
+	manifests := map[string]app.Manifest{"a": {Code: "a", Requires: []string{"a"}}}
+	err := refuseOnDependencyCycle(manifests)
+	if err == nil {
+		t.Fatal("an application requiring itself was accepted")
+	}
+	if !strings.Contains(err.Error(), "a -> a") {
+		t.Errorf("error = %q", err)
 	}
 }

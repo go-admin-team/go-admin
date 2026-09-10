@@ -99,6 +99,10 @@ func install(db *gorm.DB, eng engine, m app.Manifest) (installReport, error) {
 		sameVersion = cmp == 0
 	}
 
+	if err := requiresInstalled(db, m); err != nil {
+		return rep, err
+	}
+
 	pending, err := pendingFor(eng, code)
 	if err != nil {
 		return rep, err
@@ -154,6 +158,127 @@ func loadApp(db *gorm.DB, code string) (adminmodels.SysApp, bool, error) {
 		return adminmodels.SysApp{}, false, nil
 	}
 	return adminmodels.SysApp{}, false, fmt.Errorf("reading sys_app for %q: %w", code, err)
+}
+
+// requiresInstalled refuses an install whose declared dependencies are not
+// installed, and names the ones that are not.
+//
+// It does not install them. "Install this application" would otherwise mean
+// "and everything it happens to name, and everything those name" - a blast
+// radius the operator did not ask for and cannot see before it happens. What
+// they get instead is a list and the order to do it in.
+//
+// An unfinished or failed dependency counts as missing, and says which it is:
+// "not installed" sends someone to install it, "did not finish" sends them to
+// look at why.
+func requiresInstalled(db *gorm.DB, m app.Manifest) error {
+	if len(m.Requires) == 0 {
+		return nil
+	}
+	apps, err := loadApps(db)
+	if err != nil {
+		return err
+	}
+	var (
+		why  []string
+		what []string
+	)
+	for _, req := range m.Requires {
+		want := migration.NormalizeAppCode(req)
+		if want == "" {
+			continue
+		}
+		row, ok := apps[want]
+		switch {
+		case !ok:
+			why, what = append(why, want+" (not installed)"), append(what, want)
+		case row.Status == adminmodels.AppFailed:
+			why, what = append(why, want+" (its install failed)"), append(what, want)
+		case row.Status != adminmodels.AppInstalled:
+			why, what = append(why, want+" (its install did not finish)"), append(what, want)
+		}
+	}
+	if len(why) > 0 {
+		return fmt.Errorf("%s requires %s; install %s first",
+			migration.NormalizeAppCode(m.Code), strings.Join(why, ", "), strings.Join(what, " and "))
+	}
+	return nil
+}
+
+// refuseOnDependencyCycle reports a cycle anywhere in the registered
+// manifests, whether or not the application being installed is part of it.
+//
+// Over the whole set rather than one application's closure, because a cycle
+// between two applications neither of which is the one being installed is
+// still an authoring mistake, and finding it the day somebody happens to
+// install into it - with an error naming two applications they did not ask
+// for - is the worse time to find it.
+//
+// Requires naming an application that is not registered is not a cycle and
+// not reported here; that is requiresInstalled's answer to give, against the
+// database, at the time it matters.
+func refuseOnDependencyCycle(manifests map[string]app.Manifest) error {
+	const (
+		white = 0 // not visited
+		grey  = 1 // on the current path
+		black = 2 // finished
+	)
+	colour := make(map[string]int, len(manifests))
+
+	codes := make([]string, 0, len(manifests))
+	for code := range manifests {
+		codes = append(codes, code)
+	}
+	// Sorted, so the same set of manifests always reports the same cycle
+	// rather than whichever one the map happened to hand over first.
+	sort.Strings(codes)
+
+	var path []string
+	var walk func(code string) error
+	walk = func(code string) error {
+		switch colour[code] {
+		case grey:
+			// Trim the path to where this code first appears, so the error
+			// is the cycle and not the walk that reached it.
+			for i, c := range path {
+				if c == code {
+					return fmt.Errorf("the declared dependencies form a cycle: %s",
+						strings.Join(append(append([]string{}, path[i:]...), code), " -> "))
+				}
+			}
+			return fmt.Errorf("the declared dependencies form a cycle at %s", code)
+		case black:
+			return nil
+		}
+		colour[code] = grey
+		path = append(path, code)
+		m := manifests[code]
+		reqs := make([]string, 0, len(m.Requires))
+		for _, r := range m.Requires {
+			if n := migration.NormalizeAppCode(r); n != "" {
+				reqs = append(reqs, n)
+			}
+		}
+		sort.Strings(reqs)
+		for _, r := range reqs {
+			if _, registered := manifests[r]; !registered {
+				continue
+			}
+			if err := walk(r); err != nil {
+				return err
+			}
+		}
+		path = path[:len(path)-1]
+		colour[code] = black
+		return nil
+	}
+
+	for _, code := range codes {
+		if err := walk(code); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // loadApps reads every sys_app row, keyed by app code.

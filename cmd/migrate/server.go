@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/go-admin-team/go-admin-core/v2/config/source/file"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/contract/app"
 	"github.com/spf13/cobra"
 
 	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
@@ -302,6 +303,14 @@ func runInstall(code string) {
 			}
 			m, err := manifestFor(code)
 			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			// Over every registered manifest, not just this one's closure: a
+			// cycle between two other applications is still an authoring
+			// mistake, and the day somebody installs into it is the worse
+			// time to find out.
+			if err := refuseOnDependencyCycle(app.Snapshot()); err != nil {
 				exitOnError(os.Stderr, err)
 				return
 			}
