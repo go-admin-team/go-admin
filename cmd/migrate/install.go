@@ -156,6 +156,28 @@ func loadApp(db *gorm.DB, code string) (adminmodels.SysApp, bool, error) {
 	return adminmodels.SysApp{}, false, fmt.Errorf("reading sys_app for %q: %w", code, err)
 }
 
+// loadApps reads every sys_app row, keyed by app code.
+//
+// A database that has never had 1786700007000 applied has no such table, and
+// that is not an error here: `migrate status` has to keep working on a
+// database that has not been migrated at all, which is when it is most wanted.
+// A nil map is the honest answer there, and the caller prints what it always
+// printed.
+func loadApps(db *gorm.DB) (map[string]adminmodels.SysApp, error) {
+	if !db.Migrator().HasTable(&adminmodels.SysApp{}) {
+		return nil, nil
+	}
+	var rows []adminmodels.SysApp
+	if err := db.Find(&rows).Error; err != nil {
+		return nil, fmt.Errorf("reading sys_app: %w", err)
+	}
+	out := make(map[string]adminmodels.SysApp, len(rows))
+	for _, r := range rows {
+		out[r.AppCode] = r
+	}
+	return out, nil
+}
+
 // pendingFor is the authoritative answer to "what is left to apply", and it
 // is recomputed every time rather than stored: what is registered in this
 // process, minus what sys_migration says has run. sys_app.failed_version is a

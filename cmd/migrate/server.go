@@ -275,7 +275,15 @@ func runStatus() {
 				fmt.Println(err)
 				return
 			}
-			if err = printStatus(os.Stdout, entries, appCode); err != nil {
+			// Which applications exist is a different question from which
+			// migrations ran, and an install that stopped partway is only
+			// visible in the answer to the first.
+			apps, err := loadApps(db)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			if err = printStatus(os.Stdout, entries, apps, appCode); err != nil {
 				fmt.Println(err)
 			}
 		},
