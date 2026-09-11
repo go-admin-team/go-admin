@@ -87,11 +87,7 @@ func seedApp(t *testing.T, db *gorm.DB, code string) {
 	}).Error; err != nil {
 		t.Fatalf("recording the migration for %q: %v", code, err)
 	}
-	if err := db.Create(&adminmodels.SysApp{
-		AppCode: code, Name: code, Version: "1.0.0", Status: adminmodels.AppInstalled,
-	}).Error; err != nil {
-		t.Fatalf("recording sys_app for %q: %v", code, err)
-	}
+	appRow(t, db, code, adminmodels.AppInstalled)
 }
 
 func count(t *testing.T, db *gorm.DB, table, where string, args ...any) int64 {

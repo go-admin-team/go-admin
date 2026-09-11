@@ -75,13 +75,14 @@ func orderManifest(version string) app.Manifest {
 	}
 }
 
-// installedApp writes the sys_app row a satisfied dependency looks like.
-func installedApp(t *testing.T, db *gorm.DB, code string) {
+// appRow writes one sys_app row: what another application looks like to the
+// installer, in whichever state the caller is testing against.
+func appRow(t *testing.T, db *gorm.DB, code string, status int) {
 	t.Helper()
 	if err := db.Create(&adminmodels.SysApp{
-		AppCode: code, Name: code, Version: "1.0.0", Status: adminmodels.AppInstalled,
+		AppCode: code, Name: code, Version: "1.0.0", Status: status,
 	}).Error; err != nil {
-		t.Fatalf("seeding %q as installed: %v", code, err)
+		t.Fatalf("seeding %q with status %d: %v", code, status, err)
 	}
 }
 
@@ -481,8 +482,8 @@ func TestInstallNormalizesTheAppCode(t *testing.T) {
 // shape sys_app.requires carries.
 func TestInstallStoresTheDeclaredRequires(t *testing.T) {
 	db := newInstallDB(t)
-	installedApp(t, db, "crm")
-	installedApp(t, db, "billing")
+	appRow(t, db, "crm", adminmodels.AppInstalled)
+	appRow(t, db, "billing", adminmodels.AppInstalled)
 	eng := &fakeEngine{entries: []migration.StatusEntry{
 		{Version: "order-1786800001000", AppCode: "order", Registered: true},
 	}}
@@ -519,9 +520,7 @@ func TestInstallRefusesWhenADependencyIsNotInstalled(t *testing.T) {
 		t.Errorf("the engine ran anyway: %v", eng.calls)
 	}
 	// Refused before phase A, so a refusal leaves nothing behind.
-	var n int64
-	db.Model(&adminmodels.SysApp{}).Where("app_code = ?", "order").Count(&n)
-	if n != 0 {
+	if n := count(t, db, "sys_app", "app_code = ?", "order"); n != 0 {
 		t.Errorf("a refused install wrote %d sys_app row(s)", n)
 	}
 }
@@ -540,11 +539,7 @@ func TestInstallRefusesWhenADependencyIsNotFinished(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			db := newInstallDB(t)
-			if err := db.Create(&adminmodels.SysApp{
-				AppCode: "crm", Name: "crm", Version: "1.0.0", Status: tc.status,
-			}).Error; err != nil {
-				t.Fatal(err)
-			}
+			appRow(t, db, "crm", tc.status)
 			m := orderManifest("1.0.0")
 			m.Requires = []string{"crm"}
 			_, err := install(db, &fakeEngine{}, m)
@@ -560,7 +555,7 @@ func TestInstallRefusesWhenADependencyIsNotFinished(t *testing.T) {
 
 func TestInstallAcceptsASatisfiedDependency(t *testing.T) {
 	db := newInstallDB(t)
-	installedApp(t, db, "crm")
+	appRow(t, db, "crm", adminmodels.AppInstalled)
 	eng := &fakeEngine{entries: []migration.StatusEntry{
 		{Version: "order-1786800001000", AppCode: "order", Registered: true},
 	}}
@@ -628,5 +623,27 @@ func TestDependencyCycleOfOne(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "a -> a") {
 		t.Errorf("error = %q", err)
+	}
+}
+
+// The cycle reached from outside it. a is not part of anything circular; b
+// and c are. Reporting the walk instead of the cycle would name a as well,
+// and sending somebody to look at an application that is not involved is
+// the whole reason the path is trimmed.
+func TestDependencyCycleReportsOnlyTheCycleItReached(t *testing.T) {
+	manifests := map[string]app.Manifest{
+		"a": {Code: "a", Requires: []string{"b"}},
+		"b": {Code: "b", Requires: []string{"c"}},
+		"c": {Code: "c", Requires: []string{"b"}},
+	}
+	err := refuseOnDependencyCycle(manifests)
+	if err == nil {
+		t.Fatal("a cycle was accepted")
+	}
+	if !strings.Contains(err.Error(), "b -> c -> b") {
+		t.Errorf("error = %q, want just the cycle", err)
+	}
+	if strings.Contains(err.Error(), "a ->") {
+		t.Errorf("the walk that reached the cycle was reported as part of it: %q", err)
 	}
 }
