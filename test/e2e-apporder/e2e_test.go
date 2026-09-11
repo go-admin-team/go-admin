@@ -2,10 +2,12 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
 	_ "github.com/glebarez/go-sqlite"
@@ -51,7 +53,47 @@ type env struct {
 	bin string
 }
 
-// newEnv builds the binary and lays out a working directory for it.
+// The binary is built once for the whole package. Every test drives the same
+// one against its own directory and its own database, and a binary is
+// read-only, so there is nothing to isolate - building it per test was three
+// links of the same thing.
+var (
+	buildOnce sync.Once
+	sharedDir string
+	sharedBin string
+	buildErr  error
+)
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+	if sharedDir != "" {
+		os.RemoveAll(sharedDir)
+	}
+	os.Exit(code)
+}
+
+// binary builds the go-admin binary with the example application linked in,
+// on the first call that needs it.
+func binary(t *testing.T) string {
+	t.Helper()
+	buildOnce.Do(func() {
+		sharedDir, buildErr = os.MkdirTemp("", "go-admin-e2e")
+		if buildErr != nil {
+			return
+		}
+		sharedBin = filepath.Join(sharedDir, "go-admin-e2e")
+		out, err := exec.Command("go", "build", "-tags", "sqlite3", "-o", sharedBin, ".").CombinedOutput()
+		if err != nil {
+			buildErr = fmt.Errorf("building the binary: %v\n%s", err, out)
+		}
+	})
+	if buildErr != nil {
+		t.Fatal(buildErr)
+	}
+	return sharedBin
+}
+
+// newEnv lays out a working directory for the binary to run in.
 func newEnv(t *testing.T) *env {
 	t.Helper()
 	if testing.Short() {
@@ -78,12 +120,7 @@ func newEnv(t *testing.T) *env {
 		t.Fatal(err)
 	}
 
-	bin := filepath.Join(dir, "go-admin-e2e")
-	build := exec.Command("go", "build", "-tags", "sqlite3", "-o", bin, ".")
-	if out, err := build.CombinedOutput(); err != nil {
-		t.Fatalf("building the binary: %v\n%s", err, out)
-	}
-	return &env{t: t, dir: dir, bin: bin}
+	return &env{t: t, dir: dir, bin: binary(t)}
 }
 
 // run executes the binary and returns its combined output and exit code.
@@ -111,13 +148,25 @@ func (e *env) mustRun(args ...string) string {
 	return out
 }
 
-// exec runs one statement against the database the binary uses.
-func (e *env) exec(stmt string) {
+// open connects to the database the binary uses.
+//
+// Per call, and closed again straight away, on purpose: the binary under test
+// writes this same file, and a connection the test process holds open across
+// a run of it is a second writer for no reason. The cost is a few
+// milliseconds against a build measured in seconds.
+func (e *env) open() *sql.DB {
 	e.t.Helper()
 	db, err := sql.Open("sqlite", filepath.Join(e.dir, "e2e.db"))
 	if err != nil {
 		e.t.Fatal(err)
 	}
+	return db
+}
+
+// exec runs one statement against the database the binary uses.
+func (e *env) exec(stmt string) {
+	e.t.Helper()
+	db := e.open()
 	defer db.Close()
 	if _, err := db.Exec(stmt); err != nil {
 		e.t.Fatalf("%s: %v", stmt, err)
@@ -126,16 +175,45 @@ func (e *env) exec(stmt string) {
 
 func (e *env) count(query string, args ...any) int {
 	e.t.Helper()
-	db, err := sql.Open("sqlite", filepath.Join(e.dir, "e2e.db"))
-	if err != nil {
-		e.t.Fatal(err)
-	}
+	db := e.open()
 	defer db.Close()
 	var n int
 	if err := db.QueryRow(query, args...).Scan(&n); err != nil {
 		e.t.Fatalf("%s: %v", query, err)
 	}
 	return n
+}
+
+// seeded is what installing this application writes, with the counts a
+// finished install leaves behind. An uninstall wants every one of them at
+// zero, and a reinstall wants them back - which is why one list serves all
+// three checks instead of three lists drifting apart.
+var seeded = []struct {
+	what  string
+	query string
+	want  int
+}{
+	{"menus", "SELECT COUNT(*) FROM sys_menu WHERE app_code = 'order'", 4},
+	{"apis", "SELECT COUNT(*) FROM sys_api WHERE app_code = 'order'", 4},
+	{"ledger", "SELECT COUNT(*) FROM sys_app_casbin_grant WHERE app_code = 'order'", 4},
+	{"policies", "SELECT COUNT(*) FROM casbin_rule WHERE v1 LIKE '/api/v1/order%'", 4},
+	{"migration records", "SELECT COUNT(*) FROM sys_migration WHERE app_code = 'order'", 1},
+	{"sys_app rows", "SELECT COUNT(*) FROM sys_app WHERE app_code = 'order'", 1},
+}
+
+// assertSeeded checks every row of seeded. gone flips the expectation to
+// zero, which is the whole of what an uninstall has to leave.
+func (e *env) assertSeeded(when string, gone bool) {
+	e.t.Helper()
+	for _, c := range seeded {
+		want := c.want
+		if gone {
+			want = 0
+		}
+		if n := e.count(c.query); n != want {
+			e.t.Errorf("%s, %s = %d, want %d", when, c.what, n, want)
+		}
+	}
 }
 
 func TestInstallUninstallReinstall(t *testing.T) {
@@ -161,23 +239,12 @@ func TestInstallUninstallReinstall(t *testing.T) {
 	if !strings.Contains(out, "rebuild") {
 		t.Errorf("the install did not say the code is not running yet:\n%s", out)
 	}
-	for _, c := range []struct {
-		what  string
-		query string
-		want  int
-	}{
-		{"menus", "SELECT COUNT(*) FROM sys_menu WHERE app_code = 'order'", 4},
-		{"apis", "SELECT COUNT(*) FROM sys_api WHERE app_code = 'order'", 4},
-		{"ledger", "SELECT COUNT(*) FROM sys_app_casbin_grant WHERE app_code = 'order'", 4},
-		{"policies", "SELECT COUNT(*) FROM casbin_rule WHERE v1 LIKE '/api/v1/order%'", 4},
-		{"migration records", "SELECT COUNT(*) FROM sys_migration WHERE app_code = 'order'", 1},
-		{"sys_app rows", "SELECT COUNT(*) FROM sys_app WHERE app_code = 'order'", 1},
-		{"its own table", "SELECT COUNT(*) FROM sqlite_master WHERE name = 'app_order'", 1},
-		{"status=installed", "SELECT COUNT(*) FROM sys_app WHERE app_code = 'order' AND status = 2", 1},
-	} {
-		if n := e.count(c.query); n != c.want {
-			t.Errorf("after install, %s = %d, want %d", c.what, n, c.want)
-		}
+	e.assertSeeded("after install", false)
+	if n := e.count("SELECT COUNT(*) FROM sqlite_master WHERE name = 'app_order'"); n != 1 {
+		t.Error("the application's own table was not created")
+	}
+	if n := e.count("SELECT COUNT(*) FROM sys_app WHERE app_code = 'order' AND status = 2"); n != 1 {
+		t.Error("sys_app does not say the install finished")
 	}
 
 	// A2: installing the same version again does nothing and says so.
@@ -196,21 +263,7 @@ func TestInstallUninstallReinstall(t *testing.T) {
 	if !strings.Contains(out, "own tables were not touched") {
 		t.Errorf("the uninstall did not say what it left alone:\n%s", out)
 	}
-	for _, c := range []struct {
-		what  string
-		query string
-	}{
-		{"menus", "SELECT COUNT(*) FROM sys_menu WHERE app_code = 'order'"},
-		{"apis", "SELECT COUNT(*) FROM sys_api WHERE app_code = 'order'"},
-		{"ledger", "SELECT COUNT(*) FROM sys_app_casbin_grant WHERE app_code = 'order'"},
-		{"policies", "SELECT COUNT(*) FROM casbin_rule WHERE v1 LIKE '/api/v1/order%'"},
-		{"migration records", "SELECT COUNT(*) FROM sys_migration WHERE app_code = 'order'"},
-		{"sys_app rows", "SELECT COUNT(*) FROM sys_app WHERE app_code = 'order'"},
-	} {
-		if n := e.count(c.query); n != 0 {
-			t.Errorf("after uninstall, %s = %d, want 0", c.what, n)
-		}
-	}
+	e.assertSeeded("after uninstall", true)
 	if n := e.count("SELECT COUNT(*) FROM sqlite_master WHERE name = 'app_order'"); n != 1 {
 		t.Error("the uninstall dropped the application's own table")
 	}
@@ -221,19 +274,7 @@ func TestInstallUninstallReinstall(t *testing.T) {
 	// A4: the migration records had to go, or this reinstall finds every
 	// version applied, seeds nothing, and reports success.
 	e.mustRun("migrate", "install", "order")
-	for _, c := range []struct {
-		what  string
-		query string
-		want  int
-	}{
-		{"menus", "SELECT COUNT(*) FROM sys_menu WHERE app_code = 'order'", 4},
-		{"ledger", "SELECT COUNT(*) FROM sys_app_casbin_grant WHERE app_code = 'order'", 4},
-		{"policies", "SELECT COUNT(*) FROM casbin_rule WHERE v1 LIKE '/api/v1/order%'", 4},
-	} {
-		if n := e.count(c.query); n != c.want {
-			t.Errorf("after reinstall, %s = %d, want %d", c.what, n, c.want)
-		}
-	}
+	e.assertSeeded("after reinstall", false)
 	if n := e.count("SELECT COUNT(*) FROM app_order"); n != 1 {
 		t.Error("the business row did not survive an uninstall and reinstall")
 	}
