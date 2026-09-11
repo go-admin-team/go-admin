@@ -116,8 +116,7 @@ jobs:
     # and a hand-built schema, and none of that can catch an application's
     # init() reaching one registry and not the other.
     - name: End-to-end install and uninstall
-      working-directory: test/e2e-apporder
-      run: go test ./... -count=1
+      run: make test-e2e
 
     # Fails the build on the silent-failure classes listed in
     # tools/checksilent, one of which is the contract boundary: nothing under

@@ -54,6 +54,18 @@ stop:
 test:
 	go test -race -cover ./...
 
+# The end-to-end install, which `test` above cannot reach: test/e2e-apporder
+# is its own module, so `./...` in this one does not include it. It builds a
+# go-admin binary with the example application linked in and drives
+# `migrate install` / `migrate uninstall` against a real database.
+#
+# Its own target rather than a line in the CI workflow, so the one thing in
+# the build that exercises installing an application is also the one thing
+# somebody can run before pushing.
+.PHONY: test-e2e
+test-e2e:
+	cd test/e2e-apporder && go test ./... -count=1
+
 # Reports the failures that do not announce themselves - see
 # tools/checksilent. Exits non-zero on an ERROR; the one WARN-level check
 # prints and does not fail the build.
