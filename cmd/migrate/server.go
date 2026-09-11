@@ -301,7 +301,8 @@ func runInstall(code string) {
 				exitOnError(os.Stderr, err)
 				return
 			}
-			m, err := manifestFor(code)
+			registered := app.Snapshot()
+			m, err := manifestFor(registered, code)
 			if err != nil {
 				exitOnError(os.Stderr, err)
 				return
@@ -310,7 +311,7 @@ func runInstall(code string) {
 			// cycle between two other applications is still an authoring
 			// mistake, and the day somebody installs into it is the worse
 			// time to find out.
-			if err := refuseOnDependencyCycle(app.Snapshot()); err != nil {
+			if err := refuseOnDependencyCycle(registered); err != nil {
 				exitOnError(os.Stderr, err)
 				return
 			}

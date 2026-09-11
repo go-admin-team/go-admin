@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -99,7 +100,7 @@ func install(db *gorm.DB, eng engine, m app.Manifest) (installReport, error) {
 		sameVersion = cmp == 0
 	}
 
-	if err := requiresInstalled(db, m); err != nil {
+	if err := requiresInstalled(db, code, m); err != nil {
 		return rep, err
 	}
 
@@ -171,7 +172,7 @@ func loadApp(db *gorm.DB, code string) (adminmodels.SysApp, bool, error) {
 // An unfinished or failed dependency counts as missing, and says which it is:
 // "not installed" sends someone to install it, "did not finish" sends them to
 // look at why.
-func requiresInstalled(db *gorm.DB, m app.Manifest) error {
+func requiresInstalled(db *gorm.DB, code string, m app.Manifest) error {
 	if len(m.Requires) == 0 {
 		return nil
 	}
@@ -179,28 +180,35 @@ func requiresInstalled(db *gorm.DB, m app.Manifest) error {
 	if err != nil {
 		return err
 	}
-	var (
-		why  []string
-		what []string
-	)
+	var why, what []string
 	for _, req := range m.Requires {
 		want := migration.NormalizeAppCode(req)
 		if want == "" {
 			continue
 		}
-		row, ok := apps[want]
-		switch {
+		var reason string
+		switch row, ok := apps[want]; {
 		case !ok:
-			why, what = append(why, want+" (not installed)"), append(what, want)
+			reason = "not installed"
 		case row.Status == adminmodels.AppFailed:
-			why, what = append(why, want+" (its install failed)"), append(what, want)
+			reason = "its install failed"
+		case row.Status == adminmodels.AppInstalling:
+			reason = "its install did not finish"
 		case row.Status != adminmodels.AppInstalled:
-			why, what = append(why, want+" (its install did not finish)"), append(what, want)
+			// A status this binary has no name for. Saying so beats the
+			// catch-all this used to be, which read any future value as
+			// "did not finish" - a sentence that would be wrong for
+			// whatever reason the value was added.
+			reason = fmt.Sprintf("its status is %d, which this binary does not recognise", row.Status)
+		default:
+			continue
 		}
+		why = append(why, want+" ("+reason+")")
+		what = append(what, want)
 	}
 	if len(why) > 0 {
 		return fmt.Errorf("%s requires %s; install %s first",
-			migration.NormalizeAppCode(m.Code), strings.Join(why, ", "), strings.Join(what, " and "))
+			code, strings.Join(why, ", "), strings.Join(what, " and "))
 	}
 	return nil
 }
@@ -239,32 +247,30 @@ func refuseOnDependencyCycle(manifests map[string]app.Manifest) error {
 		switch colour[code] {
 		case grey:
 			// Trim the path to where this code first appears, so the error
-			// is the cycle and not the walk that reached it.
-			for i, c := range path {
-				if c == code {
-					return fmt.Errorf("the declared dependencies form a cycle: %s",
-						strings.Join(append(append([]string{}, path[i:]...), code), " -> "))
-				}
-			}
-			return fmt.Errorf("the declared dependencies form a cycle at %s", code)
+			// is the cycle and not the walk that reached it. grey is only
+			// ever set together with the append below, and cleared together
+			// with the matching trim, so the code is always on the path.
+			cycle := append(slices.Clone(path[slices.Index(path, code):]), code)
+			return fmt.Errorf("the declared dependencies form a cycle: %s",
+				strings.Join(cycle, " -> "))
 		case black:
 			return nil
 		}
 		colour[code] = grey
 		path = append(path, code)
-		m := manifests[code]
-		reqs := make([]string, 0, len(m.Requires))
-		for _, r := range m.Requires {
-			if n := migration.NormalizeAppCode(r); n != "" {
-				reqs = append(reqs, n)
-			}
-		}
-		sort.Strings(reqs)
-		for _, r := range reqs {
-			if _, registered := manifests[r]; !registered {
+		// In the order the manifest declared them, which is a fixed order
+		// already - sorting here would only make the reported cycle harder
+		// to line up against the manifest that caused it. The determinism
+		// that matters comes from the sorted outer loop, because that one
+		// walks a map.
+		for _, r := range manifests[code].Requires {
+			n := migration.NormalizeAppCode(r)
+			if _, registered := manifests[n]; !registered {
+				// Including the empty string, which Register rejects, so
+				// no manifest is filed under it.
 				continue
 			}
-			if err := walk(r); err != nil {
+			if err := walk(n); err != nil {
 				return err
 			}
 		}
@@ -298,6 +304,15 @@ func loadApps(db *gorm.DB) (map[string]adminmodels.SysApp, error) {
 	}
 	out := make(map[string]adminmodels.SysApp, len(rows))
 	for _, r := range rows {
+		// An application cannot be filed under the empty code or the one
+		// reserved for the framework - Register rejects both - so a row
+		// carrying either was not written by an install. Dropping it here
+		// is the one place that settles it: every reader of this map would
+		// otherwise have to decide separately, and `migrate status` would
+		// merge such a row into the framework's own group.
+		if r.AppCode == "" || r.AppCode == migration.FrameworkAppCode {
+			continue
+		}
 		out[r.AppCode] = r
 	}
 	return out, nil
@@ -431,9 +446,11 @@ func reportInstall(w io.Writer, rep installReport) {
 // A code nothing registered is an error naming what is registered, for the
 // same reason exitUnlessAppRegistered exists: the alternative is telling an
 // operator who typed `install ordr` that there was nothing to do.
-func manifestFor(code string) (app.Manifest, error) {
+// Takes the snapshot rather than reading it, so this lookup and the caller's
+// cycle check see the same set. Two calls to app.Snapshot() would also be two
+// deep copies of the registry for one install.
+func manifestFor(all map[string]app.Manifest, code string) (app.Manifest, error) {
 	want := migration.NormalizeAppCode(code)
-	all := app.Snapshot()
 	if m, ok := all[want]; ok {
 		return m, nil
 	}

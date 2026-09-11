@@ -187,12 +187,11 @@ func groupByApp(entries []migration.StatusEntry, apps map[string]adminmodels.Sys
 // ran under plain `migrate` has none, and neither does any application on a
 // database from before sys_app existed.
 func appSummary(apps map[string]adminmodels.SysApp, display string) string {
-	code := display
-	if display == migration.FrameworkAppCode {
-		// The framework has no sys_app row and is not an application.
-		return ""
-	}
-	row, ok := apps[migration.NormalizeAppCode(code)]
+	// AppFilter, not NormalizeAppCode: this takes a display code back to the
+	// stored one, and only AppFilter is that inverse. It maps the framework
+	// to the empty string, which loadApps never files a row under, so the
+	// framework needs no branch of its own here.
+	row, ok := apps[migration.AppFilter(display)]
 	if !ok {
 		return ""
 	}
@@ -217,7 +216,7 @@ func appSummary(apps map[string]adminmodels.SysApp, display string) string {
 // filterAppsByApp narrows the sys_app rows the same way filterByApp narrows
 // the migrations, so --app names one application in both halves of the report.
 func filterAppsByApp(apps map[string]adminmodels.SysApp, filter string) map[string]adminmodels.SysApp {
-	if filter == "" || apps == nil {
+	if filter == "" {
 		return apps
 	}
 	want := migration.AppFilter(filter)
