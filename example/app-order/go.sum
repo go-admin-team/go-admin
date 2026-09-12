@@ -58,8 +58,8 @@ github.com/glebarez/go-sqlite v1.22.0 h1:uAcMJhaA6r3LHMTFgP0SifzgXg46yJkgxqyuyec
 github.com/glebarez/go-sqlite v1.22.0/go.mod h1:PlBIdHe0+aUEFn+r2/uthrWq4FxbzugL0L8Li6yQJbc=
 github.com/glebarez/sqlite v1.11.0 h1:wSG0irqzP6VurnMEpFGer5Li19RpIRi2qvQz++w0GMw=
 github.com/glebarez/sqlite v1.11.0/go.mod h1:h8/o8j5wiAsqSPoWELDUdJXhjAhsVliSn7bWZjOhrgQ=
-github.com/go-admin-team/go-admin-core/v2 v2.5.0 h1:aD1SALklBxizGB9u8cOgm4OT8z656FM83F4fD6dMz9g=
-github.com/go-admin-team/go-admin-core/v2 v2.5.0/go.mod h1:LG/XvEfOplbuadKrPTPm0Nu5pN06aQUNZZC3ao4B4gs=
+github.com/go-admin-team/go-admin-core/v2 v2.8.0 h1:ZTw5Z/UT1/7OltbGPEaEVerRk4z3koB6O8nDbb84tPM=
+github.com/go-admin-team/go-admin-core/v2 v2.8.0/go.mod h1:LG/XvEfOplbuadKrPTPm0Nu5pN06aQUNZZC3ao4B4gs=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
 github.com/go-playground/assert/v2 v2.2.0/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.14.1 h1:EWaQ/wswjilfKLTECiXz7Rh+3BjFhfDFKv/oXslEjJA=

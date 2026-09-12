@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	adminmodels "go-admin/app/admin/models"
 	"go-admin/cmd/migrate/migration"
 )
 
@@ -15,11 +16,24 @@ const applyTimeLayout = "2006-01-02 15:04:05"
 // printStatus lists every migration this binary knows about together with every
 // row already in sys_migration, grouped by app.
 //
+// apps is what sys_app says about each of them, keyed by app code, and it
+// answers a different question from the migration rows: an install that
+// stopped partway leaves migrations that all read "applied" and a row that
+// says the install never finished. A nil map is a database from before
+// sys_app existed, and the listing is then exactly what it was.
+//
+// The app list is the union of the two. Reading it from sys_app alone would
+// drop an application whose migrations ran under plain `migrate` and which
+// therefore has no row; reading it from the migration rows alone drops one
+// whose code has been taken out of the binary, which is when somebody most
+// wants to see it named.
+//
 // filter is an app code as typed on the command line; empty means every app.
-func printStatus(w io.Writer, entries []migration.StatusEntry, filter string) error {
+func printStatus(w io.Writer, entries []migration.StatusEntry, apps map[string]adminmodels.SysApp, filter string) error {
 	entries = filterByApp(entries, filter)
+	apps = filterAppsByApp(apps, filter)
 
-	groups, order := groupByApp(entries)
+	groups, order := groupByApp(entries, apps)
 	if len(order) == 0 {
 		_, err := fmt.Fprintln(w, "no migrations registered and none recorded")
 		return err
@@ -34,7 +48,14 @@ func printStatus(w io.Writer, entries []migration.StatusEntry, filter string) er
 		if i > 0 {
 			fmt.Fprintln(w)
 		}
-		fmt.Fprintf(w, "[%s]\n", app)
+		fmt.Fprintf(w, "[%s]%s\n", app, appSummary(apps, app))
+		if len(groups[app]) == 0 {
+			// A row in sys_app and not one migration, recorded or
+			// registered. Its code is out of this binary and its migration
+			// records have been removed, and the row is all that is left to
+			// say it was ever here.
+			fmt.Fprintln(w, "  no migrations registered in this binary and none recorded")
+		}
 		for _, e := range groups[app] {
 			state := "pending"
 			switch {
@@ -133,11 +154,20 @@ func filterByApp(entries []migration.StatusEntry, filter string) []migration.Sta
 // order to print them in: the framework first, then apps alphabetically. That
 // is also the order a full run executes them in, because version strings sort
 // as ASCII and the framework's are bare digits.
-func groupByApp(entries []migration.StatusEntry) (map[string][]migration.StatusEntry, []string) {
+func groupByApp(entries []migration.StatusEntry, apps map[string]adminmodels.SysApp) (map[string][]migration.StatusEntry, []string) {
 	groups := make(map[string][]migration.StatusEntry)
 	for _, e := range entries {
 		app := migration.DisplayAppCode(e.AppCode)
 		groups[app] = append(groups[app], e)
+	}
+	// An application sys_app knows about and no migration mentions still gets
+	// a group, empty. That is the one case the migration rows cannot report
+	// at all.
+	for code := range apps {
+		app := migration.DisplayAppCode(code)
+		if _, ok := groups[app]; !ok {
+			groups[app] = nil
+		}
 	}
 	order := make([]string, 0, len(groups))
 	for app := range groups {
@@ -150,6 +180,51 @@ func groupByApp(entries []migration.StatusEntry) (map[string][]migration.StatusE
 		return order[i] < order[j]
 	})
 	return groups, order
+}
+
+// appSummary is what sys_app says about one application, as a suffix for its
+// group header. Empty when there is no row: an application whose migrations
+// ran under plain `migrate` has none, and neither does any application on a
+// database from before sys_app existed.
+func appSummary(apps map[string]adminmodels.SysApp, display string) string {
+	// AppFilter, not NormalizeAppCode: this takes a display code back to the
+	// stored one, and only AppFilter is that inverse. It maps the framework
+	// to the empty string, which loadApps never files a row under, so the
+	// framework needs no branch of its own here.
+	row, ok := apps[migration.AppFilter(display)]
+	if !ok {
+		return ""
+	}
+	switch row.Status {
+	case adminmodels.AppInstalled:
+		return fmt.Sprintf("  %s installed", row.Version)
+	case adminmodels.AppFailed:
+		if row.FailedVersion != "" {
+			return fmt.Sprintf("  %s failed at %s", row.Version, row.FailedVersion)
+		}
+		return fmt.Sprintf("  %s failed", row.Version)
+	case adminmodels.AppInstalling:
+		// Not "installing" as in "right now": nothing holds this state while
+		// it works. It is what is left when an attempt did not reach either
+		// end, and running the install again is what clears it.
+		return fmt.Sprintf("  %s did not finish installing", row.Version)
+	default:
+		return fmt.Sprintf("  %s status %d", row.Version, row.Status)
+	}
+}
+
+// filterAppsByApp narrows the sys_app rows the same way filterByApp narrows
+// the migrations, so --app names one application in both halves of the report.
+func filterAppsByApp(apps map[string]adminmodels.SysApp, filter string) map[string]adminmodels.SysApp {
+	if filter == "" {
+		return apps
+	}
+	want := migration.AppFilter(filter)
+	out := make(map[string]adminmodels.SysApp, 1)
+	if row, ok := apps[want]; ok {
+		out[want] = row
+	}
+	return out
 }
 
 func formatApplyTime(t *time.Time) string {

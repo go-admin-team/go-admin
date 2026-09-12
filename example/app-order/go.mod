@@ -5,7 +5,7 @@ go 1.25.13
 require (
 	github.com/gin-gonic/gin v1.12.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-admin-team/go-admin-core/v2 v2.5.0
+	github.com/go-admin-team/go-admin-core/v2 v2.8.0
 	gorm.io/gorm v1.31.2
 )
 

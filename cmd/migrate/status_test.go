@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	adminmodels "go-admin/app/admin/models"
 	"go-admin/cmd/migrate/migration"
 )
 
@@ -29,7 +30,7 @@ func sampleEntries() []migration.StatusEntry {
 
 func TestPrintStatusGroupsByApp(t *testing.T) {
 	var buf bytes.Buffer
-	if err := printStatus(&buf, sampleEntries(), ""); err != nil {
+	if err := printStatus(&buf, sampleEntries(), nil, ""); err != nil {
 		t.Fatal(err)
 	}
 	got := buf.String()
@@ -62,7 +63,7 @@ func TestPrintStatusMarksOrphanedRows(t *testing.T) {
 		Version: "gone-1786800000000", AppCode: "gone", Applied: true, ApplyTime: at("2026-08-01 09:00:00"),
 	})
 	var buf bytes.Buffer
-	if err := printStatus(&buf, entries, ""); err != nil {
+	if err := printStatus(&buf, entries, nil, ""); err != nil {
 		t.Fatal(err)
 	}
 	got := buf.String()
@@ -79,7 +80,7 @@ func TestPrintStatusMarksOrphanedRows(t *testing.T) {
 
 func TestPrintStatusFiltersByApp(t *testing.T) {
 	var buf bytes.Buffer
-	if err := printStatus(&buf, sampleEntries(), "crm"); err != nil {
+	if err := printStatus(&buf, sampleEntries(), nil, "crm"); err != nil {
 		t.Fatal(err)
 	}
 	got := buf.String()
@@ -94,7 +95,7 @@ func TestPrintStatusFiltersByApp(t *testing.T) {
 // status prints [core]; --app core has to mean the same thing.
 func TestPrintStatusAppCoreSelectsTheFramework(t *testing.T) {
 	var buf bytes.Buffer
-	if err := printStatus(&buf, sampleEntries(), migration.FrameworkAppCode); err != nil {
+	if err := printStatus(&buf, sampleEntries(), nil, migration.FrameworkAppCode); err != nil {
 		t.Fatal(err)
 	}
 	got := buf.String()
@@ -108,7 +109,7 @@ func TestPrintStatusAppCoreSelectsTheFramework(t *testing.T) {
 
 func TestPrintStatusOnAnEmptyRegistry(t *testing.T) {
 	var buf bytes.Buffer
-	if err := printStatus(&buf, nil, ""); err != nil {
+	if err := printStatus(&buf, nil, nil, ""); err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(buf.String(), "no migrations registered and none recorded") {
@@ -166,5 +167,118 @@ func TestPrintPendingFiltersByApp(t *testing.T) {
 	}
 	if !strings.Contains(got, "1 migration(s) pending") {
 		t.Errorf("output = %s", got)
+	}
+}
+
+func appRows(rows ...adminmodels.SysApp) map[string]adminmodels.SysApp {
+	out := make(map[string]adminmodels.SysApp, len(rows))
+	for _, r := range rows {
+		out[r.AppCode] = r
+	}
+	return out
+}
+
+// The migration rows say every one of an application's migrations ran. Only
+// sys_app can say the install that ran them never finished.
+func TestPrintStatusShowsWhatSysAppSays(t *testing.T) {
+	apps := appRows(
+		adminmodels.SysApp{AppCode: "crm", Version: "1.2.0", Status: adminmodels.AppInstalled},
+	)
+	var buf bytes.Buffer
+	if err := printStatus(&buf, sampleEntries(), apps, ""); err != nil {
+		t.Fatal(err)
+	}
+	got := buf.String()
+	if !strings.Contains(got, "[crm]  1.2.0 installed") {
+		t.Errorf("the header does not carry what sys_app says:\n%s", got)
+	}
+	// The framework is not an application and has no row.
+	if strings.Contains(got, "[core]  ") {
+		t.Errorf("the framework was given an application summary:\n%s", got)
+	}
+}
+
+func TestPrintStatusNamesAFailedInstallAndWhereItStopped(t *testing.T) {
+	apps := appRows(adminmodels.SysApp{
+		AppCode: "crm", Version: "1.2.0", Status: adminmodels.AppFailed,
+		FailedVersion: "crm-1786800002000",
+	})
+	var buf bytes.Buffer
+	if err := printStatus(&buf, sampleEntries(), apps, ""); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(buf.String(), "[crm]  1.2.0 failed at crm-1786800002000") {
+		t.Errorf("output:\n%s", buf.String())
+	}
+}
+
+// A process killed partway leaves this, and nothing else records it.
+func TestPrintStatusNamesAnInstallThatDidNotFinish(t *testing.T) {
+	apps := appRows(adminmodels.SysApp{AppCode: "crm", Version: "1.2.0", Status: adminmodels.AppInstalling})
+	var buf bytes.Buffer
+	if err := printStatus(&buf, sampleEntries(), apps, ""); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(buf.String(), "did not finish installing") {
+		t.Errorf("output:\n%s", buf.String())
+	}
+}
+
+// An application whose code was taken out of the binary after its migration
+// records were removed has nothing left but a sys_app row. The migration rows
+// cannot report it at all.
+func TestPrintStatusListsAnAppWithNoMigrationsAtAll(t *testing.T) {
+	apps := appRows(adminmodels.SysApp{AppCode: "billing", Version: "3.0.0", Status: adminmodels.AppInstalled})
+	var buf bytes.Buffer
+	if err := printStatus(&buf, sampleEntries(), apps, ""); err != nil {
+		t.Fatal(err)
+	}
+	got := buf.String()
+	if !strings.Contains(got, "[billing]  3.0.0 installed") {
+		t.Errorf("an application only sys_app knows about was not listed:\n%s", got)
+	}
+	if !strings.Contains(got, "no migrations registered in this binary and none recorded") {
+		t.Errorf("the empty group needs to say why it is empty:\n%s", got)
+	}
+	if !strings.Contains(got, "across 3 app(s)") {
+		t.Errorf("the count does not include it:\n%s", got)
+	}
+}
+
+// --app narrows both halves, or the report names one application and
+// summarises another.
+func TestPrintStatusFilterAppliesToSysAppToo(t *testing.T) {
+	apps := appRows(
+		adminmodels.SysApp{AppCode: "crm", Version: "1.2.0", Status: adminmodels.AppInstalled},
+		adminmodels.SysApp{AppCode: "billing", Version: "3.0.0", Status: adminmodels.AppInstalled},
+	)
+	var buf bytes.Buffer
+	if err := printStatus(&buf, sampleEntries(), apps, "crm"); err != nil {
+		t.Fatal(err)
+	}
+	got := buf.String()
+	if strings.Contains(got, "billing") {
+		t.Errorf("--app crm listed billing:\n%s", got)
+	}
+	if !strings.Contains(got, "across 1 app(s)") {
+		t.Errorf("output:\n%s", got)
+	}
+}
+
+// A database from before sys_app existed. The listing is what it always was,
+// rather than an error or an empty report.
+func TestPrintStatusWithoutSysApp(t *testing.T) {
+	var withRows, without bytes.Buffer
+	if err := printStatus(&without, sampleEntries(), nil, ""); err != nil {
+		t.Fatal(err)
+	}
+	if err := printStatus(&withRows, sampleEntries(), map[string]adminmodels.SysApp{}, ""); err != nil {
+		t.Fatal(err)
+	}
+	if without.String() != withRows.String() {
+		t.Errorf("an empty sys_app and no sys_app print differently:\n%s\n---\n%s", without.String(), withRows.String())
+	}
+	if !strings.Contains(without.String(), "[crm]\n") {
+		t.Errorf("the header carries a summary it has no row for:\n%s", without.String())
 	}
 }

@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/go-admin-team/go-admin-core/v2/config/source/file"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/contract/app"
 	"github.com/spf13/cobra"
 
 	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
@@ -275,7 +276,15 @@ func runStatus() {
 				fmt.Println(err)
 				return
 			}
-			if err = printStatus(os.Stdout, entries, appCode); err != nil {
+			// Which applications exist is a different question from which
+			// migrations ran, and an install that stopped partway is only
+			// visible in the answer to the first.
+			apps, err := loadApps(db)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			if err = printStatus(os.Stdout, entries, apps, appCode); err != nil {
 				fmt.Println(err)
 			}
 		},
@@ -292,8 +301,17 @@ func runInstall(code string) {
 				exitOnError(os.Stderr, err)
 				return
 			}
-			m, err := manifestFor(code)
+			registered := app.Snapshot()
+			m, err := manifestFor(registered, code)
 			if err != nil {
+				exitOnError(os.Stderr, err)
+				return
+			}
+			// Over every registered manifest, not just this one's closure: a
+			// cycle between two other applications is still an authoring
+			// mistake, and the day somebody installs into it is the worse
+			// time to find out.
+			if err := refuseOnDependencyCycle(registered); err != nil {
 				exitOnError(os.Stderr, err)
 				return
 			}
