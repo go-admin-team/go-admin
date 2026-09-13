@@ -210,9 +210,23 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 			// the soft-delete plugin scopes deleted_at = 0 automatically on
 			// every query against models.SysMenu.
 			var existing models.SysMenu
+			found := false
 			err := tx.Where("app_code = ? AND seed_code = ?", appCode, s.Code).First(&existing).Error
 			switch {
 			case err == nil:
+				found = true
+			case errors.Is(err, gorm.ErrRecordNotFound):
+				// Nothing under the natural key. It may still be here from
+				// before seed_code existed, under the name that identified
+				// it then.
+				existing, found, err = adoptLegacyMenu(tx, appCode, s)
+				if err != nil {
+					return nil, fmt.Errorf("%q: %w", s.Code, err)
+				}
+			default:
+				return nil, fmt.Errorf("%q: checking for an existing row: %w", s.Code, err)
+			}
+			if found {
 				row, err := repairExistingMenu(tx, existing, appCode, s, parentRow, apiRows)
 				if err != nil {
 					return nil, fmt.Errorf("%q: repairing an existing row: %w", s.Code, err)
@@ -221,10 +235,6 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				ids = append(ids, row.MenuId)
 				progressed = true
 				continue
-			case errors.Is(err, gorm.ErrRecordNotFound):
-				// Not written yet; fall through to create it below.
-			default:
-				return nil, fmt.Errorf("%q: checking for an existing row: %w", s.Code, err)
 			}
 
 			row := menuRowFor(appCode, s, parentRow)
@@ -566,4 +576,46 @@ func repairPaths(tx *gorm.DB, row *models.SysMenu, s seed.MenuSpec, parentRow mo
 	}
 	row.Paths = want
 	return nil
+}
+
+// adoptLegacyMenu claims a row this application wrote before sys_menu had a
+// seed_code column, so a reseed repairs it instead of inserting a second copy
+// beside it.
+//
+// 1786700008000 added the column and left it NULL on every row already there,
+// which is right for the host's own hand-placed menus - there is nothing to
+// derive one from. An application's rows are in that population too, and for
+// those the value is derivable, because menu_name is what identified them
+// before the column existed. Without this the natural-key lookup misses them,
+// the seed inserts a duplicate, and the unique index cannot object: NULL
+// never collides.
+//
+// Ambiguity is refused rather than guessed. menuName concatenates two
+// pascalCase strings and pascalCase is not injective, so two specs can land
+// on one name; picking one of several rows would attach an application's
+// menu to whichever the database returned first.
+func adoptLegacyMenu(tx *gorm.DB, appCode string, s seed.MenuSpec) (models.SysMenu, bool, error) {
+	name := menuName(appCode, s.Code)
+	var rows []models.SysMenu
+	if err := tx.Where("app_code = ? AND menu_name = ? AND seed_code IS NULL", appCode, name).
+		Find(&rows).Error; err != nil {
+		return models.SysMenu{}, false, fmt.Errorf("looking for a row written before seed_code existed: %w", err)
+	}
+	switch len(rows) {
+	case 0:
+		return models.SysMenu{}, false, nil
+	case 1:
+	default:
+		return models.SysMenu{}, false, fmt.Errorf(
+			"%d rows carry menu_name %q with no seed_code; which of them belongs to %q cannot be decided here, because menuName is not reversible - reconcile them by hand",
+			len(rows), name, s.Code)
+	}
+
+	seedCode := s.Code
+	if err := tx.Model(&models.SysMenu{}).Where("menu_id = ?", rows[0].MenuId).
+		Update("seed_code", seedCode).Error; err != nil {
+		return models.SysMenu{}, false, fmt.Errorf("claiming the row written before seed_code existed: %w", err)
+	}
+	rows[0].SeedCode = &seedCode
+	return rows[0], true, nil
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -1139,4 +1140,114 @@ func orderMenuSpecs(title, component string) ([]seed.MenuSpec, []seed.ApiSpec) {
 		{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET", Handle: "apis.Order.GetPage-fm"},
 	}
 	return menus, apis
+}
+
+// 1786700008000 added seed_code and left it NULL on every row already there.
+// An application's rows are in that population, and the natural-key lookup
+// misses them, so the seed used to insert a second copy beside each one -
+// which the unique index cannot object to, because NULL never collides.
+func TestSeedMenusAdoptsARowWrittenBeforeSeedCodeExisted(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+
+	// What an older SeedMenus left: app_code set, seed_code absent, and the
+	// name that identified it then.
+	legacy := models.SysMenu{
+		MenuName: menuName("order", "dir"), AppCode: "order", Title: "the old title",
+		MenuType: contractmodels.Directory, Path: "/apps/order", Component: "Layout", Sort: 10,
+	}
+	if err := db.Create(&legacy).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	menus, apis := orderMenuSpecs("Orders", "apps/order/index")
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus, apis); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	var rows []models.SysMenu
+	if err := db.Where("app_code = ? AND menu_name = ?", "order", menuName("order", "dir")).
+		Find(&rows).Error; err != nil {
+		t.Fatal(err)
+	}
+	if len(rows) != 1 {
+		t.Fatalf("%d rows carry that name; the row from before the column existed was not found", len(rows))
+	}
+	if rows[0].MenuId != legacy.MenuId {
+		t.Errorf("menu_id = %d, want the row that was already there (%d)", rows[0].MenuId, legacy.MenuId)
+	}
+	if rows[0].SeedCode == nil || *rows[0].SeedCode != "dir" {
+		t.Errorf("seed_code = %v, want it claimed", rows[0].SeedCode)
+	}
+	// Adopted and then repaired, like any other existing row.
+	if rows[0].Title != "Order Example" {
+		t.Errorf("title = %q; the adopted row was not brought up to the spec", rows[0].Title)
+	}
+}
+
+// menuName concatenates two pascalCase strings and pascalCase is not
+// injective, so two specs can land on one name. Picking one of several rows
+// would attach an application's menu to whichever the database returned
+// first.
+func TestSeedMenusRefusesAnAmbiguousAdoption(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+
+	for i := 0; i < 2; i++ {
+		row := models.SysMenu{
+			MenuName: menuName("order", "dir"), AppCode: "order", Title: fmt.Sprintf("copy %d", i),
+			MenuType: contractmodels.Directory,
+		}
+		if err := db.Create(&row).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	menus, apis := orderMenuSpecs("Orders", "apps/order/index")
+	err := (adminSeeder{}).SeedMenus(db, "order", menus, apis)
+	if err == nil {
+		t.Fatal("an ambiguous adoption was accepted")
+	}
+	if !strings.Contains(err.Error(), "2 rows") || !strings.Contains(err.Error(), "by hand") {
+		t.Errorf("error = %q, it has to say how many and that it is not deciding", err)
+	}
+	// And it did not write a third.
+	var n int64
+	db.Model(&models.SysMenu{}).Where("app_code = ? AND menu_name = ?", "order", menuName("order", "dir")).Count(&n)
+	if n != 2 {
+		t.Errorf("%d rows carry that name; the refusal still inserted", n)
+	}
+}
+
+// A row belonging to another application, or to the host, carries a different
+// app_code and is not this application's to claim.
+func TestSeedMenusDoesNotAdoptAnotherApplicationsRow(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+
+	other := models.SysMenu{
+		MenuName: menuName("order", "dir"), AppCode: "crm", Title: "crm's own",
+		MenuType: contractmodels.Directory,
+	}
+	if err := db.Create(&other).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	menus, apis := orderMenuSpecs("Orders", "apps/order/index")
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus, apis); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	var after models.SysMenu
+	db.Where("menu_id = ?", other.MenuId).First(&after)
+	if after.SeedCode != nil || after.Title != "crm's own" {
+		t.Errorf("another application's row was claimed: %+v", after)
+	}
+	var mine models.SysMenu
+	if err := db.Where("app_code = ? AND seed_code = ?", "order", "dir").First(&mine).Error; err != nil {
+		t.Fatalf("this application's own row was not created: %v", err)
+	}
 }
