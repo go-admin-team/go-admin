@@ -983,3 +983,160 @@ func TestSeedMenusLedgerToleratesAnEntryWhosePolicyWasRemoved(t *testing.T) {
 		t.Errorf("the policy was not put back: %d rows", policies)
 	}
 }
+
+// The tree is built from parent_id, not from paths. A menu whose parent was
+// removed and written again kept parent_id on the dead row while its paths
+// named the new one, so the menu was gone from the sidebar and the migration
+// said it had succeeded.
+func TestSeedMenusRepairsParentIdAfterTheParentWasRemoved(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+	menus, apis := orderMenuSpecs("Orders", "apps/order/index")
+
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus, apis); err != nil {
+		t.Fatalf("first seed: %v", err)
+	}
+	var dir models.SysMenu
+	if err := db.Where("app_code = ? AND seed_code = ?", "order", "dir").First(&dir).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Delete(&models.SysMenu{}, "menu_id = ?", dir.MenuId).Error; err != nil {
+		t.Fatalf("removing the parent: %v", err)
+	}
+
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus, apis); err != nil {
+		t.Fatalf("second seed: %v", err)
+	}
+
+	var newDir, list models.SysMenu
+	if err := db.Where("app_code = ? AND seed_code = ?", "order", "dir").First(&newDir).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Where("app_code = ? AND seed_code = ?", "order", "list").First(&list).Error; err != nil {
+		t.Fatal(err)
+	}
+	if newDir.MenuId == dir.MenuId {
+		t.Fatal("the removed parent was reused, so this test proves nothing")
+	}
+	if list.ParentId != newDir.MenuId {
+		t.Errorf("parent_id = %d, want the new parent %d; the menu hangs off a row that is gone",
+			list.ParentId, newDir.MenuId)
+	}
+	if want := newDir.Paths + "/" + strconv.Itoa(list.MenuId); list.Paths != want {
+		t.Errorf("paths = %q, want %q", list.Paths, want)
+	}
+}
+
+// A menu somebody added under a seeded one is not in any spec, so nothing but
+// this would ever rewrite its path when its ancestor moves.
+func TestSeedMenusMovesTheSubtreeUnderARepairedMenu(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+	menus, apis := orderMenuSpecs("Orders", "apps/order/index")
+
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus, apis); err != nil {
+		t.Fatalf("first seed: %v", err)
+	}
+	var dir, list models.SysMenu
+	db.Where("app_code = ? AND seed_code = ?", "order", "dir").First(&dir)
+	db.Where("app_code = ? AND seed_code = ?", "order", "list").First(&list)
+
+	// By hand, under the seeded menu, the way an administrator would.
+	hand := models.SysMenu{MenuName: "HandMade", Title: "By hand", MenuType: contractmodels.Menu,
+		ParentId: list.MenuId}
+	if err := db.Create(&hand).Error; err != nil {
+		t.Fatal(err)
+	}
+	hand.Paths = list.Paths + "/" + strconv.Itoa(hand.MenuId)
+	db.Model(&models.SysMenu{}).Where("menu_id = ?", hand.MenuId).Update("paths", hand.Paths)
+
+	// Rows whose paths start with the moving one's as a string and are not
+	// underneath it as a path. /0/1/2 is a string prefix of /0/1/20, and a
+	// LIKE on the bare prefix cannot tell the two apart - so these have to
+	// be built against the path that actually moves, which is the one this
+	// repair rewrites.
+	var decoys []models.SysMenu
+	for _, suffix := range []string{"0", "1", "9"} {
+		d := models.SysMenu{MenuName: "Decoy" + suffix, Title: "decoy", MenuType: contractmodels.Menu}
+		if err := db.Create(&d).Error; err != nil {
+			t.Fatal(err)
+		}
+		d.Paths = list.Paths + suffix
+		db.Model(&models.SysMenu{}).Where("menu_id = ?", d.MenuId).Update("paths", d.Paths)
+		decoys = append(decoys, d)
+	}
+
+	if err := db.Delete(&models.SysMenu{}, "menu_id = ?", dir.MenuId).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus, apis); err != nil {
+		t.Fatalf("second seed: %v", err)
+	}
+
+	var newList, movedHand models.SysMenu
+	db.Where("app_code = ? AND seed_code = ?", "order", "list").First(&newList)
+	db.Where("menu_id = ?", hand.MenuId).First(&movedHand)
+	if want := newList.Paths + "/" + strconv.Itoa(hand.MenuId); movedHand.Paths != want {
+		t.Errorf("the hand-made menu's paths = %q, want %q; it no longer names its ancestors",
+			movedHand.Paths, want)
+	}
+	for _, d := range decoys {
+		var after models.SysMenu
+		db.Where("menu_id = ?", d.MenuId).First(&after)
+		if after.Paths != d.Paths {
+			t.Errorf("decoy %d moved from %q to %q; a prefix match caught a row that is not underneath",
+				d.MenuId, d.Paths, after.Paths)
+		}
+	}
+}
+
+// An application that renames a menu or moves its component in a new version
+// had the change ignored: the row was found and returned untouched.
+func TestSeedMenusRefreshesWhatTheSpecDecides(t *testing.T) {
+	db := newSeedTestDB(t)
+	useCompositeSeedCodeIndex(t, db)
+	seedAdminRole(t, db)
+
+	menus, apis := orderMenuSpecs("Orders", "apps/order/index")
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus, apis); err != nil {
+		t.Fatalf("first seed: %v", err)
+	}
+	// An administrator hides it. That is not something the spec expresses,
+	// so a reseed has no business turning it back on.
+	if err := db.Model(&models.SysMenu{}).Where("app_code = ? AND seed_code = ?", "order", "list").
+		Update("visible", "1").Error; err != nil {
+		t.Fatal(err)
+	}
+
+	menus2, apis2 := orderMenuSpecs("Sales orders", "apps/order/list/index")
+	if err := (adminSeeder{}).SeedMenus(db, "order", menus2, apis2); err != nil {
+		t.Fatalf("second seed: %v", err)
+	}
+
+	var list models.SysMenu
+	db.Where("app_code = ? AND seed_code = ?", "order", "list").First(&list)
+	if list.Title != "Sales orders" {
+		t.Errorf("title = %q, want the new one", list.Title)
+	}
+	if list.Component != "apps/order/list/index" {
+		t.Errorf("component = %q, want the new one", list.Component)
+	}
+	if list.Visible != "1" {
+		t.Errorf("visible = %q; a reseed unhid a menu an administrator had hidden", list.Visible)
+	}
+}
+
+// orderMenuSpecs is a two-level tree plus one api, parameterised on the two
+// columns the upgrade test changes.
+func orderMenuSpecs(title, component string) ([]seed.MenuSpec, []seed.ApiSpec) {
+	menus := []seed.MenuSpec{
+		{Code: "dir", Kind: contractmodels.Directory, Title: "Order Example", Path: "/apps/order", Component: "Layout", Sort: 10},
+		{Code: "list", Parent: "dir", Kind: contractmodels.Menu, Title: title, Path: "list", Component: component, Sort: 1, ApiCodes: []string{"list"}},
+	}
+	apis := []seed.ApiSpec{
+		{Code: "list", Title: "Order list", Path: "/api/v1/order", Method: "GET", Handle: "apis.Order.GetPage-fm"},
+	}
+	return menus, apis
+}

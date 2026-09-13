@@ -213,7 +213,7 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 			err := tx.Where("app_code = ? AND seed_code = ?", appCode, s.Code).First(&existing).Error
 			switch {
 			case err == nil:
-				row, err := repairExistingMenu(tx, existing, s, parentRow, apiRows)
+				row, err := repairExistingMenu(tx, existing, appCode, s, parentRow, apiRows)
 				if err != nil {
 					return nil, fmt.Errorf("%q: repairing an existing row: %w", s.Code, err)
 				}
@@ -227,26 +227,7 @@ func seedMenuTree(tx *gorm.DB, appCode string, specs []seed.MenuSpec, apiRows ma
 				return nil, fmt.Errorf("%q: checking for an existing row: %w", s.Code, err)
 			}
 
-			seedCode := s.Code
-			row := models.SysMenu{
-				MenuName:   menuName(appCode, s.Code),
-				Title:      s.Title,
-				Icon:       s.Icon,
-				Path:       s.Path,
-				MenuType:   s.Kind,
-				Permission: s.Permission,
-				ParentId:   parentRow.MenuId,
-				Component:  s.Component,
-				Sort:       s.Sort,
-				// Visible "0" is shown, not hidden - the same defaults
-				// 1786700001000_demo_menu.go seeds its own menu with. A
-				// freshly installed application's menu should not need an
-				// administrator to first find and unhide it.
-				Visible:  "0",
-				IsFrame:  "1",
-				AppCode:  appCode,
-				SeedCode: &seedCode,
-			}
+			row := menuRowFor(appCode, s, parentRow)
 			for _, code := range s.ApiCodes {
 				api, ok := apiRows[code]
 				if !ok {
@@ -345,15 +326,27 @@ func expectedPaths(menuID int, parent string, parentRow models.SysMenu) string {
 // here just as much as it does there. Reconciling stale seed-driven
 // bindings, if it is ever wanted, belongs in the upgrade path with that
 // same ownership check - not silently inside every retry of every install.
-func repairExistingMenu(tx *gorm.DB, existing models.SysMenu, s seed.MenuSpec, parentRow models.SysMenu, apiRows map[string]models.SysApi) (models.SysMenu, error) {
-	want := expectedPaths(existing.MenuId, s.Parent, parentRow)
-	if existing.Paths != want {
-		if err := tx.Model(&models.SysMenu{}).Where("menu_id = ?", existing.MenuId).
-			Update("paths", want).Error; err != nil {
-			return models.SysMenu{}, fmt.Errorf("repairing paths: %w", err)
-		}
-		existing.Paths = want
+func repairExistingMenu(tx *gorm.DB, existing models.SysMenu, appCode string, s seed.MenuSpec, parentRow models.SysMenu, apiRows map[string]models.SysApi) (models.SysMenu, error) {
+	// Every column the spec decides, not just the two this used to touch. A
+	// menu whose parent was removed and reseeded kept parent_id pointing at
+	// the dead row while its paths named the new one, and the tree is built
+	// from parent_id - so the menu vanished from the sidebar with the
+	// migration reporting success. An application that renamed a menu or
+	// moved its component between versions had its change silently ignored
+	// for the same reason: nothing here wrote those columns.
+	want := menuRowFor(appCode, s, parentRow)
+	if err := tx.Model(&models.SysMenu{}).Where("menu_id = ?", existing.MenuId).
+		Select(specMenuFields).Updates(want).Error; err != nil {
+		return models.SysMenu{}, fmt.Errorf("bringing the row up to the spec: %w", err)
 	}
+	want.MenuId = existing.MenuId
+	want.Paths = existing.Paths
+	want.Visible, want.IsFrame = existing.Visible, existing.IsFrame
+
+	if err := repairPaths(tx, &want, s, parentRow); err != nil {
+		return models.SysMenu{}, err
+	}
+	existing = want
 
 	for _, code := range s.ApiCodes {
 		api, ok := apiRows[code]
@@ -491,4 +484,86 @@ func recordGrant(tx *gorm.DB, appCode, roleKey, path, action string) error {
 			"(SELECT 1 FROM sys_app_casbin_grant WHERE ptype='p' AND v0=? AND v1=? AND v2=? AND v3='' AND v4='' AND v5='')",
 		appCode, roleKey, path, action, time.Now(), roleKey, path, action,
 	).Error
+}
+
+// specMenuFields are the sys_menu columns a MenuSpec decides, and the only
+// ones a reseed rewrites on a row that is already there.
+//
+// Visible and IsFrame are not in the list. They are seeding defaults the
+// application never expressed, so an administrator who hid a seeded menu
+// keeps it hidden. app_code and seed_code are not either: they are the
+// natural key the row was found by, and writing them back would be writing
+// what was just matched.
+var specMenuFields = []string{
+	"MenuName", "Title", "Icon", "Path", "MenuType",
+	"Permission", "ParentId", "Component", "Sort",
+}
+
+// menuRowFor is the row a MenuSpec describes. One definition, so the insert
+// path and the repair path cannot drift into disagreeing about what a spec
+// decides.
+func menuRowFor(appCode string, s seed.MenuSpec, parentRow models.SysMenu) models.SysMenu {
+	seedCode := s.Code
+	return models.SysMenu{
+		MenuName:   menuName(appCode, s.Code),
+		Title:      s.Title,
+		Icon:       s.Icon,
+		Path:       s.Path,
+		MenuType:   s.Kind,
+		Permission: s.Permission,
+		ParentId:   parentRow.MenuId,
+		Component:  s.Component,
+		Sort:       s.Sort,
+		// Visible "0" is shown, not hidden - the same defaults
+		// 1786700001000_demo_menu.go seeds its own menu with. A freshly
+		// installed application's menu should not need an administrator to
+		// first find and unhide it. Only written when the row is created;
+		// see specMenuFields.
+		Visible:  "0",
+		IsFrame:  "1",
+		AppCode:  appCode,
+		SeedCode: &seedCode,
+	}
+}
+
+// repairPaths writes row.Paths, and moves whatever is underneath it.
+//
+// The subtree matters because it is not all in this call's specs: a menu an
+// administrator added under a seeded one keeps the old prefix, and nothing
+// else in the codebase would ever rewrite it. SysMenu.Update does the same
+// cascade for the same column when somebody moves a menu by hand.
+//
+// The predicate is the row itself or a row strictly under it, rather than
+// `paths LIKE old || '%'`, which also matches /0/10 when old is /0/1.
+func repairPaths(tx *gorm.DB, row *models.SysMenu, s seed.MenuSpec, parentRow models.SysMenu) error {
+	want := expectedPaths(row.MenuId, s.Parent, parentRow)
+	old := row.Paths
+	if old == want {
+		return nil
+	}
+	if old == "" {
+		// A row whose paths was never written - an interrupted create. It
+		// has no subtree to speak of, and `LIKE '/%'` would match the whole
+		// table.
+		if err := tx.Model(&models.SysMenu{}).Where("menu_id = ?", row.MenuId).
+			Update("paths", want).Error; err != nil {
+			return fmt.Errorf("writing paths: %w", err)
+		}
+		row.Paths = want
+		return nil
+	}
+
+	var subtree []models.SysMenu
+	if err := tx.Where("paths = ? OR paths LIKE ?", old, old+"/%").Find(&subtree).Error; err != nil {
+		return fmt.Errorf("reading the subtree under %s: %w", old, err)
+	}
+	for _, d := range subtree {
+		moved := want + strings.TrimPrefix(d.Paths, old)
+		if err := tx.Model(&models.SysMenu{}).Where("menu_id = ?", d.MenuId).
+			Update("paths", moved).Error; err != nil {
+			return fmt.Errorf("moving %d from %s to %s: %w", d.MenuId, d.Paths, moved, err)
+		}
+	}
+	row.Paths = want
+	return nil
 }
