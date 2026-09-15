@@ -1,17 +1,18 @@
 package jobs
 
 import (
+	"context"
 	"fmt"
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk"
+	log "github.com/go-admin-team/go-admin-core/v2/logger"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
 	models2 "go-admin/app/jobs/models"
 	"gorm.io/gorm"
 	"time"
 
 	"github.com/robfig/cron/v3"
 
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/cronjob"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg/cronjob"
 )
 
 var timeFormat = "2006-01-02 15:04:05"
@@ -101,13 +102,13 @@ func Setup(dbs map[string]*gorm.DB) {
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
 
 	for k, db := range dbs {
-		sdk.Runtime.SetCrontab(k, cronjob.NewWithSeconds())
+		sdk.Runtime.SetCrontabByTenant(k, cronjob.NewWithSeconds())
 		setup(k, db)
 	}
 }
 
 func setup(key string, db *gorm.DB) {
-	crontab := sdk.Runtime.GetCrontabKey(key)
+	crontab := sdk.Runtime.GetCrontabByTenant(key)
 	sysJob := models2.SysJob{}
 	jobList := make([]models2.SysJob, 0)
 	err := sysJob.GetList(db, &jobList)
@@ -145,11 +146,36 @@ func setup(key string, db *gorm.DB) {
 	}
 
 	// 其中任务
-	crontab.Start()
+	startCrontab(crontab)
+}
+
+// startCrontab starts c and arranges for it to be stopped on the way out.
+//
+// The stop used to be `defer crontab.Stop()` followed by `select {}`. The
+// select never returned, so the defer never ran and the scheduler was never
+// stopped; and because setup never returned, the loop in Setup never reached
+// the second tenant - only whichever database came first out of the map ever
+// got a scheduler at all. cron.Start is itself `go c.run()`, so the select was
+// blocking for nothing.
+//
+// cron.Stop returns a context that closes once the jobs already running have
+// finished. That is the wait the shutdown budget exists to bound: giving up on
+// it leaves those jobs running until the process exits, which is better than
+// holding the whole shutdown open for one job that will not end.
+func startCrontab(c *cron.Cron) {
+	c.Start()
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore start success.")
+
 	// 关闭任务
-	defer crontab.Stop()
-	select {}
+	sdk.Runtime.SetShutdown(func(ctx context.Context) {
+		stopped := c.Stop()
+		select {
+		case <-stopped.Done():
+			fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore stopped.")
+		case <-ctx.Done():
+			fmt.Println(time.Now().Format(timeFormat), " [WARN] JobCore stop gave up waiting for running jobs")
+		}
+	})
 }
 
 // AddJob 添加任务 AddJob(invokeTarget string, jobId int, jobName string, cronExpression string)

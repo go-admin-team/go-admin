@@ -1,19 +1,18 @@
 package handler
 
 import (
-	"go-admin/app/admin/models"
 	"go-admin/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
-	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"github.com/go-admin-team/go-admin-core/v2/captcha"
+	jwt "github.com/go-admin-team/go-admin-core/v2/jwtauth"
+	"github.com/go-admin-team/go-admin-core/v2/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/v2/response"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 	"github.com/mssola/user_agent"
 	"go-admin/common/global"
 )
@@ -29,6 +28,10 @@ func PayloadFunc(data interface{}) jwt.MapClaims {
 			jwt.NiceKey:      u.Username,
 			jwt.DataScopeKey: r.DataScope,
 			jwt.RoleNameKey:  r.RoleName,
+			// deptid completes what the data-permission scope is decided by,
+			// so it can be read from the token instead of joined for on every
+			// request. core's user.GetDeptId has always read this claim.
+			"deptid": u.DeptId,
 		}
 	}
 	return jwt.MapClaims{}
@@ -127,7 +130,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	l["username"] = username
 	l["msg"] = msg
 
-	q := sdk.Runtime.GetMemoryQueue(c.Request.Host)
+	q := sdk.Runtime.GetQueuePrefix(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.LoginLog, l)
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())
@@ -159,19 +162,31 @@ func LogOut(c *gin.Context) {
 
 }
 
+// Authorizator decides whether a parsed identity may proceed. It authorizes
+// every identity IdentityHandler was able to build, which is what it has always
+// done.
+//
+// It used to also assert data["user"] and data["role"] into app/admin/models
+// types and copy five fields onto the context. Those two keys are not in the
+// map: IdentityHandler builds it from the token claims and puts in
+// IdentityKey / UserName / RoleKey / UserId / RoleIds / DataScope. Both
+// assertions therefore failed on every request, and because the ok result was
+// discarded, the five c.Set calls stored zero values and the function returned
+// true regardless.
+//
+// Nothing in this repository or in go-admin-core reads role / roleIds /
+// userId / userName / dataScope off the context - the open-source data
+// permission path reads the JWT claims through
+// common/actions.Permission -> user.GetUserIdStr(c). Dropping the block
+// therefore removes five zero values nobody read, and with them the last
+// import of app/admin from a contract package.
+//
+// Anything maintaining its own copy of this file must check its own consumers
+// before taking this change: a codebase that does read those keys off the
+// context needs Authorizator to keep setting them.
 func Authorizator(data interface{}, c *gin.Context) bool {
-
-	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(models.SysUser)
-		r, _ := v["role"].(models.SysRole)
-		c.Set("role", r.RoleName)
-		c.Set("roleIds", r.RoleId)
-		c.Set("userId", u.UserId)
-		c.Set("userName", u.Username)
-		c.Set("dataScope", r.DataScope)
-		return true
-	}
-	return false
+	_, ok := data.(map[string]interface{})
+	return ok
 }
 
 func Unauthorized(c *gin.Context, code int, message string) {

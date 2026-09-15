@@ -26,8 +26,12 @@ func (e *ALiYunOSS) Setup(endpoint, accessKeyID, accessKeySecret, BucketName str
 
 // UpLoad 文件上传
 func (e *ALiYunOSS) UpLoad(yourObjectName string, localFile interface{}) error {
+	client, ok := e.Client.(*oss.Client)
+	if !ok {
+		return notConfigured(AliYunOSS)
+	}
 	// 获取存储空间。
-	bucket, err := e.Client.(*oss.Client).Bucket(e.BucketName)
+	bucket, err := client.Bucket(e.BucketName)
 	if err != nil {
 		log.Println("Error:", err)
 		return err

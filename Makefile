@@ -15,13 +15,22 @@ build-sqlite:
 # make run
 run:
     # delete go-admin-api container
-	@if [ $(shell docker ps -aq --filter name=go-admin --filter publish=8000) ]; then docker rm -f go-admin; fi
+    #
+    # stop then rm, rather than `rm -f`. The force flag kills a running
+    # container with SIGKILL and no grace at all, so restarting locally cut
+    # short every shutdown this application does - the drain window was never
+    # once reached on a developer's machine. --timeout has to cover
+    # extend.shutdown's drain + server + cleanup; checksilent's
+    # docker-stop-cuts-shutdown-short check compares it against
+    # config/settings.yml. On a container that has already stopped, stop is a
+    # no-op and the removal is unchanged.
+	@if [ $(shell docker ps -aq --filter name=go-admin --filter publish=8000) ]; then docker stop --timeout 30 go-admin && docker rm go-admin; fi
 
     # 启动方法一 run go-admin-api container  docker-compose 启动方式
     # 进入到项目根目录 执行 make run 命令
 	@docker-compose up -d
 
-	# 启动方式二 docker run  这里注意-v挂载的宿主机的地址改为部署时的实际决对路径
+	# 启动方式二 docker run  这里注意-v挂载的宿主机的地址改为部署时的实际绝对路径
     #@docker run --name=go-admin -p 8000:8000 -v /home/code/go/src/go-admin/go-admin/config:/go-admin-api/config  -v /home/code/go/src/go-admin/go-admin-api/static:/go-admin/static -v /home/code/go/src/go-admin/go-admin/temp:/go-admin-api/temp -d --restart=always go-admin:latest
 
 	@echo "go-admin service is running..."
@@ -37,9 +46,39 @@ stop:
 	#@echo "go-admin stop success"
 
 
-#.PHONY: test
-#test:
-#	go test -v ./... -cover
+# -race is worth the extra minute here: common/actions reuses model instances
+# across concurrent requests, so a Generate() that returns in place instead of
+# a copy leaks data between them - and that is invisible to a single-threaded
+# test run.
+.PHONY: test
+test:
+	go test -race -cover ./...
+
+# The end-to-end install, which `test` above cannot reach: test/e2e-apporder
+# is its own module, so `./...` in this one does not include it. It builds a
+# go-admin binary with the example application linked in and drives
+# `migrate install` / `migrate uninstall` against a real database.
+#
+# Its own target rather than a line in the CI workflow, so the one thing in
+# the build that exercises installing an application is also the one thing
+# somebody can run before pushing.
+.PHONY: test-e2e
+test-e2e:
+	cd test/e2e-apporder && go test ./... -count=1
+
+# Reports the failures that do not announce themselves - see
+# tools/checksilent. Exits non-zero on an ERROR; the one WARN-level check
+# prints and does not fail the build.
+#
+# Pass UI_DIR to enable the cross-repository menu-name check, which is skipped
+# without it:  make checksilent UI_DIR=../go-admin-ui/src
+.PHONY: checksilent
+checksilent:
+ifdef UI_DIR
+	go run ./tools/checksilent -ui-dir $(UI_DIR)
+else
+	go run ./tools/checksilent
+endif
 
 #.PHONY: docker
 #docker:

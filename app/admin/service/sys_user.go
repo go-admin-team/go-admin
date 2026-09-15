@@ -5,9 +5,9 @@ import (
 	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	"github.com/go-admin-team/go-admin-core/sdk/service"
+	log "github.com/go-admin-team/go-admin-core/v2/logger"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/service"
 	"gorm.io/gorm"
 
 	"go-admin/common/actions"
@@ -31,6 +31,30 @@ func (e *SysUser) GetPage(c *dto.SysUserGetPageReq, p *actions.DataPermission, l
 		).
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
+	if err != nil {
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
+	return nil
+}
+
+// GetSelf 获取调用者自己的 SysUser 对象，不套数据权限
+//
+// The data scope answers "whose rows may this user see"; the caller here is
+// reading their own, and the id comes from the token, so there is nothing left
+// for a scope to restrict. Applying one is not a stricter version of this
+// query - it is a broken one. DataScopeSelf matches on create_by, and a user
+// account is created by whoever added it, so a scoped self-read would fail for
+// every user who did not create their own account.
+//
+// GetProfile has always read the same row this way, with no scope at all.
+func (e *SysUser) GetSelf(d *dto.SysUserById, model *models.SysUser) error {
+	err := e.Orm.First(model, d.GetId()).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
 	if err != nil {
 		e.Log.Errorf("db error: %s", err)
 		return err
@@ -84,7 +108,16 @@ func (e *SysUser) Insert(c *dto.SysUserInsertReq) error {
 }
 
 // Update 修改SysUser对象
-func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission) error {
+//
+// callerId is who is asking, not who SetUpdateBy recorded - that field only
+// says who to blame, it never constrained who could be edited. When the
+// target is the caller themselves, roleId/deptId/status are kept at whatever
+// the database already has no matter what the request body carries: this is
+// the personal-center screen's route (see CasbinExclude in settings.go, and
+// the check in the API handler ahead of this call), and letting a caller
+// grant themselves a different role or department through it would be a
+// privilege escalation the exclusion was never meant to open.
+func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission, callerId int) error {
 	var err error
 	var model models.SysUser
 	db := e.Orm.Scopes(
@@ -97,6 +130,11 @@ func (e *SysUser) Update(c *dto.SysUserUpdateReq, p *actions.DataPermission) err
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
 
+	}
+	if model.UserId == callerId {
+		c.RoleId = model.RoleId
+		c.DeptId = model.DeptId
+		c.Status = model.Status
 	}
 	c.Generate(&model)
 	update := e.Orm.Model(&model).Where("user_id = ?", &model.UserId).Omit("password", "salt").Updates(&model)

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2020 go-admin-team
+Copyright (c) 2026 go-admin-team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

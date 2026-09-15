@@ -1,18 +1,18 @@
 
 # go-admin
 
-<img align="right" width="320" src="https://doc-image.zhangwj.com/img/go-admin.svg">
+<img align="right" width="320" src="https://raw.githubusercontent.com/wenjianzhang/image/203c5930b9ed08d5cf2fcb4516b85e412f8e0e60/img/go-admin.svg">
 
 
-[![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
+[![Build Status](https://github.com/go-admin-team/go-admin/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/go-admin-team/go-admin)
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/go-admin-team/go-admin)
+[![License](https://img.shields.io/github/license/go-admin-team/go-admin.svg)](https://github.com/go-admin-team/go-admin)
 
-English | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md)
+English | [简体中文](https://github.com/go-admin-team/go-admin/blob/master/README.Zh-cn.md) | [繁體中文](https://github.com/go-admin-team/go-admin/blob/master/README.zh-TW.md) | [日本語](https://github.com/go-admin-team/go-admin/blob/master/README.ja-JP.md)
 
-The front-end and back-end separation authority management system based on Gin + Vue + Element UI OR Arco Design is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
+The front-end and back-end separation authority management system based on Gin + Vue + Element UI OR Arco Design OR Ant Design is extremely simple to initialize the system. You only need to modify the database connection in the configuration file. The system supports multi-instruction operations. Migration instructions can make it easier to initialize database information. Service instructions It's easy to start the api service.
 
-[documentation](https://www.go-admin.dev)
+[documentation](https://www.go-admin.pro)
 
 [Front-end project](https://github.com/go-admin-team/go-admin-ui)
 
@@ -20,14 +20,11 @@ The front-end and back-end separation authority management system based on Gin +
 
 ## 🎬 Online Demo
 
-Element UI vue demo：[https://vue2.go-admin.dev](https://vue2.go-admin.dev/#/login)
-> 账号 / 密码： admin / 123456
+Element Plus vue3 demo：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
+> Account / Password: admin / 123456
 
-Arco Design vue3 demo：[https://vue3.go-admin.dev](https://vue3.go-admin.dev/#/login)
-> 账号 / 密码： admin / 123456
-
-antd demo：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
-> 账号 / 密码： admin / 123456
+antd demo (go-admin-pro)：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
+> Account / Password: admin / 123456
 > 
 ## ✨ Feature
 
@@ -79,9 +76,9 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Easily implement go-admin to write the first application-documentation tutorial
 
-[Step 1 - basic content introduction](https://doc.zhangwj.com/guide/intro/tutorial01.html)
+[Step 1 - basic content introduction](https://www.go-admin.pro/guide/intro/tutorial01.html)
 
-[Step 2 - Practical application - writing database operations](https://doc.zhangwj.com/guide/intro/tutorial02.html)
+[Step 2 - Practical application - writing database operations](https://www.go-admin.pro/guide/intro/tutorial02.html)
 
 ### Teach you from getting started to giving up-video tutorial
 
@@ -107,11 +104,11 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Environmental requirements
 
-go 1.18
+go 1.26.5
 
-nodejs: v14.16.0
+nodejs: v22+ (v24 LTS recommended)
 
-npm: 6.14.11
+package manager: pnpm v9+ (the UI project uses pnpm)
 
 ### Development directory creation
 
@@ -158,7 +155,7 @@ vi ./config/settings.yml
 # 2. Confirm the log path
 ```
 
-:::tip ⚠️Note that this problem will occur if CGO is not installed in the windows10+ environment;
+⚠️ Note that this problem will occur if CGO is not installed in the windows10+ environment;
 
 ```bash
 E:\go-admin>go build
@@ -174,9 +171,7 @@ D:\Code\go-admin>go build
 cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
-[Solve the cgo problem and enter](https://doc.go-admin.dev/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
-
-:::
+[Solve the cgo problem and enter](https://www.go-admin.pro/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
 #### Initialize the database, and start the service
 
@@ -229,11 +224,14 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ### UI interactive terminal startup instructions
 
 ```bash
+# Install pnpm if you don't have it
+npm install -g pnpm
+
 # Installation dependencies
-npm install   # or cnpm install
+pnpm install
 
 # Start service
-npm run dev
+pnpm dev
 ```
 
 ## 📨 Interactive
@@ -318,9 +316,9 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 2. [gin](https://github.com/gin-gonic/gin)
 2. [casbin](https://github.com/casbin/casbin)
 2. [spf13/viper](https://github.com/spf13/viper)
-2. [gorm](https://github.com/jinzhu/gorm)
+2. [gorm](https://github.com/go-gorm/gorm)
 2. [gin-swagger](https://github.com/swaggo/gin-swagger)
-2. [jwt-go](https://github.com/dgrijalva/jwt-go)
+2. [golang-jwt](https://github.com/golang-jwt/jwt)
 2. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 2. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 2. [form-generator](https://github.com/JakHuang/form-generator)
@@ -332,11 +330,10 @@ The `go-admin` project has always been developed in the GoLand integrated develo
 <img class="no-margin" src="https://raw.githubusercontent.com/wenjianzhang/image/master/img/pay.png"  height="200px" >
 
 ## 🤝 Link
-- [Go developer growth roadmap](http://www.golangroadmap.com/)
 - [mss-boot-io](https://docs.mss-boot-io.top/)
 
 ## 🔑 License
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2022 wenjianzhang
+Copyright (c) 2026 wenjianzhang

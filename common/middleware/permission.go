@@ -1,14 +1,15 @@
 package middleware
 
 import (
-	"github.com/casbin/casbin/v2/util"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	mycasbin "github.com/go-admin-team/go-admin-core/v2/casbin"
+	"github.com/go-admin-team/go-admin-core/v2/jwtauth"
+	"github.com/go-admin-team/go-admin-core/v2/response"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
 )
 
 // AuthCheckRole 权限检查中间件
@@ -17,7 +18,7 @@ func AuthCheckRole() gin.HandlerFunc {
 		log := api.GetRequestLogger(c)
 		data, _ := c.Get(jwtauth.JwtPayloadKey)
 		v := data.(jwtauth.MapClaims)
-		e := sdk.Runtime.GetCasbinKey(c.Request.Host)
+		e := sdk.Runtime.GetCasbinByTenant(c.Request.Host)
 		var res, casbinExclude bool
 		var err error
 		//检查权限
@@ -26,11 +27,9 @@ func AuthCheckRole() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		for _, i := range CasbinExclude {
-			if util.KeyMatch2(c.Request.URL.Path, i.Url) && c.Request.Method == i.Method {
-				casbinExclude = true
-				break
-			}
+		casbinExclude, err = excludedFromCasbin(c.Request.Method, c.Request.URL.Path)
+		if err != nil {
+			log.Errorf("AuthCheckRole: %s", err)
 		}
 		if casbinExclude {
 			log.Infof("Casbin exclusion, no validation method:%s path:%s", c.Request.Method, c.Request.URL.Path)
@@ -58,4 +57,60 @@ func AuthCheckRole() gin.HandlerFunc {
 		}
 
 	}
+}
+
+// EnforceRoleFor reports whether the caller's role has explicit Casbin
+// permission to act on path with method.
+//
+// AuthCheckRole never calls Enforce for a route CasbinExclude lists - that
+// is the whole point of the list. A handler on such a route can still need
+// the real answer for part of what it does: sys_user.go's Update shares its
+// excluded route between the personal-center screen editing the caller's own
+// record (which is why the route is excluded at all) and an admin editing
+// someone else's, and only the second case is meant to require a policy
+// grant. That handler asks here instead of assuming the middleware already
+// checked.
+func EnforceRoleFor(c *gin.Context, path, method string) (bool, error) {
+	data, ok := c.Get(jwtauth.JwtPayloadKey)
+	if !ok {
+		return false, nil
+	}
+	v, ok := data.(jwtauth.MapClaims)
+	if !ok {
+		return false, nil
+	}
+	if v["rolekey"] == "admin" {
+		return true, nil
+	}
+	e := sdk.Runtime.GetCasbinByTenant(c.Request.Host)
+	return e.Enforce(v["rolekey"], path, method)
+}
+
+// excludedFromCasbin reports whether the route skips the permission check.
+//
+// It runs for every non-admin request, so the order matters: the method rules
+// out most entries with a string compare, where the path test costs a pattern
+// match. mycasbin.KeyMatch2 answers what casbin's util.KeyMatch2 answers
+// without recompiling the pattern every time, which is what made this loop
+// expensive - about 2,500 allocations per request against a 32-entry list.
+//
+// A pattern that will not compile is a bug in CasbinExclude rather than in the
+// request, so the entry is skipped and the scan continues; the error comes
+// back for the caller to log.
+func excludedFromCasbin(method, path string) (bool, error) {
+	var bad error
+	for _, i := range CasbinExclude {
+		if method != i.Method {
+			continue
+		}
+		ok, err := mycasbin.KeyMatch2(path, i.Url)
+		if err != nil {
+			bad = fmt.Errorf("CasbinExclude entry %q is not a valid pattern: %w", i.Url, err)
+			continue
+		}
+		if ok {
+			return true, bad
+		}
+	}
+	return false, bad
 }

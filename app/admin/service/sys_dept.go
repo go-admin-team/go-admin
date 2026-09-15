@@ -4,13 +4,13 @@ import (
 	"errors"
 	"go-admin/app/admin/models"
 
-	log "github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	log "github.com/go-admin-team/go-admin-core/v2/logger"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
 
-	"github.com/go-admin-team/go-admin-core/sdk/service"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/service"
 )
 
 type SysDept struct {

@@ -3,11 +3,11 @@
   <img align="right" width="320" src="https://doc-image.zhangwj.com/img/go-admin.svg">
 
 
-[![Build Status](https://github.com/wenjianzhang/go-admin/workflows/build/badge.svg)](https://github.com/go-admin-team/go-admin)
+[![Build Status](https://github.com/go-admin-team/go-admin/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/go-admin-team/go-admin)
 [![Release](https://img.shields.io/github/release/go-admin-team/go-admin.svg?style=flat-square)](https://github.com/go-admin-team/go-admin/releases)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/go-admin-team/go-admin)
+[![License](https://img.shields.io/github/license/go-admin-team/go-admin.svg)](https://github.com/go-admin-team/go-admin)
 
-[English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | 简体中文
+[English](https://github.com/go-admin-team/go-admin/blob/master/README.md) | 简体中文 | [繁體中文](https://github.com/go-admin-team/go-admin/blob/master/README.zh-TW.md) | [日本語](https://github.com/go-admin-team/go-admin/blob/master/README.ja-JP.md)
 
 基于Gin + Vue + Element UI OR Arco Design OR Ant Design的前后端分离权限管理系统,系统初始化极度简单，只需要配置文件中，修改数据库连接，系统支持多指令操作，迁移指令可以让初始化数据库信息变得更简单，服务指令可以很简单的启动api服务
 
@@ -19,13 +19,10 @@
 
 ## 🎬 在线体验
 
-Element UI vue体验：[https://vue2.go-admin.dev](https://vue2.go-admin.dev/#/login)
+Element Plus vue3 体验：[https://vue.go-admin.pro](https://vue.go-admin.pro/#/login)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
-Arco Design vue3 demo：[https://vue3.go-admin.dev](https://vue3.go-admin.dev/#/login)
-> ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
-
-antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
+antd 体验（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
 > ⚠️⚠️⚠️ 账号 / 密码： admin / 123456
 
 ## ✨ 特性
@@ -81,9 +78,9 @@ antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
 
 ### 轻松实现go-admin写出第一个应用 - 文档教程
 
-[步骤一 - 基础内容介绍](https://doc.zhangwj.com/guide/intro/tutorial01.html)
+[步骤一 - 基础内容介绍](https://www.go-admin.pro/guide/intro/tutorial01.html)
 
-[步骤二 - 实际应用 - 编写增删改查](https://doc.zhangwj.com/guide/intro/tutorial02.html)
+[步骤二 - 实际应用 - 编写增删改查](https://www.go-admin.pro/guide/intro/tutorial02.html)
 
 ### 手把手教你从入门到放弃 - 视频教程
 
@@ -109,11 +106,11 @@ antd体验：[https://antd.go-admin.pro](https://antd.go-admin.pro/)
 
 ### 环境要求
 
-go 1.18
+go 1.26.5
 
-node版本: v14.16.0
+node版本: v22+（推荐 v24 LTS）
 
-npm版本: 6.14.11
+包管理器: pnpm v9+（UI 项目使用 pnpm）
 
 ### 开发目录创建
 
@@ -176,7 +173,7 @@ D:\Code\go-admin>go build
 cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ```
 
-[解决cgo问题进入](https://doc.go-admin.dev/zh-CN/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
+[解决cgo问题进入](https://www.go-admin.pro/zh-CN/guide/faq#cgo-%E7%9A%84%E9%97%AE%E9%A2%98)
 
 
 #### 初始化数据库，以及服务启动
@@ -237,14 +234,17 @@ env GOOS=linux GOARCH=amd64 go build main.go
 ### UI交互端启动说明
 
 ```bash
-# 安装依赖
-npm install
+# 安装 pnpm（若未安装）
+npm install -g pnpm
 
-# 建议不要直接使用 cnpm 安装依赖，会有各种诡异的 bug。可以通过如下操作解决 npm 下载速度慢的问题
-npm install --registry=https://registry.npmmirror.com
+# 安装依赖
+pnpm install
+
+# 国内网络可指定镜像源加速
+pnpm install --registry=https://registry.npmmirror.com
 
 # 启动服务
-npm run dev
+pnpm dev
 ```
 
 ## 📨 互动
@@ -327,9 +327,9 @@ npm run dev
 4. [gin](https://github.com/gin-gonic/gin)
 5. [casbin](https://github.com/casbin/casbin)
 6. [spf13/viper](https://github.com/spf13/viper)
-7. [gorm](https://github.com/jinzhu/gorm)
+7. [gorm](https://github.com/go-gorm/gorm)
 8. [gin-swagger](https://github.com/swaggo/gin-swagger)
-9. [jwt-go](https://github.com/dgrijalva/jwt-go)
+9. [golang-jwt](https://github.com/golang-jwt/jwt)
 10. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
 11. [ruoyi-vue](https://gitee.com/y_project/RuoYi-Vue)
 12. [form-generator](https://github.com/JakHuang/form-generator)
@@ -343,10 +343,10 @@ npm run dev
 
 ## 🤝 链接
 
-[Go开发者成长线路图](http://www.golangroadmap.com/)
+- [mss-boot-io](https://docs.mss-boot-io.top/)
 
 ## 🔑 License
 
 [MIT](https://github.com/go-admin-team/go-admin/blob/master/LICENSE.md)
 
-Copyright (c) 2024 wenjianzhang
+Copyright (c) 2026 wenjianzhang

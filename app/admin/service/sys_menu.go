@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
@@ -14,7 +14,7 @@ import (
 	cDto "go-admin/common/dto"
 	cModels "go-admin/common/models"
 
-	"github.com/go-admin-team/go-admin-core/sdk/service"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/service"
 )
 
 type SysMenu struct {
@@ -395,7 +395,11 @@ func (e *SysMenu) getByRoleName(roleName string) ([]models.SysMenu, error) {
 	data := make([]models.SysMenu, 0)
 
 	if roleName == "admin" {
-		err = e.Orm.Where(" menu_type in ('M','C') and deleted_at is null").
+		// The soft-delete condition is GORM's to add: it appends one for the
+		// model's DeletedAt field on every query. Writing it by hand duplicates
+		// that and hard-codes what "deleted" looks like — a column that stops
+		// being nullable turns this clause into one that matches nothing.
+		err = e.Orm.Where("menu_type in ('M','C')").
 			Order("sort").
 			Find(&data).
 			Error

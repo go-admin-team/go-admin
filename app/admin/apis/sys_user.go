@@ -1,20 +1,22 @@
 package apis
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin/binding"
 	"go-admin/app/admin/models"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
-	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
+	"github.com/go-admin-team/go-admin-core/v2/jwtauth/user"
+	_ "github.com/go-admin-team/go-admin-core/v2/response"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
 	"github.com/google/uuid"
 
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
 	"go-admin/common/actions"
+	"go-admin/common/middleware"
 )
 
 type SysUser struct {
@@ -149,12 +151,34 @@ func (e SysUser) Update(c *gin.Context) {
 		return
 	}
 
-	req.SetUpdateBy(user.GetUserId(c))
+	callerId := user.GetUserId(c)
+
+	// This route is in CasbinExclude so the personal-center screen can edit
+	// the caller's own record without a policy grant (see settings.go). That
+	// exclusion covers the whole route, not just the caller's own record, and
+	// the request carries the target userId in the body - so without this
+	// check here, any authenticated caller could edit any other user, up to
+	// and including their roleId. When the target is someone else, ask Casbin
+	// directly for the permission AuthCheckRole skipped.
+	if req.UserId != callerId {
+		allowed, err := middleware.EnforceRoleFor(c, c.Request.URL.Path, c.Request.Method)
+		if err != nil {
+			e.Logger.Error(err)
+			e.Error(500, err, err.Error())
+			return
+		}
+		if !allowed {
+			e.Error(http.StatusForbidden, errors.New("无权更新其他用户数据"), "对不起，您没有该接口访问权限，请联系管理员")
+			return
+		}
+	}
+
+	req.SetUpdateBy(callerId)
 
 	//数据权限检查
 	p := actions.GetPermissionFromContext(c)
 
-	err = s.Update(&req, p)
+	err = s.Update(&req, p, callerId)
 	if err != nil {
 		e.Logger.Error(err)
 		return
@@ -420,7 +444,6 @@ func (e SysUser) GetInfo(c *gin.Context) {
 		e.Error(500, err, err.Error())
 		return
 	}
-	p := actions.GetPermissionFromContext(c)
 	var roles = make([]string, 1)
 	roles[0] = user.GetRoleName(c)
 	var permissions = make([]string, 1)
@@ -440,7 +463,14 @@ func (e SysUser) GetInfo(c *gin.Context) {
 	}
 	sysUser := models.SysUser{}
 	req.Id = user.GetUserId(c)
-	err = s.Get(&req, p, &sysUser)
+	// Unscoped on purpose: the id is the caller's own, taken from the token.
+	// This used to go through Get with whatever GetPermissionFromContext
+	// returned - and this route installs no PermissionAction, so that was the
+	// zero value. An unset scope is not a recognised one, so once unknown
+	// scopes started failing closed rather than silently matching everything,
+	// every login on a deployment with enabledp: true ended here with a 401
+	// and the browser went straight back to the login page.
+	err = s.GetSelf(&req, &sysUser)
 	if err != nil {
 		e.Error(http.StatusUnauthorized, err, "登录失败")
 		return

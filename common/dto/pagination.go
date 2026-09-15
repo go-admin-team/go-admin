@@ -1,20 +1,7 @@
 package dto
 
-type Pagination struct {
-	PageIndex int `form:"pageIndex"`
-	PageSize  int `form:"pageSize"`
-}
+import contractdto "github.com/go-admin-team/go-admin-core/v2/sdk/contract/dto"
 
-func (m *Pagination) GetPageIndex() int {
-	if m.PageIndex <= 0 {
-		m.PageIndex = 1
-	}
-	return m.PageIndex
-}
-
-func (m *Pagination) GetPageSize() int {
-	if m.PageSize <= 0 {
-		m.PageSize = 10
-	}
-	return m.PageSize
-}
+// Pagination is a thin alias of go-admin-core's sdk/contract/dto (PRD 006
+// F2/F5).
+type Pagination = contractdto.Pagination

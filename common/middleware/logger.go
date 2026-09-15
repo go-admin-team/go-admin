@@ -1,22 +1,21 @@
 package middleware
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
-	"go-admin/app/admin/service/dto"
+	"errors"
 	"go-admin/common"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/config"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/v2/jwtauth/user"
+	"github.com/go-admin-team/go-admin-core/v2/logger"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/config"
 
 	"go-admin/common/global"
 )
@@ -28,19 +27,14 @@ func LoggerToFile() gin.HandlerFunc {
 		// 开始时间
 		startTime := time.Now()
 		// 处理请求
+		//
+		// The body is only read when it has a destination. operParam below is
+		// the only consumer, and it is written when logger.enableddb is on -
+		// off in the shipped configuration, where reading the body was a copy
+		// of every request made and discarded.
 		var body string
-		switch c.Request.Method {
-		case http.MethodPost, http.MethodPut, http.MethodGet, http.MethodDelete:
-			bf := bytes.NewBuffer(nil)
-			wt := bufio.NewWriter(bf)
-			_, err := io.Copy(wt, c.Request.Body)
-			if err != nil {
-				log.Warnf("copy body error, %s", err.Error())
-				err = nil
-			}
-			rb, _ := ioutil.ReadAll(bf)
-			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rb))
-			body = string(rb)
+		if config.LoggerConfig.EnabledDB {
+			body = readOperParam(c, log)
 		}
 
 		c.Next()
@@ -100,10 +94,55 @@ func LoggerToFile() gin.HandlerFunc {
 	}
 }
 
-// SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
-func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) {
+// operParamLimit caps what is copied out of a request body for the operation
+// log. A file upload is a POST like any other and reaches this middleware
+// before any handler, so without a limit the whole upload is held in memory to
+// write a log row - a 16MB upload allocated about 67MB. The limit also keeps
+// the value inside the column, which is TEXT.
+const operParamLimit = 32 << 10
 
-	log := api.GetRequestLogger(c)
+// readOperParam copies the start of the request body for the operation log and
+// leaves the request readable by the handler.
+//
+// The body is not buffered whole: the handler reads the part copied here from
+// memory and the rest straight from the connection, so what this holds is
+// bounded by operParamLimit however large the request is.
+func readOperParam(c *gin.Context, log *logger.Helper) string {
+	switch c.Request.Method {
+	case http.MethodPost, http.MethodPut, http.MethodGet, http.MethodDelete:
+	default:
+		return ""
+	}
+	if c.Request.Body == nil {
+		return ""
+	}
+
+	rest := c.Request.Body
+	head := make([]byte, operParamLimit)
+	n, err := io.ReadFull(rest, head)
+	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
+		log.Warnf("read body for the operation log: %s", err)
+	}
+	head = head[:n]
+
+	c.Request.Body = readCloser{
+		Reader: io.MultiReader(bytes.NewReader(head), rest),
+		Closer: rest,
+	}
+	return string(head)
+}
+
+type readCloser struct {
+	io.Reader
+	io.Closer
+}
+
+// operaLogFields builds the message written to the operation log queue.
+//
+// Split out of SetDBOperLog so the field set can be asserted in a test: the
+// consumer on the other end of the queue reads these keys by name, so a
+// dropped or renamed key costs a column in sys_opera_log and reports nothing.
+func operaLogFields(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) map[string]interface{} {
 	l := make(map[string]interface{})
 	l["_fullPath"] = c.FullPath()
 	l["operUrl"] = reqUri
@@ -120,11 +159,19 @@ func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string
 	l["createBy"] = user.GetUserId(c)
 	l["updateBy"] = user.GetUserId(c)
 	if status == http.StatusOK {
-		l["status"] = dto.OperaStatusEnabel
+		l["status"] = global.OperaStatusEnabled
 	} else {
-		l["status"] = dto.OperaStatusDisable
+		l["status"] = global.OperaStatusDisabled
 	}
-	q := sdk.Runtime.GetMemoryQueue(c.Request.Host)
+	return l
+}
+
+// SetDBOperLog 写入操作日志表 fixme 该方法后续即将弃用
+func SetDBOperLog(c *gin.Context, clientIP string, statusCode int, reqUri string, reqMethod string, latencyTime time.Duration, body string, result string, status int) {
+
+	log := api.GetRequestLogger(c)
+	l := operaLogFields(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, status)
+	q := sdk.Runtime.GetQueuePrefix(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.OperateLog, l)
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())

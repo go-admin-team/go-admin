@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"github.com/go-admin-team/go-admin-core/v2/sdk"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
 
 	"go-admin/app/jobs/service"
 	"go-admin/common/dto"
@@ -29,7 +29,7 @@ func (e SysJob) RemoveJobForService(c *gin.Context) {
 		return
 	}
 
-	s.Cron = sdk.Runtime.GetCrontabKey(c.Request.Host)
+	s.Cron = sdk.Runtime.GetCrontabByTenant(c.Request.Host)
 	err = s.RemoveJob(&v)
 	if err != nil {
 		e.Logger.Errorf("RemoveJob error, %s", err.Error())
@@ -58,7 +58,7 @@ func (e SysJob) StartJobForService(c *gin.Context) {
 	s := service.SysJob{}
 	s.Orm = db
 	s.Log = log
-	s.Cron = sdk.Runtime.GetCrontabKey(c.Request.Host)
+	s.Cron = sdk.Runtime.GetCrontabByTenant(c.Request.Host)
 	err = s.StartJob(&v)
 	if err != nil {
 		log.Errorf("GetCrontabKey error, %s", err.Error())

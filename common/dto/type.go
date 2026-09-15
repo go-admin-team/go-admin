@@ -1,21 +1,10 @@
 package dto
 
-import (
-	"github.com/gin-gonic/gin"
-	"go-admin/common/models"
+import contractdto "github.com/go-admin-team/go-admin-core/v2/sdk/contract/dto"
+
+// Index and Control are thin aliases of go-admin-core's sdk/contract/dto
+// (PRD 006 F2/F5).
+type (
+	Index   = contractdto.Index
+	Control = contractdto.Control
 )
-
-type Index interface {
-	Generate() Index
-	Bind(ctx *gin.Context) error
-	GetPageIndex() int
-	GetPageSize() int
-	GetNeedSearch() interface{}
-}
-
-type Control interface {
-	Generate() Control
-	Bind(ctx *gin.Context) error
-	GenerateM() (models.ActiveRecord, error)
-	GetId() interface{}
-}

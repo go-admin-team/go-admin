@@ -7,6 +7,13 @@ services:
     restart: always
     ports:
       - 8000:8000
+    # Compose allows 10 seconds by default, and this process spends
+    # drain + server + cleanup from extend.shutdown before it exits - 8 out of
+    # the box, more for anyone who configures a drain window. Past the deadline
+    # it is sent SIGKILL and the cleanup callbacks are cut off part-way
+    # through. checksilent's docker-stop-cuts-shutdown-short check compares
+    # this against config/settings.yml.
+    stop_grace_period: 30s
     volumes:
       - ./config/:/go-admin-api/config/
       - ./static/:/go-admin-api/static/

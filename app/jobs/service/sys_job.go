@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/go-admin-team/go-admin-core/sdk/service"
+	"github.com/go-admin-team/go-admin-core/v2/sdk/service"
 	"github.com/robfig/cron/v3"
 
 	"go-admin/app/jobs"
