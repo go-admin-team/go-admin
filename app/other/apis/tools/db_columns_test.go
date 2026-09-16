@@ -16,8 +16,6 @@ import (
 	"go-admin/common/middleware"
 )
 
-const emptyTableNameMsg = "table name cannot be empty！"
-
 // bodyOf covers both the success and the CustomError shape: both carry msg.
 type bodyOf struct {
 	Code int    `json:"code"`
