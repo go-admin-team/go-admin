@@ -39,7 +39,7 @@ func (e *SysJob) RemoveJob(c *dto.GeneralDelDto) error {
 		}
 	case <-time.After(time.Second * 1):
 		e.Msg = "操作超时！"
-		return nil
+		return errors.New(e.Msg)
 	}
 	return nil
 }
