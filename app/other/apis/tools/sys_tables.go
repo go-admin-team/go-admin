@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -148,7 +149,8 @@ func (e SysTable) GetSysTablesTree(c *gin.Context) {
 // @Tags 工具 / 生成工具
 // @Accept  application/json
 // @Product application/json
-// @Param tables query string false "tableName / 数据表名称"
+// @Param tables query string false "tableName / 数据表名称，逗号分隔"
+// @Param data body object false "tables / 同上，query 未带时从 JSON body 读"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/sys/tables/info [post]
@@ -163,7 +165,13 @@ func (e SysTable) Insert(c *gin.Context) {
 		return
 	}
 
-	tablesList := strings.Split(c.Request.FormValue("tables"), ",")
+	tablesList, err := tablesToImport(c)
+	if err != nil {
+		log.Errorf("read the table list, %s", err.Error())
+		e.Error(500, err, "")
+		return
+	}
+
 	for i := 0; i < len(tablesList); i++ {
 
 		data, err := genTableInit(db, tablesList, i, c)
@@ -182,6 +190,45 @@ func (e SysTable) Insert(c *gin.Context) {
 	}
 	e.OK(nil, "添加成功")
 
+}
+
+// tablesToImport reads the comma-separated table list carried by an import
+// request, from the query string or from a JSON body.
+//
+// The list has only ever travelled in the query string, which is the single
+// place FormValue looks once the request declares itself as JSON. A front end
+// that puts it in the body instead therefore left this empty, and the import
+// went on to ask information_schema for a table named "" -- go-admin-ui v3.2.0
+// shipped exactly that, and every import failed with the message below.
+// Reading the body when the query has nothing keeps either front end working.
+func tablesToImport(c *gin.Context) ([]string, error) {
+	raw := c.Request.FormValue("tables")
+	if raw == "" {
+		var body struct {
+			Tables string `json:"tables"`
+		}
+		// A body that is absent, or shaped some other way, is not itself worth
+		// reporting: the list is missing either way, and the message below says
+		// so in the terms the caller asked in.
+		if err := c.ShouldBindJSON(&body); err == nil {
+			raw = body.Tables
+		}
+	}
+
+	parts := strings.Split(raw, ",")
+	names := make([]string, 0, len(parts))
+	for _, name := range parts {
+		// Splitting "" yields one empty name rather than nothing at all, so
+		// without this an empty list reads as a request to import one table
+		// whose name happens to be blank.
+		if name = strings.TrimSpace(name); name != "" {
+			names = append(names, name)
+		}
+	}
+	if len(names) == 0 {
+		return nil, errors.New(emptyTableNameMsg)
+	}
+	return names, nil
 }
 
 func genTableInit(tx *gorm.DB, tablesList []string, i int, c *gin.Context) (tools.SysTables, error) {
