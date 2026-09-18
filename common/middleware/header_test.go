@@ -18,7 +18,7 @@ func TestNoCache(t *testing.T) {
 
 	NoCache(c)
 
-	if got := w.Header().Get("Cache-Control"); got != "no-cache, no-store, max-age=0, must-revalidate, value" {
+	if got := w.Header().Get("Cache-Control"); got != "no-cache, no-store, max-age=0, must-revalidate" {
 		t.Errorf("Cache-Control = %q", got)
 	}
 	if got := w.Header().Get("Expires"); got != "Thu, 01 Jan 1970 00:00:00 GMT" {
