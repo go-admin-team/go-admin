@@ -80,6 +80,23 @@ else
 	go run ./tools/checksilent
 endif
 
+# gofmt as a gate, not a rewrite. CI cannot commit, and a target that quietly
+# reformats hides what it touched, so this reports and fails instead. `gofmt -l`
+# prints the files it would rewrite and nothing at all when there are none, so
+# that list is both the failure message and the instructions for fixing it.
+#
+# The tree reached zero unformatted files once; without something holding it
+# there it drifts back, which is how the previous batch grew to 26 files -
+# mostly a missing newline at the end of the file, which no reviewer notices.
+.PHONY: fmt-check
+fmt-check:
+	@unformatted=$$(gofmt -l .); \
+	if [ -n "$$unformatted" ]; then \
+		echo "gofmt would rewrite these files. Run 'gofmt -w .' and commit the result:"; \
+		echo "$$unformatted"; \
+		exit 1; \
+	fi
+
 #.PHONY: docker
 #docker:
 #	docker build . -t go-admin:latest

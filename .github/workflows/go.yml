@@ -100,6 +100,12 @@ jobs:
     - name: Get dependencies
       run: go mod tidy
 
+    # Before the tests rather than beside checksilent at the end: a formatting
+    # miss is a one-command fix, and finding out about it after five minutes of
+    # tests and an end-to-end install is five minutes nobody gets back.
+    - name: Formatting
+      run: make fmt-check
+
     # go build does not compile _test.go, so building alone never ran a single
     # test. This is the only workflow that fires on every push and pull request,
     # which makes it the one place a test gate belongs.
