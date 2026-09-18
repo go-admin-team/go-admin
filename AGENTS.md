@@ -20,7 +20,7 @@ Router  →  Api      →  Service      →  Model
 
 ## 优先使用通用 Action
 
-单表 CRUD **不要手写 Handler 与 Service**。`common/actions` 提供的五个
+单表 CRUD **不要手写 Api 与 Service**。`common/actions` 提供的五个
 Action 已覆盖参数绑定、数据权限过滤、操作人注入、分页与错误响应：
 
 ```go
@@ -49,7 +49,7 @@ r := v1.Group("/demo-product").Use(authMiddleware.MiddlewareFunc()).Use(middlewa
   就地返回会串数据（`app/demo` 的测试锁定了这一点）
 - 详情/删除 DTO 内嵌 `dto.ObjectById` 即可继承 `Bind` 与 `GetId`，无需重写
 
-仅当业务超出单表 CRUD（跨表事务、外部调用、复杂校验）时才自行编写 Handler
+仅当业务超出单表 CRUD（跨表事务、外部调用、复杂校验）时才自行编写 Api
 与 Service，写法见下。
 
 ## Api 层（仅在通用 Action 不适用时）
@@ -167,7 +167,7 @@ sys_menu / sys_menu_api_rule / casbin_rule 四张表如何配齐，用的是幂�
 
 ## Swagger
 
-Handler 必须带完整注解，`go generate` 会据此生成文档：
+Api 必须带完整注解，`go generate` 会据此生成文档：
 
 ```go
 // @Summary 岗位列表
