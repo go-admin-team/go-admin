@@ -10,8 +10,8 @@ type ALiYunOSS struct {
 	BucketName string
 }
 
-//Setup 装载
-//endpoint sss
+// Setup 装载
+// endpoint sss
 func (e *ALiYunOSS) Setup(endpoint, accessKeyID, accessKeySecret, BucketName string, options ...ClientOption) error {
 	client, err := oss.New(endpoint, accessKeyID, accessKeySecret)
 	if err != nil {
