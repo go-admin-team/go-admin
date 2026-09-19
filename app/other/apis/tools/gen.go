@@ -123,6 +123,9 @@ func (e Gen) Preview(c *gin.Context) {
 	}
 
 	tab, _ := table.Get(db, false)
+	// R2: infer a width for any column the config page left at colWidth's 0
+	// sentinel, before vue.go.template reads .ColWidth - see column_width.go.
+	applyInferredColumnWidths(tab.Columns)
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -210,6 +213,8 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	e.Context = c
 	log := e.GetLogger()
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
+	// R2: see the matching call and comment in Preview above.
+	applyInferredColumnWidths(tab.Columns)
 
 	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
