@@ -80,7 +80,7 @@
           {{- if ne .FkTableName ""}}
           <el-select v-model="table.query.{{.JsonField}}" clearable :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="item in {{.JsonField}}Options"
+              v-for="item in {{.JsonField}}FkOptions"
               :key="item.{{.FkLabelId}}"
               :label="item.{{.FkLabelName}}"
               :value="item.{{.FkLabelId}}"
@@ -89,7 +89,7 @@
           {{- else if ne .DictType ""}}
           <el-select v-model="table.query.{{.JsonField}}" clearable :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="dict in {{.JsonField}}Options"
+              v-for="dict in {{.JsonField}}DictOptions"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -136,7 +136,7 @@
       {{- else if ne .DictType ""}}
 
       <el-table-column :label="$t('{{$key}}')" min-width="{{if .ColWidth}}{{.ColWidth}}{{else}}120{{end}}">
-        <template #default="{ row }">{{ "{{" }} dictLabel({{.JsonField}}Options, row.{{.JsonField}}) {{ "}}" }}</template>
+        <template #default="{ row }">{{ "{{" }} dictLabel({{.JsonField}}DictOptions, row.{{.JsonField}}) {{ "}}" }}</template>
       </el-table-column>
       {{- else if eq .HtmlType "datetime"}}
 
@@ -189,7 +189,7 @@
             {{- if ne .FkTableName ""}}
           <el-select v-model="form.model.{{.JsonField}}" :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="item in {{.JsonField}}Options"
+              v-for="item in {{.JsonField}}FkOptions"
               :key="item.{{.FkLabelId}}"
               :label="item.{{.FkLabelName}}"
               :value="item.{{.FkLabelId}}"
@@ -198,7 +198,7 @@
             {{- else if ne .DictType ""}}
           <el-select v-model="form.model.{{.JsonField}}" :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="dict in {{.JsonField}}Options"
+              v-for="dict in {{.JsonField}}DictOptions"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -210,7 +210,7 @@
           {{- else if eq .HtmlType "radio"}}
             {{- if ne .DictType ""}}
           <el-radio-group v-model="form.model.{{.JsonField}}">
-            <el-radio v-for="dict in {{.JsonField}}Options" :key="dict.value" :value="dict.value">
+            <el-radio v-for="dict in {{.JsonField}}DictOptions" :key="dict.value" :value="dict.value">
               {{ "{{" }} dict.label {{ "}}" }}
             </el-radio>
           </el-radio-group>
@@ -318,18 +318,18 @@ defineOptions({ name: '{{.ClassName}}Manage' })
 {{- $fkUsed := and (ne .FkTableName "") (or (eq .IsQuery "1") (eq .IsList "1") (and (eq .IsInsert "1") (eq .HtmlType "select"))) -}}
 {{- if $dictUsed}}
 
-const { {{.DictType}}: {{.JsonField}}Options } = useDict('{{.DictType}}')
+const { {{.DictType}}: {{.JsonField}}DictOptions } = useDict('{{.DictType}}')
 {{- end}}
 {{- if $fkUsed}}
 
-const {{.JsonField}}Options = ref<{{.FkTableNameClass}}[]>([])
+const {{.JsonField}}FkOptions = ref<{{.FkTableNameClass}}[]>([])
 onMounted(async() => {
   const res = await list{{.FkTableNameClass}}({ pageIndex: 1, pageSize: 100 })
-  {{.JsonField}}Options.value = res.data?.list ?? []
+  {{.JsonField}}FkOptions.value = res.data?.list ?? []
 })
 {{- if eq .IsList "1"}}
 const {{.JsonField}}Label = (value: unknown) =>
-  {{.JsonField}}Options.value.find(item => item.{{.FkLabelId}} === value)?.{{.FkLabelName}} ?? value
+  {{.JsonField}}FkOptions.value.find(item => item.{{.FkLabelId}} === value)?.{{.FkLabelName}} ?? value
 {{- end}}
 {{- end}}
 {{- end}}
