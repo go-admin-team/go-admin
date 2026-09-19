@@ -123,6 +123,14 @@ func (e Gen) Preview(c *gin.Context) {
 	}
 
 	tab, _ := table.Get(db, false)
+	// MLTBName (table_name with underscores turned to dashes) is a gorm:"-"
+	// field - table.Get never fills it in, so every template that reads it
+	// (the .vue/.ts import paths, e.g. "@/api/{PackageName}/{MLTBName}")
+	// silently rendered it empty here. NOActionsGen has set this since it
+	// existed (see below); Preview never did, which is why the two paths
+	// are not interchangeable stand-ins for each other and should not be
+	// assumed to be.
+	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 	// R2: infer a width for any column the config page left at colWidth's 0
 	// sentinel, before vue.go.template reads .ColWidth - see column_width.go.
 	applyInferredColumnWidths(tab.Columns)
