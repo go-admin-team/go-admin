@@ -36,6 +36,7 @@
   anything outside itself.
 */ -}}
 {{- $hasDict := false -}}
+{{- $hasDictList := false -}}
 {{- $hasFk := false -}}
 {{- $hasDatetime := false -}}
 {{- $hasRules := false -}}
@@ -43,6 +44,7 @@
 {{- $pkType := "number" -}}
 {{- range .Columns -}}
   {{- if ne .DictType "" }}{{$hasDict = true}}{{end -}}
+  {{- if and (eq .IsList "1") (eq .FkTableName "") (ne .DictType "") }}{{$hasDictList = true}}{{end -}}
   {{- if ne .FkTableName "" }}{{$hasFk = true}}{{end -}}
   {{- if eq .HtmlType "datetime" }}{{$hasDatetime = true}}{{end -}}
   {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
@@ -242,7 +244,11 @@ import ProTable from '@/components/ProTable/index.vue'
 import DateCell from '@/components/DateCell/index.vue'
 {{- end}}
 {{- if $hasDict}}
+{{- if $hasDictList}}
 import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
+{{- else}}
+import { useTable, useForm, useRemove, useDict } from '@/composables'
+{{- end}}
 {{- else}}
 import { useTable, useForm, useRemove } from '@/composables'
 {{- end}}
@@ -313,12 +319,12 @@ const { t } = useI18n()
   directly under the labelled field it failed to validate.
 */}}
 
-const rules = computed<FormRules>(() => ({
-  {{- $rFirst := true}}
+const rules = computed<FormRules>(() => ({ {{$rFirst := true}}
   {{- range .Columns}}
   {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy")}}
   {{- $key := printf "gen.%s.%s.%s" $package $business .JsonField}}
-  {{if $rFirst}}{{$rFirst = false}}{{else}}, {{end}}{{.JsonField}}: [{ required: true, message: t('{{$key}}'), trigger: '{{if or (eq .HtmlType "select") (eq .HtmlType "radio") (eq .HtmlType "datetime") (eq .HtmlType "checkbox")}}change{{else}}blur{{end}}' }]
+  {{- if $rFirst}}{{$rFirst = false}}{{else}},
+  {{end}}{{.JsonField}}: [{ required: true, message: t('{{$key}}'), trigger: '{{if or (eq .HtmlType "select") (eq .HtmlType "radio") (eq .HtmlType "datetime") (eq .HtmlType "checkbox")}}change{{else}}blur{{end}}' }]
   {{- end}}
   {{- end}}
 }))
