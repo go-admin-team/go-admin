@@ -99,7 +99,7 @@
           <el-date-picker
             v-model="table.query.{{.JsonField}}"
             type="datetime"
-            value-format="YYYY-MM-DDTHH:mm:ssZ"
+            value-format="YYYY-MM-DD[T]HH:mm:ssZ"
             clearable
           />
           {{- else}}
@@ -223,7 +223,7 @@
           <el-date-picker
             v-model="form.model.{{.JsonField}}"
             type="datetime"
-            value-format="YYYY-MM-DDTHH:mm:ssZ"
+            value-format="YYYY-MM-DD[T]HH:mm:ssZ"
           />
           {{- else if eq .HtmlType "textarea"}}
           <el-input v-model="form.model.{{.JsonField}}" type="textarea" :rows="2" />
