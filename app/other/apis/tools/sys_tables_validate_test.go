@@ -17,9 +17,17 @@ func TestValidateAndSanitizeColumns_JsonFieldFormat(t *testing.T) {
 	}{
 		{"lower camelCase", "userName", false},
 		{"two-letter lowercase", "id", false},
+		// The importer's own output (sys_tables.go's namelist/JsonField
+		// loop), not made up: a single-letter column ("x"), and a column
+		// whose last name segment ends in a digit ("address2", "a1") both
+		// produce a jsonField with no separator left to re-capitalize.
+		// These three used to be rejected - the whole point of this fix.
+		{"single letter, real importer output for a column named x", "x", false},
+		{"letters then a trailing digit, real importer output for address2", "address2", false},
+		{"two letters then a digit, real importer output for a1", "a1", false},
 		{"leading underscore rejected", "_id", true},
-		{"leading digit rejected", "1name", true},
-		{"snake_case rejected", "user_name", true},
+		{"leading digit rejected (not a legal identifier start)", "1name", true},
+		{"snake_case rejected (importer never emits an underscore)", "user_name", true},
 		{"dot rejected, would break the gen/{pkg}/{biz}.ts key path", "user.name", true},
 		{"empty rejected", "", true},
 	}

@@ -10,11 +10,31 @@ import (
 	"go-admin/app/other/models/tools"
 )
 
-// jsonFieldPattern mirrors genInfoForm.vue's businessName rule
-// (`/^[a-z][A-Za-z]+$/`) - jsonField has never had a format rule of its own,
-// unlike businessName/tableName/className, and API契约.md §1.2 recommends
-// tightening it to the same identifier shape the other three already use.
-var jsonFieldPattern = regexp.MustCompile(`^[a-z][A-Za-z]+$`)
+// jsonFieldPattern accepts any legal JS/TS identifier that starts with a
+// lowercase letter - not businessName's rule.
+//
+// This used to be businessName's own pattern (^[a-z][A-Za-z]+$, requiring at
+// least two letters and no digits), copied over on the theory that jsonField
+// "should tighten to the same identifier shape". That theory does not hold:
+// businessName is typed by a person on genInfoForm.vue, so a strict pattern
+// is a reasonable guardrail on human input. jsonField is computed by the
+// importer from the column name (sys_tables.go's namelist/JsonField loop) -
+// nobody types it, so the same pattern only rejects names the importer
+// legitimately produces. A one-letter column ("x") or a column ending in a
+// digit ("address2", "a1") both import to a single camelCase word with no
+// separators to re-capitalize, and both used to fail this check - meaning a
+// table that merely contained such a column could never save any config
+// again, unrelated columns included, since this check runs over every
+// column on every Update.
+//
+// What still has to be rejected is a jsonField that cannot be a raw object
+// key at all: empty, containing whitespace/punctuation, or leading with a
+// digit (`2faEnabled: 1` is not valid JS - identifiers cannot start with a
+// digit, and this is what lands as the property name in gen.go's generated
+// interface / lang file, both unquoted). Hence still anchoring on a
+// lowercase letter first, but no longer requiring a second character or
+// forbidding digits after it.
+var jsonFieldPattern = regexp.MustCompile(`^[a-z][A-Za-z0-9]*$`)
 
 // colWidthMin/colWidthMax are API契约.md §2.1's suggested range for colWidth.
 const (
