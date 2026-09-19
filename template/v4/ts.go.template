@@ -58,12 +58,31 @@ export interface {{.ClassName}}Query {
   `export interface {ClassName}Query {}` is what naturally falls out of the
   range above finding nothing to iterate, but an empty interface trips
   @typescript-eslint/no-empty-object-type and fails pnpm lint.
-  Record<string, never> is go-admin-ui's own answer to the same shape -
-  see composables/useTable.ts's `TQuery extends object = Record<string, never>`
-  - and it intersects with PageQuery the same way an empty interface would
-  have, so callers do not have to special-case a query-less table.
+
+  Record<string, never> (this file's first attempt, and the type
+  useTable.ts's own `TQuery extends object = Record<string, never>` default
+  uses) looks like the obvious match but is wrong here: it is a mapped type
+  over *every* string key, each mapped to never, so intersecting it with
+  PageQuery does not leave PageQuery alone - `pageIndex` becomes
+  `never & number`, i.e. never, and no value can be passed for it at all.
+  useTable.ts itself never hits this because its one internal use of
+  `TQuery & PageQuery` goes through an `as` cast rather than a structural
+  check (composables/useTable.ts ~line 160); code that builds the object
+  literal directly - such as a foreign-key column's
+  `list{FkClass}({ pageIndex: 1, pageSize: 100 })` call in vue.go.template -
+  is not casting anything and hits the real error, only when the referenced
+  table happens to have no query columns of its own (a plain lookup/dict
+  table used as a dropdown source, not a rare shape).
+
+  Record<never, never> is the type with the same intent - "no query
+  columns" - but the mapped-type domain is `never`, so it has no keys at
+  all rather than "every key, mapped to never": it behaves as the empty
+  object type `{}` under intersection, leaving PageQuery's own pageIndex/
+  pageSize untouched, and confirmed separately not to trip
+  no-empty-object-type either (it is a generic instantiation, not a
+  literal `{}` type annotation).
 */ -}}
-export type {{.ClassName}}Query = Record<string, never>
+export type {{.ClassName}}Query = Record<never, never>
 {{- end}}
 
 export function list{{.ClassName}}(query: {{.ClassName}}Query & PageQuery) {
