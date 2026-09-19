@@ -22,6 +22,29 @@ type Gen struct {
 	api.Api
 }
 
+// genLangFuncs backs the lang-zh/lang-en templates (PRD 010 F3/F9). The
+// generated files are TypeScript, and go-admin-ui's eslint config requires
+// single-quoted strings with no trailing comma (@stylistic/quotes,
+// @stylistic/comma-dangle: never) - text/template's builtin `printf "%q"`
+// only produces Go/JSON-style double-quoted output, so this supplies a
+// single-quote equivalent instead of leaning on the builtin.
+var genLangFuncs = template.FuncMap{
+	"singleQuote": func(s string) string {
+		r := strings.NewReplacer(`\`, `\\`, `'`, `\'`, "\n", `\n`, "\r", `\r`)
+		return "'" + r.Replace(s) + "'"
+	},
+}
+
+// parseGenTemplate is template.ParseFiles plus genLangFuncs, for the two
+// language-pack templates. template.New's name must match the file's base
+// name - ParseFiles reuses the template already registered under that name
+// instead of creating an unnamed second one, which is what makes Execute
+// find the parsed content afterwards.
+func parseGenTemplate(path string) (*template.Template, error) {
+	base := path[strings.LastIndex(path, "/")+1:]
+	return template.New(base).Funcs(genLangFuncs).ParseFiles(path)
+}
+
 func (e Gen) Preview(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
@@ -75,6 +98,22 @@ func (e Gen) Preview(c *gin.Context) {
 		e.Error(500, err, fmt.Sprintf("service模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
+	// t8/t9 back F3/F9 (PRD 010): one language pack per locale, nested under
+	// gen/{PackageName}/{BusinessName}.ts by NOActionsGen below so go-admin-ui's
+	// gen-namespace.ts glob (`./*/*.ts` under each locale's gen/) picks them up.
+	// See docs-prd/010-代码生成器前端模板迁移Vue3/API契约.md §2.3.
+	t8, err := parseGenTemplate("template/v4/lang-zh.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("zh语言包模版读取失败！错误详情：%s", err.Error()))
+		return
+	}
+	t9, err := parseGenTemplate("template/v4/lang-en.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("en语言包模版读取失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
@@ -98,6 +137,10 @@ func (e Gen) Preview(c *gin.Context) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
+	var b8 bytes.Buffer
+	err = t8.Execute(&b8, tab)
+	var b9 bytes.Buffer
+	err = t9.Execute(&b9, tab)
 
 	mp := make(map[string]interface{})
 	mp["template/model.go.template"] = b1.String()
@@ -107,6 +150,8 @@ func (e Gen) Preview(c *gin.Context) {
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
 	mp["template/service.go.template"] = b7.String()
+	mp["template/lang-zh.go.template"] = b8.String()
+	mp["template/lang-en.go.template"] = b9.String()
 	e.OK(mp, "")
 }
 
@@ -215,6 +260,19 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 		e.Error(500, err, fmt.Sprintf("service模版失败！错误详情：%s", err.Error()))
 		return
 	}
+	// t8/t9 back F3/F9 (PRD 010): see the matching comment in Preview above.
+	t8, err := parseGenTemplate(basePath + "lang-zh.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("zh语言包模版解析失败！错误详情：%s", err.Error()))
+		return
+	}
+	t9, err := parseGenTemplate(basePath + "lang-en.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("en语言包模版解析失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
@@ -225,6 +283,23 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("views目录创建失败！错误详情：%s", err.Error()))
+		return
+	}
+	// gen/{PackageName}/ nests under each locale so go-admin-ui's
+	// gen-namespace.ts (`./*/*.ts` glob, one level under gen/) picks the file
+	// up - a flat gen/{BusinessName}.ts would let two tables in different
+	// packages silently overwrite each other's translations, since
+	// BusinessName only has a pattern check, no uniqueness check.
+	err = pkg.PathCreate(config.GenConfig.FrontPath + "/lang/zh-CN/gen/" + tab.PackageName + "/")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("zh语言包目录创建失败！错误详情：%s", err.Error()))
+		return
+	}
+	err = pkg.PathCreate(config.GenConfig.FrontPath + "/lang/en-US/gen/" + tab.PackageName + "/")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("en语言包目录创建失败！错误详情：%s", err.Error()))
 		return
 	}
 
@@ -242,6 +317,10 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
+	var b8 bytes.Buffer
+	err = t8.Execute(&b8, tab)
+	var b9 bytes.Buffer
+	err = t9.Execute(&b9, tab)
 	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.TBName+".go")
 	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.TBName+".go")
 	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.TBName+".go")
@@ -249,6 +328,8 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/"+tab.MLTBName+"/index.vue")
 	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.TBName+".go")
 	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.TBName+".go")
+	pkg.FileCreate(b8, config.GenConfig.FrontPath+"/lang/zh-CN/gen/"+tab.PackageName+"/"+tab.BusinessName+".ts")
+	pkg.FileCreate(b9, config.GenConfig.FrontPath+"/lang/en-US/gen/"+tab.PackageName+"/"+tab.BusinessName+".ts")
 
 }
 
