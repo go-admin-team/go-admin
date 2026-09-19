@@ -8,8 +8,10 @@
   TS compile error at the call site, not a runtime bug.
 */ -}}
 {{- $pkType := "number" -}}
+{{- $hasQuery := false -}}
 {{- range .Columns -}}
   {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{end -}}
+  {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
 {{- end -}}
 import request from '@/utils/request'
 import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
@@ -30,6 +32,7 @@ export interface {{.ClassName}} {
 {{- end}}
 }
 
+{{if $hasQuery -}}
 export interface {{.ClassName}}Query {
 {{- range .Columns}}
 {{- if eq .IsQuery "1"}}
@@ -47,6 +50,21 @@ export interface {{.ClassName}}Query {
 {{- end}}
 {{- end}}
 }
+{{- else -}}
+{{- /*
+  No column is marked IsQuery - a plain display table with no search form
+  is a normal shape, not an edge case, so this still has to produce a type
+  useTable<Row, Query>/list{ClassName}(query: Query & PageQuery) can use.
+  `export interface {ClassName}Query {}` is what naturally falls out of the
+  range above finding nothing to iterate, but an empty interface trips
+  @typescript-eslint/no-empty-object-type and fails pnpm lint.
+  Record<string, never> is go-admin-ui's own answer to the same shape -
+  see composables/useTable.ts's `TQuery extends object = Record<string, never>`
+  - and it intersects with PageQuery the same way an empty interface would
+  have, so callers do not have to special-case a query-less table.
+*/ -}}
+export type {{.ClassName}}Query = Record<string, never>
+{{- end}}
 
 export function list{{.ClassName}}(query: {{.ClassName}}Query & PageQuery) {
   return request<ApiResponse<PageResult<{{.ClassName}}>>>({

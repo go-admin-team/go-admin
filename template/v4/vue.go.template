@@ -34,6 +34,21 @@
   outer-scope variable from inside a range -- a text/template feature since
   Go 1.11, needed here because a range body cannot otherwise leave a mark on
   anything outside itself.
+
+  Each condition below must match, term for term, the condition guarding the
+  markup or script that actually consumes the import -- not just "this column
+  has a DictType/FkTableName", which is necessary but not sufficient. A column
+  can carry dictionary or foreign-key metadata that no rendered branch reads:
+  FkTableName/DictType lose to each other by priority (FK wins search, list
+  and the form's select branch; the form's radio branch never looks at FK at
+  all), and a column can carry either one while being neither queryable nor
+  listed nor an insertable select/radio -- created_at/updated_at are exactly
+  this: sys_tables.go assigns HtmlType "datetime" to any timestamp/datetime
+  column on import whether or not it ever reaches IsList, because GetList's
+  audit-column exclusion is a separate, later step. Get a term here wrong in
+  either direction and either an import goes unused (no-unused-vars) or a real
+  usage silently loses its import (a ReferenceError this template cannot see
+  coming, since Vue components are the last stage that runs).
 */ -}}
 {{- $hasDict := false -}}
 {{- $hasDictList := false -}}
@@ -43,10 +58,12 @@
 {{- $hasQuery := false -}}
 {{- $pkType := "number" -}}
 {{- range .Columns -}}
-  {{- if ne .DictType "" }}{{$hasDict = true}}{{end -}}
+  {{- $dictUsed := and (ne .DictType "") (or (and (eq .IsQuery "1") (eq .FkTableName "")) (and (eq .IsList "1") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "select") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "radio"))) -}}
+  {{- $fkUsed := and (ne .FkTableName "") (or (eq .IsQuery "1") (eq .IsList "1") (and (eq .IsInsert "1") (eq .HtmlType "select"))) -}}
+  {{- if $dictUsed }}{{$hasDict = true}}{{end -}}
   {{- if and (eq .IsList "1") (eq .FkTableName "") (ne .DictType "") }}{{$hasDictList = true}}{{end -}}
-  {{- if ne .FkTableName "" }}{{$hasFk = true}}{{end -}}
-  {{- if eq .HtmlType "datetime" }}{{$hasDatetime = true}}{{end -}}
+  {{- if $fkUsed }}{{$hasFk = true}}{{end -}}
+  {{- if and (eq .IsList "1") (eq .FkTableName "") (eq .DictType "") (eq .HtmlType "datetime") }}{{$hasDatetime = true}}{{end -}}
   {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
   {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy") }}{{$hasRules = true}}{{end -}}
   {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{end -}}
@@ -63,7 +80,7 @@
           {{- if ne .FkTableName ""}}
           <el-select v-model="table.query.{{.JsonField}}" clearable :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="item in {{.JsonField}}Options"
+              v-for="item in {{.JsonField}}FkOptions"
               :key="item.{{.FkLabelId}}"
               :label="item.{{.FkLabelName}}"
               :value="item.{{.FkLabelId}}"
@@ -72,7 +89,7 @@
           {{- else if ne .DictType ""}}
           <el-select v-model="table.query.{{.JsonField}}" clearable :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="dict in {{.JsonField}}Options"
+              v-for="dict in {{.JsonField}}DictOptions"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -82,7 +99,7 @@
           <el-date-picker
             v-model="table.query.{{.JsonField}}"
             type="datetime"
-            value-format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DDTHH:mm:ssZ"
             clearable
           />
           {{- else}}
@@ -119,7 +136,7 @@
       {{- else if ne .DictType ""}}
 
       <el-table-column :label="$t('{{$key}}')" min-width="{{if .ColWidth}}{{.ColWidth}}{{else}}120{{end}}">
-        <template #default="{ row }">{{ "{{" }} dictLabel({{.JsonField}}Options, row.{{.JsonField}}) {{ "}}" }}</template>
+        <template #default="{ row }">{{ "{{" }} dictLabel({{.JsonField}}DictOptions, row.{{.JsonField}}) {{ "}}" }}</template>
       </el-table-column>
       {{- else if eq .HtmlType "datetime"}}
 
@@ -172,7 +189,7 @@
             {{- if ne .FkTableName ""}}
           <el-select v-model="form.model.{{.JsonField}}" :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="item in {{.JsonField}}Options"
+              v-for="item in {{.JsonField}}FkOptions"
               :key="item.{{.FkLabelId}}"
               :label="item.{{.FkLabelName}}"
               :value="item.{{.FkLabelId}}"
@@ -181,7 +198,7 @@
             {{- else if ne .DictType ""}}
           <el-select v-model="form.model.{{.JsonField}}" :placeholder="$t('common.selectPlaceholder')">
             <el-option
-              v-for="dict in {{.JsonField}}Options"
+              v-for="dict in {{.JsonField}}DictOptions"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -193,7 +210,7 @@
           {{- else if eq .HtmlType "radio"}}
             {{- if ne .DictType ""}}
           <el-radio-group v-model="form.model.{{.JsonField}}">
-            <el-radio v-for="dict in {{.JsonField}}Options" :key="dict.value" :value="dict.value">
+            <el-radio v-for="dict in {{.JsonField}}DictOptions" :key="dict.value" :value="dict.value">
               {{ "{{" }} dict.label {{ "}}" }}
             </el-radio>
           </el-radio-group>
@@ -206,7 +223,7 @@
           <el-date-picker
             v-model="form.model.{{.JsonField}}"
             type="datetime"
-            value-format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DDTHH:mm:ssZ"
           />
           {{- else if eq .HtmlType "textarea"}}
           <el-input v-model="form.model.{{.JsonField}}" type="textarea" :rows="2" />
@@ -256,10 +273,31 @@ import {
   add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}
 } from '@/api/{{.PackageName}}/{{.MLTBName}}'
 import type { {{.ClassName}}, {{.ClassName}}Query } from '@/api/{{.PackageName}}/{{.MLTBName}}'
-{{- range .Columns}}
-{{- if ne .FkTableName ""}}
-import { list{{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePackage}}'
-import type { {{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePackage}}'
+{{- /*
+  Two columns pointing at the same foreign table must not import it twice --
+  "one FK-configured column" was never the same thing as "one distinct target
+  table", and gen.go has no concept of a table's FK targets being unique.
+  text/template has no set to check membership in, so the dedup is a nested
+  range: a column only imports its target if no earlier, equally-used column
+  already claimed the same FkTableNameClass. $fkUsed is repeated here (it also
+  guards the const declarations above) because a column with FkTableName set
+  but reaching none of them -- unqueried, unlisted, not an insert select --
+  has nothing that would use the import either.
+*/ -}}
+{{- range $i, $col := .Columns}}
+{{- $fkUsed := and (ne $col.FkTableName "") (or (eq $col.IsQuery "1") (eq $col.IsList "1") (and (eq $col.IsInsert "1") (eq $col.HtmlType "select"))) -}}
+{{- if $fkUsed}}
+{{- $alreadyImported := false -}}
+{{- range $j, $prior := $.Columns}}
+{{- if lt $j $i}}
+{{- $priorUsed := and (ne $prior.FkTableName "") (or (eq $prior.IsQuery "1") (eq $prior.IsList "1") (and (eq $prior.IsInsert "1") (eq $prior.HtmlType "select"))) -}}
+{{- if and $priorUsed (eq $prior.FkTableNameClass $col.FkTableNameClass) }}{{$alreadyImported = true}}{{end -}}
+{{- end}}
+{{- end}}
+{{- if not $alreadyImported}}
+import { list{{$col.FkTableNameClass}} } from '@/api/{{$package}}/{{$col.FkTableNamePackage}}'
+import type { {{$col.FkTableNameClass}} } from '@/api/{{$package}}/{{$col.FkTableNamePackage}}'
+{{- end}}
 {{- end}}
 {{- end}}
 {{- /*
@@ -276,19 +314,23 @@ import type { {{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePac
 
 defineOptions({ name: '{{.ClassName}}Manage' })
 {{- range .Columns}}
-{{- if ne .DictType ""}}
+{{- $dictUsed := and (ne .DictType "") (or (and (eq .IsQuery "1") (eq .FkTableName "")) (and (eq .IsList "1") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "select") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "radio"))) -}}
+{{- $fkUsed := and (ne .FkTableName "") (or (eq .IsQuery "1") (eq .IsList "1") (and (eq .IsInsert "1") (eq .HtmlType "select"))) -}}
+{{- if $dictUsed}}
 
-const { {{.DictType}}: {{.JsonField}}Options } = useDict('{{.DictType}}')
+const { {{.DictType}}: {{.JsonField}}DictOptions } = useDict('{{.DictType}}')
 {{- end}}
-{{- if ne .FkTableName ""}}
+{{- if $fkUsed}}
 
-const {{.JsonField}}Options = ref<{{.FkTableNameClass}}[]>([])
+const {{.JsonField}}FkOptions = ref<{{.FkTableNameClass}}[]>([])
 onMounted(async() => {
   const res = await list{{.FkTableNameClass}}({ pageIndex: 1, pageSize: 100 })
-  {{.JsonField}}Options.value = res.data?.list ?? []
+  {{.JsonField}}FkOptions.value = res.data?.list ?? []
 })
+{{- if eq .IsList "1"}}
 const {{.JsonField}}Label = (value: unknown) =>
-  {{.JsonField}}Options.value.find(item => item.{{.FkLabelId}} === value)?.{{.FkLabelName}} ?? value
+  {{.JsonField}}FkOptions.value.find(item => item.{{.FkLabelId}} === value)?.{{.FkLabelName}} ?? value
+{{- end}}
 {{- end}}
 {{- end}}
 {{- /*
