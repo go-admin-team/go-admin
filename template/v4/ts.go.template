@@ -1,3 +1,16 @@
+{{- /*
+  $pkType: the primary key's TS type for get{ClassName}'s parameter.
+  Defaults to "number" - true for every column but string primary keys
+  (natural keys), which do exist (sys_tables.go:323-338 gives a primary
+  key column GoType "string" whenever its ColumnType is not int-shaped).
+  Matches vue.go.template's own $pkType derivation exactly (F4) - useForm
+  there is typed on the same column, and a mismatch between the two is a
+  TS compile error at the call site, not a runtime bug.
+*/ -}}
+{{- $pkType := "number" -}}
+{{- range .Columns -}}
+  {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{end -}}
+{{- end -}}
 import request from '@/utils/request'
 import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
 
@@ -43,7 +56,7 @@ export function list{{.ClassName}}(query: {{.ClassName}}Query & PageQuery) {
   })
 }
 
-export function get{{.ClassName}}({{.PkJsonField}}: number) {
+export function get{{.ClassName}}({{.PkJsonField}}: {{$pkType}}) {
   return request<ApiResponse<{{.ClassName}}>>({
     url: '/api/v1/{{.ModuleName}}/' + {{.PkJsonField}},
     method: 'get'
