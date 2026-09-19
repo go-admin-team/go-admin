@@ -1,0 +1,75 @@
+import request from '@/utils/request'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
+
+export interface {{.ClassName}} {
+{{- range .Columns}}
+  {{.JsonField}}?: {{if eq .GoType "int" -}}
+    number
+  {{- else if eq .GoType "int64" -}}
+    number
+  {{- else if eq .GoType "float32" -}}
+    number
+  {{- else if eq .GoType "float64" -}}
+    number
+  {{- else -}}
+    string
+  {{- end}}
+{{- end}}
+}
+
+export interface {{.ClassName}}Query {
+{{- range .Columns}}
+{{- if eq .IsQuery "1"}}
+  {{.JsonField}}?: {{if eq .GoType "int" -}}
+    number
+  {{- else if eq .GoType "int64" -}}
+    number
+  {{- else if eq .GoType "float32" -}}
+    number
+  {{- else if eq .GoType "float64" -}}
+    number
+  {{- else -}}
+    string
+  {{- end}}
+{{- end}}
+{{- end}}
+}
+
+export function list{{.ClassName}}(query: {{.ClassName}}Query & PageQuery) {
+  return request<ApiResponse<PageResult<{{.ClassName}}>>>({
+    url: '/api/v1/{{.ModuleName}}',
+    method: 'get',
+    params: query
+  })
+}
+
+export function get{{.ClassName}}({{.PkJsonField}}: number) {
+  return request<ApiResponse<{{.ClassName}}>>({
+    url: '/api/v1/{{.ModuleName}}/' + {{.PkJsonField}},
+    method: 'get'
+  })
+}
+
+export function add{{.ClassName}}(data: {{.ClassName}}) {
+  return request<ApiResponse<{{.ClassName}}>>({
+    url: '/api/v1/{{.ModuleName}}',
+    method: 'post',
+    data
+  })
+}
+
+export function update{{.ClassName}}(data: {{.ClassName}}) {
+  return request<ApiResponse<{{.ClassName}}>>({
+    url: '/api/v1/{{.ModuleName}}/' + data.{{.PkJsonField}},
+    method: 'put',
+    data
+  })
+}
+
+export function del{{.ClassName}}(ids: Id[]) {
+  return request<ApiResponse<null>>({
+    url: '/api/v1/{{.ModuleName}}',
+    method: 'delete',
+    data: { ids: ids.map(Number) }
+  })
+}

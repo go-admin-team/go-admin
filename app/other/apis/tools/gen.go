@@ -45,10 +45,10 @@ func (e Gen) Preview(c *gin.Context) {
 		e.Error(500, err, fmt.Sprintf("api模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
-	t3, err := template.ParseFiles("template/v4/js.go.template")
+	t3, err := template.ParseFiles("template/v4/ts.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, fmt.Sprintf("js模版读取失败！错误详情：%s", err.Error()))
+		e.Error(500, err, fmt.Sprintf("ts模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t4, err := template.ParseFiles("template/v4/vue.go.template")
@@ -102,7 +102,7 @@ func (e Gen) Preview(c *gin.Context) {
 	mp := make(map[string]interface{})
 	mp["template/model.go.template"] = b1.String()
 	mp["template/api.go.template"] = b2.String()
-	mp["template/js.go.template"] = b3.String()
+	mp["template/api.ts.template"] = b3.String()
 	mp["template/vue.go.template"] = b4.String()
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
@@ -191,10 +191,10 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 		e.Error(500, err, fmt.Sprintf("路由模版失败！错误详情：%s", err.Error()))
 		return
 	}
-	t4, err := template.ParseFiles(basePath + "js.go.template")
+	t4, err := template.ParseFiles(basePath + "ts.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, fmt.Sprintf("js模版解析失败！错误详情：%s", err.Error()))
+		e.Error(500, err, fmt.Sprintf("ts模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
@@ -245,7 +245,7 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.TBName+".go")
 	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.TBName+".go")
 	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.TBName+".go")
-	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+"/"+tab.MLTBName+".js")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+"/"+tab.MLTBName+".ts")
 	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/"+tab.MLTBName+"/index.vue")
 	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.TBName+".go")
 	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.TBName+".go")
