@@ -1,479 +1,341 @@
-{{$tableComment:=.TableComment}}
+{{- /*
+  Vue 3 + Element Plus + TypeScript list page (PRD 010, F4).
+
+  Shape matches go-admin-ui/src/views/demo/product/index.vue, the reference
+  page AGENTS.md names: PageContainer + ProTable + useTable/useForm/useRemove,
+  <script setup lang="ts">. The old template produced slot-scope/.sync/.native
+  syntax that Vue 3 removed outright (PRD 010 G1) -- this is not a patch on
+  that file, it is a different template for a different framework version.
+
+  Every label goes through $t('gen.{PackageName}.{BusinessName}.{JsonField}'),
+  never a literal ColumnComment -- see src/lang/{locale}/gen/index.ts (F9) for
+  how that namespace is loaded. This is also why the file must not contain a
+  literal CJK character anywhere, comments included: D10's acceptance check is
+  a bare regex scan of the rendered output with no exception for "but this one
+  is a comment", so a Chinese aside here would fail the same test a stray
+  placeholder="{{"{{"}}.ColumnComment{{"}}"}}"  would.
+
+  HtmlType has seven stored values (PRD 010 G8) and only four render here on
+  purpose: checkbox and datetime became selectable in the F7 front-end change
+  (editTable.vue), so they get a branch; file stays disabled there, but a row
+  imported or edited before that change can still carry "file" or any other
+  value this template does not know -- the final branch below renders those,
+  and anything else future work introduces, as a plain input rather than
+  emitting nothing (PRD 010 phase-3 constraint #1: a silently empty field is
+  worse than a plain one).
+*/ -}}
+{{- $package := .PackageName -}}
+{{- $business := .BusinessName -}}
+{{- /*
+  Whether any column needs a given import, computed once by walking .Columns
+  rather than at each usage site -- text/template has no way to ask "did the
+  loop below already import this", so the alternative is repeating the same
+  import line once per matching column. "$var = value" (not ":=") reassigns an
+  outer-scope variable from inside a range -- a text/template feature since
+  Go 1.11, needed here because a range body cannot otherwise leave a mark on
+  anything outside itself.
+*/ -}}
+{{- $hasDict := false -}}
+{{- $hasFk := false -}}
+{{- $hasDatetime := false -}}
+{{- $hasRules := false -}}
+{{- $hasQuery := false -}}
+{{- $pkType := "number" -}}
+{{- range .Columns -}}
+  {{- if ne .DictType "" }}{{$hasDict = true}}{{end -}}
+  {{- if ne .FkTableName "" }}{{$hasFk = true}}{{end -}}
+  {{- if eq .HtmlType "datetime" }}{{$hasDatetime = true}}{{end -}}
+  {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
+  {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy") }}{{$hasRules = true}}{{end -}}
+  {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{end -}}
+{{- end -}}
 <template>
-    <BasicLayout>
-        <template #wrapper>
-            <el-card class="box-card">
-                <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-                    {{range .Columns}}
-                        {{- $x := .IsQuery -}}
-                        {{- if (eq $x "1") -}}
-                            <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
-                                {{- if ne .FkTableName "" -}}
-                                <el-select v-model="queryParams.{{.JsonField}}"
-                                           placeholder="请选择" clearable size="small" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
-                                    <el-option
-                                            v-for="dict in {{.JsonField}}Options"
-                                            :key="dict.key"
-                                            :label="dict.value"
-                                            :value="dict.key"
-                                    />
-                                </el-select>
-                                {{- else -}}
-                                {{if eq .DictType "" -}}
-                                    <el-input v-model="queryParams.{{.JsonField}}" placeholder="请输入{{.ColumnComment}}" clearable
-                                              size="small" @keyup.enter.native="handleQuery"/>
-                                {{- else -}}
-                                    <el-select v-model="queryParams.{{.JsonField}}"
-                                               placeholder="{{$tableComment}}{{.ColumnComment}}" clearable size="small">
-                                        <el-option
-                                                v-for="dict in {{.JsonField}}Options"
-                                                :key="dict.value"
-                                                :label="dict.label"
-                                                :value="dict.value"
-                                        />
-                                    </el-select>
-                                {{- end}}
-                                {{- end}}
-                            </el-form-item>
-                        {{end}}
-                    {{- end }}
-                    <el-form-item>
-                        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-                        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-                    </el-form-item>
-                </el-form>
+  <PageContainer>
+    <ProTable :table="table" selection row-key="{{.PkJsonField}}">
+      {{- if $hasQuery}}
+      <template #search>
+        {{- range .Columns}}
+        {{- if eq .IsQuery "1"}}
+        {{- $key := printf "gen.%s.%s.%s" $package $business .JsonField}}
+        <el-form-item :label="$t('{{$key}}')">
+          {{- if ne .FkTableName ""}}
+          <el-select v-model="table.query.{{.JsonField}}" clearable :placeholder="$t('common.selectPlaceholder')">
+            <el-option
+              v-for="item in {{.JsonField}}Options"
+              :key="item.{{.FkLabelId}}"
+              :label="item.{{.FkLabelName}}"
+              :value="item.{{.FkLabelId}}"
+            />
+          </el-select>
+          {{- else if ne .DictType ""}}
+          <el-select v-model="table.query.{{.JsonField}}" clearable :placeholder="$t('common.selectPlaceholder')">
+            <el-option
+              v-for="dict in {{.JsonField}}Options"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+          {{- else if eq .HtmlType "datetime"}}
+          <el-date-picker
+            v-model="table.query.{{.JsonField}}"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            clearable
+          />
+          {{- else}}
+          <el-input v-model="table.query.{{.JsonField}}" clearable />
+          {{- end}}
+        </el-form-item>
+        {{- end}}
+        {{- end}}
+      </template>
+      {{- end}}
 
-                <el-row :gutter="10" class="mb8">
-                    <el-col :span="1.5">
-                        <el-button
-                                v-permisaction="['{{.PackageName}}:{{.BusinessName}}:add']"
-                                type="primary"
-                                icon="el-icon-plus"
-                                size="mini"
-                                @click="handleAdd"
-                        >新增
-                        </el-button>
-                    </el-col>
-                    <el-col :span="1.5">
-                        <el-button
-                                v-permisaction="['{{.PackageName}}:{{.BusinessName}}:edit']"
-                                type="success"
-                                icon="el-icon-edit"
-                                size="mini"
-                                :disabled="single"
-                                @click="handleUpdate"
-                        >修改
-                        </el-button>
-                    </el-col>
-                    <el-col :span="1.5">
-                        <el-button
-                                v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']"
-                                type="danger"
-                                icon="el-icon-delete"
-                                size="mini"
-                                :disabled="multiple"
-                                @click="handleDelete"
-                        >删除
-                        </el-button>
-                    </el-col>
-                </el-row>
+      <template #toolbar>
+        <el-button v-permisaction="['{{.PackageName}}:{{.BusinessName}}:add']" type="primary" @click="form.openCreate()">
+          {{ "{{" }} $t('common.add') {{ "}}" }}
+        </el-button>
+        <el-button
+          v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']"
+          type="danger"
+          plain
+          :disabled="table.multiple"
+          @click="remove(table.selectedIds)"
+        >
+          {{ "{{" }} $t('common.delete') {{ "}}" }}
+        </el-button>
+      </template>
+      {{- range .Columns}}
+      {{- if eq .IsList "1"}}
+      {{- $key := printf "gen.%s.%s.%s" $package $business .JsonField}}
+      {{- if ne .FkTableName ""}}
 
-                <el-table v-loading="loading" :data="{{.BusinessName}}List" @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" width="55" align="center"/>
-                    {{- range .Columns -}}
-                        {{- $x := .IsList -}}
-                        {{- if (eq $x "1") }}
-                            {{- if ne .FkTableName "" -}}
-                            <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}" :formatter="{{.JsonField}}Format" width="100">
-                                <template slot-scope="scope">
-                                    {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
-                                </template>
-                            </el-table-column>
+      <el-table-column :label="$t('{{$key}}')" min-width="{{if .ColWidth}}{{.ColWidth}}{{else}}120{{end}}" show-overflow-tooltip>
+        <template #default="{ row }">{{ "{{" }} {{.JsonField}}Label(row.{{.JsonField}}) {{ "}}" }}</template>
+      </el-table-column>
+      {{- else if ne .DictType ""}}
 
-                            {{- else -}}
-                            {{- if ne .DictType "" -}}
-                                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
-                                                 :formatter="{{.JsonField}}Format" width="100">
-                                    <template slot-scope="scope">
-                                        {{ "{{" }} {{.JsonField}}Format(scope.row) {{"}}"}}
-                                    </template>
-                                </el-table-column>
+      <el-table-column :label="$t('{{$key}}')" min-width="{{if .ColWidth}}{{.ColWidth}}{{else}}120{{end}}">
+        <template #default="{ row }">{{ "{{" }} dictLabel({{.JsonField}}Options, row.{{.JsonField}}) {{ "}}" }}</template>
+      </el-table-column>
+      {{- else if eq .HtmlType "datetime"}}
 
-                            {{- end -}}
-                            {{- if eq .DictType "" -}}
-                                {{- if eq .HtmlType "datetime" -}}
-                                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
-                                                 :show-overflow-tooltip="true">
-                                    <template slot-scope="scope">
-                                    <span>{{ "{{" }} parseTime(scope.row.{{.JsonField}}) {{"}}"}}</span>
-                                    </template>
-                                </el-table-column>
-                                {{- else -}}
-                                <el-table-column label="{{.ColumnComment}}" align="center" prop="{{.JsonField}}"
-                                                 :show-overflow-tooltip="true"/>
-                                {{- end -}}
-                            {{- end -}}
-                            {{- end -}}
-                        {{- end }}
-                    {{- end }}
-                    <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-                        <template slot-scope="scope">
-                          <el-button
-                             slot="reference"
-                             v-permisaction="['{{.PackageName}}:{{.BusinessName}}:edit']"
-                             size="mini"
-                             type="text"
-                             icon="el-icon-edit"
-                             @click="handleUpdate(scope.row)"
-                           >修改
-                           </el-button>
-                         <el-popconfirm
-                            class="delete-popconfirm"
-                            title="确认要删除吗?"
-                            confirm-button-text="删除"
-                            @confirm="handleDelete(scope.row)"
-                         >
-                            <el-button
-                              slot="reference"
-                              v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']"
-                              size="mini"
-                              type="text"
-                              icon="el-icon-delete"
-                            >删除
-                            </el-button>
-                         </el-popconfirm>
-                        </template>
-                    </el-table-column>
-                </el-table>
+      <el-table-column :label="$t('{{$key}}')" min-width="{{if .ColWidth}}{{.ColWidth}}{{else}}110{{end}}">
+        <template #default="{ row }"><DateCell :value="row.{{.JsonField}}" /></template>
+      </el-table-column>
+      {{- else}}
 
-                <pagination
-                        v-show="total>0"
-                        :total="total"
-                        :page.sync="queryParams.pageIndex"
-                        :limit.sync="queryParams.pageSize"
-                        @pagination="getList"
-                />
+      <el-table-column
+        :label="$t('{{$key}}')"
+        prop="{{.JsonField}}"
+        min-width="{{if .ColWidth}}{{.ColWidth}}{{else}}120{{end}}"
+        show-overflow-tooltip
+      />
+      {{- end}}
+      {{- end}}
+      {{- end}}
 
-                <!-- 添加或修改对话框 -->
-                <el-dialog :title="title" :visible.sync="open" width="500px">
-                    <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-                        {{ range .Columns }}
-                            {{- $x := .IsInsert -}}
-                            {{- if (eq $x "1") -}}
-                                {{- if (.Pk) }}
-                                {{- else if eq .GoField "CreatedAt" -}}
-                                {{- else if eq .GoField "UpdatedAt" -}}
-                                {{- else if eq .GoField "DeletedAt" -}}
-                                {{- else if eq .GoField "UpdateBy" -}}
-                                {{- else if eq .GoField "CreateBy" -}}
-                                {{- else }}
-                                    <el-form-item label="{{.ColumnComment}}" prop="{{.JsonField}}">
-                                        {{ if eq "input" .HtmlType -}}
-                                            <el-input v-model{{if eq .GoType "int64" -}}.number{{- end}}="form.{{.JsonField}}" placeholder="{{.ColumnComment}}"
-                                                      {{if eq .IsEdit "false" -}}:disabled="isEdit" {{- end}}/>
-                                        {{- else if eq "select" .HtmlType -}}
-                                            {{- if ne .FkTableName "" -}}
-                                            <el-select v-model="form.{{.JsonField}}"
-                                                       placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
-                                                <el-option
-                                                        v-for="dict in {{.JsonField}}Options"
-                                                        :key="dict.key"
-                                                        :label="dict.value"
-                                                        :value="dict.key"
-                                                />
-                                            </el-select>
-                                            {{- else -}}
-                                            <el-select v-model="form.{{.JsonField}}"
-                                                       placeholder="请选择" {{if eq .IsEdit "false" -}} :disabled="isEdit" {{- end }}>
-                                                <el-option
-                                                        v-for="dict in {{.JsonField}}Options"
-                                                        :key="dict.value"
-                                                        :label="dict.label"
-                                                        :value="dict.value"
-                                                />
-                                            </el-select>
-                                            {{- end -}}
-                                        {{- else if eq "radio" .HtmlType -}}
-                                            <el-radio-group v-model="form.{{.JsonField}}">
-                                                <el-radio
-                                                        v-for="dict in {{.JsonField}}Options"
-                                                        :key="dict.value"
-                                                        :label="dict.value"
-                                                >{{"{{"}} dict.label {{"}}"}}</el-radio>
-                                            </el-radio-group>
-                                        {{- else if eq "file" .HtmlType -}}
-                                            <el-input
-                                                v-model="form.{{.JsonField}}"
-                                                placeholder="图片"
-                                            />
-                                            <el-button type="primary" @click="fileShow{{.GoField}}">选择文件</el-button>
-                                        {{- else if eq "datetime" .HtmlType -}}
-                                            <el-date-picker
-                                                    v-model="form.{{.JsonField}}"
-                                                    type="datetime"
-                                                    placeholder="选择日期">
-                                            </el-date-picker>
-                                        {{- else if eq "textarea" .HtmlType -}}
-                                            <el-input
-                                                    v-model="form.{{.JsonField}}"
-                                                    type="textarea"
-                                                    :rows="2"
-                                                    placeholder="请输入内容">
-                                            </el-input>
-                                        {{- end }}
-                                    </el-form-item>
-                                {{- end }}
-                            {{- end }}
-                        {{- end }}
-                    </el-form>
-                    <div slot="footer" class="dialog-footer">
-                        <el-button type="primary" @click="submitForm">确 定</el-button>
-                        <el-button @click="cancel">取 消</el-button>
-                    </div>
-                </el-dialog>
-            </el-card>
-        </template>
-    </BasicLayout>
+      <template #actions="{ row }">
+        <el-button v-permisaction="['{{.PackageName}}:{{.BusinessName}}:edit']" link type="primary" @click="form.openEdit(row)">
+          {{ "{{" }} $t('common.edit') {{ "}}" }}
+        </el-button>
+        <el-button v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']" link type="danger" @click="remove(row.{{.PkJsonField}})">
+          {{ "{{" }} $t('common.delete') {{ "}}" }}
+        </el-button>
+      </template>
+    </ProTable>
+
+    <el-dialog
+      v-model="form.visible"
+      :title="form.title"
+      width="500px"
+      :close-on-click-modal="false"
+      @closed="form.reset"
+    >
+      <el-form
+        :ref="form.bindFormRef"
+        v-loading="form.loading"
+        :model="form.model"
+        {{- if $hasRules}}
+        :rules="form.rules"
+        {{- end}}
+        label-width="100px"
+      >
+        {{- range .Columns}}
+        {{- if and (eq .IsInsert "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy")}}
+        {{- $key := printf "gen.%s.%s.%s" $package $business .JsonField}}
+        <el-form-item :label="$t('{{$key}}')" prop="{{.JsonField}}">
+          {{- if eq .HtmlType "select"}}
+            {{- if ne .FkTableName ""}}
+          <el-select v-model="form.model.{{.JsonField}}" :placeholder="$t('common.selectPlaceholder')">
+            <el-option
+              v-for="item in {{.JsonField}}Options"
+              :key="item.{{.FkLabelId}}"
+              :label="item.{{.FkLabelName}}"
+              :value="item.{{.FkLabelId}}"
+            />
+          </el-select>
+            {{- else if ne .DictType ""}}
+          <el-select v-model="form.model.{{.JsonField}}" :placeholder="$t('common.selectPlaceholder')">
+            <el-option
+              v-for="dict in {{.JsonField}}Options"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+            {{- else}}
+          <el-input v-model="form.model.{{.JsonField}}" />
+            {{- end}}
+          {{- else if eq .HtmlType "radio"}}
+            {{- if ne .DictType ""}}
+          <el-radio-group v-model="form.model.{{.JsonField}}">
+            <el-radio v-for="dict in {{.JsonField}}Options" :key="dict.value" :value="dict.value">
+              {{ "{{" }} dict.label {{ "}}" }}
+            </el-radio>
+          </el-radio-group>
+            {{- else}}
+          <el-input v-model="form.model.{{.JsonField}}" />
+            {{- end}}
+          {{- else if eq .HtmlType "checkbox"}}
+          <el-checkbox v-model="form.model.{{.JsonField}}" true-value="1" false-value="0" />
+          {{- else if eq .HtmlType "datetime"}}
+          <el-date-picker
+            v-model="form.model.{{.JsonField}}"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+          />
+          {{- else if eq .HtmlType "textarea"}}
+          <el-input v-model="form.model.{{.JsonField}}" type="textarea" :rows="2" />
+          {{- else}}
+          <el-input v-model="form.model.{{.JsonField}}" />
+          {{- end}}
+        </el-form-item>
+        {{- end}}
+        {{- end}}
+      </el-form>
+      <template #footer>
+        <el-button @click="form.close">{{ "{{" }} $t('common.dialogCancel') {{ "}}" }}</el-button>
+        <el-button type="primary" :loading="form.submitting" @click="form.submit">
+          {{ "{{" }} $t('common.dialogConfirm') {{ "}}" }}
+        </el-button>
+      </template>
+    </el-dialog>
+  </PageContainer>
 </template>
 
-<script>
-    import {add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}} from '@/api/{{ .PackageName}}/{{ .MLTBName}}'
-    {{ $package:=.PackageName }}
-    {{range .Columns}}
-    {{- if ne .FkTableName "" -}}
-    import {list{{.FkTableNameClass}} } from '@/api/{{ $package }}/{{ .FkTableNamePackage}}'
-    {{ end -}}
-    {{- end -}}
+<script setup lang="ts">
+{{- if $hasRules}}
+import { computed } from 'vue'
+{{- end}}
+{{- if $hasFk}}
+import { ref, onMounted } from 'vue'
+{{- end}}
+{{- if $hasRules}}
+import { useI18n } from 'vue-i18n'
+import type { FormRules } from 'element-plus'
+{{- end}}
+import PageContainer from '@/components/PageContainer/index.vue'
+import ProTable from '@/components/ProTable/index.vue'
+{{- if $hasDatetime}}
+import DateCell from '@/components/DateCell/index.vue'
+{{- end}}
+{{- if $hasDict}}
+import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
+{{- else}}
+import { useTable, useForm, useRemove } from '@/composables'
+{{- end}}
+import {
+  add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}
+} from '@/api/{{.PackageName}}/{{.MLTBName}}'
+import type { {{.ClassName}}, {{.ClassName}}Query } from '@/api/{{.PackageName}}/{{.MLTBName}}'
+{{- range .Columns}}
+{{- if ne .FkTableName ""}}
+import { list{{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePackage}}'
+import type { {{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePackage}}'
+{{- end}}
+{{- end}}
+{{- /*
+  Manage suffix, not just ClassName: this must match gen.go's
+  Cmenu.MenuName = tab.ClassName + "Manage" byte for byte (PRD 010 R4), or
+  keep-alive's include list -- built from menu_name -- never matches this
+  component's name and the page never caches. The old template wrote
+  name: '{ClassName}' with no suffix; the mismatch went unnoticed because
+  stores/permission.ts's loadView() rewrites the rendered component's name to
+  menu_name at runtime regardless of what defineOptions said (PRD 010 G7).
+  That fallback stays in place after this change -- it is not this template's
+  to remove -- but the value declared here should be right regardless of it.
+*/}}
 
-    export default {
-        name: '{{.ClassName}}',
-        components: {
-        },
-        data() {
-            return {
-                // 遮罩层
-                loading: true,
-                // 选中数组
-                ids: [],
-                // 非单个禁用
-                single: true,
-                // 非多个禁用
-                multiple: true,
-                // 总条数
-                total: 0,
-                // 弹出层标题
-                title: '',
-                // 是否显示弹出层
-                open: false,
-                isEdit: false,
-                // 类型数据字典
-                typeOptions: [],
-                {{.BusinessName}}List: [],
-                {{range .Columns}}
-                {{- if ne .DictType "" -}}
-                {{.JsonField}}Options: [],
-                {{- end -}}
-                {{- end }}
-                // 关系表类型
-                {{range .Columns}}
-                {{- if ne .FkTableName "" -}}
-                {{.JsonField}}Options :[],
-                {{ end -}}
-                {{- end }}
-                // 查询参数
-                queryParams: {
-                    pageIndex: 1,
-                    pageSize: 10,
-                    {{ range .Columns }}
-                    {{- if (.IsQuery) -}}
-                    {{.JsonField}}:undefined,
-                    {{ end -}}
-                    {{- end }}
-                },
-                // 表单参数
-                form: {
-                },
-                // 表单校验
-                rules: {
-                {{- range .Columns -}}
-                {{- $x := .IsQuery -}}
-                {{- if (eq $x "1") -}}
-                {{.JsonField}}:  [ {required: true, message: '{{.ColumnComment}}不能为空', trigger: 'blur'} ],
-                {{ end }}
-                {{- end -}}
-            }
-        }
-        },
-        created() {
-            this.getList()
-            {{range .Columns}}
-            {{- if ne .DictType "" -}}
-            this.getDicts('{{.DictType}}').then(response => {
-                this.{{.JsonField}}Options = response.data
-            })
-            {{ end -}}
-            {{- if ne .FkTableName "" -}}
-            this.get{{.FkTableNameClass}}Items()
-            {{ end -}}
-            {{- end -}}
-        },
-        methods: {
-            /** 查询参数列表 */
-            getList() {
-                this.loading = true
-                list{{.ClassName}}(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-                        this.{{.BusinessName}}List = response.data.list
-                        this.total = response.data.count
-                        this.loading = false
-                    }
-                )
-            },
-            // 取消按钮
-            cancel() {
-                this.open = false
-                this.reset()
-            },
-            // 表单重置
-            reset() {
-                this.form = {
-                {{ range .Columns}}
-                {{- $x := .IsInsert -}}
-                {{- if (eq $x "1") -}}
-                {{- if eq .GoField "CreatedAt" -}}
-                {{- else if eq .GoField "UpdatedAt" -}}
-                {{- else if eq .GoField "DeletedAt" -}}
-                {{- else if eq .GoField "UpdateBy" -}}
-                {{- else if eq .GoField "CreateBy" -}}
-                {{- else }}
-                {{.JsonField}}: undefined,
-                {{- end }}
-                {{- end -}}
-                {{- end }}
-            }
-                this.resetForm('form')
-            },
-            getImgList: function() {
-              this.form[this.fileIndex] = this.$refs['fileChoose'].resultList[0].fullUrl
-            },
-            fileClose: function() {
-              this.fileOpen = false
-            },
-            {{range .Columns}}
-            {{- if ne .DictType "" -}}
-            {{.JsonField}}Format(row) {
-                return this.selectDictLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
-            },
-            {{ end -}}
-            {{- if ne .FkTableName "" -}}
-            {{.JsonField}}Format(row) {
-                return this.selectItemsLabel(this.{{.JsonField}}Options, row.{{.JsonField}})
-            },
-            {{ end -}}
-            {{- end -}}
-            // 关系
-            {{range .Columns}}
-            {{- if ne .FkTableName "" -}}
-            get{{.FkTableNameClass}}Items() {
-               this.getItems(list{{.FkTableNameClass}}, undefined).then(res => {
-                   this.{{.JsonField}}Options = this.setItems(res, '{{.FkLabelId}}', '{{.FkLabelName}}')
-               })
-            },
-            {{ end -}}
-            {{- end -}}
-            // 文件
-            {{range .Columns}}
-            {{- if eq .HtmlType "file" -}}
-            fileShow{{.GoField}}: function() {
-              this.fileOpen = true
-              this.fileIndex = '{{.JsonField}}'
-            },
-            {{ end -}}
-            {{- end -}}
-            /** 搜索按钮操作 */
-            handleQuery() {
-                this.queryParams.pageIndex = 1
-                this.getList()
-            },
-            /** 重置按钮操作 */
-            resetQuery() {
-                this.dateRange = []
-                this.resetForm('queryForm')
-                this.handleQuery()
-            },
-            /** 新增按钮操作 */
-            handleAdd() {
-                this.reset()
-                this.open = true
-                this.title = '添加{{.TableComment}}'
-                this.isEdit = false
-            },
-            // 多选框选中数据
-            handleSelectionChange(selection) {
-                this.ids = selection.map(item => item.{{.PkJsonField}})
-                this.single = selection.length !== 1
-                this.multiple = !selection.length
-            },
-            /** 修改按钮操作 */
-            handleUpdate(row) {
-                this.reset()
-                const {{.PkJsonField}} =
-                row.{{.PkJsonField}} || this.ids
-                get{{.ClassName}}({{.PkJsonField}}).then(response => {
-                    this.form = response.data
-                    this.open = true
-                    this.title = '修改{{.TableComment}}'
-                    this.isEdit = true
-                })
-            },
-            /** 提交按钮 */
-            submitForm: function () {
-                this.$refs['form'].validate(valid => {
-                    if (valid) {
-                        if (this.form.{{.PkJsonField}} !== undefined) {
-                            update{{.ClassName}}(this.form).then(response => {
-                                if (response.code === 200) {
-                                    this.msgSuccess(response.msg)
-                                    this.open = false
-                                    this.getList()
-                                } else {
-                                    this.msgError(response.msg)
-                                }
-                            })
-                        } else {
-                            add{{.ClassName}}(this.form).then(response => {
-                                if (response.code === 200) {
-                                    this.msgSuccess(response.msg)
-                                    this.open = false
-                                    this.getList()
-                                } else {
-                                    this.msgError(response.msg)
-                                }
-                            })
-                        }
-                    }
-                })
-            },
-            /** 删除按钮操作 */
-            handleDelete(row) {
-                var Ids = (row.{{.PkJsonField}} && [row.{{.PkJsonField}}]) || this.ids
+defineOptions({ name: '{{.ClassName}}Manage' })
+{{- range .Columns}}
+{{- if ne .DictType ""}}
 
-                this.$confirm('是否确认删除编号为"' + Ids + '"的数据项?', '警告', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(function () {
-                      return del{{.ClassName}}( { 'ids': Ids })
-                }).then((response) => {
-                   if (response.code === 200) {
-                     this.msgSuccess(response.msg)
-                     this.open = false
-                     this.getList()
-                   } else {
-                     this.msgError(response.msg)
-                   }
-                }).catch(function () {
-                })
-            }
-        }
-    }
+const { {{.DictType}}: {{.JsonField}}Options } = useDict('{{.DictType}}')
+{{- end}}
+{{- if ne .FkTableName ""}}
+
+const {{.JsonField}}Options = ref<{{.FkTableNameClass}}[]>([])
+onMounted(async() => {
+  const res = await list{{.FkTableNameClass}}({ pageIndex: 1, pageSize: 100 })
+  {{.JsonField}}Options.value = res.data?.list ?? []
+})
+const {{.JsonField}}Label = (value: unknown) =>
+  {{.JsonField}}Options.value.find(item => item.{{.FkLabelId}} === value)?.{{.FkLabelName}} ?? value
+{{- end}}
+{{- end}}
+{{- /*
+  Every object literal below is built on one line, joined with ", " through a
+  $first flag rather than one field per line with a trailing comma after each:
+  comma-dangle is "never" (no comma before the closing brace) and comma-style
+  is "last" (a comma may not open a line), and text/template has no arithmetic
+  to compute "is this the last matching column" up front -- knowing that would
+  be what a one-field-per-line, trailing-comma-free rendering needs instead.
+*/}}
+
+const table = useTable<{{.ClassName}}, {{.ClassName}}Query>({
+  api: list{{.ClassName}},
+  idKey: '{{.PkJsonField}}'
+  {{- if $hasQuery}},
+  defaultQuery: () => ({{"{"}} {{$qFirst := true}}{{range .Columns}}{{if eq .IsQuery "1"}}{{if $qFirst}}{{$qFirst = false}}{{else}}, {{end}}{{.JsonField}}: undefined{{end}}{{end}} {{"}"}})
+  {{- end}}
+})
+{{- if $hasRules}}
+
+const { t } = useI18n()
+{{- /*
+  Built from the same field-label key rather than a dedicated
+  gen.{pkg}.{biz}.rules.{field} key: R3 derives one key per field from
+  PackageName+BusinessName+JsonField, and a second, validation-only key per
+  required field would double the language pack's surface for a message that
+  reads fine as the field name alone in the space Element Plus renders it --
+  directly under the labelled field it failed to validate.
+*/}}
+
+const rules = computed<FormRules>(() => ({
+  {{- $rFirst := true}}
+  {{- range .Columns}}
+  {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy")}}
+  {{- $key := printf "gen.%s.%s.%s" $package $business .JsonField}}
+  {{if $rFirst}}{{$rFirst = false}}{{else}}, {{end}}{{.JsonField}}: [{ required: true, message: t('{{$key}}'), trigger: '{{if or (eq .HtmlType "select") (eq .HtmlType "radio") (eq .HtmlType "datetime") (eq .HtmlType "checkbox")}}change{{else}}blur{{end}}' }]
+  {{- end}}
+  {{- end}}
+}))
+{{- end}}
+
+const form = useForm<{{.ClassName}}, {{$pkType}}>({
+  defaultModel: () => ({{"{"}} {{.PkJsonField}}: undefined{{range .Columns}}{{if and (eq .IsInsert "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy")}}, {{.JsonField}}: {{if eq .DefaultValue ""}}undefined{{else if eq .GoType "int"}}{{.DefaultValue}}{{else}}'{{js .DefaultValue}}'{{end}}{{end}}{{end}} {{"}"}}),
+  idKey: '{{.PkJsonField}}',
+  {{- if $hasRules}}
+  rules,
+  {{- end}}
+  api: { get: get{{.ClassName}}, add: add{{.ClassName}}, update: update{{.ClassName}} },
+  onSuccess: () => table.getList()
+})
+
+const { remove } = useRemove({
+  api: del{{.ClassName}},
+  onSuccess: () => table.getList()
+})
 </script>
