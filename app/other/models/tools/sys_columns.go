@@ -110,5 +110,23 @@ func (e *SysColumns) Update(tx *gorm.DB) (update SysColumns, err error) {
 		return
 	}
 
+	// Updates(&e) above skips zero-value fields (GORM's struct-form Updates
+	// always does), but ColWidth/DefaultValue's own "unconfigured" sentinel
+	// is 0/"" (see the field comments on SysColumns) - so clearing either one
+	// back to its sentinel is indistinguishable, to a struct-form Updates,
+	// from "the caller didn't touch this field" and silently does not get
+	// written. A map-form Updates does not skip zero values, so it is used
+	// here for just these two columns rather than widening this to
+	// Select("*") (which would also start writing every other zero-valued
+	// field on this struct - Sort, the Pk/Required/... bools - and that is a
+	// pre-existing gap in this method affecting fields outside PRD 010's
+	// scope, not fixed here).
+	if err = tx.Table("sys_columns").Model(&update).Updates(map[string]interface{}{
+		"col_width":     e.ColWidth,
+		"default_value": e.DefaultValue,
+	}).Error; err != nil {
+		return
+	}
+
 	return
 }
