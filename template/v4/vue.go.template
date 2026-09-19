@@ -34,6 +34,21 @@
   outer-scope variable from inside a range -- a text/template feature since
   Go 1.11, needed here because a range body cannot otherwise leave a mark on
   anything outside itself.
+
+  Each condition below must match, term for term, the condition guarding the
+  markup or script that actually consumes the import -- not just "this column
+  has a DictType/FkTableName", which is necessary but not sufficient. A column
+  can carry dictionary or foreign-key metadata that no rendered branch reads:
+  FkTableName/DictType lose to each other by priority (FK wins search, list
+  and the form's select branch; the form's radio branch never looks at FK at
+  all), and a column can carry either one while being neither queryable nor
+  listed nor an insertable select/radio -- created_at/updated_at are exactly
+  this: sys_tables.go assigns HtmlType "datetime" to any timestamp/datetime
+  column on import whether or not it ever reaches IsList, because GetList's
+  audit-column exclusion is a separate, later step. Get a term here wrong in
+  either direction and either an import goes unused (no-unused-vars) or a real
+  usage silently loses its import (a ReferenceError this template cannot see
+  coming, since Vue components are the last stage that runs).
 */ -}}
 {{- $hasDict := false -}}
 {{- $hasDictList := false -}}
@@ -43,10 +58,12 @@
 {{- $hasQuery := false -}}
 {{- $pkType := "number" -}}
 {{- range .Columns -}}
-  {{- if ne .DictType "" }}{{$hasDict = true}}{{end -}}
+  {{- $dictUsed := and (ne .DictType "") (or (and (eq .IsQuery "1") (eq .FkTableName "")) (and (eq .IsList "1") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "select") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "radio"))) -}}
+  {{- $fkUsed := and (ne .FkTableName "") (or (eq .IsQuery "1") (eq .IsList "1") (and (eq .IsInsert "1") (eq .HtmlType "select"))) -}}
+  {{- if $dictUsed }}{{$hasDict = true}}{{end -}}
   {{- if and (eq .IsList "1") (eq .FkTableName "") (ne .DictType "") }}{{$hasDictList = true}}{{end -}}
-  {{- if ne .FkTableName "" }}{{$hasFk = true}}{{end -}}
-  {{- if eq .HtmlType "datetime" }}{{$hasDatetime = true}}{{end -}}
+  {{- if $fkUsed }}{{$hasFk = true}}{{end -}}
+  {{- if and (eq .IsList "1") (eq .FkTableName "") (eq .DictType "") (eq .HtmlType "datetime") }}{{$hasDatetime = true}}{{end -}}
   {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
   {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy") }}{{$hasRules = true}}{{end -}}
   {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{end -}}
@@ -276,19 +293,23 @@ import type { {{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePac
 
 defineOptions({ name: '{{.ClassName}}Manage' })
 {{- range .Columns}}
-{{- if ne .DictType ""}}
+{{- $dictUsed := and (ne .DictType "") (or (and (eq .IsQuery "1") (eq .FkTableName "")) (and (eq .IsList "1") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "select") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "radio"))) -}}
+{{- $fkUsed := and (ne .FkTableName "") (or (eq .IsQuery "1") (eq .IsList "1") (and (eq .IsInsert "1") (eq .HtmlType "select"))) -}}
+{{- if $dictUsed}}
 
 const { {{.DictType}}: {{.JsonField}}Options } = useDict('{{.DictType}}')
 {{- end}}
-{{- if ne .FkTableName ""}}
+{{- if $fkUsed}}
 
 const {{.JsonField}}Options = ref<{{.FkTableNameClass}}[]>([])
 onMounted(async() => {
   const res = await list{{.FkTableNameClass}}({ pageIndex: 1, pageSize: 100 })
   {{.JsonField}}Options.value = res.data?.list ?? []
 })
+{{- if eq .IsList "1"}}
 const {{.JsonField}}Label = (value: unknown) =>
   {{.JsonField}}Options.value.find(item => item.{{.FkLabelId}} === value)?.{{.FkLabelName}} ?? value
+{{- end}}
 {{- end}}
 {{- end}}
 {{- /*
