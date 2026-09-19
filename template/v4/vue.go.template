@@ -273,10 +273,31 @@ import {
   add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}
 } from '@/api/{{.PackageName}}/{{.MLTBName}}'
 import type { {{.ClassName}}, {{.ClassName}}Query } from '@/api/{{.PackageName}}/{{.MLTBName}}'
-{{- range .Columns}}
-{{- if ne .FkTableName ""}}
-import { list{{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePackage}}'
-import type { {{.FkTableNameClass}} } from '@/api/{{$package}}/{{.FkTableNamePackage}}'
+{{- /*
+  Two columns pointing at the same foreign table must not import it twice --
+  "one FK-configured column" was never the same thing as "one distinct target
+  table", and gen.go has no concept of a table's FK targets being unique.
+  text/template has no set to check membership in, so the dedup is a nested
+  range: a column only imports its target if no earlier, equally-used column
+  already claimed the same FkTableNameClass. $fkUsed is repeated here (it also
+  guards the const declarations above) because a column with FkTableName set
+  but reaching none of them -- unqueried, unlisted, not an insert select --
+  has nothing that would use the import either.
+*/ -}}
+{{- range $i, $col := .Columns}}
+{{- $fkUsed := and (ne $col.FkTableName "") (or (eq $col.IsQuery "1") (eq $col.IsList "1") (and (eq $col.IsInsert "1") (eq $col.HtmlType "select"))) -}}
+{{- if $fkUsed}}
+{{- $alreadyImported := false -}}
+{{- range $j, $prior := $.Columns}}
+{{- if lt $j $i}}
+{{- $priorUsed := and (ne $prior.FkTableName "") (or (eq $prior.IsQuery "1") (eq $prior.IsList "1") (and (eq $prior.IsInsert "1") (eq $prior.HtmlType "select"))) -}}
+{{- if and $priorUsed (eq $prior.FkTableNameClass $col.FkTableNameClass) }}{{$alreadyImported = true}}{{end -}}
+{{- end}}
+{{- end}}
+{{- if not $alreadyImported}}
+import { list{{$col.FkTableNameClass}} } from '@/api/{{$package}}/{{$col.FkTableNamePackage}}'
+import type { {{$col.FkTableNameClass}} } from '@/api/{{$package}}/{{$col.FkTableNamePackage}}'
+{{- end}}
 {{- end}}
 {{- end}}
 {{- /*
