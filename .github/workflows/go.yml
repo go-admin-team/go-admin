@@ -68,6 +68,28 @@ jobs:
           --health-retries 20
           --health-start-period 20s
 
+      # The dialect most installations actually run, and until the
+      # scheduler lease (#915) the only one with no service here. The lease
+      # reads the database's clock, and the first implementation read it as
+      # a timestamp: over go-admin's own `parseTime=True&loc=Local` DSN,
+      # MySQL's UTC_TIMESTAMP comes back relabelled as local time, so on any
+      # host that is not UTC every lease was one zone offset out - and every
+      # assertion that compared the lease only against itself still passed.
+      # The three dialects that were here could not see it.
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: GoAdmin_Test1
+          MYSQL_DATABASE: goadmin_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -pGoAdmin_Test1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+
     env:
       GO_ADMIN_TEST_REDIS_ADDR: 127.0.0.1:6379
       # The soft-delete conversion drops an index, and gorm's PostgreSQL driver
@@ -77,6 +99,11 @@ jobs:
       # See go-admin#919.
       GO_ADMIN_TEST_POSTGRES_DSN: "host=127.0.0.1 port=5432 user=postgres password=postgres dbname=goadmin_test sslmode=disable"
       GO_ADMIN_TEST_SQLSERVER_DSN: "sqlserver://sa:GoAdmin_Test1@127.0.0.1:1433?database=goadmin_test"
+      # loc=Local on purpose: it is what config/settings.yml ships and what
+      # made the timezone defect above reachable. A DSN here that quietly
+      # differed from the one installations use would test a configuration
+      # nobody runs.
+      GO_ADMIN_TEST_MYSQL_DSN: "root:GoAdmin_Test1@tcp(127.0.0.1:3306)/goadmin_test?charset=utf8mb4&parseTime=True&loc=Local"
 
     steps:
 
