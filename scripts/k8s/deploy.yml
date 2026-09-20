@@ -23,20 +23,18 @@ metadata:
     version: v1
 spec:
   # One replica, and the drain window below buys nothing at one replica: there
-  # is nowhere to send the traffic this pod stops taking. Raising it needs two
-  # changes that are not this number:
+  # is nowhere to send the traffic this pod stops taking.
   #
-  # The volume below is shared by every replica, and the log path in
-  # settings.yml lives on it, so a second pod would append to the same
-  # rotating file.
+  # The scheduler no longer stands in the way of raising this. Every pod takes
+  # a lease row in its own database (sys_job_lease) and only the holder
+  # registers the jobs, so one enabled job fires once however many pods there
+  # are; a pod that loses the lease stops scheduling, and one that exits hands
+  # it back so a successor starts without waiting out the lease. See #915.
   #
-  # The job scheduler is per process while its handle on a job is one shared
-  # column. Startup runs `UPDATE sys_job SET entry_id = 0 WHERE entry_id > 0`
-  # across the whole table (app/jobs/jobbase.go), so a second pod erases the
-  # first pod's ids and writes its own, and every pod registers the whole
-  # enabled list in its own scheduler. Neither symptom logs anything: an
-  # enabled job fires once per pod, and stopping one from the UI removes an
-  # entry from the wrong process and still answers 200. See #915.
+  # What still does stand in the way: the volume below is shared by every
+  # replica, and the log path in settings.yml lives on it, so a second pod
+  # appends to the same rotating file. Give each replica its own log
+  # destination before raising this.
   replicas: 1
   selector:
     matchLabels:
