@@ -97,13 +97,20 @@ LOOP:
 }
 
 // Setup 初始化
+// Setup gives every tenant a scheduler and a supervisor to decide whether
+// this instance is the one that fills it.
+//
+// One owner id for the whole process, not one per tenant: the thing holding
+// the leases is this process, and a log line naming it should name the same
+// thing in every database it appears in.
 func Setup(dbs map[string]*gorm.DB) {
 
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore Starting...")
 
+	owner := newOwnerID()
 	for k, db := range dbs {
 		sdk.Runtime.SetCrontabByTenant(k, cronjob.NewWithSeconds())
-		setup(k, db)
+		newSupervisor(k, db, owner).start()
 	}
 }
 
@@ -149,7 +156,7 @@ func setup(key string, db *gorm.DB) {
 	startCrontab(crontab)
 }
 
-// startCrontab starts c and arranges for it to be stopped on the way out.
+// startCrontab starts c.
 //
 // The stop used to be `defer crontab.Stop()` followed by `select {}`. The
 // select never returned, so the defer never ran and the scheduler was never
@@ -158,24 +165,36 @@ func setup(key string, db *gorm.DB) {
 // got a scheduler at all. cron.Start is itself `go c.run()`, so the select was
 // blocking for nothing.
 //
-// cron.Stop returns a context that closes once the jobs already running have
-// finished. That is the wait the shutdown budget exists to bound: giving up on
-// it leaves those jobs running until the process exits, which is better than
-// holding the whole shutdown open for one job that will not end.
+// Stopping is no longer arranged here. A scheduler now stops for two
+// different reasons - the process is going down, or this instance lost the
+// lease (#915) - and only the supervisor knows which. Registering a shutdown
+// callback per start, when a start happens every time the lease is taken,
+// would also add one callback per leadership change for the life of the
+// process: SetShutdown appends.
 func startCrontab(c *cron.Cron) {
 	c.Start()
 	fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore start success.")
+}
 
-	// 关闭任务
-	sdk.Runtime.SetShutdown(func(ctx context.Context) {
-		stopped := c.Stop()
-		select {
-		case <-stopped.Done():
-			fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore stopped.")
-		case <-ctx.Done():
-			fmt.Println(time.Now().Format(timeFormat), " [WARN] JobCore stop gave up waiting for running jobs")
-		}
-	})
+// stopCrontab stops one tenant's scheduler and waits for the jobs already
+// running to finish, bounded by ctx.
+//
+// cron.Stop returns a context that closes once those jobs have finished.
+// That is the wait the shutdown budget exists to bound: giving up on it
+// leaves them running until the process exits, which is better than holding
+// the whole shutdown open for one job that will not end.
+func stopCrontab(ctx context.Context, key string) {
+	c := sdk.Runtime.GetCrontabByTenant(key)
+	if c == nil {
+		return
+	}
+	stopped := c.Stop()
+	select {
+	case <-stopped.Done():
+		fmt.Println(time.Now().Format(timeFormat), " [INFO] JobCore stopped.")
+	case <-ctx.Done():
+		fmt.Println(time.Now().Format(timeFormat), " [WARN] JobCore stop gave up waiting for running jobs")
+	}
 }
 
 // AddJob 添加任务 AddJob(invokeTarget string, jobId int, jobName string, cronExpression string)
