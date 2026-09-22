@@ -22,6 +22,29 @@ type Gen struct {
 	api.Api
 }
 
+// genLangFuncs backs the lang-zh/lang-en templates (PRD 010 F3/F9). The
+// generated files are TypeScript, and go-admin-ui's eslint config requires
+// single-quoted strings with no trailing comma (@stylistic/quotes,
+// @stylistic/comma-dangle: never) - text/template's builtin `printf "%q"`
+// only produces Go/JSON-style double-quoted output, so this supplies a
+// single-quote equivalent instead of leaning on the builtin.
+var genLangFuncs = template.FuncMap{
+	"singleQuote": func(s string) string {
+		r := strings.NewReplacer(`\`, `\\`, `'`, `\'`, "\n", `\n`, "\r", `\r`)
+		return "'" + r.Replace(s) + "'"
+	},
+}
+
+// parseGenTemplate is template.ParseFiles plus genLangFuncs, for the two
+// language-pack templates. template.New's name must match the file's base
+// name - ParseFiles reuses the template already registered under that name
+// instead of creating an unnamed second one, which is what makes Execute
+// find the parsed content afterwards.
+func parseGenTemplate(path string) (*template.Template, error) {
+	base := path[strings.LastIndex(path, "/")+1:]
+	return template.New(base).Funcs(genLangFuncs).ParseFiles(path)
+}
+
 func (e Gen) Preview(c *gin.Context) {
 	e.Context = c
 	log := e.GetLogger()
@@ -45,10 +68,10 @@ func (e Gen) Preview(c *gin.Context) {
 		e.Error(500, err, fmt.Sprintf("api模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
-	t3, err := template.ParseFiles("template/v4/js.go.template")
+	t3, err := template.ParseFiles("template/v4/ts.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, fmt.Sprintf("js模版读取失败！错误详情：%s", err.Error()))
+		e.Error(500, err, fmt.Sprintf("ts模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
 	t4, err := template.ParseFiles("template/v4/vue.go.template")
@@ -75,6 +98,22 @@ func (e Gen) Preview(c *gin.Context) {
 		e.Error(500, err, fmt.Sprintf("service模版读取失败！错误详情：%s", err.Error()))
 		return
 	}
+	// t8/t9 back F3/F9 (PRD 010): one language pack per locale, nested under
+	// gen/{PackageName}/{BusinessName}.ts by NOActionsGen below so go-admin-ui's
+	// gen-namespace.ts glob (`./*/*.ts` under each locale's gen/) picks them up.
+	// See docs-prd/010-代码生成器前端模板迁移Vue3/API契约.md §2.3.
+	t8, err := parseGenTemplate("template/v4/lang-zh.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("zh语言包模版读取失败！错误详情：%s", err.Error()))
+		return
+	}
+	t9, err := parseGenTemplate("template/v4/lang-en.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("en语言包模版读取失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	db, err := pkg.GetOrm(c)
 	if err != nil {
@@ -84,6 +123,17 @@ func (e Gen) Preview(c *gin.Context) {
 	}
 
 	tab, _ := table.Get(db, false)
+	// MLTBName (table_name with underscores turned to dashes) is a gorm:"-"
+	// field - table.Get never fills it in, so every template that reads it
+	// (the .vue/.ts import paths, e.g. "@/api/{PackageName}/{MLTBName}")
+	// silently rendered it empty here. NOActionsGen has set this since it
+	// existed (see below); Preview never did, which is why the two paths
+	// are not interchangeable stand-ins for each other and should not be
+	// assumed to be.
+	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
+	// R2: infer a width for any column the config page left at colWidth's 0
+	// sentinel, before vue.go.template reads .ColWidth - see column_width.go.
+	applyInferredColumnWidths(tab.Columns)
 	var b1 bytes.Buffer
 	err = t1.Execute(&b1, tab)
 	var b2 bytes.Buffer
@@ -98,15 +148,21 @@ func (e Gen) Preview(c *gin.Context) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
+	var b8 bytes.Buffer
+	err = t8.Execute(&b8, tab)
+	var b9 bytes.Buffer
+	err = t9.Execute(&b9, tab)
 
 	mp := make(map[string]interface{})
 	mp["template/model.go.template"] = b1.String()
 	mp["template/api.go.template"] = b2.String()
-	mp["template/js.go.template"] = b3.String()
+	mp["template/api.ts.template"] = b3.String()
 	mp["template/vue.go.template"] = b4.String()
 	mp["template/router.go.template"] = b5.String()
 	mp["template/dto.go.template"] = b6.String()
 	mp["template/service.go.template"] = b7.String()
+	mp["template/lang-zh.go.template"] = b8.String()
+	mp["template/lang-en.go.template"] = b9.String()
 	e.OK(mp, "")
 }
 
@@ -165,6 +221,8 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	e.Context = c
 	log := e.GetLogger()
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
+	// R2: see the matching call and comment in Preview above.
+	applyInferredColumnWidths(tab.Columns)
 
 	basePath := "template/v4/"
 	routerFile := basePath + "no_actions/router_check_role.go.template"
@@ -191,10 +249,10 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 		e.Error(500, err, fmt.Sprintf("路由模版失败！错误详情：%s", err.Error()))
 		return
 	}
-	t4, err := template.ParseFiles(basePath + "js.go.template")
+	t4, err := template.ParseFiles(basePath + "ts.go.template")
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, fmt.Sprintf("js模版解析失败！错误详情：%s", err.Error()))
+		e.Error(500, err, fmt.Sprintf("ts模版解析失败！错误详情：%s", err.Error()))
 		return
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
@@ -215,6 +273,19 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 		e.Error(500, err, fmt.Sprintf("service模版失败！错误详情：%s", err.Error()))
 		return
 	}
+	// t8/t9 back F3/F9 (PRD 010): see the matching comment in Preview above.
+	t8, err := parseGenTemplate(basePath + "lang-zh.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("zh语言包模版解析失败！错误详情：%s", err.Error()))
+		return
+	}
+	t9, err := parseGenTemplate(basePath + "lang-en.go.template")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("en语言包模版解析失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/")
 	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
@@ -225,6 +296,23 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("views目录创建失败！错误详情：%s", err.Error()))
+		return
+	}
+	// gen/{PackageName}/ nests under each locale so go-admin-ui's
+	// gen-namespace.ts (`./*/*.ts` glob, one level under gen/) picks the file
+	// up - a flat gen/{BusinessName}.ts would let two tables in different
+	// packages silently overwrite each other's translations, since
+	// BusinessName only has a pattern check, no uniqueness check.
+	err = pkg.PathCreate(config.GenConfig.FrontPath + "/lang/zh-CN/gen/" + tab.PackageName + "/")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("zh语言包目录创建失败！错误详情：%s", err.Error()))
+		return
+	}
+	err = pkg.PathCreate(config.GenConfig.FrontPath + "/lang/en-US/gen/" + tab.PackageName + "/")
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("en语言包目录创建失败！错误详情：%s", err.Error()))
 		return
 	}
 
@@ -242,13 +330,19 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	err = t6.Execute(&b6, tab)
 	var b7 bytes.Buffer
 	err = t7.Execute(&b7, tab)
+	var b8 bytes.Buffer
+	err = t8.Execute(&b8, tab)
+	var b9 bytes.Buffer
+	err = t9.Execute(&b9, tab)
 	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.TBName+".go")
 	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.TBName+".go")
 	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.TBName+".go")
-	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+"/"+tab.MLTBName+".js")
+	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+"/"+tab.MLTBName+".ts")
 	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/"+tab.MLTBName+"/index.vue")
 	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.TBName+".go")
 	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.TBName+".go")
+	pkg.FileCreate(b8, config.GenConfig.FrontPath+"/lang/zh-CN/gen/"+tab.PackageName+"/"+tab.BusinessName+".ts")
+	pkg.FileCreate(b9, config.GenConfig.FrontPath+"/lang/en-US/gen/"+tab.PackageName+"/"+tab.BusinessName+".ts")
 
 }
 

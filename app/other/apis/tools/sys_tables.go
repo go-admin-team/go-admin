@@ -368,6 +368,21 @@ func (e SysTable) Update(c *gin.Context) {
 		return
 	}
 
+	// PRD 010 F10: this bind-and-save path has no field-level validation of
+	// its own (API契约.md §1.2/§2.1, D6) - see sys_tables_validate.go for
+	// what each check guards and why colWidth is sanitized in place rather
+	// than rejected.
+	if err = validateAndSanitizeColumns(data.Columns); err != nil {
+		log.Errorf("validate columns error, %s", err.Error())
+		e.Error(500, err, err.Error())
+		return
+	}
+	if err = validateBusinessNameUnique(db, data.PackageName, data.BusinessName, data.TableId); err != nil {
+		log.Errorf("validate businessName error, %s", err.Error())
+		e.Error(500, err, err.Error())
+		return
+	}
+
 	data.UpdateBy = 0
 	result, err := data.Update(db)
 	if err != nil {

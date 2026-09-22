@@ -1,0 +1,6 @@
+export default {
+{{- range $i, $col := .Columns}}
+{{- if $i}},{{end}}
+  {{$col.JsonField}}: {{if $col.ColumnComment}}{{singleQuote $col.ColumnComment}}{{else}}{{singleQuote $col.JsonField}}{{end}}
+{{- end}}
+}

@@ -45,6 +45,19 @@ type SysColumns struct {
 	CreateBy           int          `gorm:"column:create_by;size:20;" json:"createBy"`
 	UpdateBy           int          `gorm:"column:update_By;size:20;" json:"updateBy"`
 
+	// ColWidth and DefaultValue back PRD 010 F1/F2 (代码生成器前端模板迁移 Vue 3).
+	// Both use a sentinel default (0 / "") rather than NULL - see
+	// docs-prd/010-代码生成器前端模板迁移Vue3/数据库变更.md §1.1: a non-pointer
+	// int/string field can never read NULL back out, and NULL would give
+	// "unconfigured" two representations instead of one. Callers test
+	// ColWidth == 0 / DefaultValue == "" to detect "not configured".
+	//
+	// ColWidth deliberately has no gorm size tag: this codebase's "size:N"
+	// convention on numeric fields maps to a narrow SQL integer type (see
+	// column_width_test.go), and col_width needs to hold values up to 800.
+	ColWidth     int    `gorm:"column:col_width;not null;default:0;comment:table column width in px, 0 = not configured" json:"colWidth"`
+	DefaultValue string `gorm:"column:default_value;size:255;not null;default:'';comment:form field default value, empty = not configured" json:"defaultValue"`
+
 	common.ModelTime
 }
 
@@ -94,6 +107,24 @@ func (e *SysColumns) Update(tx *gorm.DB) (update SysColumns, err error) {
 	//参数2:是修改的数据
 	e.UpdateBy = 0
 	if err = tx.Table("sys_columns").Model(&update).Updates(&e).Error; err != nil {
+		return
+	}
+
+	// Updates(&e) above skips zero-value fields (GORM's struct-form Updates
+	// always does), but ColWidth/DefaultValue's own "unconfigured" sentinel
+	// is 0/"" (see the field comments on SysColumns) - so clearing either one
+	// back to its sentinel is indistinguishable, to a struct-form Updates,
+	// from "the caller didn't touch this field" and silently does not get
+	// written. A map-form Updates does not skip zero values, so it is used
+	// here for just these two columns rather than widening this to
+	// Select("*") (which would also start writing every other zero-valued
+	// field on this struct - Sort, the Pk/Required/... bools - and that is a
+	// pre-existing gap in this method affecting fields outside PRD 010's
+	// scope, not fixed here).
+	if err = tx.Table("sys_columns").Model(&update).Updates(map[string]interface{}{
+		"col_width":     e.ColWidth,
+		"default_value": e.DefaultValue,
+	}).Error; err != nil {
 		return
 	}
 

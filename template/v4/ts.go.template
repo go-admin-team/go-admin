@@ -1,0 +1,125 @@
+{{- /*
+  $pkType: the primary key's TS type for get{ClassName}'s parameter.
+  Defaults to "number" - true for every column but string primary keys
+  (natural keys), which do exist (sys_tables.go:323-338 gives a primary
+  key column GoType "string" whenever its ColumnType is not int-shaped).
+  Matches vue.go.template's own $pkType derivation exactly (F4) - useForm
+  there is typed on the same column, and a mismatch between the two is a
+  TS compile error at the call site, not a runtime bug.
+*/ -}}
+{{- $pkType := "number" -}}
+{{- $hasQuery := false -}}
+{{- range .Columns -}}
+  {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{end -}}
+  {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
+{{- end -}}
+import request from '@/utils/request'
+import type { ApiResponse, PageQuery, PageResult, Id } from '@/types/api'
+
+export interface {{.ClassName}} {
+{{- range .Columns}}
+  {{.JsonField}}?: {{if eq .GoType "int" -}}
+    number
+  {{- else if eq .GoType "int64" -}}
+    number
+  {{- else if eq .GoType "float32" -}}
+    number
+  {{- else if eq .GoType "float64" -}}
+    number
+  {{- else -}}
+    string
+  {{- end}}
+{{- end}}
+}
+
+{{if $hasQuery -}}
+export interface {{.ClassName}}Query {
+{{- range .Columns}}
+{{- if eq .IsQuery "1"}}
+  {{.JsonField}}?: {{if eq .GoType "int" -}}
+    number
+  {{- else if eq .GoType "int64" -}}
+    number
+  {{- else if eq .GoType "float32" -}}
+    number
+  {{- else if eq .GoType "float64" -}}
+    number
+  {{- else -}}
+    string
+  {{- end}}
+{{- end}}
+{{- end}}
+}
+{{- else -}}
+{{- /*
+  No column is marked IsQuery - a plain display table with no search form
+  is a normal shape, not an edge case, so this still has to produce a type
+  useTable<Row, Query>/list{ClassName}(query: Query & PageQuery) can use.
+  `export interface {ClassName}Query {}` is what naturally falls out of the
+  range above finding nothing to iterate, but an empty interface trips
+  @typescript-eslint/no-empty-object-type and fails pnpm lint.
+
+  Record<string, never> (this file's first attempt, and the type
+  useTable.ts's own `TQuery extends object = Record<string, never>` default
+  uses) looks like the obvious match but is wrong here: it is a mapped type
+  over *every* string key, each mapped to never, so intersecting it with
+  PageQuery does not leave PageQuery alone - `pageIndex` becomes
+  `never & number`, i.e. never, and no value can be passed for it at all.
+  useTable.ts itself never hits this because its one internal use of
+  `TQuery & PageQuery` goes through an `as` cast rather than a structural
+  check (composables/useTable.ts ~line 160); code that builds the object
+  literal directly - such as a foreign-key column's
+  `list{FkClass}({ pageIndex: 1, pageSize: 100 })` call in vue.go.template -
+  is not casting anything and hits the real error, only when the referenced
+  table happens to have no query columns of its own (a plain lookup/dict
+  table used as a dropdown source, not a rare shape).
+
+  Record<never, never> is the type with the same intent - "no query
+  columns" - but the mapped-type domain is `never`, so it has no keys at
+  all rather than "every key, mapped to never": it behaves as the empty
+  object type `{}` under intersection, leaving PageQuery's own pageIndex/
+  pageSize untouched, and confirmed separately not to trip
+  no-empty-object-type either (it is a generic instantiation, not a
+  literal `{}` type annotation).
+*/ -}}
+export type {{.ClassName}}Query = Record<never, never>
+{{- end}}
+
+export function list{{.ClassName}}(query: {{.ClassName}}Query & PageQuery) {
+  return request<ApiResponse<PageResult<{{.ClassName}}>>>({
+    url: '/api/v1/{{.ModuleName}}',
+    method: 'get',
+    params: query
+  })
+}
+
+export function get{{.ClassName}}({{.PkJsonField}}: {{$pkType}}) {
+  return request<ApiResponse<{{.ClassName}}>>({
+    url: '/api/v1/{{.ModuleName}}/' + {{.PkJsonField}},
+    method: 'get'
+  })
+}
+
+export function add{{.ClassName}}(data: {{.ClassName}}) {
+  return request<ApiResponse<{{.ClassName}}>>({
+    url: '/api/v1/{{.ModuleName}}',
+    method: 'post',
+    data
+  })
+}
+
+export function update{{.ClassName}}(data: {{.ClassName}}) {
+  return request<ApiResponse<{{.ClassName}}>>({
+    url: '/api/v1/{{.ModuleName}}/' + data.{{.PkJsonField}},
+    method: 'put',
+    data
+  })
+}
+
+export function del{{.ClassName}}(ids: Id[]) {
+  return request<ApiResponse<null>>({
+    url: '/api/v1/{{.ModuleName}}',
+    method: 'delete',
+    data: { ids: ids.map(Number) }
+  })
+}
