@@ -106,7 +106,7 @@ antd デモ（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admi
 
 ### 動作要件
 
-go 1.26.5
+go 1.27.1
 
 node バージョン: v22 以上（v24 LTS 推奨）
 

@@ -106,7 +106,7 @@ antd 體驗（go-admin-pro）：[https://antd.go-admin.pro](https://antd.go-admi
 
 ### 環境需求
 
-go 1.26.5
+go 1.27.1
 
 node 版本: v22+（建議 v24 LTS）
 

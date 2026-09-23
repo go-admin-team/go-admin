@@ -1,6 +1,6 @@
 module go-admin-e2e-apporder
 
-go 1.26.5
+go 1.27.1
 
 require (
 	github.com/glebarez/go-sqlite v1.22.0
