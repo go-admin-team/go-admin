@@ -17,5 +17,5 @@ select setval('sys_dict_type_dict_id_seq',12);
 select setval('sys_dict_data_dict_code_seq',34);
 select setval('sys_dept_dept_id_seq',11);
 select setval('sys_config_id_seq',6);
-select setval('sys_job_id_seq',3);
+select setval('sys_job_job_id_seq',3);
 -- 数据完成 ;
