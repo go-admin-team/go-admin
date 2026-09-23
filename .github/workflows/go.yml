@@ -107,10 +107,10 @@ jobs:
 
     steps:
 
-    - name: Set up Go 1.26
+    - name: Set up Go 1.27
       uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
       with:
-        go-version: 1.26.5
+        go-version: 1.27.1
       id: go
 
     - name: Check out code into the Go module directory

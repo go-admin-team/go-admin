@@ -104,7 +104,7 @@ At the same time, a series of tutorials including videos and documents are provi
 
 ### Environmental requirements
 
-go 1.26.5
+go 1.27.1
 
 nodejs: v22+ (v24 LTS recommended)
 
