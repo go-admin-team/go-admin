@@ -258,7 +258,7 @@ func (e *SysDept) SetDeptLabel() (m []dto.DeptLabel, err error) {
 	list := make([]models.SysDept, 0)
 	err = e.Orm.Find(&list).Error
 	if err != nil {
-		log.Error("find dept list error, %s", err.Error())
+		log.Errorf("find dept list error, %s", err.Error())
 		return
 	}
 	m = make([]dto.DeptLabel, 0)
