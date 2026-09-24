@@ -40,7 +40,7 @@ require (
 	github.com/gin-contrib/sse v1.1.1 // indirect
 	github.com/gin-gonic/gin v1.12.0 // indirect
 	github.com/glebarez/sqlite v1.11.0 // indirect
-	github.com/go-admin-team/go-admin-core/v2 v2.8.0 // indirect
+	github.com/go-admin-team/go-admin-core/v2 v2.10.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-openapi/jsonpointer v1.0.0 // indirect
 	github.com/go-openapi/jsonreference v1.0.0 // indirect
