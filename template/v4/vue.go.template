@@ -66,7 +66,7 @@
   {{- if and (eq .IsList "1") (eq .FkTableName "") (eq .DictType "") (eq .HtmlType "datetime") }}{{$hasDatetime = true}}{{end -}}
   {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
   {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy") }}{{$hasRules = true}}{{end -}}
-  {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{end -}}
+  {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{$hasRules = true}}{{end -}}
 {{- end -}}
 <template>
   <PageContainer>
@@ -181,6 +181,19 @@
         {{- end}}
         label-width="100px"
       >
+        {{- /*
+          A key the database assigns never appears in the form. A string key
+          does not assign itself, so it is typed in on create and fixed once
+          the record exists - form.isEdit is true only for a form openEdit
+          opened, which needs go-admin-ui's useForm to record the mode rather
+          than infer it from the key.
+        */}}
+        {{- if eq $pkType "string"}}
+        {{- $key := printf "gen.%s.%s.%s" $package $business .PkJsonField}}
+        <el-form-item :label="$t('{{$key}}')" prop="{{.PkJsonField}}">
+          <el-input v-model="form.model.{{.PkJsonField}}" :disabled="form.isEdit" />
+        </el-form-item>
+        {{- end}}
         {{- range .Columns}}
         {{- if and (eq .IsInsert "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy")}}
         {{- $key := printf "gen.%s.%s.%s" $package $business .JsonField}}
@@ -362,6 +375,8 @@ const { t } = useI18n()
 */}}
 
 const rules = computed<FormRules>(() => ({ {{$rFirst := true}}
+  {{- if eq $pkType "string"}}{{$rFirst = false}}{{.PkJsonField}}: [{ required: true, message: t('{{printf "gen.%s.%s.%s" $package $business .PkJsonField}}'), trigger: 'blur' }]
+  {{- end}}
   {{- range .Columns}}
   {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy")}}
   {{- $key := printf "gen.%s.%s.%s" $package $business .JsonField}}
