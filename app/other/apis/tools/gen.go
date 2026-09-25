@@ -131,6 +131,10 @@ func (e Gen) Preview(c *gin.Context) {
 	// are not interchangeable stand-ins for each other and should not be
 	// assumed to be.
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
+	if err := requireSinglePrimaryKey(tab); err != nil {
+		e.Error(500, err, err.Error())
+		return
+	}
 	// R2: infer a width for any column the config page left at colWidth's 0
 	// sentinel, before vue.go.template reads .ColWidth - see column_width.go.
 	applyInferredColumnWidths(tab.Columns)
@@ -221,6 +225,10 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	e.Context = c
 	log := e.GetLogger()
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
+	if err := requireSinglePrimaryKey(tab); err != nil {
+		e.Error(500, err, err.Error())
+		return
+	}
 	// R2: see the matching call and comment in Preview above.
 	applyInferredColumnWidths(tab.Columns)
 
@@ -501,4 +509,27 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	s.Insert(&MDelete)
 
 	e.OK("", "数据生成成功！")
+}
+
+// requireSinglePrimaryKey refuses a table whose primary key is not exactly one
+// column. The templates address a row by a single key - one field on the
+// model, one path parameter, one value per row in a delete - so a table with
+// no primary key, or a composite one, has no shape they can render: generating
+// it anyway writes a model whose GetId names nothing, or silently keys the
+// whole table on whichever key column happened to be imported last.
+func requireSinglePrimaryKey(tab tools.SysTables) error {
+	var keys []string
+	for _, c := range tab.Columns {
+		if c.Pk {
+			keys = append(keys, c.ColumnName)
+		}
+	}
+	switch len(keys) {
+	case 1:
+		return nil
+	case 0:
+		return fmt.Errorf("表 %s 没有主键，代码生成需要恰好一个主键列", tab.TBName)
+	default:
+		return fmt.Errorf("表 %s 是联合主键（%s），代码生成需要恰好一个主键列", tab.TBName, strings.Join(keys, ", "))
+	}
 }
