@@ -1,6 +1,13 @@
 package dto
 
 import (
+    {{- /*
+      $embed: the key is models.Model's own Id, so the model embeds it.
+      $pkType: the key's Go type, for the delete request's id list.
+    */ -}}
+    {{- $embed := false -}}
+    {{- $pkType := "int" -}}
+    {{- range .Columns -}}{{- if .Pk -}}{{- $pkType = .GoType -}}{{- if and (eq .GoField "Id") (eq .GoType "int") -}}{{- $embed = true -}}{{- end -}}{{- end -}}{{- end -}}
     {{- $bb := false -}}
     {{- range .Columns -}}
     {{- $z := .IsQuery -}}
@@ -52,7 +59,7 @@ type {{.ClassName}}InsertReq struct {
     {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `json:"-" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `json:"{{if eq .GoType "int"}}-{{else}}{{.JsonField}}{{end}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
@@ -69,9 +76,13 @@ func (s *{{.ClassName}}InsertReq) Generate(model *models.{{.ClassName}})  {
 	 {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
+    {{- if $embed }}
     if s.{{.GoField}} == 0 {
         model.Model = common.Model{ {{.GoField}}: s.{{.GoField}} }
     }
+    {{- else }}
+    model.{{.GoField}} = s.{{.GoField}}
+    {{- end }}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
@@ -92,7 +103,7 @@ type {{.ClassName}}UpdateReq struct {
     {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-    {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
+    {{.GoField}} {{.GoType}} `uri:"id" comment:"{{.ColumnComment}}"` // {{.ColumnComment}}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
@@ -109,9 +120,11 @@ func (s *{{.ClassName}}UpdateReq) Generate(model *models.{{.ClassName}})  {
 	 {{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
+    {{- if $embed }}
     if s.{{.GoField}} == 0 {
         model.Model = common.Model{ {{.GoField}}: s.{{.GoField}} }
     }
+    {{- end }}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
@@ -133,7 +146,7 @@ type {{.ClassName}}GetReq struct {
 	{{- range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
-     {{.GoField}} {{.GoType}} `uri:"{{.JsonField}}"`
+     {{.GoField}} {{.GoType}} `uri:"id"`
     {{- end }}
     {{- end }}
 }
@@ -143,7 +156,7 @@ func (s *{{.ClassName}}GetReq) GetId() interface{} {
 
 // {{.ClassName}}DeleteReq 功能删除请求参数
 type {{.ClassName}}DeleteReq struct {
-	Ids []int `json:"ids"`
+	Ids []{{$pkType}} `json:"ids"`
 }
 
 func (s *{{.ClassName}}DeleteReq) GetId() interface{} {

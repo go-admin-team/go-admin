@@ -24,11 +24,24 @@ import (
 
 )
 
+{{/*
+  models.Model supplies an int primary key named Id, so it stands in for the
+  key column only when that is exactly the key the table has. Any other key -
+  a different name, or a string - is declared as its own field, or GetId below
+  would name a field that does not exist.
+*/ -}}
+{{- $embed := false -}}
+{{- range .Columns -}}{{- if and .Pk (eq .GoField "Id") (eq .GoType "int") -}}{{- $embed = true -}}{{- end -}}{{- end -}}
 type {{.ClassName}} struct {
+    {{- if $embed }}
     models.Model
+    {{- end }}
     {{ range .Columns -}}
     {{$x := .Pk}}
     {{- if ($x) }}
+    {{- if not $embed }}
+    {{.GoField}} {{.GoType}} `json:"{{.JsonField}}" gorm:"primaryKey;type:{{.ColumnType}};comment:{{- if eq .ColumnComment "" -}}{{.GoField}}{{- else -}}{{.ColumnComment}}{{end -}}"`
+    {{- end }}
     {{- else if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}
     {{- else if eq .GoField "DeletedAt" -}}
