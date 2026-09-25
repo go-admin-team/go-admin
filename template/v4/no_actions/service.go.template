@@ -76,14 +76,25 @@ func (e *{{.ClassName}}) Insert(c *dto.{{.ClassName}}InsertReq) error {
 }
 
 // Update 修改{{.ClassName}}对象
+//
+// The row has to be found first. Save on a model whose key is still zero
+// inserts, so a row that is missing - or that p filters out - must stop here
+// rather than turn the update into a new row.
 func (e *{{.ClassName}}) Update(c *dto.{{.ClassName}}UpdateReq, p *actions.DataPermission) error {
     var err error
     var data = models.{{.ClassName}}{}
-    e.Orm.Scopes(
+    err = e.Orm.Scopes(
             actions.Permission(data.TableName(), p),
         ).
         Where(clause.Eq{Column: clause.PrimaryColumn, Value: c.GetId()}).
-        First(&data)
+        First(&data).Error
+    if errors.Is(err, gorm.ErrRecordNotFound) {
+        return errors.New("无权更新该数据")
+    }
+    if err != nil {
+        e.Log.Errorf("{{.ClassName}}Service Update error:%s \r\n", err)
+        return err
+    }
     c.Generate(&data)
 
     db := e.Orm.Save(&data)
