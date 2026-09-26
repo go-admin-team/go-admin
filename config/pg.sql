@@ -7,7 +7,7 @@ create sequence if not exists sys_dict_type_dict_id_seq;
 create sequence if not exists sys_dict_data_dict_code_seq;
 create sequence if not exists sys_dept_dept_id_seq;
 create sequence if not exists sys_config_id_seq;
-create sequence if not exists sys_job_id_seq;
+create sequence if not exists sys_job_job_id_seq;
 
 select setval('sys_role_role_id_seq',4);
 select setval('sys_user_user_id_seq',5);
