@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"go-admin/app/admin/service"
 	"go-admin/app/admin/service/dto"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
@@ -122,7 +124,12 @@ func (e Gen) Preview(c *gin.Context) {
 		return
 	}
 
-	tab, _ := table.Get(db, false)
+	tab, err := table.Get(db, false)
+	if err != nil {
+		log.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
 	// MLTBName (table_name with underscores turned to dashes) is a gorm:"-"
 	// field - table.Get never fills it in, so every template that reads it
 	// (the .vue/.ts import paths, e.g. "@/api/{PackageName}/{MLTBName}")
@@ -138,35 +145,23 @@ func (e Gen) Preview(c *gin.Context) {
 	// R2: infer a width for any column the config page left at colWidth's 0
 	// sentinel, before vue.go.template reads .ColWidth - see column_width.go.
 	applyInferredColumnWidths(tab.Columns)
-	var b1 bytes.Buffer
-	err = t1.Execute(&b1, tab)
-	var b2 bytes.Buffer
-	err = t2.Execute(&b2, tab)
-	var b3 bytes.Buffer
-	err = t3.Execute(&b3, tab)
-	var b4 bytes.Buffer
-	err = t4.Execute(&b4, tab)
-	var b5 bytes.Buffer
-	err = t5.Execute(&b5, tab)
-	var b6 bytes.Buffer
-	err = t6.Execute(&b6, tab)
-	var b7 bytes.Buffer
-	err = t7.Execute(&b7, tab)
-	var b8 bytes.Buffer
-	err = t8.Execute(&b8, tab)
-	var b9 bytes.Buffer
-	err = t9.Execute(&b9, tab)
+	out, err := renderAll(tab, t1, t2, t3, t4, t5, t6, t7, t8, t9)
+	if err != nil {
+		log.Error(err)
+		e.Error(500, err, fmt.Sprintf("模版渲染失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	mp := make(map[string]interface{})
-	mp["template/model.go.template"] = b1.String()
-	mp["template/api.go.template"] = b2.String()
-	mp["template/api.ts.template"] = b3.String()
-	mp["template/vue.go.template"] = b4.String()
-	mp["template/router.go.template"] = b5.String()
-	mp["template/dto.go.template"] = b6.String()
-	mp["template/service.go.template"] = b7.String()
-	mp["template/lang-zh.go.template"] = b8.String()
-	mp["template/lang-en.go.template"] = b9.String()
+	mp["template/model.go.template"] = string(out[0])
+	mp["template/api.go.template"] = string(out[1])
+	mp["template/api.ts.template"] = string(out[2])
+	mp["template/vue.go.template"] = string(out[3])
+	mp["template/router.go.template"] = string(out[4])
+	mp["template/dto.go.template"] = string(out[5])
+	mp["template/service.go.template"] = string(out[6])
+	mp["template/lang-zh.go.template"] = string(out[7])
+	mp["template/lang-en.go.template"] = string(out[8])
 	e.OK(mp, "")
 }
 
@@ -189,9 +184,16 @@ func (e Gen) GenCode(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(db, false)
+	tab, err := table.Get(db, false)
+	if err != nil {
+		log.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
 
-	e.NOActionsGen(c, tab)
+	if !e.NOActionsGen(c, tab) {
+		return
+	}
 
 	e.OK("", "Code generated successfully！")
 }
@@ -215,19 +217,29 @@ func (e Gen) GenApiToFile(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(db, false)
-	e.genApiToFile(c, tab)
+	tab, err := table.Get(db, false)
+	if err != nil {
+		log.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
+	if !e.genApiToFile(c, tab) {
+		return
+	}
 
 	e.OK("", "Code generated successfully！")
 }
 
-func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
+// NOActionsGen renders every template for tab and writes the files, and
+// reports whether it did. On false it has already written the error response,
+// and nothing has been written to disk if a template failed to render.
+func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) bool {
 	e.Context = c
 	log := e.GetLogger()
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 	if err := requireSinglePrimaryKey(tab); err != nil {
 		e.Error(500, err, err.Error())
-		return
+		return false
 	}
 	// R2: see the matching call and comment in Preview above.
 	applyInferredColumnWidths(tab.Columns)
@@ -243,125 +255,104 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) {
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("model模版读取失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	t2, err := template.ParseFiles(basePath + "no_actions/apis.go.template")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("api模版读取失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	t3, err := template.ParseFiles(routerFile)
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("路由模版失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	t4, err := template.ParseFiles(basePath + "ts.go.template")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("ts模版解析失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	t5, err := template.ParseFiles(basePath + "vue.go.template")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("vue模版解析失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	t6, err := template.ParseFiles(basePath + "dto.go.template")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("dto模版解析失败失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	t7, err := template.ParseFiles(basePath + "no_actions/service.go.template")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("service模版失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	// t8/t9 back F3/F9 (PRD 010): see the matching comment in Preview above.
 	t8, err := parseGenTemplate(basePath + "lang-zh.go.template")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("zh语言包模版解析失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	t9, err := parseGenTemplate(basePath + "lang-en.go.template")
 	if err != nil {
 		log.Error(err)
 		e.Error(500, err, fmt.Sprintf("en语言包模版解析失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/apis/")
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/models/")
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/router/")
-	_ = pkg.PathCreate("./app/" + tab.PackageName + "/service/dto/")
-	_ = pkg.PathCreate(config.GenConfig.FrontPath + "/api/" + tab.PackageName + "/")
-	err = pkg.PathCreate(config.GenConfig.FrontPath + "/views/" + tab.PackageName + "/" + tab.MLTBName + "/")
+	out, err := renderAll(tab, t1, t2, t3, t4, t5, t6, t7, t8, t9)
 	if err != nil {
 		log.Error(err)
-		e.Error(500, err, fmt.Sprintf("views目录创建失败！错误详情：%s", err.Error()))
-		return
+		e.Error(500, err, fmt.Sprintf("模版渲染失败！错误详情：%s", err.Error()))
+		return false
 	}
+
 	// gen/{PackageName}/ nests under each locale so go-admin-ui's
 	// gen-namespace.ts (`./*/*.ts` glob, one level under gen/) picks the file
 	// up - a flat gen/{BusinessName}.ts would let two tables in different
 	// packages silently overwrite each other's translations, since
 	// BusinessName only has a pattern check, no uniqueness check.
-	err = pkg.PathCreate(config.GenConfig.FrontPath + "/lang/zh-CN/gen/" + tab.PackageName + "/")
-	if err != nil {
-		log.Error(err)
-		e.Error(500, err, fmt.Sprintf("zh语言包目录创建失败！错误详情：%s", err.Error()))
-		return
+	files := []struct {
+		path    string
+		content []byte
+	}{
+		{"./app/" + tab.PackageName + "/models/" + tab.TBName + ".go", out[0]},
+		{"./app/" + tab.PackageName + "/apis/" + tab.TBName + ".go", out[1]},
+		{"./app/" + tab.PackageName + "/router/" + tab.TBName + ".go", out[2]},
+		{config.GenConfig.FrontPath + "/api/" + tab.PackageName + "/" + tab.MLTBName + ".ts", out[3]},
+		{config.GenConfig.FrontPath + "/views/" + tab.PackageName + "/" + tab.MLTBName + "/index.vue", out[4]},
+		{"./app/" + tab.PackageName + "/service/dto/" + tab.TBName + ".go", out[5]},
+		{"./app/" + tab.PackageName + "/service/" + tab.TBName + ".go", out[6]},
+		{config.GenConfig.FrontPath + "/lang/zh-CN/gen/" + tab.PackageName + "/" + tab.BusinessName + ".ts", out[7]},
+		{config.GenConfig.FrontPath + "/lang/en-US/gen/" + tab.PackageName + "/" + tab.BusinessName + ".ts", out[8]},
 	}
-	err = pkg.PathCreate(config.GenConfig.FrontPath + "/lang/en-US/gen/" + tab.PackageName + "/")
-	if err != nil {
-		log.Error(err)
-		e.Error(500, err, fmt.Sprintf("en语言包目录创建失败！错误详情：%s", err.Error()))
-		return
+	for _, f := range files {
+		if err := writeGenerated(f.path, f.content); err != nil {
+			log.Error(err)
+			e.Error(500, err, fmt.Sprintf("生成文件写入失败！错误详情：%s", err.Error()))
+			return false
+		}
 	}
-
-	var b1 bytes.Buffer
-	err = t1.Execute(&b1, tab)
-	var b2 bytes.Buffer
-	err = t2.Execute(&b2, tab)
-	var b3 bytes.Buffer
-	err = t3.Execute(&b3, tab)
-	var b4 bytes.Buffer
-	err = t4.Execute(&b4, tab)
-	var b5 bytes.Buffer
-	err = t5.Execute(&b5, tab)
-	var b6 bytes.Buffer
-	err = t6.Execute(&b6, tab)
-	var b7 bytes.Buffer
-	err = t7.Execute(&b7, tab)
-	var b8 bytes.Buffer
-	err = t8.Execute(&b8, tab)
-	var b9 bytes.Buffer
-	err = t9.Execute(&b9, tab)
-	pkg.FileCreate(b1, "./app/"+tab.PackageName+"/models/"+tab.TBName+".go")
-	pkg.FileCreate(b2, "./app/"+tab.PackageName+"/apis/"+tab.TBName+".go")
-	pkg.FileCreate(b3, "./app/"+tab.PackageName+"/router/"+tab.TBName+".go")
-	pkg.FileCreate(b4, config.GenConfig.FrontPath+"/api/"+tab.PackageName+"/"+tab.MLTBName+".ts")
-	pkg.FileCreate(b5, config.GenConfig.FrontPath+"/views/"+tab.PackageName+"/"+tab.MLTBName+"/index.vue")
-	pkg.FileCreate(b6, "./app/"+tab.PackageName+"/service/dto/"+tab.TBName+".go")
-	pkg.FileCreate(b7, "./app/"+tab.PackageName+"/service/"+tab.TBName+".go")
-	pkg.FileCreate(b8, config.GenConfig.FrontPath+"/lang/zh-CN/gen/"+tab.PackageName+"/"+tab.BusinessName+".ts")
-	pkg.FileCreate(b9, config.GenConfig.FrontPath+"/lang/en-US/gen/"+tab.PackageName+"/"+tab.BusinessName+".ts")
-
+	return true
 }
 
-func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
+// genApiToFile writes the migration that seeds tab's menu and APIs, and
+// reports whether it did; on false the error response is already written.
+func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) bool {
 	err := e.MakeContext(c).
 		MakeOrm().
 		Errors
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(500, err, err.Error())
-		return
+		return false
 	}
 
 	basePath := "template/"
@@ -370,17 +361,24 @@ func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) {
 	if err != nil {
 		e.Logger.Error(err)
 		e.Error(500, err, fmt.Sprintf("数据迁移模版解析失败！错误详情：%s", err.Error()))
-		return
+		return false
 	}
 	i := strconv.FormatInt(time.Now().UnixNano()/1e6, 10)
-	var b1 bytes.Buffer
-	err = t1.Execute(&b1, struct {
+	out, err := renderAll(struct {
 		tools.SysTables
 		GenerateTime string
-	}{tab, i})
-
-	pkg.FileCreate(b1, "./cmd/migrate/migration/version-local/"+i+"_migrate.go")
-
+	}{tab, i}, t1)
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, fmt.Sprintf("数据迁移模版渲染失败！错误详情：%s", err.Error()))
+		return false
+	}
+	if err := writeGenerated("./cmd/migrate/migration/version-local/"+i+"_migrate.go", out[0]); err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, fmt.Sprintf("数据迁移文件写入失败！错误详情：%s", err.Error()))
+		return false
+	}
+	return true
 }
 
 func (e Gen) GenMenuAndApi(c *gin.Context) {
@@ -404,7 +402,12 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(e.Orm, true)
+	tab, err := table.Get(e.Orm, true)
+	if err != nil {
+		e.Logger.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 
 	Mmenu := dto.SysMenuInsertReq{}
@@ -532,4 +535,32 @@ func requireSinglePrimaryKey(tab tools.SysTables) error {
 	default:
 		return fmt.Errorf("表 %s 是联合主键（%s），代码生成需要恰好一个主键列", tab.TBName, strings.Join(keys, ", "))
 	}
+}
+
+// renderAll executes each template against data and returns the outputs in
+// the same order, stopping at the first template that fails. The caller
+// writes nothing until every template has rendered: a template that fails
+// part-way leaves a truncated file behind it, which compiles as nothing and
+// at a glance looks like the real thing.
+func renderAll(data any, tpls ...*template.Template) ([][]byte, error) {
+	out := make([][]byte, len(tpls))
+	for i, t := range tpls {
+		var b bytes.Buffer
+		if err := t.Execute(&b, data); err != nil {
+			return nil, err
+		}
+		out[i] = b.Bytes()
+	}
+	return out, nil
+}
+
+// writeGenerated writes one generated file, creating its directory first.
+// It stands in for pkg.FileCreate, which returns no error at all and, when
+// the file cannot be created, closes a nil file and ends the process with
+// log.Fatalln - one unwritable path took the whole server down with it.
+func writeGenerated(path string, content []byte) error {
+	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+		return err
+	}
+	return os.WriteFile(path, content, 0o644)
 }
