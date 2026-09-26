@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"fmt"
 	common "go-admin/common/models"
 	"strings"
 
@@ -132,22 +133,29 @@ func (e *SysTables) GetTree(tx *gorm.DB) ([]SysTables, error) {
 	return doc, nil
 }
 
+// Create inserts the table and every one of its columns, or none of them. A
+// column that failed to insert used to be dropped without a word, leaving a
+// table the config page lists with columns missing and code generated from
+// fewer columns than the table has.
 func (e *SysTables) Create(tx *gorm.DB) (SysTables, error) {
 	var doc SysTables
 	e.CreateBy = 0
-	result := tx.Table("sys_tables").Create(&e)
-	if result.Error != nil {
-		err := result.Error
+	err := tx.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("sys_tables").Create(&e).Error; err != nil {
+			return err
+		}
+		for i := range e.Columns {
+			e.Columns[i].TableId = e.TableId
+			if _, err := e.Columns[i].Create(tx); err != nil {
+				return fmt.Errorf("column %s: %w", e.Columns[i].ColumnName, err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
 		return doc, err
 	}
-	doc = *e
-	for i := 0; i < len(e.Columns); i++ {
-		e.Columns[i].TableId = doc.TableId
-
-		_, _ = e.Columns[i].Create(tx)
-	}
-
-	return doc, nil
+	return *e, nil
 }
 
 func (e *SysTables) Update(tx *gorm.DB) (update SysTables, err error) {
@@ -158,6 +166,16 @@ func (e *SysTables) Update(tx *gorm.DB) (update SysTables, err error) {
 	//参数1:是要修改的数据
 	//参数2:是修改的数据
 	e.UpdateBy = 0
+	// One transaction for the table and its columns, as in Create: a column
+	// whose write failed used to be skipped while the request reported
+	// success, so the config page showed a save that had not happened.
+	err = tx.Transaction(func(tx *gorm.DB) error {
+		return e.updateWithColumns(tx)
+	})
+	return
+}
+
+func (e *SysTables) updateWithColumns(tx *gorm.DB) (err error) {
 	if err = tx.Table("sys_tables").Where("table_id = ?", e.TableId).Updates(&e).Error; err != nil {
 		return
 	}
@@ -199,7 +217,9 @@ func (e *SysTables) Update(tx *gorm.DB) (update SysTables, err error) {
 				}
 			}
 		}
-		_, _ = e.Columns[i].Update(tx)
+		if _, err = e.Columns[i].Update(tx); err != nil {
+			return fmt.Errorf("column %s: %w", e.Columns[i].ColumnName, err)
+		}
 	}
 	return
 }
