@@ -124,7 +124,12 @@ func (e Gen) Preview(c *gin.Context) {
 		return
 	}
 
-	tab, _ := table.Get(db, false)
+	tab, err := table.Get(db, false)
+	if err != nil {
+		log.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
 	// MLTBName (table_name with underscores turned to dashes) is a gorm:"-"
 	// field - table.Get never fills it in, so every template that reads it
 	// (the .vue/.ts import paths, e.g. "@/api/{PackageName}/{MLTBName}")
@@ -179,7 +184,12 @@ func (e Gen) GenCode(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(db, false)
+	tab, err := table.Get(db, false)
+	if err != nil {
+		log.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
 
 	if !e.NOActionsGen(c, tab) {
 		return
@@ -207,7 +217,12 @@ func (e Gen) GenApiToFile(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(db, false)
+	tab, err := table.Get(db, false)
+	if err != nil {
+		log.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
 	if !e.genApiToFile(c, tab) {
 		return
 	}
@@ -387,7 +402,12 @@ func (e Gen) GenMenuAndApi(c *gin.Context) {
 	}
 
 	table.TableId = id
-	tab, _ := table.Get(e.Orm, true)
+	tab, err := table.Get(e.Orm, true)
+	if err != nil {
+		e.Logger.Errorf("get table error, %s", err.Error())
+		e.Error(500, err, fmt.Sprintf("读取表配置失败！错误详情：%s", err.Error()))
+		return
+	}
 	tab.MLTBName = strings.Replace(tab.TBName, "_", "-", -1)
 
 	Mmenu := dto.SysMenuInsertReq{}

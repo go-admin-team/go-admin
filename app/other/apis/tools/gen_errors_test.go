@@ -191,3 +191,27 @@ func TestGenCodeAnswersOnceWhenGenerationFails(t *testing.T) {
 		t.Errorf("responses %+v; want exactly one, a 500", bodies)
 	}
 }
+
+// Every handler that reads a table's configuration by id used to discard the
+// lookup's error and carry on with an empty table: GenCode and Preview then
+// refused it as having no primary key, and GenMenuAndApi went on to seed
+// menus and APIs for it.
+func TestGeneratorHandlersReportAMissingTable(t *testing.T) {
+	genWorkspace(t)
+	db := genDB(t)
+	missing := gin.Params{{Key: "tableId", Value: "987654"}}
+
+	for name, h := range map[string]func(*gin.Context){
+		"GenCode":       Gen{}.GenCode,
+		"Preview":       Gen{}.Preview,
+		"GenApiToFile":  Gen{}.GenApiToFile,
+		"GenMenuAndApi": Gen{}.GenMenuAndApi,
+	} {
+		t.Run(name, func(t *testing.T) {
+			bodies := runGen(t, db, h, missing)
+			if len(bodies) != 1 || bodies[0].Code != 500 || !strings.Contains(bodies[0].Msg, "读取表配置失败") {
+				t.Errorf("responses %+v; want one 500 saying the table could not be read", bodies)
+			}
+		})
+	}
+}
