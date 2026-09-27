@@ -25,13 +25,6 @@ func (DemoProduct) TableName() string {
 	return "demo_product"
 }
 
-// Generate 返回副本，供通用 Action 使用。
-// 必须返回新实例：Action 在并发请求间复用同一个模型指针，就地返回会串数据。
-func (e *DemoProduct) Generate() models.ActiveRecord {
-	o := *e
-	return &o
-}
-
 func (e *DemoProduct) GetId() interface{} {
 	return e.Id
 }

@@ -6,7 +6,6 @@ import (
 	"go-admin/app/jobs/models"
 
 	"go-admin/common/dto"
-	common "go-admin/common/models"
 )
 
 type SysJobSearch struct {
@@ -32,11 +31,6 @@ func (m *SysJobSearch) Bind(ctx *gin.Context) error {
 	return err
 }
 
-func (m *SysJobSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
 type SysJobControl struct {
 	JobId          int    `json:"jobId"`
 	JobName        string `json:"jobName" validate:"required"` // 名称
@@ -55,12 +49,7 @@ func (s *SysJobControl) Bind(ctx *gin.Context) error {
 	return ctx.ShouldBind(s)
 }
 
-func (s *SysJobControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysJobControl) GenerateM() (common.ActiveRecord, error) {
+func (s *SysJobControl) ToModel() (*models.SysJob, error) {
 	return &models.SysJob{
 		JobId:          s.JobId,
 		JobName:        s.JobName,
@@ -76,21 +65,8 @@ func (s *SysJobControl) GenerateM() (common.ActiveRecord, error) {
 	}, nil
 }
 
-func (s *SysJobControl) GetId() interface{} {
-	return s.JobId
-}
-
 type SysJobById struct {
 	dto.ObjectById
-}
-
-func (s *SysJobById) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysJobById) GenerateM() (common.ActiveRecord, error) {
-	return &models.SysJob{}, nil
 }
 
 type SysJobItem struct {

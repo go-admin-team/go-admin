@@ -356,11 +356,11 @@ if res.RowsAffected == 0 { return ErrAlreadyPaid }   // 别人先改了
 | `api.Api` | core `sdk/api` | 一条链式糖：`MakeContext` / `Bind` / `MakeOrm` / `OK` / `PageOK` / `Error` |
 | `service.Service` | core `sdk/service` | 一个装 `Orm` / `Log` / `Cache` / `Error` 的结构体加一个 `AddError` |
 | `MakeCondition` / `search` tag | core `sdk/contract/dto` | 把 DTO 上的 `search:"type:exact;column:name;table:xx"` 翻成 WHERE |
-| 通用 CRUD Action | go-admin `common/actions` | `IndexAction` 等五个。**留在 go-admin，没有下沉** |
+| 通用 CRUD Action | go-admin `common/actions` | 泛型的 `Index` / `View` / `ViewAs` / `Create` / `Update` / `Delete`（旧的 `IndexAction` 等五个已标 Deprecated）。**留在 go-admin，没有下沉** |
 
 最后一行是有意的：CRUD Action 是最需要演进的一类东西（分页参数、批量操作、
 软删语义、字段级权限），而 core 的每一个导出都是永久承诺——放进去容易，
-拿出来不可能。想用就把那 294 行抄走，抄走的那份还能按你自己的需要改。
+拿出来不可能。想用就把 `common/actions` 抄走，抄走的那份还能按你自己的需要改。
 主仓唯一的真实业务模块 `app/admin` **一个 CRUD Action 都没用**，全是手写 Service。
 
 `MakeCondition` 返回的是 `func(db *gorm.DB) *gorm.DB` 闭包，方言从闭包里那个

@@ -36,15 +36,10 @@ func (m *DemoProductSearch) Bind(ctx *gin.Context) error {
 	return ctx.ShouldBind(m)
 }
 
-func (m *DemoProductSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
-// DemoProductControl 新增与修改共用的入参
+// DemoProductControl is the request body of both create and update.
 //
-// 通用 Action（Create / Update）通过 GenerateM 拿到落库对象，
-// 因此这里不直接暴露 Model，字段校验用 validate tag 声明。
+// actions.Create / actions.Update get the row to write from ToModel, so the
+// model itself is not exposed; field rules are declared with validate tags.
 type DemoProductControl struct {
 	Id     int     `json:"id" comment:"主键"`
 	Name   string  `json:"name" comment:"名称" validate:"required"`
@@ -58,16 +53,9 @@ func (s *DemoProductControl) Bind(ctx *gin.Context) error {
 	return ctx.ShouldBind(s)
 }
 
-func (s *DemoProductControl) Generate() dto.Control {
-	o := *s
-	return &o
-}
-
-func (s *DemoProductControl) GetId() interface{} { return s.Id }
-
-// GenerateM 组装落库对象。CreateBy / UpdateBy 由通用 Action 在此之后注入，
-// 此处不要手动赋值。
-func (s *DemoProductControl) GenerateM() (common.ActiveRecord, error) {
+// ToModel builds the row to write. The actions set CreateBy / UpdateBy
+// afterwards, so do not set them here.
+func (s *DemoProductControl) ToModel() (*models.DemoProduct, error) {
 	return &models.DemoProduct{
 		Model:  common.Model{Id: s.Id},
 		Name:   s.Name,
@@ -85,12 +73,3 @@ type DemoProductById struct {
 
 // Bind 与 GetId 由内嵌的 dto.ObjectById 提供：它已处理好 uri 绑定、
 // DELETE 时的批量 ids 合并与参数校验，无需在此重复实现。
-
-func (s *DemoProductById) Generate() dto.Control {
-	o := *s
-	return &o
-}
-
-func (s *DemoProductById) GenerateM() (common.ActiveRecord, error) {
-	return &models.DemoProduct{}, nil
-}

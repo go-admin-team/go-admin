@@ -29,21 +29,12 @@ func registerDemoProductRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMi
 		Use(authMiddleware.MiddlewareFunc()). // JWT 认证
 		Use(middleware.AuthCheckRole())       // Casbin 鉴权
 	{
-		m := &models.DemoProduct{}
-
 		// actions.PermissionAction() 注入数据权限上下文，
 		// 列表与详情缺少它会绕过 DataScope 过滤
-		r.GET("", actions.PermissionAction(), actions.IndexAction(m, new(dto.DemoProductSearch), func() interface{} {
-			list := make([]models.DemoProduct, 0)
-			return &list
-		}))
-
-		r.GET("/:id", actions.PermissionAction(), actions.ViewAction(new(dto.DemoProductById), func() interface{} {
-			return &models.DemoProduct{}
-		}))
-
-		r.POST("", actions.CreateAction(new(dto.DemoProductControl)))
-		r.PUT("/:id", actions.PermissionAction(), actions.UpdateAction(new(dto.DemoProductControl)))
-		r.DELETE("", actions.PermissionAction(), actions.DeleteAction(new(dto.DemoProductById)))
+		r.GET("", actions.PermissionAction(), actions.Index[models.DemoProduct, dto.DemoProductSearch]())
+		r.GET("/:id", actions.PermissionAction(), actions.View[models.DemoProduct, dto.DemoProductById]())
+		r.POST("", actions.Create[models.DemoProduct, dto.DemoProductControl]())
+		r.PUT("/:id", actions.PermissionAction(), actions.Update[models.DemoProduct, dto.DemoProductControl]())
+		r.DELETE("", actions.PermissionAction(), actions.Delete[models.DemoProduct, dto.DemoProductById]())
 	}
 }
