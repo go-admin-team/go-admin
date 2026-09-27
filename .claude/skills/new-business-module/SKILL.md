@@ -35,15 +35,17 @@ description: Scaffold a new single-table CRUD business module end to end — mig
 
 ### 3. 生成 model / dto / router 三个文件（Actions 模式）
 
-不要手写 Api 与 Service。使用 `common/actions` 的通用 Action，一个模块只需
-model、dto、router 三个文件，完整写法照抄 `app/demo/` 的结构。
+不要手写 Api 与 Service。使用 `common/actions` 的泛型 Action
+（`actions.Index[Model, Search]()` 等），一个模块只需 model、dto、router
+三个文件，完整写法照抄 `app/demo/` 的结构。
 
-**关键正确性要求**（这三条是实际出问题最多的地方）：
+**关键正确性要求**：
 
-- Model 实现 `models.ActiveRecord`（`Generate` / `GetId` / `TableName`），
-  `TableName()` 必须显式声明——GORM 配置了 `SingularTable`，不会自动推导
-- **`Generate()` 必须返回副本，不要就地返回**——Action 在并发请求间复用实例，
-  就地返回会导致请求之间串数据；这个问题单人测试时几乎不出现，上线后才暴露
+- `TableName()` 必须显式声明——GORM 配置了 `SingularTable`，不会自动推导
+- 增改 DTO 写 `ToModel() (*Model, error)`；模型与 DTO 配错会编译不过
+- **不要写 `Generate()`**，也不要用旧的 `IndexAction` 等五个（已 Deprecated）：
+  旧写法在并发请求间复用实例，`Generate()` 一旦就地返回就会串数据，
+  单人测试时几乎不出现、上线后才暴露；泛型 Action 每个请求新建自己的值
 - 完成后确认 `cmd/api/` 中已用 `_` 导入新包，否则路由不会被注册
 
 ### 4. 写菜单、接口与权限种子数据
@@ -82,7 +84,7 @@ model、dto、router 三个文件，完整写法照抄 `app/demo/` 的结构。
 
 | 检查项 | 出错后果 |
 | --- | --- |
-| `Generate()` 是否返回副本 | 并发请求之间串数据 |
+| 路由是否用泛型 Action 而非旧的 `IndexAction` 等 | 旧写法要靠 `Generate()` 返回副本，漏了就并发串数据 |
 | 是否使用 `e.Orm` 而非全局 DB | 多租户下拿到错误的数据库连接 |
 | `TableName()` 是否显式声明 | GORM 不会自动推导 |
 | 迁移文件是否放在 `version/` | 放进 `version-local/` 会被忽略，别人拉代码看不到 |

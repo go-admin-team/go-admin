@@ -20,34 +20,34 @@ Router  →  Api      →  Service      →  Model
 
 ## 优先使用通用 Action
 
-单表 CRUD **不要手写 Api 与 Service**。`common/actions` 提供的五个
-Action 已覆盖参数绑定、数据权限过滤、操作人注入、分页与错误响应：
+单表 CRUD **不要手写 Api 与 Service**。`common/actions` 提供的泛型 Action
+已覆盖参数绑定、数据权限过滤、操作人注入、分页与错误响应：
 
 ```go
 r := v1.Group("/demo-product").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 {
-    m := &models.DemoProduct{}
-    r.GET("",     actions.PermissionAction(), actions.IndexAction(m, new(dto.DemoProductSearch), func() interface{} {
-        list := make([]models.DemoProduct, 0); return &list
-    }))
-    r.GET("/:id", actions.PermissionAction(), actions.ViewAction(new(dto.DemoProductById), func() interface{} {
-        return &models.DemoProduct{}
-    }))
-    r.POST("",       actions.CreateAction(new(dto.DemoProductControl)))
-    r.PUT("/:id",    actions.PermissionAction(), actions.UpdateAction(new(dto.DemoProductControl)))
-    r.DELETE("",     actions.PermissionAction(), actions.DeleteAction(new(dto.DemoProductById)))
+    r.GET("",       actions.PermissionAction(), actions.Index[models.DemoProduct, dto.DemoProductSearch]())
+    r.GET("/:id",   actions.PermissionAction(), actions.View[models.DemoProduct, dto.DemoProductById]())
+    r.POST("",      actions.Create[models.DemoProduct, dto.DemoProductControl]())
+    r.PUT("/:id",   actions.PermissionAction(), actions.Update[models.DemoProduct, dto.DemoProductControl]())
+    r.DELETE("",    actions.PermissionAction(), actions.Delete[models.DemoProduct, dto.DemoProductById]())
 }
 ```
 
 这样一个模块只需 **model + dto + router** 三个文件，完整示例见 `app/demo/`。
 
-使用通用 Action 的前提：
+类型参数就是约束，写错了编译不过：
 
-- Model 实现 `models.ActiveRecord`（`Generate` / `GetId` / `TableName`）
-- 列表 DTO 实现 `dto.Index`，增改删 DTO 实现 `dto.Control`
-- **所有 `Generate()` 必须返回副本** —— Action 在并发请求间复用实例，
-  就地返回会串数据（`app/demo` 的测试锁定了这一点）
+- Model 需有 `TableName` / `GetId`，并内嵌 `models.ControlBy`（提供 `SetCreateBy` / `SetUpdateBy`）
+- 列表 DTO：`Bind`、`GetNeedSearch`，内嵌 `dto.Pagination`
+- 增改 DTO：`Bind` 与 `ToModel() (*Model, error)`——配错模型编译不过
 - 详情/删除 DTO 内嵌 `dto.ObjectById` 即可继承 `Bind` 与 `GetId`，无需重写
+- 详情要返回与模型不同的结构时用 `ViewAs[Model, ById, Response]()`（见 `app/jobs`）
+- **不需要 `Generate()`**：每个请求都新建自己的值，不存在跨请求共享的实例
+
+旧的 `IndexAction` 等五个仍可用，已标记 Deprecated。它们在并发请求间复用
+注册时传入的实例，所以依赖「所有 `Generate()` 必须返回副本」这条约定——
+仍在用旧写法的模块要继续遵守它。
 
 仅当业务超出单表 CRUD（跨表事务、外部调用、复杂校验）时才自行编写 Api
 与 Service，写法见下。
