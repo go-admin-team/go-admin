@@ -200,6 +200,42 @@ func TestAuditTimestampsCanBeListedAndQueried(t *testing.T) {
 	}
 }
 
+// A table whose only columns are its key and the ones the framework fills in
+// leaves the create/edit dialog nothing to show. The page used to render it
+// anyway: an add button and an edit link opening an empty form.
+func TestAPageWithNothingToEnterHasNoForm(t *testing.T) {
+	g := newGenEnv(t)
+	const table = "gau_stamp"
+	tableID := g.importTable(t, table, `id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	create_by bigint NULL,
+	update_by bigint NULL,
+	created_at datetime(3) NULL,
+	updated_at datetime(3) NULL,
+	deleted_at bigint NOT NULL DEFAULT 0`)
+
+	if code := callHandler(t, g.db, Gen{}.GenCode, "/", tableID); code != http.StatusOK {
+		t.Fatalf("generation failed with response code %d", code)
+	}
+	vue := g.page(t, table)
+	for _, unwanted := range []string{"<el-dialog", "<el-form", "useForm", "openCreate", "openEdit", "addGauStamp", "updateGauStamp", "getGauStamp"} {
+		if strings.Contains(vue, unwanted) {
+			t.Errorf("the generated page contains %s", unwanted)
+		}
+	}
+	for _, want := range []string{"useTable", "remove(table.selectedIds)", "import { delGauStamp, listGauStamp }"} {
+		if !strings.Contains(vue, want) {
+			t.Errorf("the generated page has no %s", want)
+		}
+	}
+
+	overlay := filepath.Join(g.out, "overlay.json")
+	b, _ := json.Marshal(map[string]any{"Replace": backendFiles(g.out, g.root, table)})
+	if err := os.WriteFile(overlay, b, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	goCmd(t, g.root, "vet", "-overlay="+overlay, "./app/admin/...")
+}
+
 // callJSON runs one handler with a JSON body and decodes the response's data
 // into data when it is not nil. It returns the code the body carries.
 func callJSON(t *testing.T, db *gorm.DB, h gin.HandlerFunc, method, body string, params gin.Params, data any) int {
