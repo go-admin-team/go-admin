@@ -241,6 +241,12 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) bool {
 		e.Error(500, err, err.Error())
 		return false
 	}
+	// Checked again here, not only on save: a configuration saved before the
+	// save-time check existed is still in sys_tables.
+	if err := validateGenPathFields(tab); err != nil {
+		e.Error(500, err, err.Error())
+		return false
+	}
 	// R2: see the matching call and comment in Preview above.
 	applyInferredColumnWidths(tab.Columns)
 
