@@ -106,7 +106,7 @@ func run() {
 		)
 	} else {
 		fmt.Println(`generate migration file`)
-		_ = genFile()
+		exitOnError(os.Stderr, genFile())
 	}
 }
 
@@ -360,11 +360,11 @@ func genFile() error {
 		m["Package"] = "version"
 	}
 	var b1 bytes.Buffer
-	err = t1.Execute(&b1, m)
-	if goAdmin {
-		pkg.FileCreate(b1, "./cmd/migrate/migration/version/"+m["GenerateTime"]+"_migrate.go")
-	} else {
-		pkg.FileCreate(b1, "./cmd/migrate/migration/version-local/"+m["GenerateTime"]+"_migrate.go")
+	if err = t1.Execute(&b1, m); err != nil {
+		return err
 	}
-	return nil
+	if goAdmin {
+		return pkg.FileCreate(b1, "./cmd/migrate/migration/version/"+m["GenerateTime"]+"_migrate.go")
+	}
+	return pkg.FileCreate(b1, "./cmd/migrate/migration/version-local/"+m["GenerateTime"]+"_migrate.go")
 }
