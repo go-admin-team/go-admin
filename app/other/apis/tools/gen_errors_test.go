@@ -134,9 +134,9 @@ func TestNOActionsGenWritesNothingWhenATemplateFails(t *testing.T) {
 	}
 }
 
-// pkg.FileCreate, which this used to write through, ends the process with
-// log.Fatalln when it cannot create the file. Reaching the assertions at all
-// is half of this test.
+// pkg.FileCreate, which this used to write through, ended the process with
+// log.Fatalln when it could not create the file, until go-admin-core v2.11.0.
+// Reaching the assertions at all is half of this test.
 func TestNOActionsGenReportsAFileItCannotWrite(t *testing.T) {
 	dir := genWorkspace(t)
 	blocker := filepath.Join(dir, "app", "admin", "models")

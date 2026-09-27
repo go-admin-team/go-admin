@@ -7,6 +7,7 @@ import (
 	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg/utils"
 	"github.com/spf13/cobra"
+	"os"
 	"text/template"
 )
 
@@ -33,7 +34,10 @@ func run() {
 	//1. 读取配置
 
 	fmt.Println(`generate migration file`)
-	_ = genFile()
+	if err := genFile(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
 }
 
@@ -80,11 +84,19 @@ func genFile() error {
 	m := map[string]string{}
 	m["appName"] = appName
 	var b1 bytes.Buffer
-	err = t1.Execute(&b1, m)
-	pkg.FileCreate(b1, "./cmd/api/"+appName+".go")
+	if err = t1.Execute(&b1, m); err != nil {
+		return err
+	}
 	t2, err := template.ParseFiles("template/router.template")
+	if err != nil {
+		return err
+	}
 	var b2 bytes.Buffer
-	err = t2.Execute(&b2, nil)
-	pkg.FileCreate(b2, appPath+"/router/router.go")
-	return nil
+	if err = t2.Execute(&b2, nil); err != nil {
+		return err
+	}
+	if err = pkg.FileCreate(b1, "./cmd/api/"+appName+".go"); err != nil {
+		return err
+	}
+	return pkg.FileCreate(b2, appPath+"/router/router.go")
 }
