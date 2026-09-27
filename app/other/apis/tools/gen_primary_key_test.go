@@ -197,11 +197,13 @@ func TestGeneratorHandlesEveryPrimaryKeyShape(t *testing.T) {
 
 func dropFixture(t *testing.T, db *gorm.DB, table string) {
 	t.Helper()
+	// Unscoped, as the delete endpoint is: a soft-deleted row still holds its
+	// business name, and the config page's uniqueness check counts it.
 	var ids []int
-	db.Model(&tools.SysTables{}).Where("table_name = ?", table).Pluck("table_id", &ids)
+	db.Unscoped().Model(&tools.SysTables{}).Where("table_name = ?", table).Pluck("table_id", &ids)
 	if len(ids) > 0 {
-		db.Where("table_id IN ?", ids).Delete(&tools.SysColumns{})
-		db.Where("table_id IN ?", ids).Delete(&tools.SysTables{})
+		db.Unscoped().Where("table_id IN ?", ids).Delete(&tools.SysColumns{})
+		db.Unscoped().Where("table_id IN ?", ids).Delete(&tools.SysTables{})
 	}
 	if err := db.Exec("DROP TABLE IF EXISTS " + table).Error; err != nil {
 		t.Fatalf("dropping %s: %v", table, err)
