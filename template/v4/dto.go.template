@@ -10,8 +10,8 @@ import (
     {{- range .Columns -}}{{- if .Pk -}}{{- $pkType = .GoType -}}{{- if and (eq .GoField "Id") (eq .GoType "int") -}}{{- $embed = true -}}{{- end -}}{{- end -}}{{- end -}}
     {{- $bb := false -}}
     {{- range .Columns -}}
-    {{- $z := .IsQuery -}}
-    {{- if ($z) -}}
+    {{- /* "1" exactly: the config page saves an unticked box as "0", which a bare if reads as true. */ -}}
+    {{- if eq .IsQuery "1" -}}
     {{- if eq .GoType "time.Time" -}}{{- $bb = true -}}{{- end -}}
     {{- end -}}
     {{- end -}}
@@ -36,8 +36,7 @@ type {{.ClassName}}GetPageReq struct {
 	dto.Pagination     `search:"-"`
     {{- $tablename := .TBName -}}
     {{- range .Columns -}}
-    {{$z := .IsQuery}}
-    {{- if ($z) }}
+    {{- if eq .IsQuery "1" }}
     {{.GoField}} {{.GoType}} `form:"{{.JsonField}}"  search:"type:{{if eq .QueryType "EQ"}}exact{{ else if eq .QueryType "NE"}}iexact{{ else if eq .QueryType "LIKE"}}contains{{ else if eq .QueryType "GT"}}gt{{ else if eq .QueryType "GTE"}}gte{{ else if eq .QueryType "LT"}}lt{{ else if eq .QueryType "LTE"}}lte{{- end }};column:{{.ColumnName}};table:{{$tablename}}" comment:"{{.ColumnComment}}"`
     {{- end }}
     {{- end }}

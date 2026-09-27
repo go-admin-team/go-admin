@@ -24,8 +24,7 @@ type {{.ClassName}} struct {
 // @Tags {{.TableComment}}
 {{- $tablename := .TBName -}}
 {{- range .Columns -}}
-{{$z := .IsQuery}}
-{{- if ($z) }}
+{{- if eq .IsQuery "1" }}
 // @Param {{.JsonField}} query {{.GoType}} false "{{.ColumnComment}}"
 {{- end -}}
 {{- end }}
