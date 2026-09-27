@@ -70,13 +70,11 @@ func (e *SysColumns) GetList(tx *gorm.DB, exclude bool) ([]SysColumns, error) {
 	table := tx.Table("sys_columns")
 	table = table.Where("table_id = ? ", e.TableId)
 	if exclude {
-		notIn := make([]string, 0, 6)
-		notIn = append(notIn, "id")
-		notIn = append(notIn, "create_by")
-		notIn = append(notIn, "update_by")
-		notIn = append(notIn, "created_at")
-		notIn = append(notIn, "updated_at")
-		notIn = append(notIn, "deleted_at")
+		// Columns the framework fills in on every write, which a setting on the
+		// config page could not change. created_at and updated_at are not
+		// among them: whether a page lists or filters by them is a choice the
+		// page makes, and the templates already keep them out of the form.
+		notIn := []string{"id", "create_by", "update_by", "deleted_at"}
 		table = table.Where(" column_name not in(?)", notIn)
 	}
 

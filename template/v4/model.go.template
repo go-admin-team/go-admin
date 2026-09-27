@@ -1,13 +1,13 @@
 package models
 
 import (
+    {{- /*
+      The model declares a time.Time field for every such column except the
+      three models.ModelTime supplies. Whether a column is queryable is the
+      DTO's business, not the model's: counting it here imported "time" for a
+      queryable created_at that the model never declares.
+    */ -}}
     {{- $bb := false -}}
-    {{- range .Columns -}}
-    {{- $z := .IsQuery -}}
-    {{- if ($z) -}}
-    {{- if eq .GoType "time.Time" -}}{{- $bb = true -}}{{- end -}}
-    {{- end -}}
-    {{- end -}}
     {{- range .Columns -}}
     {{- if eq .GoField "CreatedAt" -}}
     {{- else if eq .GoField "UpdatedAt" -}}

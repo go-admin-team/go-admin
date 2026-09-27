@@ -56,6 +56,7 @@
 {{- $hasDatetime := false -}}
 {{- $hasRules := false -}}
 {{- $hasQuery := false -}}
+{{- $hasForm := false -}}
 {{- $pkType := "number" -}}
 {{- range .Columns -}}
   {{- $dictUsed := and (ne .DictType "") (or (and (eq .IsQuery "1") (eq .FkTableName "")) (and (eq .IsList "1") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "select") (eq .FkTableName "")) (and (eq .IsInsert "1") (eq .HtmlType "radio"))) -}}
@@ -66,8 +67,15 @@
   {{- if and (eq .IsList "1") (eq .FkTableName "") (eq .DictType "") (eq .HtmlType "datetime") }}{{$hasDatetime = true}}{{end -}}
   {{- if eq .IsQuery "1" }}{{$hasQuery = true}}{{end -}}
   {{- if and (eq .IsInsert "1") (eq .IsRequired "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy") }}{{$hasRules = true}}{{end -}}
-  {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{$hasRules = true}}{{end -}}
+  {{- if and .Pk (eq .GoType "string") }}{{$pkType = "string"}}{{$hasRules = true}}{{$hasForm = true}}{{end -}}
+  {{- if and (eq .IsInsert "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy") }}{{$hasForm = true}}{{end -}}
 {{- end -}}
+{{- /*
+  $hasForm: the create/edit dialog would hold at least one field - a typed-in
+  string key or an insertable column the framework does not fill in. Without
+  one, the add button, the edit link and the dialog are left out, not rendered
+  around an empty form that saves nothing the user chose.
+*/ -}}
 <template>
   <PageContainer>
     <ProTable :table="table" selection row-key="{{.PkJsonField}}">
@@ -112,9 +120,11 @@
       {{- end}}
 
       <template #toolbar>
+        {{- if $hasForm}}
         <el-button v-permisaction="['{{.PackageName}}:{{.BusinessName}}:add']" type="primary" @click="form.openCreate()">
           {{ "{{" }} $t('common.add') {{ "}}" }}
         </el-button>
+        {{- end}}
         <el-button
           v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']"
           type="danger"
@@ -156,14 +166,17 @@
       {{- end}}
 
       <template #actions="{ row }">
+        {{- if $hasForm}}
         <el-button v-permisaction="['{{.PackageName}}:{{.BusinessName}}:edit']" link type="primary" @click="form.openEdit(row)">
           {{ "{{" }} $t('common.edit') {{ "}}" }}
         </el-button>
+        {{- end}}
         <el-button v-permisaction="['{{.PackageName}}:{{.BusinessName}}:remove']" link type="danger" @click="remove(row.{{.PkJsonField}})">
           {{ "{{" }} $t('common.delete') {{ "}}" }}
         </el-button>
       </template>
     </ProTable>
+    {{- if $hasForm}}
 
     <el-dialog
       v-model="form.visible"
@@ -254,6 +267,7 @@
         </el-button>
       </template>
     </el-dialog>
+    {{- end}}
   </PageContainer>
 </template>
 
@@ -273,18 +287,14 @@ import ProTable from '@/components/ProTable/index.vue'
 {{- if $hasDatetime}}
 import DateCell from '@/components/DateCell/index.vue'
 {{- end}}
-{{- if $hasDict}}
-{{- if $hasDictList}}
-import { useTable, useForm, useRemove, useDict, dictLabel } from '@/composables'
-{{- else}}
-import { useTable, useForm, useRemove, useDict } from '@/composables'
-{{- end}}
-{{- else}}
-import { useTable, useForm, useRemove } from '@/composables'
-{{- end}}
+import { useTable{{if $hasForm}}, useForm{{end}}, useRemove{{if $hasDict}}, useDict{{if $hasDictList}}, dictLabel{{end}}{{end}} } from '@/composables'
+{{- if $hasForm}}
 import {
   add{{.ClassName}}, del{{.ClassName}}, get{{.ClassName}}, list{{.ClassName}}, update{{.ClassName}}
 } from '@/api/{{.PackageName}}/{{.MLTBName}}'
+{{- else}}
+import { del{{.ClassName}}, list{{.ClassName}} } from '@/api/{{.PackageName}}/{{.MLTBName}}'
+{{- end}}
 import type { {{.ClassName}}, {{.ClassName}}Query } from '@/api/{{.PackageName}}/{{.MLTBName}}'
 {{- /*
   Two columns pointing at the same foreign table must not import it twice --
@@ -386,6 +396,7 @@ const rules = computed<FormRules>(() => ({ {{$rFirst := true}}
   {{- end}}
 }))
 {{- end}}
+{{- if $hasForm}}
 
 const form = useForm<{{.ClassName}}, {{$pkType}}>({
   defaultModel: () => ({{"{"}} {{.PkJsonField}}: undefined{{range .Columns}}{{if and (eq .IsInsert "1") (not .Pk) (ne .GoField "CreatedAt") (ne .GoField "UpdatedAt") (ne .GoField "DeletedAt") (ne .GoField "UpdateBy") (ne .GoField "CreateBy")}}, {{.JsonField}}: {{if eq .DefaultValue ""}}undefined{{else if eq .GoType "int"}}{{.DefaultValue}}{{else}}'{{js .DefaultValue}}'{{end}}{{end}}{{end}} {{"}"}}),
@@ -396,6 +407,7 @@ const form = useForm<{{.ClassName}}, {{$pkType}}>({
   api: { get: get{{.ClassName}}, add: add{{.ClassName}}, update: update{{.ClassName}} },
   onSuccess: () => table.getList()
 })
+{{- end}}
 
 const { remove } = useRemove({
   api: del{{.ClassName}},
