@@ -554,10 +554,11 @@ func renderAll(data any, tpls ...*template.Template) ([][]byte, error) {
 	return out, nil
 }
 
-// writeGenerated writes one generated file, creating its directory first.
-// It stands in for pkg.FileCreate, which returns no error at all and, when
-// the file cannot be created, closes a nil file and ends the process with
-// log.Fatalln - one unwritable path took the whole server down with it.
+// writeGenerated writes one generated file, creating its directory first,
+// which pkg.FileCreate does not do. It replaced pkg.FileCreate here while
+// that returned no error and, when the file could not be created, ended the
+// process with log.Fatalln - one unwritable path took the whole server down
+// with it. go-admin-core v2.11.0 made pkg.FileCreate return the error.
 func writeGenerated(path string, content []byte) error {
 	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
 		return err
