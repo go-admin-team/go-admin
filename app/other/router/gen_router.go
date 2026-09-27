@@ -7,6 +7,7 @@ import (
 
 	"go-admin/app/admin/apis"
 	"go-admin/app/other/apis/tools"
+	"go-admin/common/middleware"
 )
 
 // GenWriteRoutesEnabled reports whether the code generator's writing endpoints
@@ -52,7 +53,12 @@ func sysNoCheckRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 		r1.GET("/captcha", sys.GenerateCaptchaHandler)
 	}
 
-	r := v1.Group("").Use(authMiddleware.MiddlewareFunc())
+	// AuthCheckRole on every generator route: a role reaches them through the
+	// code generator's menus, which the 1786700011000 migration binds them to.
+	// They used to be in CasbinExclude, which let any account that could log
+	// in read and change any table's configuration and, in dev mode, write
+	// files from it.
+	r := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		gen := tools.Gen{}
 		r.GET("/gen/preview/:tableId", gen.Preview)
@@ -67,7 +73,7 @@ func sysNoCheckRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 }
 
 func registerDBRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	db := v1.Group("/db").Use(authMiddleware.MiddlewareFunc())
+	db := v1.Group("/db").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		gen := tools.Gen{}
 		db.GET("/tables/page", gen.GetDBTableList)
@@ -79,8 +85,8 @@ func registerSysTableRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddl
 	tables := v1.Group("/sys/tables")
 	{
 		sysTable := tools.SysTable{}
-		tables.Group("").Use(authMiddleware.MiddlewareFunc()).GET("/page", sysTable.GetPage)
-		tablesInfo := tables.Group("/info").Use(authMiddleware.MiddlewareFunc())
+		tables.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole()).GET("/page", sysTable.GetPage)
+		tablesInfo := tables.Group("/info").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 		{
 			tablesInfo.POST("", sysTable.Insert)
 			tablesInfo.PUT("", sysTable.Update)

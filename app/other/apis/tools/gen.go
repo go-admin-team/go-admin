@@ -241,6 +241,12 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) bool {
 		e.Error(500, err, err.Error())
 		return false
 	}
+	// Checked again here, not only on save: a configuration saved before the
+	// save-time check existed is still in sys_tables.
+	if err := validateGenPathFields(tab); err != nil {
+		e.Error(500, err, err.Error())
+		return false
+	}
 	// R2: see the matching call and comment in Preview above.
 	applyInferredColumnWidths(tab.Columns)
 
@@ -319,22 +325,23 @@ func (e Gen) NOActionsGen(c *gin.Context, tab tools.SysTables) bool {
 	// up - a flat gen/{BusinessName}.ts would let two tables in different
 	// packages silently overwrite each other's translations, since
 	// BusinessName only has a pattern check, no uniqueness check.
+	back, front := ".", config.GenConfig.FrontPath
 	files := []struct {
-		path    string
-		content []byte
+		root, name string
+		content    []byte
 	}{
-		{"./app/" + tab.PackageName + "/models/" + tab.TBName + ".go", out[0]},
-		{"./app/" + tab.PackageName + "/apis/" + tab.TBName + ".go", out[1]},
-		{"./app/" + tab.PackageName + "/router/" + tab.TBName + ".go", out[2]},
-		{config.GenConfig.FrontPath + "/api/" + tab.PackageName + "/" + tab.MLTBName + ".ts", out[3]},
-		{config.GenConfig.FrontPath + "/views/" + tab.PackageName + "/" + tab.MLTBName + "/index.vue", out[4]},
-		{"./app/" + tab.PackageName + "/service/dto/" + tab.TBName + ".go", out[5]},
-		{"./app/" + tab.PackageName + "/service/" + tab.TBName + ".go", out[6]},
-		{config.GenConfig.FrontPath + "/lang/zh-CN/gen/" + tab.PackageName + "/" + tab.BusinessName + ".ts", out[7]},
-		{config.GenConfig.FrontPath + "/lang/en-US/gen/" + tab.PackageName + "/" + tab.BusinessName + ".ts", out[8]},
+		{back, "app/" + tab.PackageName + "/models/" + tab.TBName + ".go", out[0]},
+		{back, "app/" + tab.PackageName + "/apis/" + tab.TBName + ".go", out[1]},
+		{back, "app/" + tab.PackageName + "/router/" + tab.TBName + ".go", out[2]},
+		{front, "api/" + tab.PackageName + "/" + tab.MLTBName + ".ts", out[3]},
+		{front, "views/" + tab.PackageName + "/" + tab.MLTBName + "/index.vue", out[4]},
+		{back, "app/" + tab.PackageName + "/service/dto/" + tab.TBName + ".go", out[5]},
+		{back, "app/" + tab.PackageName + "/service/" + tab.TBName + ".go", out[6]},
+		{front, "lang/zh-CN/gen/" + tab.PackageName + "/" + tab.BusinessName + ".ts", out[7]},
+		{front, "lang/en-US/gen/" + tab.PackageName + "/" + tab.BusinessName + ".ts", out[8]},
 	}
 	for _, f := range files {
-		if err := writeGenerated(f.path, f.content); err != nil {
+		if err := writeGenerated(f.root, f.name, f.content); err != nil {
 			log.Error(err)
 			e.Error(500, err, fmt.Sprintf("生成文件写入失败！错误详情：%s", err.Error()))
 			return false
@@ -373,7 +380,7 @@ func (e Gen) genApiToFile(c *gin.Context, tab tools.SysTables) bool {
 		e.Error(500, err, fmt.Sprintf("数据迁移模版渲染失败！错误详情：%s", err.Error()))
 		return false
 	}
-	if err := writeGenerated("./cmd/migrate/migration/version-local/"+i+"_migrate.go", out[0]); err != nil {
+	if err := writeGenerated(".", "cmd/migrate/migration/version-local/"+i+"_migrate.go", out[0]); err != nil {
 		e.Logger.Error(err)
 		e.Error(500, err, fmt.Sprintf("数据迁移文件写入失败！错误详情：%s", err.Error()))
 		return false
@@ -554,14 +561,30 @@ func renderAll(data any, tpls ...*template.Template) ([][]byte, error) {
 	return out, nil
 }
 
-// writeGenerated writes one generated file, creating its directory first,
-// which pkg.FileCreate does not do. It replaced pkg.FileCreate here while
-// that returned no error and, when the file could not be created, ended the
-// process with log.Fatalln - one unwritable path took the whole server down
-// with it. go-admin-core v2.11.0 made pkg.FileCreate return the error.
-func writeGenerated(path string, content []byte) error {
-	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+// writeGenerated writes content to name, a slash-separated path under root,
+// creating root and the directories in between.
+//
+// It goes through os.Root, so name cannot leave root: a ".." component, an
+// absolute path, or a symlink under root that points outside it is refused
+// rather than followed. root itself is configuration (the working directory,
+// or gen.frontpath), and may be or contain a symlink.
+//
+// It replaced pkg.FileCreate here while that returned no error and, when the
+// file could not be created, ended the process with log.Fatalln - one
+// unwritable path took the whole server down with it. go-admin-core v2.11.0
+// made pkg.FileCreate return the error.
+func writeGenerated(root, name string, content []byte) error {
+	if err := os.MkdirAll(root, os.ModePerm); err != nil {
 		return err
 	}
-	return os.WriteFile(path, content, 0o644)
+	r, err := os.OpenRoot(root)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	name = filepath.FromSlash(name)
+	if err := r.MkdirAll(filepath.Dir(name), os.ModePerm); err != nil {
+		return err
+	}
+	return r.WriteFile(name, content, 0o644)
 }

@@ -172,17 +172,26 @@ func (e SysTable) Insert(c *gin.Context) {
 		return
 	}
 
+	// Every table is read and checked before any is saved, so a list with
+	// one table whose name cannot become a file name is refused whole
+	// instead of importing the tables ahead of it.
+	tables := make([]tools.SysTables, 0, len(tablesList))
 	for i := 0; i < len(tablesList); i++ {
-
 		data, err := genTableInit(db, tablesList, i, c)
 		if err != nil {
 			log.Errorf("genTableInit error, %s", err.Error())
 			e.Error(500, err, "")
 			return
 		}
-
-		_, err = data.Create(db)
-		if err != nil {
+		if err = validateGenPathFields(data); err != nil {
+			log.Errorf("validate table error, %s", err.Error())
+			e.Error(500, err, err.Error())
+			return
+		}
+		tables = append(tables, data)
+	}
+	for i := range tables {
+		if _, err = tables[i].Create(db); err != nil {
 			log.Errorf("Create error, %s", err.Error())
 			e.Error(500, err, "")
 			return
@@ -374,6 +383,11 @@ func (e SysTable) Update(c *gin.Context) {
 	// than rejected.
 	if err = validateAndSanitizeColumns(data.Columns); err != nil {
 		log.Errorf("validate columns error, %s", err.Error())
+		e.Error(500, err, err.Error())
+		return
+	}
+	if err = validateGenPathFields(data); err != nil {
+		log.Errorf("validate table error, %s", err.Error())
 		e.Error(500, err, err.Error())
 		return
 	}

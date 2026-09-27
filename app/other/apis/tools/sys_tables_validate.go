@@ -110,3 +110,44 @@ func validateBusinessNameUnique(db *gorm.DB, packageName, businessName string, t
 	}
 	return nil
 }
+
+// The three fields gen.go joins into the paths it writes to. Each is checked
+// against what it has to be where it lands, not against one shared pattern:
+//
+//   - packageName names a Go package and the app/{packageName} directory.
+//     Lowercase letters and digits, as a Go package name should be; no
+//     hyphen, which Go rejects, and no underscore, which genInfoForm.vue
+//     already refuses.
+//   - tableName is the imported table's own name, and becomes a .go file name
+//     and, with "_" turned into "-", a .ts/.vue one. Letters, digits and
+//     underscores: what a table the importer can read is normally called, and
+//     nothing that can step out of a directory.
+//   - businessName is a JavaScript identifier and a .ts file name. It starts
+//     with a lowercase letter, as genInfoForm.vue requires, but may carry
+//     digits, which a name derived from a table such as order2 does.
+//
+// None of the three allows a dot or a path separator, so none can name a
+// parent directory or an absolute path. The rules are no stricter than the
+// config page's own, so nothing it accepts is refused here.
+var (
+	packageNamePattern  = regexp.MustCompile(`^[a-z][a-z0-9]*$`)
+	tableNamePattern    = regexp.MustCompile(`^[A-Za-z0-9_]+$`)
+	businessNamePattern = regexp.MustCompile(`^[a-z][A-Za-z0-9]*$`)
+)
+
+// validateGenPathFields checks the fields gen.go builds file paths from. It
+// runs where a configuration is saved and again before files are written, so
+// a row saved before this check existed is refused at generation rather than
+// trusted because it is already in the database.
+func validateGenPathFields(tab tools.SysTables) error {
+	if !packageNamePattern.MatchString(tab.PackageName) {
+		return fmt.Errorf("packageName=%q 不合法：只能包含小写字母和数字，且以字母开头", tab.PackageName)
+	}
+	if !tableNamePattern.MatchString(tab.TBName) {
+		return fmt.Errorf("tableName=%q 不合法：只能包含字母、数字和下划线", tab.TBName)
+	}
+	if !businessNamePattern.MatchString(tab.BusinessName) {
+		return fmt.Errorf("businessName=%q 不合法：只能包含字母和数字，且以小写字母开头", tab.BusinessName)
+	}
+	return nil
+}
