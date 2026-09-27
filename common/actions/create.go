@@ -14,6 +14,10 @@ import (
 )
 
 // CreateAction 通用新增动作
+//
+// Deprecated: Use Create[Model, Control](). It builds its values per request, so the
+// Generate() copies this action depends on are not needed, and a model
+// paired with the wrong request does not compile. See generic.go.
 func CreateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := api.GetRequestLogger(c)

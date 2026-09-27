@@ -14,6 +14,10 @@ import (
 )
 
 // DeleteAction 通用删除动作
+//
+// Deprecated: Use Delete[Model, ById](). It builds its values per request, so the
+// Generate() copies this action depends on are not needed, and a model
+// paired with the wrong request does not compile. See generic.go.
 func DeleteAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := pkg.GetOrm(c)

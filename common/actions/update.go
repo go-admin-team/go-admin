@@ -14,6 +14,10 @@ import (
 )
 
 // UpdateAction 通用更新动作
+//
+// Deprecated: Use Update[Model, Control](). It builds its values per request, so the
+// Generate() copies this action depends on are not needed, and a model
+// paired with the wrong request does not compile. See generic.go.
 func UpdateAction(control dto.Control) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := pkg.GetOrm(c)

@@ -15,6 +15,11 @@ import (
 )
 
 // ViewAction 通用详情动作
+//
+// Deprecated: Use View[Model, ById](), or ViewAs[Model, ById, Response]()
+// where f returned another type. It builds its values per request, so the
+// Generate() copies this action depends on are not needed, and a model
+// paired with the wrong request does not compile. See generic.go.
 func ViewAction(control dto.Control, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := pkg.GetOrm(c)

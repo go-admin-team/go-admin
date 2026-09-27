@@ -15,6 +15,10 @@ import (
 )
 
 // IndexAction 通用查询动作
+//
+// Deprecated: Use Index[Model, Search](). It builds its values per request, so the
+// Generate() copies this action depends on are not needed, and a model
+// paired with the wrong request does not compile. See generic.go.
 func IndexAction(m models.ActiveRecord, d dto.Index, f func() interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db, err := pkg.GetOrm(c)
