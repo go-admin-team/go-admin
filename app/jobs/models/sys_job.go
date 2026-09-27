@@ -27,11 +27,6 @@ func (*SysJob) TableName() string {
 	return "sys_job"
 }
 
-func (e *SysJob) Generate() models.ActiveRecord {
-	o := *e
-	return &o
-}
-
 func (e *SysJob) GetId() interface{} {
 	return e.JobId
 }
