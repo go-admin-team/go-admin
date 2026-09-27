@@ -43,7 +43,7 @@ func DeleteAction(control dto.Control) gin.HandlerFunc {
 		//数据权限检查
 		p := GetPermissionFromContext(c)
 
-		db = db.WithContext(c).Scopes(
+		db = db.WithContext(c.Request.Context()).Scopes(
 			Permission(object.TableName(), p),
 		).Where(req.GetId()).Delete(object)
 		if err = db.Error; err != nil {

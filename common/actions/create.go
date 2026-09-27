@@ -37,7 +37,7 @@ func CreateAction(control dto.Control) gin.HandlerFunc {
 			return
 		}
 		object.SetCreateBy(user.GetUserId(c))
-		err = db.WithContext(c).Create(object).Error
+		err = db.WithContext(c.Request.Context()).Create(object).Error
 		if err != nil {
 			log.Errorf("Create error: %s", err)
 			response.Error(c, 500, err, "创建失败")
