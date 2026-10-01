@@ -23,8 +23,9 @@ func TestSaveOperaLogTruncatesOnCharacterBoundary(t *testing.T) {
 	if err := db.AutoMigrate(&SysOperaLog{}); err != nil {
 		t.Fatalf("migrate: %v", err)
 	}
+	previous := sdk.Runtime.GetDbByTenant(tenant)
 	sdk.Runtime.SetDbByTenant(tenant, db)
-	t.Cleanup(func() { sdk.Runtime.SetDbByTenant(tenant, nil) })
+	t.Cleanup(func() { sdk.Runtime.SetDbByTenant(tenant, previous) })
 
 	// 150 characters, 3 bytes each: byte 100 falls inside the 34th character.
 	long := strings.Repeat("中", 150)
