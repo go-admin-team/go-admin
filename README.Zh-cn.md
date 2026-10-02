@@ -136,6 +136,21 @@ git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ### 启动说明
 
+#### SQLite 快速体验（无需安装数据库）
+
+这是看到 go-admin 跑起来的最短路径。需要 C 编译器（cgo），并且要带 `sqlite3` 构建标签，普通的 `go build` 不包含它。
+
+```bash
+cd ./go-admin
+go build -tags sqlite3 -o go-admin .
+./go-admin migrate -c config/settings.sqlite.yml
+./go-admin server -c config/settings.sqlite.yml
+```
+
+Windows 下把 `./go-admin` 换成 `go-admin.exe`。启动后接口地址是 `http://localhost:8000`。要打开界面，在 `go-admin-ui` 里执行 `pnpm install` 和 `pnpm dev`，然后用 `admin` / `123456` 登录。
+
+使用 MySQL、PostgreSQL 或 SQL Server 时，请按下面的步骤操作。
+
 #### 服务端启动说明
 
 ```bash
@@ -181,10 +196,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # 首次配置需要初始化数据库资源信息
 # macOS or linux 下使用
-$ ./go-admin migrate -c config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.yml
 
 # ⚠️注意:windows 下使用
-$ go-admin.exe migrate -c config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.yml
 
 
 # 启动项目，也可以用IDE进行调试

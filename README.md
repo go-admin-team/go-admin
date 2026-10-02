@@ -134,6 +134,21 @@ git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ### Startup instructions
 
+#### Quick start with SQLite (nothing to install)
+
+This is the shortest way to see go-admin running. It needs a C compiler (cgo) and the `sqlite3` build tag, which a plain `go build` does not include.
+
+```bash
+cd ./go-admin
+go build -tags sqlite3 -o go-admin .
+./go-admin migrate -c config/settings.sqlite.yml
+./go-admin server -c config/settings.sqlite.yml
+```
+
+On Windows, use `go-admin.exe` instead of `./go-admin`. The API is then at `http://localhost:8000`. To open the UI, run `pnpm install` and `pnpm dev` in `go-admin-ui`, then sign in with `admin` / `123456`.
+
+For MySQL, PostgreSQL or SQL Server, follow the steps below instead.
+
 #### Server startup instructions
 
 ```bash
@@ -178,10 +193,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # The first configuration needs to initialize the database resource information
 # Use under macOS or linux
-$ ./go-admin migrate -c config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.yml
 
 # ⚠️Note: Use under windows
-$ go-admin.exe migrate -c config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.yml
 
 # Start the project, you can also use the IDE for debugging
 # Use under macOS or linux
