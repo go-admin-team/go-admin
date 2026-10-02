@@ -136,6 +136,21 @@ git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ### 啟動說明
 
+#### SQLite 快速體驗（無需安裝資料庫）
+
+這是看到 go-admin 跑起來的最短路徑。需要 C 編譯器（cgo），並且要帶 `sqlite3` 建置標籤，一般的 `go build` 不包含它。
+
+```bash
+cd ./go-admin
+go build -tags sqlite3
+./go-admin migrate -c config/settings.sqlite.yml
+./go-admin server -c config/settings.sqlite.yml
+```
+
+Windows 下把 `./go-admin` 換成 `go-admin.exe`。啟動後 API 位址是 `http://localhost:8000`。要開啟介面，在 `go-admin-ui` 中執行 `pnpm install` 與 `pnpm dev`，然後用 `admin` / `123456` 登入。
+
+使用 MySQL、PostgreSQL 或 SQL Server 時，請依下面的步驟操作。
+
 #### 伺服器端啟動說明
 
 ```bash
@@ -181,10 +196,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # 首次設定需要初始化資料庫資源資訊
 # macOS or linux 下使用
-$ ./go-admin migrate -c config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.yml
 
 # ⚠️注意:windows 下使用
-$ go-admin.exe migrate -c config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.yml
 
 
 # 啟動專案，也可以用 IDE 進行除錯

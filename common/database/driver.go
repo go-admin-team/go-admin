@@ -17,6 +17,12 @@ import (
 func openerFor(driver string) (func(string) gorm.Dialector, error) {
 	open, ok := opens[driver]
 	if !ok {
+		// sqlite3 is the driver people reach for first, and the one a default
+		// build leaves out. Say how to get it rather than only what is missing.
+		if driver == "sqlite3" {
+			return nil, fmt.Errorf("database driver %q is not in this build, rebuild with -tags sqlite3 (this build supports %s)",
+				driver, strings.Join(supportedDrivers(), ", "))
+		}
 		return nil, fmt.Errorf("unsupported database driver %q, this build supports %s",
 			driver, strings.Join(supportedDrivers(), ", "))
 	}

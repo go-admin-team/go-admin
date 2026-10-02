@@ -136,6 +136,21 @@ git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ### 起動方法
 
+#### SQLite でとりあえず動かす（データベースのインストール不要）
+
+go-admin が動くところまでの最短手順です。C コンパイラ（cgo）と `sqlite3` ビルドタグが必要で、通常の `go build` にはタグが含まれません。
+
+```bash
+cd ./go-admin
+go build -tags sqlite3
+./go-admin migrate -c config/settings.sqlite.yml
+./go-admin server -c config/settings.sqlite.yml
+```
+
+Windows では `./go-admin` を `go-admin.exe` に置き換えてください。起動後の API は `http://localhost:8000` です。画面を開くには `go-admin-ui` で `pnpm install` と `pnpm dev` を実行し、`admin` / `123456` でログインします。
+
+MySQL、PostgreSQL、SQL Server を使う場合は、以下の手順に従ってください。
+
 #### サーバーの起動
 
 ```bash
@@ -181,10 +196,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # 初回はデータベースのリソース情報を初期化する必要があります
 # macOS または linux の場合
-$ ./go-admin migrate -c config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.yml
 
 # ⚠️注意: windows の場合
-$ go-admin.exe migrate -c config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.yml
 
 
 # プロジェクトを起動します。IDE からデバッグ実行することもできます
