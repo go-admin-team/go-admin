@@ -142,7 +142,7 @@ git clone https://github.com/go-admin-team/go-admin-ui.git
 
 ```bash
 cd ./go-admin
-go build -tags sqlite3 -o go-admin .
+go build -tags sqlite3
 ./go-admin migrate -c config/settings.sqlite.yml
 ./go-admin server -c config/settings.sqlite.yml
 ```

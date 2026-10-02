@@ -142,7 +142,7 @@ go-admin が動くところまでの最短手順です。C コンパイラ（cgo
 
 ```bash
 cd ./go-admin
-go build -tags sqlite3 -o go-admin .
+go build -tags sqlite3
 ./go-admin migrate -c config/settings.sqlite.yml
 ./go-admin server -c config/settings.sqlite.yml
 ```
