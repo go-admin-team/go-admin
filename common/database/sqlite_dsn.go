@@ -30,10 +30,9 @@ var sqlitePragmas = [][2]string{
 }
 
 // sqliteDSN returns source with the defaults in sqlitePragmas added.
-// In-memory databases are returned untouched: WAL has no meaning there, and
-// every connection to one is its own database anyway.
+// In-memory databases are returned untouched: WAL has no meaning there.
 func sqliteDSN(source string) string {
-	if source == "" || strings.Contains(source, ":memory:") || strings.Contains(source, "mode=memory") {
+	if source == "" {
 		return source
 	}
 
@@ -46,12 +45,26 @@ func sqliteDSN(source string) string {
 		// Not something to rewrite blind; the driver will report it.
 		return source
 	}
+	if isMemoryDB(path, q) {
+		return source
+	}
 	for _, p := range sqlitePragmas {
 		if _, set := q[p[0]]; !set {
 			q.Set(p[0], p[1])
 		}
 	}
 	return path + "?" + q.Encode()
+}
+
+// isMemoryDB reports whether the source names an in-memory database: the exact
+// filename forms sqlite recognises, or a mode=memory parameter. A file that
+// merely has ":memory:" or "mode=memory" somewhere in its name is a file.
+func isMemoryDB(path string, q url.Values) bool {
+	switch path {
+	case ":memory:", "file::memory:", "file:":
+		return true
+	}
+	return q.Get("mode") == "memory"
 }
 
 // withSqliteDefaults wraps open so every connection string handed to a sqlite3

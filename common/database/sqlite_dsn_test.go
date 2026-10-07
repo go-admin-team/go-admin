@@ -36,6 +36,14 @@ func TestSqliteDSN(t *testing.T) {
 		}
 	})
 
+	t.Run("files that only look like memory databases get the defaults", func(t *testing.T) {
+		for _, s := range []string{"mode=memory.db", "/tmp/:memory:.db", "data/mode=memory/app.db"} {
+			if got := sqliteDSN(s); got == s {
+				t.Errorf("sqliteDSN(%q) was left untouched", s)
+			}
+		}
+	})
+
 	t.Run("in-memory and empty untouched", func(t *testing.T) {
 		for _, s := range []string{"", ":memory:", "file::memory:?cache=shared", "file:x?mode=memory"} {
 			if got := sqliteDSN(s); got != s {
