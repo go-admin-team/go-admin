@@ -98,24 +98,19 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           # 重启的脚本，根据自身情况做相应改动，一般要做的是migrate数据库以及重启服务器
           #
-          # 配置从宿主机挂载，不使用镜像里的那份：演示站连的是托管数据库，
-          # 而 config/settings.demo.yml 会随仓库公开、也会打进镜像，凭据不能写在那里。
-          # 镜像里那份保持 sqlite，供 clone 仓库的人开箱即用。
+          # 演示站用 sqlite，配置与数据库都是镜像里自带的 config/settings.demo.yml 和
+          # go-admin-db.db，不挂载宿主机文件。演示模式不允许用户改数据，所以数据不需要
+          # 留存：每次部署换新容器，就是回到干净状态。
           #
-          # 路径本身走 secret：它不是凭据，但本仓库公开，没有理由把服务器的
-          # 目录结构一并公布。DEMO_CONFIG_PATH 指向宿主机上那份配置。
-          #
-          # 顺序是有意的：迁移先跑，跑不过就保持现有版本不动；
-          # 旧容器改名保留而不是删除，新容器不健康时能原样恢复。
+          # 迁移在新容器里、服务启动之前跑：数据库留在容器内，一次性容器里跑的迁移
+          # 改的是用完即删的副本，对服务没有意义。迁移失败则容器退出、健康检查不过，
+          # 走下面的回滚。旧容器改名保留而不是删除，新容器不健康时能原样恢复。
           # 健康检查两条都要过——HTTP 活着不代表数据库通了。
           script: |
             set -u
-            CFG="${{ secrets.DEMO_CONFIG_PATH }}"
             IMG="${{ env.IMAGE_NAME_TAG }}"
             NAME=go-admin-api
             PREV="$NAME-prev"
-
-            test -f "$CFG" || { echo "宿主机配置缺失，中止部署"; exit 1; }
 
             # Old images of this repository are removed here and nowhere else.
             # Every deployment pulls one tagged with its commit and nothing ever
@@ -154,13 +149,6 @@ jobs:
             prune_old_images
             sudo docker pull "$IMG" || { echo "拉取镜像失败，中止部署"; exit 1; }
 
-            # 迁移用新镜像跑。失败时线上仍是旧版本配旧 schema，是自洽的；
-            # 硬切过去才会得到代码与表对不上的服务。
-            if ! sudo docker run --rm -v "$CFG":/config/settings.yml:ro "$IMG" \
-                 /main migrate -c /config/settings.yml; then
-              echo "迁移失败，保持现有版本"; exit 1
-            fi
-
             if sudo docker ps -a --format '{{.Names}}' | grep -qx "$NAME"; then
               sudo docker rm -f "$PREV" >/dev/null 2>&1 || true
               sudo docker rename "$NAME" "$PREV"
@@ -174,9 +162,8 @@ jobs:
               sudo docker stop --timeout 30 "$PREV" >/dev/null
             fi
 
-            sudo docker run -d -p 8000:8000 \
-              -v "$CFG":/config/settings.yml:ro \
-              --name "$NAME" "$IMG"
+            sudo docker run -d -p 8000:8000 --name "$NAME" "$IMG" \
+              sh -c '/main migrate -c /config/settings.yml && exec /main server -c /config/settings.yml'
 
             ok=0
             for i in $(seq 1 20); do

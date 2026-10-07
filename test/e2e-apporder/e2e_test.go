@@ -284,9 +284,12 @@ func TestInstallUninstallReinstall(t *testing.T) {
 func TestMigrateExitsNonZeroWhenItFails(t *testing.T) {
 	e := newEnv(t)
 
-	// The framework's first migration reads config/db.sql. Without it the
-	// migration fails, which is the cheapest real failure to arrange.
-	if err := os.Remove(filepath.Join(e.dir, "config", "db.sql")); err != nil {
+	// The framework's first migration runs config/db.sql, and a copy on disk
+	// takes precedence over the embedded one. Statements that do not parse
+	// make that migration fail, which is the cheapest real failure to arrange.
+	// (Deleting the file no longer does: the embedded copy takes over.)
+	bad := "THIS IS NOT SQL;\nNEITHER IS THIS;\n"
+	if err := os.WriteFile(filepath.Join(e.dir, "config", "db.sql"), []byte(bad), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	out, code := e.run("migrate")

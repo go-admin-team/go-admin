@@ -41,6 +41,7 @@ func setupSimpleDatabase(host string, c *toolsConfig.Database) {
 	if err != nil {
 		log.Fatal(pkg.Red(err.Error()))
 	}
+	open = withSqliteDefaults(c.Driver, open)
 
 	resolverConfig := toolsDB.NewConfigure(c.Source, c.MaxIdleConns, c.MaxOpenConns, c.ConnMaxIdleTime, c.ConnMaxLifeTime, registers)
 	db, err := resolverConfig.Init(&gorm.Config{

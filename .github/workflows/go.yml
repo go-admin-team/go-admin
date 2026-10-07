@@ -139,6 +139,12 @@ jobs:
     - name: Test
       run: make test
 
+    # make test builds without the sqlite3 tag, so the tests that open a real
+    # sqlite file are skipped by it. These are the ones that prove concurrent
+    # requests wait for each other instead of failing with "database is locked".
+    - name: Test (sqlite3 driver)
+      run: go test -tags sqlite3 -count=1 ./common/database/
+
     - name: Build
       run: make build
 
