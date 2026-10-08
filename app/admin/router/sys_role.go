@@ -23,7 +23,7 @@ func registerSysRoleRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 		r.PUT("/:id", api.Update)
 		r.DELETE("", api.Delete)
 	}
-	r1 := v1.Group("").Use(authMiddleware.MiddlewareFunc())
+	r1 := v1.Group("").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
 	{
 		r1.PUT("/role-status", api.Update2Status)
 		r1.PUT("/roledatascope", api.Update2DataScope)
