@@ -179,16 +179,16 @@ Api 必须带完整注解，`go generate` 会据此生成文档：
 
 ## 本地运行
 
-**配置 `driver: sqlite3` 时必须带构建标签**，否则启动即 panic：
+**配置 `driver: sqlite3` 时必须带构建标签**，否则启动即退出：
 
 ```bash
 go run -tags sqlite3 . migrate -c config/settings.sqlite.yml
 go run -tags sqlite3 . server  -c config/settings.sqlite.yml
 ```
 
-原因：`common/database/open.go` 带 `//go:build !sqlite3`，不加标签时编进的是
-不含 sqlite3 的版本，`opens["sqlite3"]` 为 nil，调用时在 nil 函数上崩溃。
-报错信息不会提到构建标签，容易误判成环境损坏。MySQL / PostgreSQL 无此问题。
+原因：`common/database/open.go` 带 `//go:build !sqlite3`，不加标签时编进的版本没有
+sqlite3 驱动，启动日志会报 `database driver "sqlite3" is not in this build,
+rebuild with -tags sqlite3` 并退出。MySQL / PostgreSQL 无此问题。
 
 对应 `Makefile` 的 `build-sqlite` 目标。
 
