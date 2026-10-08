@@ -29,6 +29,9 @@ func registerSysJobRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 	}
 	sysJob := apis.SysJob{}
 
-	v1.GET("/job/remove/:id", sysJob.RemoveJobForService)
-	v1.GET("/job/start/:id", sysJob.StartJobForService)
+	r2 := v1.Group("/job").Use(authMiddleware.MiddlewareFunc()).Use(middleware.AuthCheckRole())
+	{
+		r2.GET("/remove/:id", sysJob.RemoveJobForService)
+		r2.GET("/start/:id", sysJob.StartJobForService)
+	}
 }
