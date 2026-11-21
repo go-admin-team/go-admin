@@ -2,7 +2,7 @@ package apis
 
 import (
 	"fmt"
-	"github.com/shirou/gopsutil/v3/net"
+	"github.com/shirou/gopsutil/v4/net"
 	"runtime"
 	"strconv"
 	"strings"
@@ -11,10 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/api"
 	"github.com/go-admin-team/go-admin-core/v2/sdk/pkg"
-	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/disk"
-	"github.com/shirou/gopsutil/v3/host"
-	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v4/cpu"
+	"github.com/shirou/gopsutil/v4/disk"
+	"github.com/shirou/gopsutil/v4/host"
+	"github.com/shirou/gopsutil/v4/mem"
 )
 
 const (
